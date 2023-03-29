@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">OnePIC</string>
+
+    <string name="rewind">REWIND</string>
+    <string name="remove">REMOVE</string>
+    <string name="magicPicture">MAGIG PICTURE</string>
+    <string name="focus">FOCUS</string>
+    <string name="add">ADD</string>
 </resources>
