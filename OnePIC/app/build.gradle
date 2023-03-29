@@ -52,4 +52,12 @@ dependencies {
 
     // Use this dependency to bundle the model with your app
     // implementation 'com.google.mlkit:face-detection:16.1.5'
+
+    //fragment
+    implementation 'androidx.fragment:fragment-ktx:1.5.4'
+
+    //navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+
 }
