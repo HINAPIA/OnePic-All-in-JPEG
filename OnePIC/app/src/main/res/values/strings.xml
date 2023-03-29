@@ -6,4 +6,5 @@
     <string name="magicPicture">MAGIG PICTURE</string>
     <string name="focus">FOCUS</string>
     <string name="add">ADD</string>
+    <string name="saveText">확인</string>
 </resources>
