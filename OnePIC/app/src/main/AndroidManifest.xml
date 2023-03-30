@@ -10,12 +10,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OnePIC"
-        tools:targetApi="31"
-
-        android:hardwareAccelerated="false"
-        android:largeHeap="true">
-        <!-- 임시 bitmap size over 처리 : hardwareAccelerated, largeHeap -->
+        android:theme="@style/Theme.OnePic"
+        tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true">

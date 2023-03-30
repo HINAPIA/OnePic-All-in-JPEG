@@ -29,13 +29,13 @@ class RewindModule() {
      */
     private fun setFaceDetecter() {
         // High-accuracy landmark detection and face classification
-        val highAccuracyOpts = FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-            .enableTracking()
-            .build()
-        detector = FaceDetection.getClient(highAccuracyOpts)
+//        val highAccuracyOpts = FaceDetectorOptions.Builder()
+//            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+//            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+//            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+//            .enableTracking()
+//            .build()
+//        detector = FaceDetection.getClient(highAccuracyOpts)
     }
 
     fun getDrawFaceBoxBitmap(bitmap: Bitmap): Bitmap {
@@ -65,6 +65,14 @@ class RewindModule() {
         var returnState = false
 
         val image = InputImage.fromBitmap(bitmap, 0)
+
+        val highAccuracyOpts = FaceDetectorOptions.Builder()
+            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+            .enableTracking()
+            .build()
+        detector = FaceDetection.getClient(highAccuracyOpts)
 
         detector.process(image)
             .addOnSuccessListener { faces ->

@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/editFragment">
 
+    <fragment
+        android:id="@+id/editFragment"
+        android:name="com.example.onepic.Edit.Fragment.EditFragment"
+        android:label="EditFragment"
+        tools:layout="@layout/fragment_edit">
+        <action
+            android:id="@+id/action_editFragment_to_rewindFragment"
+            app:destination="@id/rewindFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rewindFragment"
+        android:name="com.example.onepic.Edit.Fragment.rewindFragment"
+        android:label="rewindFragment"
+        tools:layout="@layout/fragment_rewind"/>
 </navigation>

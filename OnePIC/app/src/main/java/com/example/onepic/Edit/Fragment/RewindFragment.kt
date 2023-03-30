@@ -1,4 +1,4 @@
-package com.example.onepic.EditFragment
+package com.example.onepic.Edit.Fragment
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -12,9 +12,10 @@ import com.example.onepic.Edit.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture
+import com.example.onepic.R
 import com.example.onepic.databinding.FragmentRewindBinding
 
-class rewindFragment : Fragment() {
+class rewindFragment : Fragment(R.layout.fragment_rewind) {
 
     private lateinit var binding: FragmentRewindBinding
     private lateinit var exPictureContainer: ExPictureContainer
@@ -46,9 +47,6 @@ class rewindFragment : Fragment() {
         mainPicture = exPictureContainer.getMainPicture()
         mainBitmap = imageToolModule.byteArrayToBitmap(mainPicture.byteArray)
 
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        val faceResultBitmap = rewindModule.getDrawFaceBoxBitmap(mainBitmap)
-        binding.mainImageView.setImageBitmap(faceResultBitmap)
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
         pictureList = exPictureContainer.getPictureList(1, "BurstShots")
@@ -56,5 +54,13 @@ class rewindFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+        val faceResultBitmap = rewindModule.getDrawFaceBoxBitmap(mainBitmap)
+        binding.mainImageView.setImageBitmap(faceResultBitmap)
+
+    }
 
 }
