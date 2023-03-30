@@ -1,12 +1,6 @@
 package com.example.onepic.Edit
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.google.mlkit.vision.common.InputImage
@@ -27,6 +21,8 @@ class RewindModule() {
      * setFaceDetecter()
      *      - face Detection을 하기 위해 필요한 분석기 옵션 설정
      */
+
+
     private fun setFaceDetecter() {
         // High-accuracy landmark detection and face classification
         val highAccuracyOpts = FaceDetectorOptions.Builder()
@@ -39,7 +35,31 @@ class RewindModule() {
     }
 
     fun getDrawFaceBoxBitmap(bitmap: Bitmap): Bitmap {
-        return runFaceDetection(bitmap)
+
+        val image = InputImage.fromBitmap(bitmap, 0)
+        val lock = Object() // 객체를 생성하여 대기 상태를 관리합니다.
+
+        var resultBitmap : Bitmap = bitmap
+
+        detectFaces(image,
+            onSuccess = { faces ->
+                // 감지된 얼굴들의 리스트를 처리하는 코드 작성
+                resultBitmap = ImageToolModule().drawDetectionResult(bitmap, faces as ArrayList<Face>, R.color.main_color)
+                synchronized(lock) {
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
+            },
+            onFailure = { e ->
+                // 예외 처리 코드 작성
+                println("fail with error: $e")
+                synchronized(lock) {
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
+            })
+        synchronized(lock) {
+            lock.wait() // 대기 상태 진입
+        }
+        return resultBitmap
     }
 
     /**
@@ -61,30 +81,34 @@ class RewindModule() {
      *     - face detection을 실행하고 결과를 return
      */
     private fun getFaceDetectionResult(bitmap: Bitmap): ArrayList<Face> {
-        var facesResult : ArrayList<Face>? = null
-        var returnState = false
-
         val image = InputImage.fromBitmap(bitmap, 0)
+        var facesResult: ArrayList<Face>? = null
+        val lock = Object() // 객체를 생성하여 대기 상태를 관리합니다.
 
         detector.process(image)
             .addOnSuccessListener { faces ->
                 facesResult = faces as ArrayList<Face>
-                returnState = true
+                synchronized(lock) {
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
             }
             .addOnFailureListener {
-                println("fail")
-                returnState = true
+                println("fail with error: $it")
+                synchronized(lock) {
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
             }
-        while(!returnState) {
-            System.out.println("wait || ")
-            Thread.sleep(500)
+
+        synchronized(lock) {
+            lock.wait() // 대기 상태 진입
         }
         return facesResult!!
-
     }
 
-
-
-
+        private fun detectFaces(image: InputImage, onSuccess: (List<Face>) -> Unit, onFailure: (Exception) -> Unit) {
+            detector.process(image)
+                .addOnSuccessListener { faces -> onSuccess(faces) }
+                .addOnFailureListener { e -> onFailure(e) }
+    }
 
 }
