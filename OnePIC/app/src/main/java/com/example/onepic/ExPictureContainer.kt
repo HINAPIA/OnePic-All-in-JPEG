@@ -10,8 +10,8 @@ class ExPictureContainer(private var context: Context) {
     private var mainPicture: Picture
     private var pictureList: ArrayList<Picture> = arrayListOf()
 
-    val testDrawable = listOf<String>("auto_rewind1", "auto_rewind2", "auto_rewind3",
-        "auto_rewind4", "auto_rewind5", "auto_rewind_best")
+    val testDrawable = listOf<String>("auto_rewind1.jpg", "auto_rewind2.jpg", "auto_rewind3.jpg",
+        "auto_rewind4.jpg", "auto_rewind5.jpg", "auto_rewind_best.jpg")
 
     init {
         for(element in testDrawable){
@@ -36,7 +36,7 @@ class ExPictureContainer(private var context: Context) {
 
     fun drawableToByteArray(drawbleName: String): ByteArray {
 
-        val drawableResId = context.resources.getIdentifier("auto_rewind1", "drawable", context.packageName)
+        val drawableResId = context.resources.getIdentifier("auto_rewind1.jpg", "drawable", context.packageName)
 
         val drawable = context.getDrawable(drawableResId)
 

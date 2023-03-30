@@ -8,9 +8,9 @@
     tools:context=".MainActivity">
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/viewFragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/fragmentContainerView"
+        android:name="com.example.onepic.EditFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:navGraph="@navigation/nav" />
+        tools:layout="@layout/fragment_edit" />
 </FrameLayout>
