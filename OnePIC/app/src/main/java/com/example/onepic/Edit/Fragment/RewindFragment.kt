@@ -14,6 +14,9 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentRewindBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class rewindFragment : Fragment(R.layout.fragment_rewind) {
 
@@ -57,10 +60,9 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        val faceResultBitmap = rewindModule.getDrawFaceBoxBitmap(mainBitmap)
-        binding.mainImageView.setImageBitmap(faceResultBitmap)
-
+            // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+            val faceResultBitmap = rewindModule.getDrawFaceBoxBitmap(mainBitmap)
+            binding.mainImageView.setImageBitmap(faceResultBitmap)
     }
 
 }

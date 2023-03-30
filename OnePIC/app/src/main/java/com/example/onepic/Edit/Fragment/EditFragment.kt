@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import com.example.onepic.ExPictureContainer
+import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentEditBinding
 
@@ -24,6 +26,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     ): View {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
+
+        val mainImage = ExPictureContainer(inflater.context).getMainPicture()
+        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImage.byteArray)
+        binding.imageView.setImageBitmap(mainBitmap)
 
         // Button에 OnClickListener를 설정합니다.
         val view = binding.root

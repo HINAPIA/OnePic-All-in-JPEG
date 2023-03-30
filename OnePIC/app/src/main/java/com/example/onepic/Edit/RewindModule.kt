@@ -62,7 +62,7 @@ class RewindModule() {
      */
     private fun getFaceDetectionResult(bitmap: Bitmap): ArrayList<Face> {
         var facesResult : ArrayList<Face>? = null
-        var returnState = false
+        val lock = Object() // 객체를 생성하여 대기 상태를 관리합니다.
 
         val image = InputImage.fromBitmap(bitmap, 0)
 
@@ -72,23 +72,31 @@ class RewindModule() {
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .enableTracking()
             .build()
+
         detector = FaceDetection.getClient(highAccuracyOpts)
 
         detector.process(image)
             .addOnSuccessListener { faces ->
                 facesResult = faces as ArrayList<Face>
-                returnState = true
+                synchronized(lock) {
+                    println("success")
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
             }
             .addOnFailureListener {
-                println("fail")
-                returnState = true
+                println("fail with error: $it")
+                synchronized(lock) {
+                    lock.notify() // 대기 상태에서 빠져나올 수 있도록 notify() 호출
+                }
             }
-        while(!returnState) {
-            System.out.println("wait || ")
-            Thread.sleep(500)
-        }
-        return facesResult!!
 
+        synchronized(lock) {
+            println("wait start")
+            lock.wait() // 대기 상태 진입
+        }
+        println("wait end")
+
+        return facesResult!!
     }
 
 
