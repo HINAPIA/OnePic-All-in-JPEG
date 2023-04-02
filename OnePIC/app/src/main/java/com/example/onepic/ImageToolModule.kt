@@ -1,6 +1,10 @@
 package com.example.onepic
 
+import android.content.res.Resources
 import android.graphics.*
+import android.widget.ImageView
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.toRectF
 import com.google.mlkit.vision.face.Face
 import java.io.ByteArrayOutputStream
 
@@ -27,9 +31,9 @@ class ImageToolModule {
 
     /**
      * cropBitmap(original: Bitmap, cropRect: Rect): Bitmap
-     *      - original 이미지를 cropRect에 맞게 잘르 이미지를 만들어 반환
+     *      - original 이미지를 cropRect에 맞게 잘라 반환
      */
-    private fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
+    fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
 
         var width = (cropRect.right - cropRect.left)
         var height = cropRect.bottom - cropRect.top
@@ -56,6 +60,34 @@ class ImageToolModule {
         }
         return result
     }
+
+    /**
+     * circleCropBitmap(bitmap: Bitmap): Bitmap
+     *      - bitmap을 둥글게 잘라 반환
+     */
+    fun circleCropBitmap(bitmap: Bitmap): Bitmap {
+        val output = Bitmap.createBitmap(
+            bitmap.width,
+            bitmap.height, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(output)
+        val color = -0xbdbdbe
+        val paint = Paint()
+        val rect = Rect(0, 0, bitmap.width, bitmap.height)
+        paint.isAntiAlias = true
+        canvas.drawARGB(0, 0, 0, 0)
+        paint.color = color
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(
+            (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
+            (bitmap.width / 2).toFloat(), paint
+        )
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(bitmap, rect, rect, paint)
+
+        return output
+    }
+
 
     /**
      * overlayBitmap(original: Bitmap, add: Bitmap, optimizationX:Int, optimizationY:Int): Bitmap
@@ -88,8 +120,15 @@ class ImageToolModule {
     }
 
     /**
+     * floatToDp(f : Float):
+     *        float 값을 dp값으로 변화해서 반환
+     */
+    private fun floatToDp(f : Float):Int {
+        return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
+    }
+
+    /**
      * drawDetectionResult(bitmap: Bitmap, detectionResults: ArrayList<Face>, customColor: Int) : Bitmap
-     * drawDetectionResult(bitmap: Bitmap, detectionResults: List<DetectionResult>, customColor: Int) : Bitmap
      *      - detection 결과를 통해 해당 detection을 이미지 위에 그린 후 bitmap 결과를 받환
      *          ( detectionResult가 ArrayList<Face>인 경우는 얼굴 분석 결과를 그림
      *                              List<DetectionResult>인 경우는 객체 분석 결과를 그림 )
@@ -106,13 +145,51 @@ class ImageToolModule {
 
         detectionResults.forEach {
             // draw bounding box
-            pen.color = customColor
-            pen.strokeWidth = 8F
+            pen.color = Color.parseColor("#B8C5BB")
+            //pen.color = customColor
+            pen.strokeWidth = floatToDp(3F).toFloat()
             pen.style = Paint.Style.STROKE
-            val box = it.boundingBox
-            canvas.drawRect(box, pen)
+            val box = it.boundingBox.toRectF()
+            canvas.drawRoundRect(box, floatToDp(10F).toFloat(), floatToDp(10F).toFloat(), pen)
+
         }
         return outputBitmap
+    }
+
+
+    /**
+     * getBitmapClickPoint( clickPoint: PointF, imageView: ImageView): Point
+     *      - imageView에 clickEvent가 발생했을 때,
+     *        clickPoint를 사진 Bitmap에 맞춰 비율 조정을 해서
+     *        비율 보정된 새로운 point를 반환
+     */
+    fun getBitmapClickPoint(clickPoint: PointF, imageView: ImageView): Point {
+
+        var bitmap: Bitmap = imageView.drawable.toBitmap()
+        //bitmap = Bitmap.createScaledBitmap(bitmap, 1080, 810, true)
+
+        // imageView width, height 가져오기
+        val viewWidth = imageView.width
+        val viewHeight = imageView.height
+
+        // 실제 이미지일 때 포인트 위치
+        val newPointX = (bitmap.width * clickPoint.x) / viewWidth
+        val newPointY = (bitmap.height * clickPoint.y) / viewHeight
+
+        // 수정된 이미지 포인트
+        return Point(newPointX.toInt(), newPointY.toInt())
+    }
+
+    /**
+     * checkPointInRect(point: Point, rect: Rect):
+     *          point 가 rect 안에 존재하는 지를 알아낸다.
+     *          존재하면 true 존재하지 않으면 false
+     */
+    fun checkPointInRect(point: Point, rect: Rect): Boolean {
+        // 포인트가 boundingBox 안에 존재할 경우에만 실행
+        // -> boundinBox.left <= x <= boundingBox.right && boundingBox.top <= y <= boundingBox.bottom
+        return point.x >= rect.left && point.x <= rect.right &&
+                point.y >= rect.top && point.y <= rect.bottom
     }
 
 }

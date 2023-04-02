@@ -4,9 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import java.io.ByteArrayOutputStream
+import java.io.Serializable
 import java.util.jar.Attributes
 
-class ExPictureContainer(private var context: Context) {
+class ExPictureContainer(private var context: Context) : Serializable {
     private var mainPicture: Picture
     private var pictureList: ArrayList<Picture> = arrayListOf()
 
@@ -36,7 +37,7 @@ class ExPictureContainer(private var context: Context) {
 
     fun drawableToByteArray(drawbleName: String): ByteArray {
 
-        val drawableResId = context.resources.getIdentifier("auto_rewind1", "drawable", context.packageName)
+        val drawableResId = context.resources.getIdentifier(drawbleName, "drawable", context.packageName)
 
         val drawable = context.getDrawable(drawableResId)
 

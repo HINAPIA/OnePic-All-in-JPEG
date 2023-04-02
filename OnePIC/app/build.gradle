@@ -32,6 +32,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -45,11 +46,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    // Use this dependency to use the dynamically downloaded model in Google Play Services
-     implementation 'com.google.android.gms:play-services-mlkit-face-detection:17.1.0'
-
-    // Use this dependency to bundle the model with your app
-    // implementation 'com.google.mlkit:face-detection:16.1.5'
+    // Face features
+    implementation 'com.google.mlkit:face-detection:16.0.0'
 
     //fragment
     implementation 'androidx.fragment:fragment-ktx:1.5.4'
@@ -57,5 +55,8 @@ dependencies {
     //navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+
+    //coroution
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:<version>'
 
 }

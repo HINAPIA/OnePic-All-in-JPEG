@@ -18,5 +18,9 @@
         android:id="@+id/rewindFragment"
         android:name="com.example.onepic.Edit.Fragment.rewindFragment"
         android:label="rewindFragment"
-        tools:layout="@layout/fragment_rewind"/>
+        tools:layout="@layout/fragment_rewind">
+        <action
+            android:id="@+id/action_rewindFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
 </navigation>
