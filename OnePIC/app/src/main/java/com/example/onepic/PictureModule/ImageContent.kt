@@ -44,10 +44,22 @@ class ImageContent {
     // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 ImageContent를 생성
     fun setContent(_pictureList : ArrayList<Picture>){
         init()
+        // frame만 있는 pictureList
         pictureList = _pictureList
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
 
+    }
+
+    // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
+    fun setBasicContent(sourceByteArray: ByteArray){
+        init()
+        jpegMetaData = extractJpegMeta(sourceByteArray)
+        var frameBytes : ByteArray = extractFrame(sourceByteArray)
+        // Picture 객체 생성
+        var picture = Picture(frameBytes, ContentAttribute.general)
+        insertPicture(picture)
+        mainPicture = pictureList.get(0)
     }
     fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         for(i in 0..byteArrayList.size-1){

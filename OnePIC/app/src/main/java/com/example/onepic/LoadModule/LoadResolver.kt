@@ -1,14 +1,9 @@
 package com.example.camerax.LoadModule
 
-import android.app.Activity
-import android.media.Image
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.camerax.PictureModule.*
 import com.example.camerax.PictureModule.Contents.ContentAttribute
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class LoadResolver() {
@@ -73,6 +68,11 @@ class LoadResolver() {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun createMCContainer(MCContainer: MCContainer, sourceByteArray: ByteArray) {
         var APP3_startOffset = 4
+        if(sourceByteArray.copyOfRange(APP3_startOffset, APP3_startOffset+2)!= byteArrayOf(0xff.toByte(), 0xe3.toByte())){
+            // 일반 JPEG
+            MCContainer.setBasicJepg(sourceByteArray)
+            return
+        }
         // var header : Header = Header()
         var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
         // 1. ImageContent

@@ -1,10 +1,7 @@
 package com.example.camerax.PictureModule
 
 import android.app.Activity
-import android.media.Image
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.example.camerax.PictureModule.Contents.ContentAttribute
 import com.example.camerax.PictureModule.Contents.ContentType
 import com.example.camerax.SaveModule.SaveResolver
@@ -82,7 +79,13 @@ class MCContainer(_activity: Activity) {
         save()
     }
 
-    // pasrsing할 때 쓰는 Conatiner를 채우는 함수
+    fun setBasicJepg(sourceByteArray: ByteArray) {
+        // 헤더 따로 프레임 따로 저장
+        imageContent.setBasicContent(sourceByteArray)
+        // saveResolver.saveImageOnAboveAndroidQ(imageContent.getJpegBytes(imageContent.getPictureAtIndex(0)!!))
+
+    }
+
 
 
 
@@ -106,6 +109,7 @@ class MCContainer(_activity: Activity) {
     fun setJpegMetaBytes(_jpegMetaData : ByteArray){
         imageContent.jpegMetaData = _jpegMetaData
     }
+
 
 }
 
