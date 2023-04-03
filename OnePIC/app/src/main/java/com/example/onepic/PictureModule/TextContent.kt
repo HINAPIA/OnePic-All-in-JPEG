@@ -12,11 +12,17 @@ class TextContent {
         textCount = 0
     }
     fun setContent(contentAttribute: ContentAttribute, textList : ArrayList<String>){
-        init()
         for(i in 0..textList.size-1){
             var text = Text(textList.get(i), contentAttribute)
             insertText(text)
         }
+    }
+
+    fun setContent(_textList : ArrayList<Text>){
+        init()
+        textList = _textList
+        textCount = _textList.size
+
     }
 //    fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
 //        init()

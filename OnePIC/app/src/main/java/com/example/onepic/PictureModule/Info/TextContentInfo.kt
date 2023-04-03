@@ -19,38 +19,29 @@ class TextContentInfo(textContent: TextContent , startOffset : Int) {
     }
 
     fun fillTextInfoList(textList : ArrayList<Text>): ArrayList<TextInfo> {
-        var offset = 0
-        var preSize = 0
         var textInfoList : ArrayList<TextInfo> = arrayListOf()
         for(i in 0..textList.size - 1){
             // 각 Text TextInfo 생성
             var textInfo : TextInfo = TextInfo(textList.get(i))
-            if(i > 0){
-                offset = offset + preSize
-            }
-            preSize = textInfo.dataSize
             //imageInfoList에 삽입
             textInfoList.add(textInfo)
-
         }
         return textInfoList
     }
 
     fun converBinaryData(): ByteArray {
         val buffer: ByteBuffer = ByteBuffer.allocate(getLength())
-        //Image Content
+        //text Content
         buffer.putInt(contentInfoSize)
-        //buffer.putInt(dataStartOffset)
         buffer.putInt(textCount)
-        //Image Content - Image Info
+        //text Content - text Info
         for(j in 0..textCount - 1){
             var textInfo = textInfoList.get(j)
             buffer.putInt(textInfo.attribute)
             buffer.putInt(textInfo.dataSize)
-            for(p in 0..textInfo.data.length-1){
+            for(p in 0..textInfo.dataSize-1){
                 buffer.putChar(textInfo.data.get(p))
             }
-
         }// end of Text Info
         // end of Text Content ...
         return buffer.array()
@@ -61,7 +52,7 @@ class TextContentInfo(textContent: TextContent , startOffset : Int) {
         for(i in 0..textInfoList.size -1 ){
             size += textInfoList.get(i).getImageInfoSize()
         }
-        size += 12
+        size += 8
         return size
     }
 
