@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.example.camerax.LoadModule.LoadResolver
 import com.example.camerax.PictureModule.Contents.ContentAttribute
 import com.example.camerax.PictureModule.Picture
+import com.example.onepic.Edit.Fragment.EditFragment
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -40,6 +41,7 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private var isViewChanged = MutableLiveData<Boolean>()
+    private val editFragment = EditFragment()
 
     // 후에 JpegViewer가 할 일
     private lateinit var mainPicture: Picture
@@ -91,6 +93,14 @@ class ViewerFragment : Fragment() {
                 setCurrentOtherImage()
                 isViewChanged.value = false
             }
+        }
+
+        binding.editBtn.setOnClickListener{
+            requireActivity().supportFragmentManager  // fragment 전환
+                .beginTransaction()
+                .replace(R.id.framelayout,editFragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 
