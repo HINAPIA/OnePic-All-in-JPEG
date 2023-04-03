@@ -64,11 +64,11 @@ class ViewerEditorActivity : AppCompatActivity() {
                     count++
                 }
 
-                supportFragmentManager  // fragment 전환
-                    .beginTransaction()
-                    .replace(R.id.framelayout,viewerFragment)
-                    .addToBackStack(null)
-                    .commit()
+//                supportFragmentManager  // fragment 전환
+//                    .beginTransaction()
+//                    .replace(R.id.framelayout,viewerFragment)
+//                    .addToBackStack(null)
+//                    .commit()
             }
             else {
                 // TODO: 갤러리에 사진이 아무것도 없을 때 -> Empty Fragment 만들기

@@ -2,8 +2,6 @@ package com.example.onepic.ViewerModule
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,12 +15,12 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.example.camerax.LoadModule.LoadResolver
-import com.example.camerax.PictureModule.Contents.ContentAttribute
 import com.example.camerax.PictureModule.Picture
-import com.example.onepic.Edit.Fragment.EditFragment
+import com.example.onepic.EditModule.Fragment.EditFragment
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -96,11 +94,12 @@ class ViewerFragment : Fragment() {
         }
 
         binding.editBtn.setOnClickListener{
-            requireActivity().supportFragmentManager  // fragment 전환
-                .beginTransaction()
-                .replace(R.id.framelayout,editFragment)
-                .addToBackStack(null)
-                .commit()
+//            requireActivity().supportFragmentManager  // fragment 전환
+//                .beginTransaction()
+//                .replace(R.id.framelayout,editFragment)
+//                .addToBackStack(null)
+//                .commit()
+            findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
     }
 

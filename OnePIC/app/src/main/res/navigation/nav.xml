@@ -3,24 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@id/editFragment">
+    app:startDestination="@id/viewerFragment">
 
     <fragment
         android:id="@+id/editFragment"
-        android:name="com.example.onepic.Edit.Fragment.EditFragment"
+        android:name="com.example.onepic.EditModule.Fragment.EditFragment"
         android:label="EditFragment"
         tools:layout="@layout/fragment_edit">
         <action
             android:id="@+id/action_editFragment_to_rewindFragment"
             app:destination="@id/rewindFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_viewerFragment"
+            app:destination="@id/viewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
-        android:name="com.example.onepic.Edit.Fragment.rewindFragment"
+        android:name="com.example.onepic.EditModule.Fragment.rewindFragment"
         android:label="rewindFragment"
         tools:layout="@layout/fragment_rewind">
         <action
             android:id="@+id/action_rewindFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewerFragment"
+        android:name="com.example.onepic.ViewerModule.ViewerFragment"
+        android:label="ViewerFragment"
+        tools:layout="@layout/fragment_viewer">
+        <action
+            android:id="@+id/action_viewerFragment_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
 </navigation>

@@ -1,4 +1,4 @@
-package com.example.onepic.Edit.Fragment
+package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.Edit.RewindModule
+import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture

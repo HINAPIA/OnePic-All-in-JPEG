@@ -1,8 +1,7 @@
-package com.example.onepic.Edit
+package com.example.onepic.EditModule
 
 import android.graphics.Bitmap
 import android.graphics.Point
-import android.graphics.Rect
 import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.google.mlkit.vision.common.InputImage

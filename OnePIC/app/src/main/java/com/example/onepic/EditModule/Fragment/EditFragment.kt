@@ -1,4 +1,4 @@
-package com.example.onepic.Edit.Fragment
+package com.example.onepic.EditModule.Fragment
 
 import android.os.Build
 import android.os.Bundle
@@ -15,7 +15,6 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.MainActivity
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentEditBinding
-import java.io.InputStream
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
     // EditFragment에서 사용할 변수 선언
@@ -74,6 +73,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
             // RewindFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_rewindFragment, bundle)
+        }
+        binding.backBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+
         }
     }
 }
