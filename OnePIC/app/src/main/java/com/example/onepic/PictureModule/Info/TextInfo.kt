@@ -15,6 +15,6 @@ class TextInfo(text: Text) {
 
     fun getImageInfoSize() : Int{
         // Int(4) X 3
-        return 12
+        return 8 + dataSize*2
     }
 }
