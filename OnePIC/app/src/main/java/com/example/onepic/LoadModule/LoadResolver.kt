@@ -68,7 +68,9 @@ class LoadResolver() {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun createMCContainer(MCContainer: MCContainer, sourceByteArray: ByteArray) {
         var APP3_startOffset = 4
-        if(sourceByteArray.copyOfRange(APP3_startOffset, APP3_startOffset+2)!= byteArrayOf(0xff.toByte(), 0xe3.toByte())){
+        var checkByte = sourceByteArray.copyOfRange(2, 4)
+
+        if(!(checkByte.get(0).toInt() == -1  && checkByte.get(1).toInt() == -29)){
             // 일반 JPEG
             MCContainer.setBasicJepg(sourceByteArray)
             return

@@ -25,6 +25,9 @@ import com.example.camerax.PictureModule.Picture
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -107,20 +110,24 @@ class ViewerFragment : Fragment() {
         if (pictureList != null) {
 
             binding.linear.removeAllViews()
+            Log.d("picture list size: ",""+pictureList.size)
+            CoroutineScope(Dispatchers.IO).launch {
+                for (picture in pictureList){
+                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+                    // 넣고자 하는 layout 불러오기
+                    val scollItemLayout = layoutInflater.inflate(R.layout.scroll_item_layout, null)
 
-            for (picture in pictureList){
-                val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
-                // 넣고자 하는 layout 불러오기
-                val scollItemLayout = layoutInflater.inflate(R.layout.scroll_item_layout, null)
+                    // 위 불러온 layout에서 변경을 할 view가져오기
+                    val scrollImageView: ImageView = scollItemLayout.findViewById(R.id.scrollImageView)
 
-                // 위 불러온 layout에서 변경을 할 view가져오기
-                val scrollImageView: ImageView = scollItemLayout.findViewById(R.id.scrollImageView)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Glide.with(scrollImageView)
+                            .load(pictureByteArr)
+                            .into(scrollImageView)
+                        binding.linear.addView(scollItemLayout)
+                    }
 
-                Glide.with(scrollImageView)
-                    .load(pictureByteArr)
-                    .into(scrollImageView)
-
-                binding.linear.addView(scollItemLayout)
+                }
             }
         }
     }
