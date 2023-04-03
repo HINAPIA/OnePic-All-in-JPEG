@@ -53,16 +53,15 @@ class ViewerEditorActivity : AppCompatActivity() {
         jpegViewModels.setContainer(MCContainer)
 
 
-
-
         jpegViewModels.imageUriLiveData.observe(this){
             var size = jpegViewModels.imageUriLiveData.value?.size
             Log.d("[ViewerEditorActivity] imageUriLIst size : ",""+size)
             val uriList = mutableListOf<Uri>()
             if (size != 0){
-
+                var count = 1
                 for (uri in jpegViewModels.imageUriLiveData.value!!){
-                    Log.d("uri string : ",""+uri)
+                    Log.d("uri string : ","count:"+count+"=>"+uri)
+                    count++
                 }
 
                 supportFragmentManager  // fragment 전환
@@ -107,13 +106,10 @@ class ViewerEditorActivity : AppCompatActivity() {
             null,
             null,
             null,
-            MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
+            MediaStore.Images.ImageColumns.DATE_ADDED + " DESC")
         val uriList = mutableListOf<String>()
         if(cursor!=null){
-            var count = 0
             while(cursor.moveToNext()){
-                count ++
-                if(count == 5) break
                 // 사진 경로 Uri 가져오기
                 val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
                 //uriList.add(getUriFromPath(uri))

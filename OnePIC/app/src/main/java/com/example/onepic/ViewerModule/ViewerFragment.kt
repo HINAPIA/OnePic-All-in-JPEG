@@ -74,6 +74,7 @@ class ViewerFragment : Fragment() {
          */
 
         val adapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
+        Log.d("adapter item count = ",""+adapter.itemCount)
         binding.viewPager2.adapter = adapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             @RequiresApi(Build.VERSION_CODES.Q)
