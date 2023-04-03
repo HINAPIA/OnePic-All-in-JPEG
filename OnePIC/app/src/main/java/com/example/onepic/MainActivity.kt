@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.onepic.databinding.ActivityMainBinding
 import android.view.View
+import com.example.camerax.LoadModule.LoadResolver
+import com.example.camerax.PictureModule.MCContainer
+import java.io.InputStream
 
 
 class MainActivity : AppCompatActivity() {
