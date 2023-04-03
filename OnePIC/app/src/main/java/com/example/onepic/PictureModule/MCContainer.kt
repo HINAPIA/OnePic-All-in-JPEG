@@ -86,9 +86,6 @@ class MCContainer(_activity: Activity) {
 
     }
 
-
-
-
     fun settingHeaderInfo(){
         header.settingHeaderInfo()
     }
