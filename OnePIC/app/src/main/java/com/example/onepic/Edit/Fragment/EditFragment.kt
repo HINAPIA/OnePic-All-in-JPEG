@@ -44,8 +44,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             exPictureContainer = ExPictureContainer(inflater.context)
 
         /* MC container test start */
-        var sourceByteArray = exPictureContainer.drawableToByteArray("mctest1")
-        loadResolver.createMCContainer(MCContainer ,sourceByteArray)
+        //var sourceByteArray = exPictureContainer.drawableToByteArray("mctest1")
+       // loadResolver.createMCContainer(MCContainer ,sourceByteArray)
 //        var sourcePhotoUri = data?.data
 //        // ImageView에 image set
 //        binding.imageView.setImageURI(sourcePhotoUri)
@@ -53,9 +53,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //        var sourceByteArray = getBytes(iStream!!)
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
-        val mainPicture = MCContainer.getMainPicture()
-        val mainImageBytes = MCContainer.imageContent.getJpegBytes(mainPicture)
-        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImageBytes)
+        val mainImage = exPictureContainer.getMainPicture()
+        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImage.byteArray)
+//        val mainPicture = MCContainer.getMainPicture()
+//        val mainImageBytes = MCContainer.imageContent.getJpegBytes(mainPicture)
+//        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImageBytes)
         binding.mainImageView.setImageBitmap(mainBitmap)
 
         return binding.root
