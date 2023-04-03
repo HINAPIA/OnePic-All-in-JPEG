@@ -71,7 +71,7 @@ class MCContainer(_activity: Activity) {
         when (type){
             ContentType.Image -> imageContent.setContent(byteArrayList, contentAttribute)
             ContentType.Audio -> audioContent.setContent(byteArrayList, contentAttribute)
-            ContentType.Text -> textContent.setContent(byteArrayList, contentAttribute)
+            else -> {}
         }
        // saveResolver.saveImageOnAboveAndroidQ(imageContent.getJpegBytes(imageContent.getPictureAtIndex(0)!!))
        // saveResolver.saveImageOnAboveAndroidQ(imageContent.getJpegBytes(imageContent.getPictureAtIndex(1)!!))
@@ -86,6 +86,10 @@ class MCContainer(_activity: Activity) {
 
     }
 
+    // Text Content를 초기화. 뷰어에서 텍스트를 추가 후 Container에게 넣기
+    fun setTextConent(contentAttribute: ContentAttribute, textList : ArrayList<String>){
+        textContent.setContent(contentAttribute, textList)
+    }
     fun settingHeaderInfo(){
         header.settingHeaderInfo()
     }

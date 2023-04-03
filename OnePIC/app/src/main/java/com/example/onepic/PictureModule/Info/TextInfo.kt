@@ -3,12 +3,13 @@ package com.example.camerax.PictureModule.Info
 import com.example.camerax.PictureModule.Contents.Text
 
 class TextInfo(text: Text) {
-    var offset : Int = 0
     var dataSize : Int = 0
+    var data : String
     var attribute : Int
 
     init {
-        dataSize = text.size
+        dataSize = text.data.length
+        data = text.data
         attribute = text.contentAttribute.code
     }
 

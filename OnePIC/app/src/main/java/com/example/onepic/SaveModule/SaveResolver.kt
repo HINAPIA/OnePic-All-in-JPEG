@@ -62,10 +62,10 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 }
             }
             // Text Wirte
-            for(i in 0.. MCContainer.textContent.textCount-1){
-                var text = MCContainer.textContent.getTextAtIndex(i)
-                byteBuffer.write(/* b = */ text!!.textByteArray)
-            }
+//            for(i in 0.. MCContainer.textContent.textCount-1){
+//                var text = MCContainer.textContent.getTextAtIndex(i)
+//                byteBuffer.write(/* b = */ text!!.textByteArray)
+//            }
 
             // Audio Write
             if(MCContainer.audioContent.audio!= null){

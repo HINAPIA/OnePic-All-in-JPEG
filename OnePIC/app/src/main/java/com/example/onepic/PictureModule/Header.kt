@@ -24,7 +24,7 @@ class Header(_MC_container : MCContainer) {
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(MCContainer.imageContent,0)
         textContentInfo = TextContentInfo(MCContainer.textContent,imageContentInfo.getEndOffset() +1)
-        audioContentInfo = AudioContentInfo(MCContainer.audioContent,textContentInfo.getEndOffset()+1)
+        audioContentInfo = AudioContentInfo(MCContainer.audioContent,imageContentInfo.getEndOffset()+1)
         headerDataLength = getAPP3FieldLength()
 
         applyAddedSize()
@@ -44,7 +44,7 @@ class Header(_MC_container : MCContainer) {
             }
         }
         audioContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
-        textContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
+       // textContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
     }
     fun getAPP3FieldLength(): Int{
         var size = 0
