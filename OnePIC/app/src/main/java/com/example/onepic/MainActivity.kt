@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
-        closeBottomBar()
+        //closeBottomBar()
     }
     private fun closeBottomBar() {
         // 전체 화면 모드로 설정

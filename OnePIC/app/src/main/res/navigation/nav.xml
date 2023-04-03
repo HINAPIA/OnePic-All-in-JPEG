@@ -13,14 +13,26 @@
         <action
             android:id="@+id/action_editFragment_to_rewindFragment"
             app:destination="@id/rewindFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_magicPictureFragment"
+            app:destination="@id/magicPictureFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
-        android:name="com.example.onepic.Edit.Fragment.rewindFragment"
+        android:name="com.example.onepic.Edit.Fragment.RewindFragment"
         android:label="rewindFragment"
         tools:layout="@layout/fragment_rewind">
         <action
             android:id="@+id/action_rewindFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/magicPictureFragment"
+        android:name="com.example.onepic.Edit.Fragment.MagicPictureFragment"
+        android:label="fragment_magic_picture"
+        tools:layout="@layout/fragment_magic_picture" >
+        <action
+            android:id="@+id/action_magicPictureFragment_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
 </navigation>

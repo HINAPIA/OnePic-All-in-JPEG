@@ -2,60 +2,47 @@ package com.example.onepic.Edit.Fragment
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.onepic.Edit.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
-import com.example.onepic.Picture
 import com.example.onepic.R
+import com.example.onepic.databinding.FragmentMagicPictureBinding
 import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
-open class RewindFragment : Fragment(R.layout.fragment_rewind) {
-    private lateinit var binding: FragmentRewindBinding
+class MagicPictureFragment : RewindFragment() {
+    private lateinit var binding: FragmentMagicPictureBinding
 
-    protected lateinit var exPictureContainer: ExPictureContainer
-    protected lateinit var imageToolModule: ImageToolModule
-    protected lateinit var rewindModule: RewindModule
+    var boundingBox: ArrayList<List<Int>> = arrayListOf()
 
-    protected lateinit var mainPicture: Picture
-    protected lateinit var mainBitmap: Bitmap
-
-    protected var changeFaceStartX = 0
-    protected var changeFaceStartY = 0
-
-    protected var pictureList: ArrayList<Picture> = arrayListOf()
-    protected val bitmapList: ArrayList<Bitmap> = arrayListOf()
-
-    protected val cropBitmapList: ArrayList<Bitmap> = arrayListOf()
+    var checkMagicPicturePlay = false
+    val handler = Handler()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        bundle: Bundle?
+        savedInstanceState: Bundle?
     ): View {
         // 뷰 바인딩 설정
-        binding = FragmentRewindBinding.inflate(inflater, container, false)
+        binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
         /** ExPictureContainer 설정 **/
-        if(arguments != null)
-        exPictureContainer =
-            requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
+        if (arguments != null)
+            exPictureContainer =
+                requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
         else
             exPictureContainer = ExPictureContainer(inflater.context)
 
@@ -76,14 +63,28 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             val bundle = Bundle()
             bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
+            findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment, bundle)
         }
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
             val bundle = Bundle()
             bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
+            findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment, bundle)
+        }
+
+        // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
+        binding.magicPlayBtn.setOnClickListener {
+            if(!checkMagicPicturePlay) {
+                cinemagraphRun(cropBitmapList)
+                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
+                checkMagicPicturePlay = true
+            }
+            else {
+                handler.removeCallbacksAndMessages(null)
+                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+                checkMagicPicturePlay = false
+            }
         }
 
         // 이미지 뷰 클릭 시
@@ -98,14 +99,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 CoroutineScope(Dispatchers.Default).launch {
                     // Click 좌표가 포함된 Bounding Box 얻음
-                    val boundingBox = getBoundingBox(touchPoint)
+                    boundingBox = getBoundingBox(touchPoint)
 
                     // Bounding Box로 이미지를 Crop한 후 보여줌
                     withContext(Dispatchers.Main) {
                         cropImgAndView(boundingBox)
                     }
-
-
                 }
             }
             return@setOnTouchListener true
@@ -114,12 +113,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         return binding.root
     }
 
-    /**
-     * setMainImageBoundingBox()
-     *      - mainImage를 faceDetection 실행 후,
-     *        감지된 얼굴의 사각형 표시된 사진으로 imageView 변환
-     */
-    open fun setMainImageBoundingBox() {
+    override fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
             val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap)
 
@@ -130,83 +124,16 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        setMainImageBoundingBox()
-    }
-
-    /**
-     * setBitmapPicture()
-     *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
-     */
-    protected fun setBitmapPicture() {
-        for(i in 0 until pictureList.size) {
-            bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
-        }
-    }
-
-    /**
-     * getBoundingBox(touchPoint: Point): ArrayList<List<Int>>
-     *     - click된 포인트를 알려주면,
-     *       해당 포인트가 객체 감지 결과 bounding Box 속에 존재하는지 찾아서
-     *       만약 포인트를 포함하는 boundingBox를 찾으면 모아 return
-     */
-    suspend fun getBoundingBox(touchPoint: Point): ArrayList<List<Int>> = suspendCoroutine { box ->
-        val boundingBox: ArrayList<List<Int>> = arrayListOf()
-
-        CoroutineScope(Dispatchers.Default).launch {
-            if (bitmapList.size == 0) {
-                setBitmapPicture()
-            }
-
-            for (i in 0 until pictureList.size) {
-
-                // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
-                val rect =
-                    rewindModule.getClickPointBoundingBox(bitmapList[i], touchPoint)
-
-                // 포인트에 해당되는 얼굴이 없을 때
-                if (rect == null) {
-                    // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
-                    if (i == 0) {
-                        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                        setMainImageBoundingBox()
-                        break
-                    }
-                    continue
-                }
-
-                // 메인 사진일 경우 나중에 다른 사진을 겹칠 위치 지정
-                if (i == 0) {
-                    changeFaceStartX = rect[4]
-                    changeFaceStartY = rect[5]
-                }
-
-                val arrayBounding = listOf(
-                    i,
-                    rect[0], rect[1], rect[2], rect[3],
-                    rect[4], rect[5], rect[6], rect[7]
-                )
-                boundingBox.add(arrayBounding)
-            }
-
-            box.resume(boundingBox)
-
-        }
-    }
-
-
     /**
      *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
      *         - 이미지를 자르고 화면에 띄어줌
      */
     private fun cropImgAndView(boundingBox: ArrayList<List<Int>>) {
+
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.candidateLayout.removeAllViews()
-        cropBitmapList.removeAll(cropBitmapList)
+        cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
             setBitmapPicture()
@@ -223,8 +150,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
+
+            val ovelapImage = imageToolModule.cropBitmap(
+                bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                Rect(rect[5], rect[6], rect[7], rect[8])
+            )
             // 크롭이미지 배열에 값 추가
-            cropBitmapList.add(cropImage)
+            cropBitmapList.add(ovelapImage)
 
             // 넣고자 하는 layout 불러오기
             val candidateLayout = layoutInflater.inflate(R.layout.candidate_image_array, null)
@@ -236,20 +168,47 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             // 자른 사진 이미지뷰에 붙이기
             cropImageView.setImageBitmap(cropImage)
 
-            // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
-            cropImageView.setOnClickListener{
-                var newImage = imageToolModule.cropBitmap(
-                    bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
-                    Rect(rect[5], rect[6], rect[7], rect[8])
-                )
-                newImage = imageToolModule.circleCropBitmap(newImage)
-                mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
-                binding.rewindMainView.setImageBitmap(mainBitmap)
-            }
-
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
             binding.candidateLayout.addView(candidateLayout)
         }
     }
 
+    private fun cinemagraphRun(cropBitmapList: ArrayList<Bitmap>) {
+        val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
+        CoroutineScope(Dispatchers.Main).launch {
+            for (i in 0 until bitmapList.size) {
+                val newImage = imageToolModule.circleCropBitmap(cropBitmapList[i])
+                ovelapBitmap.add(
+                    imageToolModule.overlayBitmap(
+                        mainBitmap,
+                        newImage,
+                        changeFaceStartX,
+                        changeFaceStartY
+                    )
+                )
+
+            }
+            var currentImageIndex = 0
+            var increaseIndex = 1
+
+            val runnable = object : Runnable {
+                override fun run() {
+                    binding.rewindMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                    //currentImageIndex++
+
+                    currentImageIndex = currentImageIndex + increaseIndex
+
+                    if (currentImageIndex >= ovelapBitmap.size-1) {
+                        //currentImageIndex = 0
+                        increaseIndex = -1
+                    }
+                    else if(currentImageIndex <= 0){
+                        increaseIndex = 1
+                    }
+                    handler.postDelayed(this, 300)
+                }
+            }
+            handler.postDelayed(runnable, 300)
+        }
+    }
 }

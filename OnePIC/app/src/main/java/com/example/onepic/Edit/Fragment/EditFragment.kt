@@ -40,15 +40,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // 객체를 Bundle에 저장하여 RewindFragment로 전달
+        val bundle = Bundle()
+        bundle.putSerializable("exPictureContainer", exPictureContainer)
 
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            // 객체를 Bundle에 저장하여 RewindFragment로 전달
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer)
-
             // RewindFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_rewindFragment, bundle)
+        }
+
+        binding.magicBtn.setOnClickListener {
+            // RewindFragment로 이동
+            findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment, bundle)
         }
     }
 }
