@@ -7,12 +7,12 @@ import java.nio.ByteBuffer
 class TextContentInfo(textContent: TextContent , startOffset : Int) {
 
     var contentInfoSize: Int = 0
-    var dataStartOffset : Int = 0
+    // var dataStartOffset : Int = 0
     var textCount : Int = 0
     var textInfoList : ArrayList<TextInfo> = arrayListOf()
 
     init{
-        dataStartOffset = startOffset
+        //  dataStartOffset = startOffset
         textCount = textContent.textCount
         textInfoList = fillTextInfoList(textContent.textList)
         contentInfoSize = getLength()
@@ -29,8 +29,6 @@ class TextContentInfo(textContent: TextContent , startOffset : Int) {
                 offset = offset + preSize
             }
             preSize = textInfo.dataSize
-            // offset 지정
-            textInfo.offset = offset
             //imageInfoList에 삽입
             textInfoList.add(textInfo)
 
@@ -42,14 +40,17 @@ class TextContentInfo(textContent: TextContent , startOffset : Int) {
         val buffer: ByteBuffer = ByteBuffer.allocate(getLength())
         //Image Content
         buffer.putInt(contentInfoSize)
-        buffer.putInt(dataStartOffset)
+        //buffer.putInt(dataStartOffset)
         buffer.putInt(textCount)
         //Image Content - Image Info
         for(j in 0..textCount - 1){
             var textInfo = textInfoList.get(j)
-            buffer.putInt(textInfo.offset)
-            buffer.putInt(textInfo.dataSize)
             buffer.putInt(textInfo.attribute)
+            buffer.putInt(textInfo.dataSize)
+            for(p in 0..textInfo.data.length-1){
+                buffer.putChar(textInfo.data.get(p))
+            }
+
         }// end of Text Info
         // end of Text Content ...
         return buffer.array()
@@ -64,8 +65,4 @@ class TextContentInfo(textContent: TextContent , startOffset : Int) {
         return size
     }
 
-    fun getEndOffset():Int{
-        if(textCount == 0) return dataStartOffset
-        return dataStartOffset + textInfoList.get(textCount-1).offset + textInfoList.get(textCount-1).dataSize -1
-    }
 }

@@ -22,7 +22,7 @@ class GroupContent {
         when (type){
             ContentType.Image -> imageContent.setContent(byteArrayList, contentAttribute)
             ContentType.Audio -> audioContent.setContent(byteArrayList, contentAttribute)
-            ContentType.Text -> textContent.setContent(byteArrayList, contentAttribute)
+            else -> {}
         }
     }
 
@@ -30,7 +30,7 @@ class GroupContent {
         when (type){
             ContentType.Image -> imageContent.addContent(byteArrayList, contentAttribute)
             ContentType.Audio -> audioContent.setContent(byteArrayList, contentAttribute)
-            ContentType.Text -> textContent.addContent(byteArrayList, contentAttribute)
+            else -> {}
         }
     }
 

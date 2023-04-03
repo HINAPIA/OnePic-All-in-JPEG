@@ -18,7 +18,7 @@ class GroupContentInfo (_groupContent : GroupContent, _groupStartOffset : Int){
 
         imageContentInfo = ImageContentInfo(groupContent.imageContent,0)
         textContentInfo = TextContentInfo(groupContent.textContent,imageContentInfo.getEndOffset() +1)
-        audioContentInfo = AudioContentInfo(groupContent.audioContent,textContentInfo.getEndOffset()+1)
+        audioContentInfo = AudioContentInfo(groupContent.audioContent,imageContentInfo.getEndOffset()+1)
     }
 
     fun getInfoLength() : Int{
