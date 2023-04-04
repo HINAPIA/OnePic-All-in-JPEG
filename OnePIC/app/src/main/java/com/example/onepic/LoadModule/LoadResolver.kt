@@ -69,17 +69,20 @@ class LoadResolver() {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun createMCContainer(MCContainer: MCContainer, sourceByteArray: ByteArray) {
         var APP3_startOffset = 4
+        if(!(sourceByteArray[2].toInt() == -1 && sourceByteArray[3].toInt() == -29)){
+            // 일반 JPEG
+            MCContainer.setBasicJepg(sourceByteArray)
+            return
+        }
 //        if(sourceByteArray.copyOfRange(APP3_startOffset, APP3_startOffset+2)!= byteArrayOf(0xff.toByte(), 0xe3.toByte())){
-//            // 일반 JPEG
-//            MCContainer.createBasicJpeg(sourceByteArray)
-//            return
+//
 //        }
         // var header : Header = Header()
         var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
         // 1. ImageContent
         var imageContentInfoSize = ByteArraytoInt(sourceByteArray, APP3_startOffset + 4)
-//        var pictureList = imageContentParsing(MCContainer,sourceByteArray, sourceByteArray.copyOfRange(APP3_startOffset + 8, APP3_startOffset + 12 + imageContentInfoSize))
-//        MCContainer.imageContent.setContent(pictureList)
+        var pictureList = imageContentParsing(MCContainer,sourceByteArray, sourceByteArray.copyOfRange(APP3_startOffset + 8, APP3_startOffset + 12 + imageContentInfoSize))
+        MCContainer.imageContent.setContent(pictureList)
 
         // 2. TextContent
         var textContentStartOffset = APP3_startOffset + 4 + imageContentInfoSize
