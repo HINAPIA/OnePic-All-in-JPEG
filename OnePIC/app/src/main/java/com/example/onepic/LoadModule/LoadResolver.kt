@@ -1,10 +1,14 @@
 package com.example.camerax.LoadModule
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.example.camerax.PictureModule.*
 import com.example.camerax.PictureModule.Contents.ContentAttribute
 import com.example.camerax.PictureModule.Contents.Text
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 
 class LoadResolver() {
@@ -18,7 +22,6 @@ class LoadResolver() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     fun imageContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray) : ArrayList<Picture> {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
@@ -47,56 +50,76 @@ class LoadResolver() {
                 }
             }
             if(i==0){
+                val frame = sourceByteArray.copyOfRange(imageDataStartOffset + offset, imageDataStartOffset + offset + size - 1)
                 // Jpeg Meta 데이터 떼기
                 var jpegMetaData = MCContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(imageDataStartOffset + offset,
                     imageDataStartOffset + offset + size -1))
                 MCContainer.setJpegMetaBytes(jpegMetaData)
-                picture = Picture(offset,MCContainer.imageContent.extractFrame(sourceByteArray.copyOfRange(imageDataStartOffset + offset,
-                    imageDataStartOffset + offset + size -1)) , ContentAttribute.fromCode(attribute), embeddedDataSize,embeddedData)
+                picture = Picture(offset, MCContainer.imageContent.extractFrame(frame), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
+                picture.waitForByteArrayInitialized()
 
             }else{
                 // picture 생성
-                picture = Picture(offset, sourceByteArray.copyOfRange(imageDataStartOffset + offset,
-                    imageDataStartOffset + offset + size -1), ContentAttribute.fromCode(attribute), embeddedDataSize,embeddedData)
+                picture = Picture(offset, sourceByteArray.copyOfRange(imageDataStartOffset + offset, imageDataStartOffset + offset + size - 1), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
+                picture.waitForByteArrayInitialized()
 
             }
             pictureList.add(picture)
+            Log.d("test_test", "picutureList size : ${pictureList.size}")
         }
 
         return pictureList
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    fun createMCContainer(MCContainer: MCContainer, sourceByteArray: ByteArray) {
-        var APP3_startOffset = 4
-        if(!(sourceByteArray[2].toInt() == -1 && sourceByteArray[3].toInt() == -29)){
-            // 일반 JPEG
-            MCContainer.setBasicJepg(sourceByteArray)
-            return
+
+    suspend fun createMCContainer(
+        MCContainer: MCContainer,
+        sourceByteArray: ByteArray,
+        isViewChanged: MutableLiveData<Boolean>
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            var APP3_startOffset = 4
+            if(!(sourceByteArray[2].toInt() == -1 && sourceByteArray[3].toInt() == -29)){
+                // 일반 JPEG
+                Log.d("test_test", "일반 JPEG 생성")
+                MCContainer.setBasicJepg(sourceByteArray)
+
+            }
+            else{
+                Log.d("test_test", "MC JPEG 생성")
+                // var header : Header = Header()
+                var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
+                // 1. ImageContent
+                var imageContentInfoSize = ByteArraytoInt(sourceByteArray, APP3_startOffset + 4)
+                var pictureList = async {
+                    imageContentParsing(MCContainer,sourceByteArray, sourceByteArray.copyOfRange(APP3_startOffset + 8, APP3_startOffset + 12 + imageContentInfoSize))
+                }
+                Log.d("test_test", "PictureList await() 전")
+                MCContainer.imageContent.setContent(pictureList.await())
+                Log.d("test_test", "PictureList await()  후")
+                // 2. TextContent
+                var textContentStartOffset = APP3_startOffset + 4 + imageContentInfoSize
+                var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
+                if(textContentInfoSize > 0){
+                    var textList = textContentParsing(MCContainer,sourceByteArray.copyOfRange(textContentStartOffset +4, textContentStartOffset + 8 + textContentInfoSize))
+                    MCContainer.textContent.setContent(textList)
+                }
+
+                // 3. AudioContent
+                // MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(0)))
+                //  MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(1)))
+
+            }
+
+            // MCContainer.setContainer(groupContentList)
+            CoroutineScope(Dispatchers.Main).launch {
+                Log.d("test_test","isViewChanged.value = true")
+                isViewChanged.value = true
+            }
+            Log.d("test_test", "PictureList await() 리턴 전")
+            return@launch
         }
-//        if(sourceByteArray.copyOfRange(APP3_startOffset, APP3_startOffset+2)!= byteArrayOf(0xff.toByte(), 0xe3.toByte())){
-//
-//        }
-        // var header : Header = Header()
-        var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
-        // 1. ImageContent
-        var imageContentInfoSize = ByteArraytoInt(sourceByteArray, APP3_startOffset + 4)
-        var pictureList = imageContentParsing(MCContainer,sourceByteArray, sourceByteArray.copyOfRange(APP3_startOffset + 8, APP3_startOffset + 12 + imageContentInfoSize))
-        MCContainer.imageContent.setContent(pictureList)
 
-        // 2. TextContent
-        var textContentStartOffset = APP3_startOffset + 4 + imageContentInfoSize
-        var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
-        if(textContentInfoSize > 0){
-            var textList = textContentParsing(MCContainer,sourceByteArray.copyOfRange(textContentStartOffset +4, textContentStartOffset + 8 + textContentInfoSize))
-            MCContainer.textContent.setContent(textList)
-        }
-
-        // 3. AudioContent
-        // MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(0)))
-        //  MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(1)))
-
-        // MCContainer.setContainer(groupContentList)
 
     }
 

@@ -23,7 +23,7 @@ class ImageContent {
     fun init() {
         pictureList.clear()
         pictureCount = 0
-        jpegMetaData = ByteArray(0)
+        //jpegMetaData = ByteArray(0)
     }
     // ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
     fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
@@ -34,7 +34,7 @@ class ImageContent {
             // frame 분리
             var frameBytes : ByteArray = extractFrame(byteArrayList.get(i))
             // Picture 객체 생성
-            var picture = Picture(frameBytes, contentAttribute)
+            var picture = Picture( contentAttribute, frameBytes)
             insertPicture(picture)
             if(i == 0){
                 mainPicture = picture
@@ -57,14 +57,15 @@ class ImageContent {
         jpegMetaData = extractJpegMeta(sourceByteArray)
         var frameBytes : ByteArray = extractFrame(sourceByteArray)
         // Picture 객체 생성
-        var picture = Picture(frameBytes, ContentAttribute.general)
+        var picture = Picture(ContentAttribute.general, frameBytes)
+        picture.waitForByteArrayInitialized()
         insertPicture(picture)
         mainPicture = pictureList.get(0)
     }
     fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         for(i in 0..byteArrayList.size-1){
             // Picture 객체 생성
-            var picture = Picture(byteArrayList.get(i), contentAttribute)
+            var picture = Picture(contentAttribute, byteArrayList.get(i))
             insertPicture(picture)
         }
     }
@@ -82,7 +83,7 @@ class ImageContent {
     fun getJpegBytes(picture : Picture) : ByteArray{
         val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
         buffer.put(jpegMetaData)
-        buffer.put(picture.pictureByteArray)
+        buffer.put(picture._pictureByteArray)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("d9".toInt(16).toByte())
         return buffer.array()

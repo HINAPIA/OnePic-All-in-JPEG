@@ -80,6 +80,7 @@ class MCContainer(_activity: Activity) {
         textContent.setContent(contentAttribute, textList)
     }
     fun setBasicJepg(sourceByteArray: ByteArray) {
+        init()
         // 헤더 따로 프레임 따로 저장
         imageContent.setBasicContent(sourceByteArray)
         // saveResolver.saveImageOnAboveAndroidQ(imageContent.getJpegBytes(imageContent.getPictureAtIndex(0)!!))

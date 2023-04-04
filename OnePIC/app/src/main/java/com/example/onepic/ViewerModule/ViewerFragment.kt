@@ -26,6 +26,7 @@ import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 import java.io.ByteArrayOutputStream
@@ -87,6 +88,7 @@ class ViewerFragment : Fragment() {
 
         isViewChanged.observe(requireActivity()){ value ->
             Log.d("[ViewerFragment] jpegMCContainer가 바뀜!","")
+            Log.d("test_test", "jpegMCContainer가 바뀜!")
             if (value == true){
                 setCurrentOtherImage()
                 isViewChanged.value = false
@@ -104,13 +106,25 @@ class ViewerFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun setCurrentMCContainer(position:Int){
-        Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-        val sourcePhotoUri = getUriFromPath(jpegViewModel.imageUriLiveData.value!!.get(position))
-        val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
-        var sourceByteArray = getBytes(iStream!!)
-        loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray)
-        isViewChanged.value = true
+     fun setCurrentMCContainer(position:Int){
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
+            val sourcePhotoUri = getUriFromPath(jpegViewModel.imageUriLiveData.value!!.get(position))
+            val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
+            var sourceByteArray = getBytes(iStream!!)
+            var jop = async {
+                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isViewChanged) }
+            jop.await()
+            // Picture 완전히 생성될 때까지 기다리기
+            Log.d("test_test", "=========================")
+            Log.d("test_test", "프래그먼트 변화 하기 전 picutureList size : ${jpegViewModel.jpegMCContainer.value!!.imageContent.pictureCount}")
+//            CoroutineScope(Dispatchers.Main).launch {
+//                Log.d("test_test","isViewChanged.value = true")
+//                isViewChanged.value = true
+//            }
+
+        }
+
     }
 
     fun setCurrentOtherImage(){
