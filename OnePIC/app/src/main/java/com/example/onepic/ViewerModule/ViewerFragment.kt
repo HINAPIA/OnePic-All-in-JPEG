@@ -38,7 +38,7 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private var isViewChanged = MutableLiveData<Boolean>()
-
+    private var isTxtBtnClicked = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -70,7 +70,13 @@ class ViewerFragment : Fragment() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-                //binding.linear.removeAllViews()
+
+                // 텍스트 버튼 초기화
+                if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
+                    binding.textBtn.setBackgroundResource(R.drawable.round_button)
+                    isTxtBtnClicked = false
+                }
+
                 setCurrentMCContainer(position)
             }
         })
@@ -81,6 +87,18 @@ class ViewerFragment : Fragment() {
             if (value == true){
                 setCurrentOtherImage()
                 isViewChanged.value = false
+            }
+        }
+
+        binding.textBtn.setOnClickListener{
+
+            if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
+                it.setBackgroundResource(R.drawable.round_button_clicked)
+                isTxtBtnClicked = true
+            }
+            else { // 클릭 되어 있던 상태
+                it.setBackgroundResource(R.drawable.round_button)
+                isTxtBtnClicked = false
             }
         }
 
