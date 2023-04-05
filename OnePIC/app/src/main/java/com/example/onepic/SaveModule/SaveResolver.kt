@@ -1,4 +1,4 @@
-package com.example.camerax.SaveModule
+package com.example.onepic.SaveModule
 
 import android.app.Activity
 import android.content.ContentValues
@@ -14,11 +14,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import com.example.camerax.PictureModule.MCContainer
+import com.example.onepic.PictureModule.MCContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.*
 
 

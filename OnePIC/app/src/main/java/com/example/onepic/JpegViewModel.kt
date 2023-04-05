@@ -1,17 +1,10 @@
 package com.example.onepic
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.camerax.PictureModule.MCContainer
-import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import com.example.onepic.PictureModule.MCContainer
 
 class JpegViewModel : ViewModel() {
 

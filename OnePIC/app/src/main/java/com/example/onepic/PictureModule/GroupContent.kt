@@ -1,7 +1,10 @@
 package com.example.camerax.PictureModule
 
-import com.example.camerax.PictureModule.Contents.ContentAttribute
-import com.example.camerax.PictureModule.Contents.ContentType
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.ContentType
+import com.example.onepic.PictureModule.AudioContent
+import com.example.onepic.PictureModule.ImageContent
+import com.example.onepic.PictureModule.TextContent
 
 class GroupContent {
 

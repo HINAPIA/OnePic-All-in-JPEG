@@ -1,10 +1,11 @@
-package com.example.camerax.PictureModule
+package com.example.onepic.PictureModule
 
 import android.app.Activity
 import android.util.Log
-import com.example.camerax.PictureModule.Contents.ContentAttribute
-import com.example.camerax.PictureModule.Contents.ContentType
-import com.example.camerax.SaveModule.SaveResolver
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.ContentType
+import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.SaveModule.SaveResolver
 
 
 class MCContainer(_activity: Activity) {
@@ -51,7 +52,7 @@ class MCContainer(_activity: Activity) {
         return resultPictureList
     }
     //해당 그룹에 존재하는 modifiedPicture 제공
-    fun getMainPicture(): Picture{
+    fun getMainPicture(): Picture {
         return imageContent.mainPicture
     }
 

@@ -1,6 +1,6 @@
 package com.example.camerax.PictureModule.Info
 
-import com.example.camerax.PictureModule.Picture
+import com.example.onepic.PictureModule.Contents.Picture
 
 class ImageInfo(picture: Picture) {
     var offset : Int = 0

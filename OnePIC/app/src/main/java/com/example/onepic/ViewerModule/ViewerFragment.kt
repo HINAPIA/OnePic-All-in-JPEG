@@ -18,9 +18,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
-import com.example.camerax.LoadModule.LoadResolver
-import com.example.camerax.PictureModule.Picture
-import com.example.onepic.EditModule.Fragment.EditFragment
+import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding

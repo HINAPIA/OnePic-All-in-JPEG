@@ -1,10 +1,7 @@
 package com.example.camerax.PictureModule.Info
 
-import com.example.camerax.PictureModule.ImageContent
-import com.example.camerax.PictureModule.Picture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.onepic.PictureModule.ImageContent
+import com.example.onepic.PictureModule.Contents.Picture
 import java.nio.ByteBuffer
 
 class ImageContentInfo(imageContent: ImageContent, startOffset : Int) {

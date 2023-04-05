@@ -1,11 +1,10 @@
 package com.example.camerax.PictureModule.Info
 
-import com.example.camerax.PictureModule.AudioContent
-import com.example.camerax.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.AudioContent
+import com.example.onepic.PictureModule.Contents.ContentAttribute
 import java.nio.ByteBuffer
-import java.security.KeyStore.Entry.Attribute
 
-class AudioContentInfo(audioContent: AudioContent , startOffset : Int) {
+class AudioContentInfo(audioContent: AudioContent, startOffset : Int) {
     var contentInfoSize : Int = 0
     var dataStartOffset : Int = 0
     var datasize : Int = 0

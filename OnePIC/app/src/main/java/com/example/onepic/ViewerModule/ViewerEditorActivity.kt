@@ -16,11 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-import com.example.camerax.LoadModule.LoadResolver
-import com.example.camerax.PictureModule.MCContainer
+import com.example.onepic.LoadModule.LoadResolver
+import com.example.onepic.PictureModule.MCContainer
 
 import com.example.onepic.JpegViewModel
-import com.example.onepic.R
 import com.example.onepic.databinding.ActivityViewerEditorBinding
 
 

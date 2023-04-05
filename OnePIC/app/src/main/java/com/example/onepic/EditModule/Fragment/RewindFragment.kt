@@ -1,23 +1,29 @@
 package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.onepic.PictureModule.ImageContent
+import com.example.onepic.*
 import com.example.onepic.EditModule.RewindModule
-import com.example.onepic.ExPictureContainer
-import com.example.onepic.ImageToolModule
-import com.example.onepic.Picture
-import com.example.onepic.R
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.PictureModule.MCContainer
+import com.example.onepic.SaveModule.SaveResolver
 import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,12 +34,12 @@ import kotlin.coroutines.suspendCoroutine
 
 class rewindFragment : Fragment(R.layout.fragment_rewind) {
     private lateinit var binding: FragmentRewindBinding
-
+    var activity : MainActivity = MainActivity()
     private lateinit var exPictureContainer: ExPictureContainer
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private lateinit var mainPicture: Picture
+    lateinit var mainPicture : Picture
     private lateinit var mainBitmap: Bitmap
 
     private var changeFaceStartX = 0
@@ -43,8 +49,10 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
     private val bitmapList: ArrayList<Bitmap> = arrayListOf()
 
     private val cropBitmapList: ArrayList<Bitmap> = arrayListOf()
+    private val jpegViewModel by activityViewModels<JpegViewModel>()
+    private lateinit var imageConent : ImageContent
 
-
+    @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,36 +62,35 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
         /** ExPictureContainer 설정 **/
-        if(arguments != null)
-        exPictureContainer =
-            requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
-        else
-            exPictureContainer = ExPictureContainer(inflater.context)
+        imageConent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+//        if(arguments != null)
+//        exPictureContainer =
+//            requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
+//        else
+//            exPictureContainer = ExPictureContainer(inflater.context)
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
         // main Picture의 byteArray를 bitmap 제작
-        mainPicture = exPictureContainer.getMainPicture()
-        mainBitmap = imageToolModule.byteArrayToBitmap(mainPicture.byteArray)
+        mainPicture = imageConent.mainPicture
+        mainBitmap = ImageToolModule().byteArrayToBitmap(imageConent.getJpegBytes(mainPicture))
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = exPictureContainer.getPictureList(1, "BurstShots")
+        pictureList = imageConent.pictureList
 
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
-            mainPicture.byteArray = imageToolModule.bitmapToByteArray(mainBitmap)
-            exPictureContainer.setMainPicture(0, mainPicture)
+            //mainPicture.byteArray = imageToolModule.bitmapToByteArray(mainBitmap)
+            //mainPicture._pictureByteArray = imageConent.extractFrame(imageToolModule.bitmapToByteArray(mainBitmap))
 
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
+            changeFragment()
         }
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
+//            val bundle = Bundle()
+//            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
             findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
         }
 
@@ -145,13 +152,27 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
         setMainImageBoundingBox()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun changeFragment(){
+        val byte = imageToolModule.bitmapToByteArray(mainBitmap)
+        mainBitmap= imageToolModule.byteArrayToBitmap(byte)
+  //      imageConent.mainPicture = Picture(ContentAttribute.general,imageConent.extractFrame(byte) )
+   //     imageConent.mainPicture.waitForByteArrayInitialized()
+
+   //     mainBitmap =  imageToolModule.byteArrayToBitmap(imageConent.getJpegBytes(imageConent.mainPicture))
+//            val bundle = Bundle()
+//            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
+        findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
+    }
+
     /**
      * setBitmapPicture()
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
      */
     private fun setBitmapPicture() {
         for(i in 0 until pictureList.size) {
-            bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
+            //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
+            bitmapList.add(imageToolModule.byteArrayToBitmap((imageConent.getJpegBytes(pictureList.get(i)))))
         }
     }
 

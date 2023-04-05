@@ -1,7 +1,7 @@
-package com.example.camerax.PictureModule
+package com.example.onepic.PictureModule
 
-import com.example.camerax.PictureModule.Contents.ContentAttribute
-import com.example.camerax.PictureModule.Contents.Audio
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Audio
 
 class AudioContent {
     var audio : Audio? = null

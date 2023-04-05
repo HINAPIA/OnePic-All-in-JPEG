@@ -1,6 +1,7 @@
-package com.example.camerax.PictureModule.Contents
+package com.example.onepic.PictureModule.Contents
 
 import android.util.Log
+import com.example.onepic.PictureModule.Contents.ContentAttribute
 
 
 class Text (_data : String, _Content_attribute: ContentAttribute) {

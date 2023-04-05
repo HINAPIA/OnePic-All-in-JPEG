@@ -14,6 +14,7 @@ class ImageToolModule {
      *      - bitmap을 byteArray로 변환해서 제공
      */
     fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+
         var outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         return outputStream.toByteArray()
@@ -24,8 +25,9 @@ class ImageToolModule {
      *      - byteArray를 bitmap으로 변환해서 제공
      */
     fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
-        val bitmap = BitmapFactory.decodeByteArray(byteArray,0,byteArray.size)
-        return bitmap
+        val options = BitmapFactory.Options()
+        options.inPreferredConfig = Bitmap.Config.RGB_565
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
     }
 
 

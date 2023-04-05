@@ -1,4 +1,4 @@
-package com.example.camerax.PictureModule.Contents
+package com.example.onepic.PictureModule.Contents
 
 import android.util.Log
 

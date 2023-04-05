@@ -1,10 +1,10 @@
 package com.example.camerax.PictureModule.Info
 
-import com.example.camerax.PictureModule.Contents.Text
-import com.example.camerax.PictureModule.TextContent
+import com.example.onepic.PictureModule.Contents.Text
+import com.example.onepic.PictureModule.TextContent
 import java.nio.ByteBuffer
 
-class TextContentInfo(textContent: TextContent , startOffset : Int) {
+class TextContentInfo(textContent: TextContent, startOffset : Int) {
 
     var contentInfoSize: Int = 0
     // var dataStartOffset : Int = 0

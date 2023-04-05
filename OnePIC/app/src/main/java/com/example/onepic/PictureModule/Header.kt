@@ -1,8 +1,6 @@
-package com.example.camerax.PictureModule
+package com.example.onepic.PictureModule
 
-import android.util.Log
 import com.example.camerax.PictureModule.Info.AudioContentInfo
-import com.example.camerax.PictureModule.Info.GroupContentInfo
 import com.example.camerax.PictureModule.Info.ImageContentInfo
 import com.example.camerax.PictureModule.Info.TextContentInfo
 import java.nio.ByteBuffer
@@ -38,7 +36,7 @@ class Header(_MC_container : MCContainer) {
         for(i in 0..imageContentInfo.imageCount-1){
             var pictureInfo = imageContentInfo.imageInfoList.get(i)
             if(i == 0){
-                pictureInfo.dataSize += (headerLength+jpegMetaLength) + 1
+                pictureInfo.dataSize += (headerLength+jpegMetaLength) + 3
             }else{
                 pictureInfo.offset += (headerLength+jpegMetaLength) + 2
             }

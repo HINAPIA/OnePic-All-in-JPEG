@@ -1,11 +1,11 @@
-package com.example.camerax.PictureModule
+package com.example.onepic.PictureModule.Contents
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.camerax.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.ContentAttribute
 
-class Picture( val contentAttribute: ContentAttribute,
-               val pictureByteArray: ByteArray? = null) {
+class Picture(val contentAttribute: ContentAttribute,
+              var pictureByteArray: ByteArray? = null) {
     var _pictureByteArray: ByteArray? = null
     var size: Int = pictureByteArray?.size ?: 0
         private set
@@ -16,7 +16,8 @@ class Picture( val contentAttribute: ContentAttribute,
     init {
         if (pictureByteArray != null) {
             _pictureByteArray = pictureByteArray
-            size = _pictureByteArray!!.size
+            size = pictureByteArray!!.size
+
         }
     }
 

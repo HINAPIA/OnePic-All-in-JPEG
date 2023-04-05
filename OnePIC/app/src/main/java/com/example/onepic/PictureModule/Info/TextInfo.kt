@@ -1,6 +1,6 @@
 package com.example.camerax.PictureModule.Info
 
-import com.example.camerax.PictureModule.Contents.Text
+import com.example.onepic.PictureModule.Contents.Text
 
 class TextInfo(text: Text) {
     var dataSize : Int = 0

@@ -1,13 +1,8 @@
-package com.example.camerax.PictureModule
+package com.example.onepic.PictureModule
 
-import android.content.Intent
-import android.net.Uri
-import android.os.Environment
 import android.util.Log
-import com.example.camerax.PictureModule.Contents.ContentAttribute
-import com.example.camerax.SaveModule.SaveResolver
-import com.example.onepic.PictureModule.JpegConstant
-import java.io.*
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Picture
 import java.nio.ByteBuffer
 
 
@@ -206,5 +201,7 @@ class ImageContent {
 
 
     }
+
+
 
 }

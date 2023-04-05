@@ -1,14 +1,12 @@
-package com.example.camerax.LoadModule
+package com.example.onepic.LoadModule
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.example.camerax.PictureModule.*
-import com.example.camerax.PictureModule.Contents.ContentAttribute
-import com.example.camerax.PictureModule.Contents.Text
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Text
+import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.PictureModule.MCContainer
+import kotlinx.coroutines.*
 
 
 class LoadResolver() {
@@ -22,9 +20,10 @@ class LoadResolver() {
     }
 
 
-    fun imageContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray) : ArrayList<Picture> {
+    suspend fun imageContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray): ArrayList<Picture> = withContext(Dispatchers.Default) {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
+
         var startIndex = 0
         var imageDataStartOffset = ByteArraytoInt(imageInfoByteArray, startIndex)
         startIndex++
@@ -50,12 +49,15 @@ class LoadResolver() {
                 }
             }
             if(i==0){
-                val frame = sourceByteArray.copyOfRange(imageDataStartOffset + offset, imageDataStartOffset + offset + size - 1)
+                val jpegBytes = sourceByteArray.copyOfRange(imageDataStartOffset + offset, imageDataStartOffset + offset + size - 1)
                 // Jpeg Meta 데이터 떼기
                 var jpegMetaData = MCContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(imageDataStartOffset + offset,
                     imageDataStartOffset + offset + size -1))
                 MCContainer.setJpegMetaBytes(jpegMetaData)
-                picture = Picture(offset, MCContainer.imageContent.extractFrame(frame), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
+                val frame =async {
+                    MCContainer.imageContent.extractFrame(jpegBytes)
+                }
+                picture = Picture(offset, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
 
             }else{
@@ -67,8 +69,7 @@ class LoadResolver() {
             pictureList.add(picture)
             Log.d("test_test", "picutureList size : ${pictureList.size}")
         }
-
-        return pictureList
+        return@withContext pictureList
     }
 
 

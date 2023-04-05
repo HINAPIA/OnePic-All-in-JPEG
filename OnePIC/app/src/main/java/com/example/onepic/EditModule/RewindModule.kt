@@ -155,7 +155,7 @@ class RewindModule() {
      *     - face detection을 실행하고 결과를 return
      */
     suspend fun runFaceContourDetection(bitmap: Bitmap): ArrayList<Face> = suspendCoroutine { continuation ->
-        val image = InputImage.fromBitmap(bitmap, 0)
+        val image = InputImage.fromBitmap(bitmap, 90)
 
         detector.process(image)
             .addOnSuccessListener { faces ->
