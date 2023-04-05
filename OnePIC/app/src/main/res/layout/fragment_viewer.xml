@@ -56,10 +56,10 @@
             android:background="@drawable/round_button"
             android:minWidth="45dp"
             android:minHeight="45dp"
-            android:textColor="#ffffffff" />
+            android:textColor="@color/text_selector" />
 
         <android.widget.Button
-            android:id="@+id/button2"
+            android:id="@+id/textBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
@@ -69,7 +69,6 @@
             android:minWidth="45dp"
             android:minHeight="45dp"
             android:text="T"
-            android:textColor="#ffffffff"
             android:textSize="24sp" />
     </LinearLayout>
 
