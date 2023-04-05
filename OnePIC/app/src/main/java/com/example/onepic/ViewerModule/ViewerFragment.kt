@@ -40,10 +40,6 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private var isViewChanged = MutableLiveData<Boolean>()
-    private val editFragment = EditFragment()
-
-    // 후에 JpegViewer가 할 일
-    private lateinit var mainPicture: Picture
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,12 +64,6 @@ class ViewerFragment : Fragment() {
 
     fun init() {
 
-        /** TODO: 1) ViewModel의 image uri list -> drawable list
-        2) ViewPager로 메인 스크롤뷰 채우기(main 이미지)
-        3) jpegContainer 만들기 - main uri로
-        4) jpegContainer 분석해서 main 및 내부 이미지들로 하단 스크롤뷰 채우기
-         */
-
         val adapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
         Log.d("adapter item count = ",""+adapter.itemCount)
         binding.viewPager2.adapter = adapter
@@ -82,6 +72,7 @@ class ViewerFragment : Fragment() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
+                //binding.linear.removeAllViews()
                 setCurrentMCContainer(position)
             }
         })
@@ -96,11 +87,6 @@ class ViewerFragment : Fragment() {
         }
 
         binding.editBtn.setOnClickListener{
-//            requireActivity().supportFragmentManager  // fragment 전환
-//                .beginTransaction()
-//                .replace(R.id.framelayout,editFragment)
-//                .addToBackStack(null)
-//                .commit()
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
     }
@@ -118,10 +104,6 @@ class ViewerFragment : Fragment() {
             // Picture 완전히 생성될 때까지 기다리기
             Log.d("test_test", "=========================")
             Log.d("test_test", "프래그먼트 변화 하기 전 picutureList size : ${jpegViewModel.jpegMCContainer.value!!.imageContent.pictureCount}")
-//            CoroutineScope(Dispatchers.Main).launch {
-//                Log.d("test_test","isViewChanged.value = true")
-//                isViewChanged.value = true
-//            }
 
         }
 
@@ -132,7 +114,6 @@ class ViewerFragment : Fragment() {
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
 
         if (pictureList != null) {
-
             binding.linear.removeAllViews()
             Log.d("picture list size: ",""+pictureList.size)
             CoroutineScope(Dispatchers.IO).launch {
