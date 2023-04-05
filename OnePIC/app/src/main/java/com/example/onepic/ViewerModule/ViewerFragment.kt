@@ -19,8 +19,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.example.camerax.LoadModule.LoadResolver
-import com.example.camerax.PictureModule.Picture
-import com.example.onepic.EditModule.Fragment.EditFragment
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -33,17 +31,17 @@ import java.io.IOException
 import java.io.InputStream
 
 @SuppressLint("LongLogTag")
+@RequiresApi(Build.VERSION_CODES.Q)
 class ViewerFragment : Fragment() {
 
     private lateinit var binding: FragmentViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private var isViewChanged = MutableLiveData<Boolean>()
-    private val editFragment = EditFragment()
+    private var isMCContainerChanged = MutableLiveData<Boolean>()
+    private var currPosition:Int = 0
 
-    // 후에 JpegViewer가 할 일
-    private lateinit var mainPicture: Picture
-
+    /* View Life Cycle Func  */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,57 +61,59 @@ class ViewerFragment : Fragment() {
 
         init()
     }
+    /* ----------------------------------------------------------------------------------------- */
 
-
+    /* Functions */
     fun init() {
 
-        /** TODO: 1) ViewModel의 image uri list -> drawable list
-        2) ViewPager로 메인 스크롤뷰 채우기(main 이미지)
-        3) jpegContainer 만들기 - main uri로
-        4) jpegContainer 분석해서 main 및 내부 이미지들로 하단 스크롤뷰 채우기
-         */
-
+        /* ViewPager2 어댑터 및 콜백 설정 & MCContainer Update */
         val adapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
-        Log.d("adapter item count = ",""+adapter.itemCount)
         binding.viewPager2.adapter = adapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            @RequiresApi(Build.VERSION_CODES.Q)
-            override fun onPageSelected(position: Int) {
+
+            override fun onPageSelected(position: Int) { // 페이지 전환 후 콜백
                 super.onPageSelected(position)
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 setCurrentMCContainer(position)
+
             }
         })
 
-        isViewChanged.observe(requireActivity()){ value ->
+        /* ScrollView Update */
+        isMCContainerChanged.observe(requireActivity()){ value ->
             Log.d("[ViewerFragment] jpegMCContainer가 바뀜!","")
             if (value == true){
                 setCurrentOtherImage()
-                isViewChanged.value = false
+                isMCContainerChanged.value = false
             }
         }
+//
+//        isViewChanged.observe(requireActivity()){value ->
+//            if (value == true){
+//                setCurrentMCContainer(currPosition)
+//                isMCContainerChanged.value = false
+//            }
+//        }
 
+        /* Fragment 전환 */
         binding.editBtn.setOnClickListener{
-//            requireActivity().supportFragmentManager  // fragment 전환
-//                .beginTransaction()
-//                .replace(R.id.framelayout,editFragment)
-//                .addToBackStack(null)
-//                .commit()
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun setCurrentMCContainer(position:Int){
+    fun setCurrentMCContainer(position:Int){ // MCContainer update
+
         Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
         val sourcePhotoUri = getUriFromPath(jpegViewModel.imageUriLiveData.value!!.get(position))
         val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
         var sourceByteArray = getBytes(iStream!!)
         loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray)
-        isViewChanged.value = true
-    }
+        isMCContainerChanged.value = true
 
-    fun setCurrentOtherImage(){
+    } // end of func setCurrentMCContainer..
+
+    fun setCurrentOtherImage(){ // ScrollImage Update..
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
 
@@ -136,11 +136,10 @@ class ViewerFragment : Fragment() {
                             .into(scrollImageView)
                         binding.linear.addView(scollItemLayout)
                     }
-
                 }
             }
         }
-    }
+    } // end of func setCurrentOtherImage..
 
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
@@ -152,7 +151,8 @@ class ViewerFragment : Fragment() {
             byteBuffer.write(buffer, 0, len)
         }
         return byteBuffer.toByteArray()
-    }
+
+    }  // end of func getBytes..
 
     @SuppressLint("Range")
     fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
@@ -173,6 +173,6 @@ class ViewerFragment : Fragment() {
             return Uri.parse("dd")
         }
         return uri
-    }
+    }  // end of func getUriFromPath..
 
 }

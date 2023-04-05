@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,13 +11,17 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="25dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="@color/transparent_color"
+            android:src="@drawable/back_icon"
+            app:tint="@color/main_color"
             android:layout_gravity="left"
-            android:background="#00ff0000"
-            android:text="" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:layout_width="0dp"
@@ -35,13 +38,12 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="#6B8B7A"
             android:textStyle="bold" />
-    </LinearLayout>
+    </LinearLayout>`
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#000000"
         android:padding="5dp"
         android:orientation="horizontal">
 
@@ -84,20 +86,25 @@
 <!--        android:scaleType="fitCenter"-->
 <!--        tools:srcCompat="@tools:sample/avatars" />-->
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager2"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:background="#000000"
-        android:paddingBottom="10dp"
-    />
+        android:layout_weight="5">
 
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="15dp"
+            android:paddingBottom="20dp" />
+
+
+    </FrameLayout>
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#000000"
-        android:layout_weight="2">
+        android:layout_weight="1.5"
+        android:background="@color/sideBar_color">
 
         <LinearLayout
             android:id="@+id/linear"
@@ -106,13 +113,9 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
-            <!--            <View-->
-            <!--                android:id="@+id/view"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content" />-->
         </LinearLayout>
     </HorizontalScrollView>
-
 </LinearLayout>
