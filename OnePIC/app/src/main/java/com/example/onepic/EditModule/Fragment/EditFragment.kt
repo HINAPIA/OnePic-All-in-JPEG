@@ -1,4 +1,4 @@
-package com.example.onepic.Edit.Fragment
+package com.example.onepic.EditModule.Fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -48,6 +48,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         binding.rewindBtn.setOnClickListener {
             // RewindFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_rewindFragment, bundle)
+        }
+
+        binding.removeBtn.setOnClickListener{
+            findNavController().navigate(R.id.action_editFragment_to_warpingFragment, bundle)
         }
 
         binding.magicBtn.setOnClickListener {

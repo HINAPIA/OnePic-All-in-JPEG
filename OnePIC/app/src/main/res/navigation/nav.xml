@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/editFragment"
-        android:name="com.example.onepic.Edit.Fragment.EditFragment"
+        android:name="com.example.onepic.EditModule.Fragment.EditFragment"
         android:label="EditFragment"
         tools:layout="@layout/fragment_edit">
         <action
@@ -16,10 +16,13 @@
         <action
             android:id="@+id/action_editFragment_to_magicPictureFragment"
             app:destination="@id/magicPictureFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_warpingFragment"
+            app:destination="@id/warpingFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
-        android:name="com.example.onepic.Edit.Fragment.RewindFragment"
+        android:name="com.example.onepic.EditModule.Fragment.RewindFragment"
         android:label="rewindFragment"
         tools:layout="@layout/fragment_rewind">
         <action
@@ -28,11 +31,20 @@
     </fragment>
     <fragment
         android:id="@+id/magicPictureFragment"
-        android:name="com.example.onepic.Edit.Fragment.MagicPictureFragment"
+        android:name="com.example.onepic.EditModule.Fragment.MagicPictureFragment"
         android:label="fragment_magic_picture"
         tools:layout="@layout/fragment_magic_picture" >
         <action
             android:id="@+id/action_magicPictureFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/warpingFragment"
+        android:name="com.example.onepic.EditModule.Fragment.WarpingFragment"
+        android:label="fragment_warping"
+        tools:layout="@layout/fragment_warping" >
+        <action
+            android:id="@+id/action_warpingFragment_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
 </navigation>

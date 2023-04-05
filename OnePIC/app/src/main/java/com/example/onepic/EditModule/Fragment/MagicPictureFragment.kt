@@ -1,4 +1,4 @@
-package com.example.onepic.Edit.Fragment
+package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -12,12 +12,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.Edit.RewindModule
+import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentMagicPictureBinding
-import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +29,8 @@ class MagicPictureFragment : RewindFragment() {
 
     var checkMagicPicturePlay = false
     val handler = Handler()
+
+    var magicPlaySpeed: Long = 100
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -57,7 +58,7 @@ class MagicPictureFragment : RewindFragment() {
         pictureList = exPictureContainer.getPictureList(1, "BurstShots")
 
         // save btn 클릭 시
-        binding.rewindSaveBtn.setOnClickListener {
+        binding.magicSaveBtn.setOnClickListener {
             mainPicture.byteArray = imageToolModule.bitmapToByteArray(mainBitmap)
             exPictureContainer.setMainPicture(0, mainPicture)
 
@@ -67,7 +68,7 @@ class MagicPictureFragment : RewindFragment() {
         }
 
         // close btn 클릭 시
-        binding.rewindCloseBtn.setOnClickListener {
+        binding.magicCloseBtn.setOnClickListener {
             val bundle = Bundle()
             bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
             findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment, bundle)
@@ -88,7 +89,7 @@ class MagicPictureFragment : RewindFragment() {
         }
 
         // 이미지 뷰 클릭 시
-        binding.rewindMainView.setOnTouchListener { view, event ->
+        binding.magicMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
@@ -119,7 +120,7 @@ class MagicPictureFragment : RewindFragment() {
 
             // imageView 변환
             withContext(Dispatchers.Main) {
-                binding.rewindMainView.setImageBitmap(faceResultBitmap)
+                binding.magicMainView.setImageBitmap(faceResultBitmap)
             }
         }
     }
@@ -132,7 +133,7 @@ class MagicPictureFragment : RewindFragment() {
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
-        binding.candidateLayout.removeAllViews()
+        binding.magicCandidateLayout.removeAllViews()
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
@@ -169,7 +170,7 @@ class MagicPictureFragment : RewindFragment() {
             cropImageView.setImageBitmap(cropImage)
 
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-            binding.candidateLayout.addView(candidateLayout)
+            binding.magicCandidateLayout.addView(candidateLayout)
         }
     }
 
@@ -193,7 +194,7 @@ class MagicPictureFragment : RewindFragment() {
 
             val runnable = object : Runnable {
                 override fun run() {
-                    binding.rewindMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                    binding.magicMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
                     //currentImageIndex++
 
                     currentImageIndex = currentImageIndex + increaseIndex
@@ -205,10 +206,10 @@ class MagicPictureFragment : RewindFragment() {
                     else if(currentImageIndex <= 0){
                         increaseIndex = 1
                     }
-                    handler.postDelayed(this, 300)
+                    handler.postDelayed(this, magicPlaySpeed)
                 }
             }
-            handler.postDelayed(runnable, 300)
+            handler.postDelayed(runnable, magicPlaySpeed)
         }
     }
 }

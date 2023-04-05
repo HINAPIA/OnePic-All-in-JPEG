@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditModule.Fragment.MagicPictureFragment" >
+    tools:context=".EditModule.Fragment.WarpingFragment">
+
 
     <ImageButton
-        android:id="@+id/magicCloseBtn"
+        android:id="@+id/warpingCloseBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="20dp"
@@ -20,7 +21,7 @@
         app:tint="@color/main_color" />
 
     <ImageButton
-        android:id="@+id/magicSaveBtn"
+        android:id="@+id/warpingSaveBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="23dp"
@@ -34,7 +35,7 @@
         app:tint="@color/main_color" />
 
     <ImageView
-        android:id="@+id/magicMainView"
+        android:id="@+id/warpingMainView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
@@ -42,25 +43,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/magicMainView"
-        app:layout_constraintVertical_bias="0.9">
-
-        <LinearLayout
-            android:id="@+id/magicCandidateLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -99,17 +81,16 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/magicPlayBtn"
+        android:id="@+id/warpingPlayBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:background="@color/transparent_color"
         android:scaleType="fitCenter"
         android:src="@drawable/magic_picture_play_icon"
-        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@color/main_color" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

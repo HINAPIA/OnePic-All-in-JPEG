@@ -1,4 +1,4 @@
-package com.example.onepic.Edit.Fragment
+package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.Edit.RewindModule
+import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture
@@ -94,7 +94,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     PointF(event.x, event.y),
                     view as ImageView
                 )
-                println("------- click point:" + touchPoint)
+                println("------- click point:$touchPoint")
 
                 CoroutineScope(Dispatchers.Default).launch {
                     // Click 좌표가 포함된 Bounding Box 얻음

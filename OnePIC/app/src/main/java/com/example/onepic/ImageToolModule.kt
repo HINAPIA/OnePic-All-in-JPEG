@@ -88,7 +88,6 @@ class ImageToolModule {
         return output
     }
 
-
     /**
      * overlayBitmap(original: Bitmap, add: Bitmap, optimizationX:Int, optimizationY:Int): Bitmap
      *      - original 이미지에 add 이미지를 (x, y) 좌표에 추가,
@@ -123,7 +122,7 @@ class ImageToolModule {
      * floatToDp(f : Float):
      *        float 값을 dp값으로 변화해서 반환
      */
-    private fun floatToDp(f : Float):Int {
+    fun floatToDp(f : Float):Int {
         return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
     }
 
