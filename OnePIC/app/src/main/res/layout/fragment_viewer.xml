@@ -48,28 +48,29 @@
         android:orientation="horizontal">
 
         <android.widget.Button
-            android:id="@+id/button"
+            android:id="@+id/textBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="12dp"
             android:background="@drawable/round_button"
-            android:minWidth="45dp"
-            android:minHeight="45dp"
-            android:textColor="@color/text_selector" />
+            android:fontFamily="serif"
+            android:minWidth="42dp"
+            android:minHeight="42dp"
+            android:text="T"
+            android:textSize="22sp" />
 
         <android.widget.Button
-            android:id="@+id/textBtn"
+            android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:layout_marginLeft="5dp"
             android:background="@drawable/round_button"
-            android:fontFamily="serif"
-            android:minWidth="45dp"
-            android:minHeight="45dp"
-            android:text="T"
-            android:textSize="24sp" />
+            android:minWidth="42dp"
+            android:minHeight="42dp"
+            android:textColor="@color/text_selector" />
+
     </LinearLayout>
 
     <FrameLayout
@@ -83,6 +84,52 @@
             android:layout_height="match_parent"
             android:paddingTop="15dp"
             android:paddingBottom="20dp" />
+
+        <LinearLayout
+            android:id="@+id/textLinear"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:background="@drawable/layout_background"
+            android:visibility="invisible"
+            android:orientation="horizontal">
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/button2"-->
+<!--                android:background="@color/transparent_color"-->
+<!--                android:src="@drawable/left_arrow"-->
+<!--                app:tint="@color/white"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:layout_weight="1" />-->
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/textViewPager2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="15dp"
+                android:paddingBottom="20dp" />
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/button3"-->
+<!--                android:background="@color/transparent_color"-->
+<!--                android:src="@drawable/right_arrow"-->
+<!--                app:tint="@color/white"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:layout_weight="1" />-->
+
+
+        </LinearLayout>
+
+
 
 
     </FrameLayout>

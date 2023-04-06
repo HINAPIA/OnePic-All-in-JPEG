@@ -44,4 +44,8 @@ class TextContent {
     fun getTextAtIndex(index : Int): Text?{
         return textList.get(index) ?: null
     }
+
+    fun getAllText():ArrayList<Text>{
+        return textList
+    }
 }

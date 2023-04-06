@@ -2,6 +2,8 @@ package com.example.onepic.ViewerModule
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,8 +18,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
@@ -37,8 +42,10 @@ class ViewerFragment : Fragment() {
     private lateinit var binding: FragmentViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
+    private lateinit var mainViewPagerAdapter:ViewPagerAdapter
     private var isViewChanged = MutableLiveData<Boolean>()
     private var isTxtBtnClicked = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,24 +69,36 @@ class ViewerFragment : Fragment() {
 
     fun init() {
 
-        val adapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
-        Log.d("adapter item count = ",""+adapter.itemCount)
-        binding.viewPager2.adapter = adapter
+        mainViewPagerAdapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
+        Log.d("adapter item count = ",""+mainViewPagerAdapter.itemCount)
+        binding.viewPager2.adapter = mainViewPagerAdapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-
+                mainViewPagerAdapter.notifyDataSetChanged()
                 // 텍스트 버튼 초기화
                 if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
                     binding.textBtn.setBackgroundResource(R.drawable.round_button)
                     isTxtBtnClicked = false
+                    binding.textLinear.visibility = View.INVISIBLE
+                    //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
                 }
 
                 setCurrentMCContainer(position)
             }
         })
+
+
+//        val array = arrayOf("apple", "banana", "cherry")
+//        val list = ArrayList<String>(array.toList())
+//
+//        val textViewPagerAdapter = TextViewPagerAdapter(requireContext(),list) //jpegViewModel.jpegMCContainer.value!!.textContent.getAllText())
+//        //Log.d("adapter item count = ",""+adapter.itemCount)
+//        binding.textViewPager2.adapter = textViewPagerAdapter
+//
+//
 
         isViewChanged.observe(requireActivity()){ value ->
             Log.d("[ViewerFragment] jpegMCContainer가 바뀜!","")
@@ -90,15 +109,28 @@ class ViewerFragment : Fragment() {
             }
         }
 
+        //TODO: Text가 여러 개 이므로, 어떻게 layout 구성할지 생각
         binding.textBtn.setOnClickListener{
 
+            val textLinear = binding.textLinear
+
+            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+
             if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
+                /* layout 변경 */
                 it.setBackgroundResource(R.drawable.round_button_clicked)
                 isTxtBtnClicked = true
+                textLinear.visibility = View.VISIBLE
+
             }
+
+            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
+                /* layout 변경 */
                 it.setBackgroundResource(R.drawable.round_button)
                 isTxtBtnClicked = false
+                textLinear.visibility = View.INVISIBLE
             }
         }
 
@@ -132,6 +164,7 @@ class ViewerFragment : Fragment() {
         if (pictureList != null) {
             binding.linear.removeAllViews()
             Log.d("picture list size: ",""+pictureList.size)
+
             CoroutineScope(Dispatchers.IO).launch {
                 for (picture in pictureList){
                     val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
@@ -145,10 +178,15 @@ class ViewerFragment : Fragment() {
                         Glide.with(scrollImageView)
                             .load(pictureByteArr)
                             .into(scrollImageView)
-                        binding.linear.addView(scollItemLayout)
-                    }
 
-                }
+                        scrollImageView.setOnClickListener{ // scrollview 이미지를 main으로 띄우기
+                            mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                        }
+
+                        binding.linear.addView(scollItemLayout)
+
+                    }
+                } // end of for..
             }
         }
     }
@@ -181,7 +219,7 @@ class ViewerFragment : Fragment() {
             cursor.close()
         }
         else {
-            return Uri.parse("dd")
+            return Uri.parse("invalid image")
         }
         return uri
     }
