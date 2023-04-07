@@ -15,6 +15,9 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentWarpingBinding
+import org.opencv.android.OpenCVLoader
+import org.opencv.android.Utils
+import org.opencv.core.Mat
 
 class WarpingFragment : Fragment() {
 
@@ -28,10 +31,10 @@ class WarpingFragment : Fragment() {
 
     private var triangleBitmap: ArrayList<Bitmap> = arrayListOf()
 
-//    init {
-//        val isIntialized = OpenCVLoader.initDebug()
-//        println( "isIntialized = $isIntialized")
-//    }
+    init {
+        val isIntialized = OpenCVLoader.initDebug()
+        println( "isIntialized = $isIntialized")
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -199,13 +202,13 @@ class WarpingFragment : Fragment() {
 
         return resultImg
     }
-//
-//    external fun processImage(matAddr: Long)
-//
-//    private fun bitmapWarping(bitmap: Bitmap){
-//        val image = Mat()
-//        Utils.bitmapToMat(bitmap, image)
-//
-//        processImage(image.getNativeObjAddr())
-//    }
+
+    external fun processImage(matAddr: Long)
+
+    private fun bitmapWarping(bitmap: Bitmap){
+        val image = Mat()
+        Utils.bitmapToMat(bitmap, image)
+
+        processImage(image.getNativeObjAddr())
+    }
 }
