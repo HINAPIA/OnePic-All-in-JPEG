@@ -1,0 +1,171 @@
+{
+  "abi": "X86_64",
+  "info": {
+    "abi": "X86_64",
+    "bitness": 64,
+    "deprecated": false,
+    "default": true
+  },
+  "cxxBuildFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx/Debug/3w1s725l/x86_64",
+  "soFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cxx/Debug/3w1s725l/obj/x86_64",
+  "soRepublishFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cmake/debug/obj/x86_64",
+  "abiPlatformVersion": 21,
+  "cmake": {
+    "effectiveConfiguration": {
+      "inheritEnvironments": [],
+      "variables": []
+    }
+  },
+  "variant": {
+    "buildSystemArgumentList": [
+      "-DANDROID_STL\u003dc++_shared"
+    ],
+    "cFlagsList": [],
+    "cppFlagsList": [],
+    "variantName": "debug",
+    "isDebuggableEnabled": true,
+    "validAbiList": [
+      "ARMEABI_V7A",
+      "ARM64_V8A",
+      "X86",
+      "X86_64"
+    ],
+    "buildTargetSet": [
+      "opencv_jni_shared"
+    ],
+    "implicitBuildTargetSet": [],
+    "cmakeSettingsConfiguration": "android-gradle-plugin-predetermined-name",
+    "module": {
+      "cxxFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx",
+      "intermediatesBaseFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates",
+      "intermediatesFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cxx",
+      "gradleModulePathName": ":sdk",
+      "moduleRootFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk",
+      "moduleBuildFile": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build.gradle",
+      "makeFile": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/libcxx_helper/CMakeLists.txt",
+      "buildSystem": "CMAKE",
+      "ndkFolder": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620",
+      "ndkVersion": "23.1.7779620",
+      "ndkSupportedAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultStl": "LIBCXX_STATIC",
+      "ndkMetaPlatforms": {
+        "min": 16,
+        "max": 31,
+        "aliases": {
+          "20": 19,
+          "25": 24,
+          "J": 16,
+          "J-MR1": 17,
+          "J-MR2": 18,
+          "K": 19,
+          "L": 21,
+          "L-MR1": 22,
+          "M": 23,
+          "N": 24,
+          "N-MR1": 24,
+          "O": 26,
+          "O-MR1": 27,
+          "P": 28,
+          "Q": 29,
+          "R": 30,
+          "S": 31
+        }
+      },
+      "ndkMetaAbiList": [
+        {
+          "abi": "ARMEABI_V7A",
+          "bitness": 32,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "ARM64_V8A",
+          "bitness": 64,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "X86",
+          "bitness": 32,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "X86_64",
+          "bitness": 64,
+          "deprecated": false,
+          "default": true
+        }
+      ],
+      "cmakeToolchainFile": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake",
+      "cmake": {
+        "isValidCmakeAvailable": true,
+        "cmakeExe": "/Users/hscomputerengineering/Library/Android/sdk/cmake/3.18.1/bin/cmake",
+        "minimumCmakeVersion": "3.18.1"
+      },
+      "stlSharedObjectMap": {
+        "LIBCXX_SHARED": {
+          "ARMEABI_V7A": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
+          "ARM64_V8A": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+          "X86": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
+          "X86_64": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+        },
+        "LIBCXX_STATIC": {},
+        "NONE": {},
+        "SYSTEM": {}
+      },
+      "project": {
+        "rootBuildGradleFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC",
+        "sdkFolder": "/Users/hscomputerengineering/Library/Android/sdk",
+        "isBuildOnlyTargetAbiEnabled": true,
+        "isCmakeBuildCohabitationEnabled": false,
+        "isPrefabEnabled": false
+      },
+      "outputOptions": [],
+      "ninjaExe": "/Users/hscomputerengineering/Library/Android/sdk/cmake/3.18.1/bin/ninja"
+    },
+    "prefabClassPaths": [],
+    "prefabPackages": [],
+    "prefabPackageConfigurations": [],
+    "stlType": "c++_shared",
+    "optimizationTag": "Debug"
+  },
+  "buildSettings": {
+    "environmentVariables": []
+  },
+  "prefabFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx/Debug/3w1s725l/prefab/x86_64",
+  "isActiveAbi": true,
+  "fullConfigurationHash": "3w1s725l3p2l3v2f5y2a5s6r1k5v5gn533x536h2i3d6fd3h3i605c4v215b45",
+  "configurationArguments": [
+    "-H/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/libcxx_helper",
+    "-DCMAKE_SYSTEM_NAME\u003dAndroid",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON",
+    "-DCMAKE_SYSTEM_VERSION\u003d21",
+    "-DANDROID_PLATFORM\u003dandroid-21",
+    "-DANDROID_ABI\u003dx86_64",
+    "-DCMAKE_ANDROID_ARCH_ABI\u003dx86_64",
+    "-DANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620",
+    "-DCMAKE_ANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620",
+    "-DCMAKE_TOOLCHAIN_FILE\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake",
+    "-DCMAKE_MAKE_PROGRAM\u003d/Users/hscomputerengineering/Library/Android/sdk/cmake/3.18.1/bin/ninja",
+    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cxx/Debug/3w1s725l/obj/x86_64",
+    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cxx/Debug/3w1s725l/obj/x86_64",
+    "-DCMAKE_BUILD_TYPE\u003dDebug",
+    "-B/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx/Debug/3w1s725l/x86_64",
+    "-GNinja",
+    "-DANDROID_STL\u003dc++_shared"
+  ],
+  "stlLibraryFile": "/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so",
+  "intermediatesParentFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/build/intermediates/cxx/Debug/3w1s725l"
+}

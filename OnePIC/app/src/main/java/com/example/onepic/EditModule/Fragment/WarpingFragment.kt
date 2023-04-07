@@ -1,13 +1,16 @@
 package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.graphics.*
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Switch
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.onepic.ExPictureContainer
@@ -15,7 +18,18 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.Picture
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentWarpingBinding
+import org.opencv.android.OpenCVLoader
+import org.opencv.android.Utils
+import org.opencv.core.CvType
+import org.opencv.core.CvType.CV_32FC1
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
+import org.opencv.imgproc.Imgproc.getAffineTransform
+import org.opencv.imgproc.Imgproc.warpAffine
 
+enum class TrianglePoint { right, top, left, bottom }
 class WarpingFragment : Fragment() {
 
     private lateinit var binding: FragmentWarpingBinding
@@ -27,12 +41,16 @@ class WarpingFragment : Fragment() {
     private lateinit var mainBitmap: Bitmap
 
     private var triangleBitmap: ArrayList<Bitmap> = arrayListOf()
+    private var changeTriangleBitmap: ArrayList<Bitmap> = arrayListOf()
 
-//    init {
-//        val isIntialized = OpenCVLoader.initDebug()
-//        println( "isIntialized = $isIntialized")
-//    }
+    private var clickCount = 0
+    private lateinit var touchPoint: Point
+    private lateinit var movePoint: Point
 
+    init {
+        val isIntialized = OpenCVLoader.initDebug()
+        Log.d(TAG, "isIntialized = $isIntialized")
+    }
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,8 +58,6 @@ class WarpingFragment : Fragment() {
     ): View {
         // 뷰 바인딩 설정
         binding = FragmentWarpingBinding.inflate(inflater, container, false)
-
-        System.loadLibrary("affine_transformation")
 
         /** ExPictureContainer 설정 **/
         if (arguments != null)
@@ -75,26 +91,52 @@ class WarpingFragment : Fragment() {
             findNavController().navigate(R.id.action_warpingFragment_to_editFragment, bundle)
         }
 
+
         // 이미지 뷰 클릭 시
         binding.warpingMainView.setOnTouchListener { view, event ->
 
             if (event!!.action == MotionEvent.ACTION_DOWN) {
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(
+                val point = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
                     view as ImageView
                 )
-                println("------- click point:$touchPoint")
 
-                val triangleDrawBitmap = drawTriangle(mainBitmap, touchPoint)
+                if(clickCount == 0) {
+                    touchPoint = point
+                    println("------- click point:$touchPoint")
 
-                triangleBitmap = triangleCropBitmap(mainBitmap, touchPoint)
+                    val triangleDrawBitmap = drawTriangle(mainBitmap, touchPoint)
 
-                binding.warpingMainView.setImageBitmap(triangleDrawBitmap)
+                    triangleBitmap = triangleCropBitmap(mainBitmap, touchPoint)
+
+                    binding.warpingMainView.setImageBitmap(triangleDrawBitmap)
+
+                    clickCount++
+                }
+                else {
+                    movePoint = point
+                    changeTriangleBitmap = triangleCropBitmap(mainBitmap, touchPoint)
+
+                    clickCount--
+
+                    val trianglePoint = listOf(TrianglePoint.top, TrianglePoint.left, TrianglePoint.right, TrianglePoint.bottom)
+
+                    var newMainBitmap = triangleBitmap[0]
+                    for (i in 0 until triangleBitmap.size) {
+                        triangleBitmap[i] =
+                            processImage(triangleBitmap[i], Point(movePoint.x - touchPoint.x, movePoint.y - touchPoint.y),trianglePoint[i])
+                        newMainBitmap =
+                            imageToolModule.overlayBitmap(newMainBitmap, triangleBitmap[i], 0, 0)
+                    }
+
+                    binding.warpingMainView.setImageBitmap(newMainBitmap)
+                }
             }
 
             return@setOnTouchListener true
         }
+
 
         return binding.root
     }
@@ -199,13 +241,82 @@ class WarpingFragment : Fragment() {
 
         return resultImg
     }
-//
-//    external fun processImage(matAddr: Long)
-//
-//    private fun bitmapWarping(bitmap: Bitmap){
-//        val image = Mat()
-//        Utils.bitmapToMat(bitmap, image)
-//
-//        processImage(image.getNativeObjAddr())
-//    }
+
+    private fun processImage(bitmap: Bitmap, point:Point, trianglePoint: TrianglePoint): Bitmap {
+
+        // Bitmap을 Mat 객체로 변환
+        val matAddr = Mat()
+        Utils.bitmapToMat(bitmap, matAddr)
+
+        // 이미지 포인터 가져오기
+        // 이미지 어파인 변환 수행
+        val dst = Mat()
+        var warpMat = Mat(2, 3, CV_32FC1)
+
+        val srcTri = MatOfPoint2f()
+        val dstTri = MatOfPoint2f()
+
+        // 기존에 위치했던 점들의 값
+        val pointList: ArrayList<org.opencv.core.Point> = arrayListOf()
+        val movePointList: ArrayList<org.opencv.core.Point> = arrayListOf()
+        if (trianglePoint == TrianglePoint.left || trianglePoint == TrianglePoint.top) {
+            pointList.add(org.opencv.core.Point(0.0, 0.0))
+            movePointList.add(org.opencv.core.Point(0.0, 0.0))
+        }
+        else {
+            pointList.add(org.opencv.core.Point((matAddr.cols() - 1).toDouble(),  (matAddr.rows() - 1).toDouble()))
+            movePointList.add(org.opencv.core.Point((matAddr.cols() - 1).toDouble(),  (matAddr.rows() - 1).toDouble()))
+        }
+        pointList.add(org.opencv.core.Point((matAddr.cols() - 1).toDouble(), 0.0))
+        pointList.add(org.opencv.core.Point(0.0, (matAddr.rows() - 1).toDouble()))
+
+        srcTri.fromList(pointList)
+
+
+        if (trianglePoint == TrianglePoint.left || trianglePoint == TrianglePoint.bottom) {
+            movePointList.add(
+                org.opencv.core.Point(
+                    (matAddr.cols() - 1).toDouble() + point.x.toDouble(),
+                    point.y.toDouble()
+                )
+            )
+            movePointList.add(org.opencv.core.Point(0.0, (matAddr.rows() - 1).toDouble()))
+        } else{
+            movePointList.add(org.opencv.core.Point((matAddr.cols() - 1).toDouble(), 0.0))
+            movePointList.add(
+                org.opencv.core.Point(
+                    point.x.toDouble(),
+                    (matAddr.rows() - 1).toDouble() + point.y.toDouble()
+                )
+            )
+        }
+        dstTri.fromList(movePointList)
+
+        warpMat = getAffineTransform(srcTri, dstTri)
+        warpAffine(matAddr, dst, warpMat, matAddr.size())
+
+        var newBitmap: Bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        Utils.matToBitmap(dst, newBitmap)
+
+        return newBitmap
+    }
+
+
+    private fun transformBitmap(bitmap: Bitmap, point: Point): Bitmap {
+        // 이동할 거리
+        val dx = point.x.toFloat()
+        val dy = point.y.toFloat()
+
+        // 축소할 비율
+        val scale = 1 - (point.y.toFloat() / bitmap.height)
+
+        // 변환 행렬 생성
+        val matrix = Matrix().apply {
+            postTranslate(dx, dy)
+            postScale(scale, scale, point.x.toFloat(), point.y.toFloat())
+        }
+
+        // 변환된 bitmap 생성
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
 }

@@ -30,7 +30,7 @@ class MagicPictureFragment : RewindFragment() {
     var checkMagicPicturePlay = false
     val handler = Handler()
 
-    var magicPlaySpeed: Long = 100
+    var magicPlaySpeed: Long = 200
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(

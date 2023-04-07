@@ -59,4 +59,6 @@ dependencies {
     //coroution
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:<version>'
 
+    implementation project(path: ':sdk')
+
 }

@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/libcxx_helper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/hscomputerengineering/Library/Android/sdk/cmake/3.18.1/bin/ninja",
+      "-C",
+      "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx/Debug/3w1s725l/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/hscomputerengineering/Library/Android/sdk/cmake/3.18.1/bin/ninja",
+    "-C",
+    "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/sdk/.cxx/Debug/3w1s725l/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
