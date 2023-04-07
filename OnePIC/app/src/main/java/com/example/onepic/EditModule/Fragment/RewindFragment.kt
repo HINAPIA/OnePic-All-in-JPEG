@@ -1,13 +1,13 @@
 package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -22,13 +22,8 @@ import com.example.onepic.*
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
-import com.example.onepic.PictureModule.MCContainer
-import com.example.onepic.SaveModule.SaveResolver
 import com.example.onepic.databinding.FragmentRewindBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -137,6 +132,9 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 // imageView 변환
                 withContext(Dispatchers.Main) {
+
+
+
                     binding.rewindMainView.setImageBitmap(faceResultBitmap)
                 }
             } catch (e: Exception) { // 예외 처리를 수행
@@ -152,17 +150,24 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
         setMainImageBoundingBox()
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun changeFragment(){
-        val byte = imageToolModule.bitmapToByteArray(mainBitmap)
-        mainBitmap= imageToolModule.byteArrayToBitmap(byte)
-  //      imageConent.mainPicture = Picture(ContentAttribute.general,imageConent.extractFrame(byte) )
-   //     imageConent.mainPicture.waitForByteArrayInitialized()
+    fun changeFragment() {
+        CoroutineScope(Dispatchers.Default).launch {
+            val allBytes = imageToolModule.bitmapToByteArray(mainBitmap)
+            //mainBitmap= imageToolModule.byteArrayToBitmap(byte)
+       //     val JpegBytes = imageConent.getJpegBytes(allBytes.copyOfRange(2, allBytes.size))
+       //     mainBitmap = imageToolModule.byteArrayToBitmap(JpegBytes)
 
-   //     mainBitmap =  imageToolModule.byteArrayToBitmap(imageConent.getJpegBytes(imageConent.mainPicture))
+            imageConent.mainPicture = Picture(ContentAttribute.edited,imageConent.extractSOI(allBytes) )
+            imageConent.mainPicture.waitForByteArrayInitialized()
+          //  mainBitmap =  imageToolModule.byteArrayToBitmap(imageConent.getJpegBytes(imageConent.mainPicture))
 //            val bundle = Bundle()
 //            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-        findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
+            withContext(Dispatchers.Main){
+                findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
+            }
+
+
+        }
     }
 
     /**
@@ -276,6 +281,7 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
                 )
                 newImage = imageToolModule.circleCropBitmap(newImage)
                 mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
+
                 binding.rewindMainView.setImageBitmap(mainBitmap)
             }
 

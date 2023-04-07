@@ -52,7 +52,7 @@ class ImageContent {
         jpegMetaData = extractJpegMeta(sourceByteArray)
         var frameBytes : ByteArray = extractFrame(sourceByteArray)
         // Picture 객체 생성
-        var picture = Picture(ContentAttribute.general, frameBytes)
+        var picture = Picture(ContentAttribute.basic, frameBytes)
         picture.waitForByteArrayInitialized()
         insertPicture(picture)
         mainPicture = pictureList.get(0)
@@ -79,6 +79,15 @@ class ImageContent {
         val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
         buffer.put(jpegMetaData)
         buffer.put(picture._pictureByteArray)
+        buffer.put("ff".toInt(16).toByte())
+        buffer.put("d9".toInt(16).toByte())
+        return buffer.array()
+    }
+
+    fun getJpegBytes(frameByteArray : ByteArray) : ByteArray{
+        val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + frameByteArray.size+2)
+        buffer.put(jpegMetaData)
+        buffer.put(frameByteArray)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("d9".toInt(16).toByte())
         return buffer.array()
@@ -121,6 +130,10 @@ class ImageContent {
         // start 마커부터 end 마커를 포함한 영역까지 복사해서 resultBytes에 저장
         // System.arraycopy(jpegBytes, startIndex, resultByte, 0, endIndex - startIndex + 2)
         return resultByte
+    }
+
+    fun extractSOI(jpegBytes: ByteArray): ByteArray{
+        return jpegBytes.copyOfRange(2, jpegBytes.size)
     }
     // 한 파일에서 SOF~EOI 부분의 바이너리 데이터를 찾아 ByteArray에 담아 리턴
      fun extractFrame(jpegBytes: ByteArray): ByteArray {
@@ -201,7 +214,5 @@ class ImageContent {
 
 
     }
-
-
 
 }

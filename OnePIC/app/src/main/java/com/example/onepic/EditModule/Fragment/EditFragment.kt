@@ -14,6 +14,7 @@ import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.PictureModule.MCContainer
 import com.example.onepic.*
+import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,12 +49,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //        val mainPicture = MCContainer.getMainPicture()
 //        val mainImageBytes = MCContainer.imageContent.getJpegBytes(mainPicture)
 //        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImageBytes)
-        binding.mainImageView.setImageBitmap(mainBitmap)
-//        CoroutineScope(Dispatchers.Main).launch{
-//            Glide.with(binding.mainImageView)
-//                .load(mainByteArray)
-//                .into(binding.mainImageView)
-//        }
+       // binding.mainImageView.setImageBitmap(mainBitmap)
+        CoroutineScope(Dispatchers.Main).launch{
+            Glide.with(binding.mainImageView)
+                .load(mainByteArray)
+                .into(binding.mainImageView)
+        }
         return binding.root
     }
 
@@ -62,12 +63,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            // 객체를 Bundle에 저장하여 RewindFragment로 전달
-          //  val bundle = Bundle()
-         //   bundle.putSerializable("exPictureContainer", imageConent)
 
-            // RewindFragment로 이동
-            findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
+            // 일반 사진이면 안 넘어가도록
+            if(!(imageConent.mainPicture.contentAttribute == ContentAttribute.basic)){
+                // RewindFragment로 이동
+                findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
+            }
+
         }
         binding.backBtn.setOnClickListener {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)

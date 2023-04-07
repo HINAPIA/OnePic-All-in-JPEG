@@ -10,7 +10,6 @@ import kotlinx.coroutines.*
 
 
 class LoadResolver() {
-
     fun ByteArraytoInt(byteArray: ByteArray, stratOffset : Int): Int {
         var intNum :Int = ((byteArray[stratOffset].toInt() and 0xFF) shl 24) or
                 ((byteArray[stratOffset+1].toInt() and 0xFF) shl 16) or
@@ -18,8 +17,6 @@ class LoadResolver() {
                 ((byteArray[stratOffset+3].toInt() and 0xFF))
         return intNum
     }
-
-
     suspend fun imageContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray): ArrayList<Picture> = withContext(Dispatchers.Default) {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
@@ -79,50 +76,69 @@ class LoadResolver() {
         isViewChanged: MutableLiveData<Boolean>
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            var APP3_startOffset = 4
-            if(!(sourceByteArray[2].toInt() == -1 && sourceByteArray[3].toInt() == -29)){
+            // APP3 세그먼트의 시작 위치를 찾음
+            var APP3_startOffset = 2
+            while (APP3_startOffset < sourceByteArray.size - 1) {
+                if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
+                    APP3_startOffset +=2
+                    break
+                }
+                APP3_startOffset++
+            }
+            if (APP3_startOffset == sourceByteArray.size - 1) {
+                // APP4 세그먼트를 찾지 못함
                 // 일반 JPEG
                 Log.d("test_test", "일반 JPEG 생성")
                 MCContainer.setBasicJepg(sourceByteArray)
-
             }
-            else{
+
+            else {
                 Log.d("test_test", "MC JPEG 생성")
                 // var header : Header = Header()
                 var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
                 // 1. ImageContent
                 var imageContentInfoSize = ByteArraytoInt(sourceByteArray, APP3_startOffset + 4)
                 var pictureList = async {
-                    imageContentParsing(MCContainer,sourceByteArray, sourceByteArray.copyOfRange(APP3_startOffset + 8, APP3_startOffset + 12 + imageContentInfoSize))
+                    imageContentParsing(
+                        MCContainer,
+                        sourceByteArray,
+                        sourceByteArray.copyOfRange(
+                            APP3_startOffset + 8,
+                            APP3_startOffset + 12 + imageContentInfoSize
+                        )
+                    )
                 }
-                Log.d("test_test", "PictureList await() 전")
                 MCContainer.imageContent.setContent(pictureList.await())
-                Log.d("test_test", "PictureList await()  후")
+
                 // 2. TextContent
                 var textContentStartOffset = APP3_startOffset + 4 + imageContentInfoSize
                 var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
-                if(textContentInfoSize > 0){
-                    var textList = textContentParsing(MCContainer,sourceByteArray.copyOfRange(textContentStartOffset +4, textContentStartOffset + 8 + textContentInfoSize))
+                if (textContentInfoSize > 0) {
+                    var textList = textContentParsing(
+                        MCContainer,
+                        sourceByteArray.copyOfRange(
+                            textContentStartOffset + 4,
+                            textContentStartOffset + 8 + textContentInfoSize
+                        )
+                    )
                     MCContainer.textContent.setContent(textList)
                 }
 
                 // 3. AudioContent
                 // MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(0)))
                 //  MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(1)))
+                // MCContainer.setContainer(groupContentList)
 
             }
-
-            // MCContainer.setContainer(groupContentList)
             CoroutineScope(Dispatchers.Main).launch {
-                Log.d("test_test","isViewChanged.value = true")
+                Log.d("test_test", "isViewChanged.value = true")
                 isViewChanged.value = true
             }
             Log.d("test_test", "PictureList await() 리턴 전")
             return@launch
         }
-
-
     }
+
 
     fun textContentParsing(MCContainer: MCContainer, textInfoByteArray: ByteArray) : ArrayList<Text>{
         var textList : ArrayList<Text> = arrayListOf()
