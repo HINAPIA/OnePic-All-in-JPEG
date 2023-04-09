@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@id/editFragment">
+    app:startDestination="@id/viewerFragment">
 
     <fragment
         android:id="@+id/editFragment"
@@ -17,8 +17,8 @@
             android:id="@+id/action_editFragment_to_magicPictureFragment"
             app:destination="@id/magicPictureFragment" />
         <action
-            android:id="@+id/action_editFragment_to_warpingFragment"
-            app:destination="@id/warpingFragment" />
+            android:id="@+id/action_editFragment_to_viewerFragment"
+            app:destination="@id/viewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -39,12 +39,12 @@
             app:destination="@id/editFragment" />
     </fragment>
     <fragment
-        android:id="@+id/warpingFragment"
-        android:name="com.example.onepic.EditModule.Fragment.WarpingFragment"
-        android:label="fragment_warping"
-        tools:layout="@layout/fragment_warping" >
+        android:id="@+id/viewerFragment"
+        android:name="com.example.onepic.ViewerModule.ViewerFragment"
+        android:label="ViewerFragment"
+        tools:layout="@layout/fragment_viewer" >
         <action
-            android:id="@+id/action_warpingFragment_to_editFragment"
+            android:id="@+id/action_viewerFragment_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
 </navigation>
