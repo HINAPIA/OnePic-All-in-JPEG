@@ -5,24 +5,25 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.onepic.PictureModule.ImageContent
+import com.example.onepic.*
 import com.example.onepic.EditModule.RewindModule
-import com.example.onepic.ExPictureContainer
-import com.example.onepic.ImageToolModule
-import com.example.onepic.Picture
-import com.example.onepic.R
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.databinding.FragmentRewindBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -36,6 +37,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected lateinit var mainPicture: Picture
     protected lateinit var mainBitmap: Bitmap
 
+    var activity : MainActivity = MainActivity()
+
     protected var changeFaceStartX = 0
     protected var changeFaceStartY = 0
 
@@ -44,6 +47,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     protected val cropBitmapList: ArrayList<Bitmap> = arrayListOf()
 
+    private val jpegViewModel by activityViewModels<JpegViewModel>()
+    private lateinit var imageConent : ImageContent
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,46 +59,48 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 뷰 바인딩 설정
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
-        /** ExPictureContainer 설정 **/
-        if(arguments != null)
-        exPictureContainer =
-            requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
-        else
-            exPictureContainer = ExPictureContainer(inflater.context)
+        imageConent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
         // main Picture의 byteArray를 bitmap 제작
-        mainPicture = exPictureContainer.getMainPicture()
-        mainBitmap = imageToolModule.byteArrayToBitmap(mainPicture.byteArray)
+        mainPicture = imageConent.mainPicture
+        mainBitmap = ImageToolModule().byteArrayToBitmap(imageConent.getJpegBytes(mainPicture))
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = exPictureContainer.getPictureList(1, "BurstShots")
+        pictureList = imageConent.pictureList
 
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
-            mainPicture.byteArray = imageToolModule.bitmapToByteArray(mainBitmap)
-            exPictureContainer.setMainPicture(0, mainPicture)
 
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
+            CoroutineScope(Dispatchers.Default).launch {
+                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap)
+
+                imageConent.mainPicture = Picture(ContentAttribute.edited,imageConent.extractSOI(allBytes) )
+                imageConent.mainPicture.waitForByteArrayInitialized()
+
+                withContext(Dispatchers.Main){
+                    findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
+                }
+            }
         }
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
 
-            if (bitmapList.size == 0) {
-                setBitmapPicture()
-            }
-            CoroutineScope(Dispatchers.Default).launch {
-                val newBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
+//            if (bitmapList.size == 0) {
+//                setBitmapPicture()
+//            }
+//            CoroutineScope(Dispatchers.Default).launch {
+//                val newBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
+//
+//                withContext(Dispatchers.Main) {
+//                    binding.rewindMainView.setImageBitmap(newBitmap)
+//                }
+//            }
 
-                withContext(Dispatchers.Main) {
-                    binding.rewindMainView.setImageBitmap(newBitmap)
-                }
-            }
+            findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
         }
 
         // 이미지 뷰 클릭 시
@@ -134,6 +143,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             // imageView 변환
             withContext(Dispatchers.Main) {
                 binding.rewindMainView.setImageBitmap(faceResultBitmap)
+
             }
         }
     }
@@ -145,13 +155,18 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         setMainImageBoundingBox()
     }
 
+    fun changeFragment() {
+
+    }
+
     /**
      * setBitmapPicture()
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
      */
     protected fun setBitmapPicture() {
         for(i in 0 until pictureList.size) {
-            bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
+            //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
+            bitmapList.add(imageToolModule.byteArrayToBitmap((imageConent.getJpegBytes(pictureList.get(i)))))
         }
     }
 
@@ -254,6 +269,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 )
                 newImage = imageToolModule.circleCropBitmap(newImage)
                 mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
+
                 binding.rewindMainView.setImageBitmap(mainBitmap)
             }
 

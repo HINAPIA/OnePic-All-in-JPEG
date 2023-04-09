@@ -5,11 +5,14 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.core.graphics.toRectF
-import androidx.lifecycle.lifecycleScope
 import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetector
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +36,7 @@ class RewindModule() {
      *      - face Detection을 하기 위해 필요한 분석기 옵션 설정
      */
     private fun setFaceDetecter() {
+
         //High-accuracy landmark detection and face classification
         val highAccuracyOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -60,13 +64,35 @@ class RewindModule() {
                 bitmapResult.resume(bitmap)
             else
             // faceDetection 결과(bindingBox) 그리기
-                bitmapResult.resume(
-                    ImageToolModule().drawDetectionResult(
-                        bitmap,
-                        faces!!,
-                        R.color.main_color
-                    )
-                )
+
+                bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
+
+        }
+    }
+
+    /**
+     * getDrawRectFaceBitmap(bitmap: Bitmap)
+     *      - bitmap에서 얼굴 detection을 실행 및
+     *        감지된 얼굴에 사각형 그리기
+     */
+    suspend fun getDrawRectFaceBitmap(bitmap: Bitmap): Bitmap = suspendCoroutine { bitmapResult ->
+
+        // face Detection
+        var faces : ArrayList<Face>? = null
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                faces = runFaceContourDetection(bitmap)
+                // 얼굴 검출 결과값을 이용하여 다음 작업을 수행합니다.
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 예외 처리를 수행합니다.
+            }
+
+            if (faces == null)
+                bitmapResult.resume(bitmap)
+            else
+            // faceDetection 결과(bindingBox) 그리기
+                bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
 
         }
     }
@@ -117,6 +143,7 @@ class RewindModule() {
                 }
             }
         }
+
 
     /**
      * runFaceContourDetection(bitmap: Bitmap): ArrayList<Face>
@@ -249,10 +276,10 @@ class RewindModule() {
         var cropImg = imageToolModule.cropBitmap(changeImg, cropImgRect)
         cropImg = imageToolModule.circleCropBitmap(cropImg)
         val overlayImg = imageToolModule.overlayBitmap(
-                originalImg, cropImg,
-                (originalFaceLandmarks[2].position.x).toInt(),
-                (originalFaceLandmarks[3].position.y - addStartY).toInt()
-            )
+            originalImg, cropImg,
+            (originalFaceLandmarks[2].position.x).toInt(),
+            (originalFaceLandmarks[3].position.y - addStartY).toInt()
+        )
         return overlayImg
     }
 }

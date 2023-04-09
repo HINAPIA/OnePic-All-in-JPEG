@@ -59,4 +59,16 @@ dependencies {
     //coroution
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:<version>'
 
+
+    //activityViewmodels
+    implementation 'androidx.activity:activity-ktx:1.1.0'
+
+    //viewPager2
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    
+
 }
