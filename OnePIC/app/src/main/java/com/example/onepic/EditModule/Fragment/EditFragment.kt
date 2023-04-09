@@ -49,12 +49,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //        val mainPicture = MCContainer.getMainPicture()
 //        val mainImageBytes = MCContainer.imageContent.getJpegBytes(mainPicture)
 //        val mainBitmap = ImageToolModule().byteArrayToBitmap(mainImageBytes)
-       // binding.mainImageView.setImageBitmap(mainBitmap)
-        CoroutineScope(Dispatchers.Main).launch{
-            Glide.with(binding.mainImageView)
-                .load(mainByteArray)
-                .into(binding.mainImageView)
-        }
+        binding.mainImageView.setImageBitmap(mainBitmap)
+
         return binding.root
     }
 
