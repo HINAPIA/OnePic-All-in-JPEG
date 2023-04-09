@@ -55,9 +55,10 @@ class ImageToolModule {
             , width          // 넓이
             , height         // 높이
         )
-        if (result != original) {
-            original.recycle()
-        }
+        // 이미지 할당 해제
+//        if (result != original) {
+//            original.recycle()
+//        }
         return result
     }
 

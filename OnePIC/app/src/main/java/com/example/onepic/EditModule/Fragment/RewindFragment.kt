@@ -81,9 +81,17 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_rewindFragment_to_editFragment, bundle)
+
+            if (bitmapList.size == 0) {
+                setBitmapPicture()
+            }
+            CoroutineScope(Dispatchers.Default).launch {
+                val newBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
+
+                withContext(Dispatchers.Main) {
+                    binding.rewindMainView.setImageBitmap(newBitmap)
+                }
+            }
         }
 
         // 이미지 뷰 클릭 시
@@ -220,7 +228,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             // bitmap를 자르기
             val cropImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                bitmapList[rect[0]],
+                //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
             // 크롭이미지 배열에 값 추가
@@ -239,7 +248,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
             cropImageView.setOnClickListener{
                 var newImage = imageToolModule.cropBitmap(
-                    bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                    bitmapList[rect[0]],
+                    //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                     Rect(rect[5], rect[6], rect[7], rect[8])
                 )
                 newImage = imageToolModule.circleCropBitmap(newImage)
