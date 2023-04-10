@@ -6,11 +6,11 @@
 
     <ImageView
         android:id="@+id/scrollImageView"
-        android:padding="3dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_margin="3dp"
-        android:layout_width="130dp"
-        android:layout_height="130dp"
         android:background="@drawable/chosen_image_border"
+        android:padding="3dp"
         android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
