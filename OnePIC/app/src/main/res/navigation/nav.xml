@@ -34,5 +34,16 @@
         <action
             android:id="@+id/action_viewerFragment_to_editFragment"
             app:destination="@id/editFragment" />
+        <action
+            android:id="@+id/action_viewerFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/galleryFragment"
+        android:name="com.example.onepic.ViewerModule.GalleryFragment"
+        android:label="GalleryFragment" >
+        <action
+            android:id="@+id/action_galleryFragment_to_viewerFragment"
+            app:destination="@id/viewerFragment" />
     </fragment>
 </navigation>
