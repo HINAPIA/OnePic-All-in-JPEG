@@ -1,15 +1,20 @@
 package com.example.onepic
 
+import android.app.Activity
 import android.content.res.Resources
 import android.graphics.*
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import com.google.mlkit.vision.face.Face
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
 
 
 class ImageToolModule {
@@ -49,6 +54,7 @@ class ImageToolModule {
         val matrix = bitmapRotation(byteArray , 1)
 
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
     }
 
     fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
@@ -74,22 +80,23 @@ class ImageToolModule {
      */
     fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
 
-        var width = (cropRect.right - cropRect.left)
-        var height = cropRect.bottom - cropRect.top
-        var startX = cropRect.left
-        var startY = cropRect.top
-        if (startX < 0)
-            startX = 0
-        else if (startX + width > original.width)
-            width = original.width - startX
-        if (startY < 0)
-            startY = 0
-        else if (startY + height > original.height)
-            height = original.height - startY
+            var width = (cropRect.right - cropRect.left)
+            var height = cropRect.bottom - cropRect.top
+            var startX = cropRect.left
+            var startY = cropRect.top
+            if (startX < 0)
+                startX = 0
+            else if (startX+width > original.width)
+                width = original.width-startX
+            if (startY < 0)
+                startY = 0
+            else if(startY+height > original.height)
+                height = original.height-startY
 
 
         val result = Bitmap.createBitmap(
-            original, startX         // X 시작위치
+            original
+            , startX         // X 시작위치
             , startY         // Y 시작위치
             , width          // 넓이
             , height         // 높이

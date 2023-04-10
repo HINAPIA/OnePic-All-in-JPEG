@@ -12,8 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.RewindModule
-import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
@@ -34,6 +34,7 @@ class MagicPictureFragment : RewindFragment() {
 
     var magicPlaySpeed: Long = 100
 
+    val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,15 +43,31 @@ class MagicPictureFragment : RewindFragment() {
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
-
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        fragment = this
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+
+        //mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        CoroutineScope(Dispatchers.Main).launch {
+
+            mainBitmap = withContext(Dispatchers.IO) {
+                Glide.with(fragment)
+                    .asBitmap()
+                    .load(imageContent.getJpegBytes(mainPicture))
+                    .submit()
+                    .get()
+            }
+
+            withContext(Dispatchers.Main) {
+                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
+            }
+        }
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
         pictureList = imageContent.pictureList
@@ -107,6 +124,34 @@ class MagicPictureFragment : RewindFragment() {
                         cropImgAndView(boundingBox)
                     }
                 }
+            }
+            return@setOnTouchListener true
+        }
+
+        binding.topArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(0, -2)
+                return@setOnTouchListener true
+            }
+            else {
+                return@setOnTouchListener false
+            }
+        }
+        binding.bottomArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(0, 2)
+            }
+            return@setOnTouchListener true
+        }
+        binding.leftArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(-2, 0)
+            }
+            return@setOnTouchListener true
+        }
+        binding.rightArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(2, 0)
             }
             return@setOnTouchListener true
         }
@@ -175,19 +220,18 @@ class MagicPictureFragment : RewindFragment() {
     }
 
     private fun cinemagraphRun(cropBitmapList: ArrayList<Bitmap>) {
-        val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
+        ovelapBitmap.clear()
         CoroutineScope(Dispatchers.Main).launch {
-            for (i in 0 until bitmapList.size) {
-                val newImage = imageToolModule.circleCropBitmap(cropBitmapList[i])
+            for (i in 0 until cropBitmapList.size) {
+                newImage = imageToolModule.circleCropBitmap(cropBitmapList[i])
                 ovelapBitmap.add(
                     imageToolModule.overlayBitmap(
                         mainBitmap,
-                        newImage,
+                        newImage!!,
                         changeFaceStartX,
                         changeFaceStartY
                     )
                 )
-
             }
             var currentImageIndex = 0
             var increaseIndex = 1
@@ -210,6 +254,22 @@ class MagicPictureFragment : RewindFragment() {
                 }
             }
             handler.postDelayed(runnable, magicPlaySpeed)
+        }
+    }
+    private fun moveCropFace(moveX:Int, moveY:Int) {
+        if (newImage != null) {
+
+            changeFaceStartX += moveX
+            changeFaceStartY += moveY
+
+            ovelapBitmap[0] = imageToolModule.overlayBitmap(
+                mainBitmap,
+                newImage!!,
+                changeFaceStartX,
+                changeFaceStartY
+            )
+
+            binding.magicMainView.setImageBitmap(ovelapBitmap[0])
         }
     }
 }

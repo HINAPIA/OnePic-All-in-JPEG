@@ -9,15 +9,21 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.PictureModule.ImageContent
+import com.bumptech.glide.Glide
 import com.example.onepic.*
 import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.databinding.FragmentEditBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var binding: FragmentEditBinding
 
     var activity : MainActivity = MainActivity()
+    lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
 
@@ -30,13 +36,24 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        fragment = this
 
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
-        val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
+        //val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
+        CoroutineScope(Dispatchers.Main).launch {
+            val mainBitmap = withContext(Dispatchers.IO) {
+                Glide.with(fragment)
+                    .asBitmap()
+                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                    .submit()
+                    .get()
+            }
 
-        binding.mainImageView.setImageBitmap(mainBitmap)
-
+            withContext(Dispatchers.Main) {
+                binding.mainImageView.setImageBitmap(mainBitmap)
+            }
+        }
         return binding.root
     }
 

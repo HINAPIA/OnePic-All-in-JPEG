@@ -7,7 +7,6 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -17,17 +16,19 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.PictureModule.ImageContent
+import com.bumptech.glide.Glide
 import com.example.onepic.*
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 open class RewindFragment : Fragment(R.layout.fragment_rewind) {
+
     private lateinit var binding: FragmentRewindBinding
 
     protected lateinit var imageToolModule: ImageToolModule
@@ -35,6 +36,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     protected lateinit var mainPicture: Picture
     protected lateinit var mainBitmap: Bitmap
+    protected lateinit var preMainBitmap: Bitmap
 
     var activity : MainActivity = MainActivity()
 
@@ -48,6 +50,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     protected val jpegViewModel by activityViewModels<JpegViewModel>()
     protected lateinit var imageContent : ImageContent
+    lateinit var fragment :Fragment
+
+    var newImage: Bitmap? = null
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
@@ -59,14 +64,28 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        fragment = this
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        //mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        CoroutineScope(Dispatchers.Main).launch {
+            mainBitmap = withContext(Dispatchers.IO) {
+                Glide.with(fragment)
+                    .asBitmap()
+                    .load(imageContent.getJpegBytes(mainPicture))
+                    .submit()
+                    .get()
+            }
 
+            withContext(Dispatchers.Main) {
+                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
+            }
+        }
         // rewind 가능한 연속 사진 속성의 picture list 얻음
         pictureList = imageContent.pictureList
 
@@ -95,7 +114,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 setBitmapPicture()
             }
             CoroutineScope(Dispatchers.Default).launch {
-                mainBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
+                mainBitmap = rewindModule.autoBestFaceChange( bitmapList)
 
                 withContext(Dispatchers.Main) {
                     binding.rewindMainView.setImageBitmap(mainBitmap)
@@ -128,6 +147,34 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             return@setOnTouchListener true
         }
 
+        binding.topArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(0, -2)
+                return@setOnTouchListener true
+            }
+            else {
+                return@setOnTouchListener false
+            }
+        }
+        binding.bottomArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(0, 2)
+            }
+            return@setOnTouchListener true
+        }
+        binding.leftArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(-2, 0)
+            }
+            return@setOnTouchListener true
+        }
+        binding.rightArrowBtn.setOnTouchListener { view, motionEvent ->
+            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
+                moveCropFace(2, 0)
+            }
+            return@setOnTouchListener true
+        }
+
         return binding.root
     }
 
@@ -148,14 +195,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        setMainImageBoundingBox()
-    }
-
-
     /**
      * setBitmapPicture()
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
@@ -168,7 +207,15 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         for(i in 0 until pictureList.size) {
             CoroutineScope(Dispatchers.Default).launch {
                 //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
-                bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
+                ///bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
+                bitmapList.add(withContext(Dispatchers.IO) {
+                    Glide.with(fragment)
+                        .asBitmap()
+                        .load(imageContent.getJpegBytes(pictureList[i]))
+                        .submit()
+                        .get()
+                })
+
                 checkFinish[i] = true
             }
         }
@@ -281,13 +328,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
             cropImageView.setOnClickListener{
-                var newImage = imageToolModule.cropBitmap(
+                newImage = imageToolModule.cropBitmap(
                     bitmapList[rect[0]],
                     //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                     Rect(rect[5], rect[6], rect[7], rect[8])
                 )
-                newImage = imageToolModule.circleCropBitmap(newImage)
-                mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
+                newImage = imageToolModule.circleCropBitmap(newImage!!)
+                preMainBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true)
+                mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY)
 
                 binding.rewindMainView.setImageBitmap(mainBitmap)
             }
@@ -297,4 +345,20 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
+    private fun moveCropFace(moveX:Int, moveY:Int) {
+        if (newImage != null) {
+
+            changeFaceStartX += moveX
+            changeFaceStartY += moveY
+
+            mainBitmap = imageToolModule.overlayBitmap(
+                preMainBitmap,
+                newImage!!,
+                changeFaceStartX,
+                changeFaceStartY
+            )
+
+            binding.rewindMainView.setImageBitmap(mainBitmap)
+        }
+    }
 }

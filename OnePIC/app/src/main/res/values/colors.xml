@@ -4,6 +4,7 @@
     <color name="main_color">#B8C5BB</color>
     <color name="sideBar_color">#80D7D7D7</color>
     <color name="dialog_button_color">#BEDFDFDF</color>
+    <color name="arrow_triangle_color">#D7D7D7</color>
     <color name="transparent_color">#00FFFFFF</color>
     <color name="button_color">#6B8B7A</color>
     <color name="purple_200">#FFBB86FC</color>

@@ -171,7 +171,7 @@ class RewindModule() {
      *      - 여러 사진을 분석하여 각 인물 별로 가장 잘 나온 얼굴로 변환해 bitmap return
      */
 
-    suspend fun autoBestFaceChange(bitmapList: ArrayList<Bitmap>, bestFaceStandart: Int): Bitmap =
+    suspend fun autoBestFaceChange(bitmapList: ArrayList<Bitmap>): Bitmap =
         suspendCoroutine { continuation ->
             lateinit var basicInformation: List<Face>
 
@@ -196,7 +196,7 @@ class RewindModule() {
             }
 
             while(!checkFinish.all { it }) {
-               
+
             }
 
             CoroutineScope(Dispatchers.Default).launch {
@@ -221,27 +221,18 @@ class RewindModule() {
                             // bestFace 정보 알아내기
                             val best = bestFace[index]
 
-                            if (bestFaceStandart == 0) { // 베스트 사진의 기준이 눈일 때
-                                // 가장 눈을 뜬 사진 알아내기
-                                if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
-                                    best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
-                                ) {
+                            if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
+                                best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!)
+                            {
+                                if(best.smilingProbability!! < checkFace.smilingProbability!!) {
                                     bestFace[index] = checkFace
                                     bestFaceIndex[index] = j
                                 }
-                            } else if (bestFaceStandart == 1) { // 베스트 사진의 기준이 입일 때
-                                if (best.smilingProbability!! < checkFace.smilingProbability!!) {
-                                    bestFace[index] = checkFace
-                                    bestFaceIndex[index] = j
-                                }
-                            } else {  // 베스트 사진의 기준이 눈,입일 때
-                                if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
-                                    best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!! &&
-                                    best.smilingProbability!! < checkFace.smilingProbability!!
-                                ) {
-                                    bestFace[index] = checkFace
-                                    bestFaceIndex[index] = j
-                                }
+                            }
+                            if(checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
+                                && best.smilingProbability!! < checkFace.smilingProbability!!) {
+                                bestFace[index] = checkFace
+                                bestFaceIndex[index] = j
                             }
                         }
                     }
