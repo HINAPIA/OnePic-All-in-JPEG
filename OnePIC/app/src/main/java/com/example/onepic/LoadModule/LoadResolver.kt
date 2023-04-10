@@ -131,10 +131,8 @@ class LoadResolver() {
 
             }
             CoroutineScope(Dispatchers.Main).launch {
-                Log.d("test_test", "isViewChanged.value = true")
                 isViewChanged.value = true
             }
-            Log.d("test_test", "PictureList await() 리턴 전")
             return@launch
         }
     }

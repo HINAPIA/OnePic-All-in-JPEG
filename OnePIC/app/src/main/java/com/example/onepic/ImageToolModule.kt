@@ -7,6 +7,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import com.google.mlkit.vision.face.Face
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 class ImageToolModule {
     /**
@@ -37,29 +38,30 @@ class ImageToolModule {
      */
     fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
 
-        var width = (cropRect.right - cropRect.left)
-        var height = cropRect.bottom - cropRect.top
-        var startX = cropRect.left
-        var startY = cropRect.top
-        if (startX < 0)
-            startX = 0
-        else if (startX+width > original.width)
-            width = original.width-startX
-        if (startY < 0)
-            startY = 0
-        else if(startY+height > original.height)
-            height = original.height-startY
+            var width = (cropRect.right - cropRect.left)
+            var height = cropRect.bottom - cropRect.top
+            var startX = cropRect.left
+            var startY = cropRect.top
+            if (startX < 0)
+                startX = 0
+            else if (startX+width > original.width)
+                width = original.width-startX
+            if (startY < 0)
+                startY = 0
+            else if(startY+height > original.height)
+                height = original.height-startY
 
-        val result = Bitmap.createBitmap(
-            original
-            , startX         // X 시작위치
-            , startY         // Y 시작위치
-            , width          // 넓이
-            , height         // 높이
-        )
-        if (result != original) {
-            original.recycle()
-        }
+            val result = Bitmap.createBitmap(
+                original
+                , startX         // X 시작위치
+                , startY         // Y 시작위치
+                , width          // 넓이
+                , height         // 높이
+            )
+            if (result != original) {
+                original.recycle()
+            }
+
         return result
     }
 

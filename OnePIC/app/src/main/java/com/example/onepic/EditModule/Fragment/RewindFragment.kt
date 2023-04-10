@@ -131,11 +131,7 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
                 val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap)
 
                 // imageView 변환
-                withContext(Dispatchers.Main) {
-
-
-
-                    binding.rewindMainView.setImageBitmap(faceResultBitmap)
+                withContext(Dispatchers.Main) { binding.rewindMainView.setImageBitmap(faceResultBitmap)
                 }
             } catch (e: Exception) { // 예외 처리를 수행
                 e.printStackTrace()
@@ -157,7 +153,7 @@ class rewindFragment : Fragment(R.layout.fragment_rewind) {
        //     val JpegBytes = imageConent.getJpegBytes(allBytes.copyOfRange(2, allBytes.size))
        //     mainBitmap = imageToolModule.byteArrayToBitmap(JpegBytes)
 
-            imageConent.mainPicture = Picture(ContentAttribute.edited,imageConent.extractSOI(allBytes) )
+            imageConent.mainPicture = Picture(ContentAttribute.edited,imageConent.extractSOI(allBytes))
             imageConent.mainPicture.waitForByteArrayInitialized()
           //  mainBitmap =  imageToolModule.byteArrayToBitmap(imageConent.getJpegBytes(imageConent.mainPicture))
 //            val bundle = Bundle()

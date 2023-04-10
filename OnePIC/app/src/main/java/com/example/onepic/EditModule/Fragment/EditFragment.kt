@@ -55,6 +55,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 .load(mainByteArray)
                 .into(binding.mainImageView)
         }
+
+        binding.saveBtn.setOnClickListener{
+            // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg? 저장
+            imageConent.insertPicture(0, mainPicture)
+            jpegViewModel.jpegMCContainer.value?.save()
+        }
         return binding.root
     }
 

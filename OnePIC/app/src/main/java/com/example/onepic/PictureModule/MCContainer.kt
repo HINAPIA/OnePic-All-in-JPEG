@@ -33,8 +33,6 @@ class MCContainer(_activity: Activity) {
 
     }
 
-
-
     /*Edit modules에서 호출하는 함수*/
     //해당 그룹에 존재하는 picture 모두를 list로 제공
     fun getPictureList() : ArrayList<Picture>{

@@ -8,7 +8,6 @@ class Picture(val contentAttribute: ContentAttribute,
               var pictureByteArray: ByteArray? = null) {
     var _pictureByteArray: ByteArray? = null
     var size: Int = pictureByteArray?.size ?: 0
-        private set
     var embeddedSize = 0
     var embeddedData: ArrayList<Int>? = null
     var offset = 0
@@ -17,7 +16,6 @@ class Picture(val contentAttribute: ContentAttribute,
         if (pictureByteArray != null) {
             _pictureByteArray = pictureByteArray
             size = pictureByteArray!!.size
-
         }
     }
 

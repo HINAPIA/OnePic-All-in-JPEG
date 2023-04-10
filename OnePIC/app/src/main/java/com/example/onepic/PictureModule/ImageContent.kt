@@ -3,6 +3,7 @@ package com.example.onepic.PictureModule
 import android.util.Log
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 
@@ -16,6 +17,7 @@ class ImageContent {
 
     lateinit var mainPicture : Picture
     fun init() {
+
         pictureList.clear()
         pictureCount = 0
         //jpegMetaData = ByteArray(0)
@@ -69,6 +71,10 @@ class ImageContent {
         pictureList.add(picture)
         pictureCount = pictureCount + 1
     }
+    fun insertPicture(index : Int, picture : Picture){
+        pictureList.add(index, picture)
+        pictureCount = pictureCount + 1
+    }
 
     // PictureList의 index번째 요소를 찾아 반환
     fun getPictureAtIndex(index : Int): Picture? {
@@ -95,38 +101,44 @@ class ImageContent {
 
     fun extractJpegMeta(jpegBytes: ByteArray) : ByteArray{
 
-        var n1: Int
-        var n2: Int
         var resultByte: ByteArray
         var startIndex = 0
         var isFindStartMarker = false // 시작 마커를 찾았는지 여부
-        
-        for (i in 0 until jpegBytes.size - 1) {
-            n1 = Integer.valueOf(jpegBytes[i].toInt())
-            if (n1 < 0) {
-                n1 += 256
+        var pos = 0
+        var extractPos = 0
+        var app3DataLength = 0
+        while (extractPos < jpegBytes.size - 1) {
+            // APP3 마커가 있는 경우
+            if (jpegBytes[extractPos] == 0xFF.toByte() && jpegBytes[extractPos + 1] == 0xE3.toByte()) {
+                app3DataLength = ((jpegBytes[extractPos+2].toInt() and 0xFF) shl 8) or
+                        ((jpegBytes[extractPos+3].toInt() and 0xFF) shl 0)
+                break
             }
-            n2 = Integer.valueOf(jpegBytes[i+1].toInt())
-            if (n2 < 0) {
-                n2 += 256
-            }
+            extractPos++
+        }
 
-            val twoByteToNum = n1 + n2
-            if (markerHashMap.containsKey(twoByteToNum) && n1 == 255) {
-                if (twoByteToNum == jpegConstant.SOF0_MARKER) {
-                    startIndex = i
-                    isFindStartMarker = true
-                    break
-                }
+        while (pos < jpegBytes.size - 1) {
+            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
+                isFindStartMarker = true
+                break
             }
+            pos++
         }
         if (!isFindStartMarker) {
             println("startIndex :${startIndex}")
             Log.d("이미지","Error: SOF가 존재하지 않음")
             return ByteArray(0)
         }
-        // 추출
-        resultByte = jpegBytes.copyOfRange(0, startIndex )
+        val byteBuffer = ByteArrayOutputStream()
+        if(extractPos != jpegBytes.size-1){
+            byteBuffer.write(jpegBytes, 0, extractPos)
+            byteBuffer.write(jpegBytes, extractPos + app3DataLength + 2, pos - (extractPos + app3DataLength + 2))
+            resultByte = byteBuffer.toByteArray()
+        }else{
+            // 추출
+            resultByte = jpegBytes.copyOfRange(0, pos)
+        }
+
         // start 마커부터 end 마커를 포함한 영역까지 복사해서 resultBytes에 저장
         // System.arraycopy(jpegBytes, startIndex, resultByte, 0, endIndex - startIndex + 2)
         return resultByte
