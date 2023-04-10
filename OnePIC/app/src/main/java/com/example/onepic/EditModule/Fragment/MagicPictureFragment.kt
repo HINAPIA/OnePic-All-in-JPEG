@@ -15,6 +15,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ExPictureContainer
 import com.example.onepic.ImageToolModule
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentMagicPictureBinding
 import kotlinx.coroutines.CoroutineScope
@@ -40,38 +42,36 @@ class MagicPictureFragment : RewindFragment() {
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
-        /** ExPictureContainer 설정 **/
-        if (arguments != null)
-            exPictureContainer =
-                requireArguments().getSerializable("exPictureContainer") as ExPictureContainer // Bundle에서 객체를 받아옴
-        else
-            exPictureContainer = ExPictureContainer(inflater.context)
+
+        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
         // main Picture의 byteArray를 bitmap 제작
-        mainPicture = exPictureContainer.getMainPicture()
-        mainBitmap = imageToolModule.byteArrayToBitmap(mainPicture.byteArray)
+        mainPicture = imageContent.mainPicture
+        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = exPictureContainer.getPictureList(1, "BurstShots")
+        pictureList = imageContent.pictureList
 
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-            mainPicture.byteArray = imageToolModule.bitmapToByteArray(mainBitmap)
-            exPictureContainer.setMainPicture(0, mainPicture)
+            CoroutineScope(Dispatchers.Default).launch {
+                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment, bundle)
+                imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+                imageContent.mainPicture.waitForByteArrayInitialized()
+
+                withContext(Dispatchers.Main){
+                    findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
+                }
+            }
         }
 
         // close btn 클릭 시
         binding.magicCloseBtn.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putSerializable("exPictureContainer", exPictureContainer) // 객체를 Bundle에 저장
-            findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment, bundle)
+            findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
         }
 
         // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
@@ -199,7 +199,7 @@ class MagicPictureFragment : RewindFragment() {
 
                     currentImageIndex = currentImageIndex + increaseIndex
 
-                    if (currentImageIndex >= ovelapBitmap.size-1) {
+                    if (currentImageIndex >= ovelapBitmap.size - 1) {
                         //currentImageIndex = 0
                         increaseIndex = -1
                     }

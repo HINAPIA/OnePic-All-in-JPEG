@@ -16,11 +16,23 @@ class ImageToolModule {
      * bitmapToByteArray(bitmap: Bitmap): ByteArray
      *      - bitmap을 byteArray로 변환해서 제공
      */
-    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
+
+        var matrix = Matrix()
+
+        if (byteArray != null) {
+            matrix = bitmapRotation(byteArray, -1)
+        } else {
+            matrix.postRotate(0f)
+        }
+
+        val newBitmap =
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
         var outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         return outputStream.toByteArray()
+
     }
 
     /**
@@ -29,24 +41,29 @@ class ImageToolModule {
      */
     fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
 
-        val inputStream: InputStream = ByteArrayInputStream(byteArray)
-
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+
+        val matrix = bitmapRotation(byteArray , 1)
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
+        val inputStream: InputStream = ByteArrayInputStream(byteArray)
 
         val exif = ExifInterface(inputStream)
         val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
         val matrix = Matrix()
         when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            else -> return bitmap
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f * value)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f * value)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f * value)
+            else -> matrix.postRotate(0f)
         }
-
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        return matrix
     }
 
 

@@ -56,7 +56,7 @@ class RewindModule() {
     suspend fun runFaceDetection(bitmap: Bitmap): Bitmap = suspendCoroutine { bitmapResult ->
 
         // face Detection
-        var faces: ArrayList<Face>? = null
+        var faces: ArrayList<Face>
         CoroutineScope(Dispatchers.Default).launch {
             faces = runFaceContourDetection(bitmap)
 
@@ -64,9 +64,7 @@ class RewindModule() {
                 bitmapResult.resume(bitmap)
             else
             // faceDetection 결과(bindingBox) 그리기
-
                 bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
-
         }
     }
 
@@ -180,12 +178,13 @@ class RewindModule() {
             val bestFaceIndex: ArrayList<Int?> = ArrayList()
             val bestFace: ArrayList<Face> = ArrayList()
             var resultBitmap = bitmapList[0]
-
+            //val facesResult: ArrayList<ArrayList>
 
             CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
                     // j 번째 사진 faces 정보 얻기
                     val facesResult = runFaceContourDetection(bitmapList[j])
+
                     if (j == 0) {
                         // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
                         for (i in 0 until facesResult.size) {
@@ -230,19 +229,20 @@ class RewindModule() {
                         }
                     }
                 }
-            }
-            println(bestFaceIndex)
+                println(bestFaceIndex)
 
-            for (i in 0 until bestFace.size) {
-                // 현재 face가 비교될 face 배열의 index 값
-                val index = getBoxComparisonIndex(bestFace[i], basicInformation)
-                resultBitmap = getFaceChangeBitmap(
-                    resultBitmap, bitmapList[bestFaceIndex[i]!!],
-                    basicInformation[index].boundingBox.toRectF(),
-                    basicInformation[index].allLandmarks, bestFace[i].allLandmarks
-                )
+
+                for (i in 0 until bestFace.size) {
+                    // 현재 face가 비교될 face 배열의 index 값
+                    val index = getBoxComparisonIndex(bestFace[i], basicInformation)
+                    resultBitmap = getFaceChangeBitmap(
+                        resultBitmap, bitmapList[bestFaceIndex[i]!!],
+                        basicInformation[index].boundingBox.toRectF(),
+                        basicInformation[index].allLandmarks, bestFace[i].allLandmarks
+                    )
+                }
+                continuation.resume(resultBitmap)
             }
-            continuation.resume(resultBitmap)
         }
 
     private fun getBoxComparisonIndex(check: Face, original: List<Face>) : Int{
