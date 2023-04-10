@@ -1,13 +1,8 @@
 package com.example.onepic.ViewerModule
 
 import android.annotation.SuppressLint
-import android.content.ContentUris
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -40,7 +34,7 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private lateinit var mainViewPagerAdapter:ViewPagerAdapter
-    private var isViewChanged = MutableLiveData<Boolean>()
+    private var isContainerChanged = MutableLiveData<Boolean>()
     private var isTxtBtnClicked = false
     private var currentPosition:Int? = null
     override fun onCreateView(
@@ -56,12 +50,13 @@ class ViewerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
-        if(currentPosition != null){
+        if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
             currentPosition = null
         }
     }
 
+    /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
     fun init() {
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
@@ -85,15 +80,15 @@ class ViewerFragment : Fragment() {
             }
         })
 
-
-        isViewChanged.observe(requireActivity()){ value ->
-            Log.d("[ViewerFragment] jpegMCContainer가 바뀜!","")
-            Log.d("test_test", "jpegMCContainer가 바뀜!")
+        // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
+        isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
                 setCurrentOtherImage()
-                isViewChanged.value = false
+                isContainerChanged.value = false
             }
         }
+
+        /** Button 이벤트 리스너 - editBtn, backBtn, textBtn*/
 
         //TODO: Text가 여러 개 이므로, 어떻게 layout 구성할지 생각
         binding.textBtn.setOnClickListener{
@@ -130,6 +125,8 @@ class ViewerFragment : Fragment() {
         }
     }
 
+
+    /** MCContainer 변경 */
     @RequiresApi(Build.VERSION_CODES.Q)
      fun setCurrentMCContainer(position:Int){
         CoroutineScope(Dispatchers.IO).launch {
@@ -138,15 +135,13 @@ class ViewerFragment : Fragment() {
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isViewChanged) }
+                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
             jop.await()
-            // Picture 완전히 생성될 때까지 기다리기
-            Log.d("test_test", "=========================")
-            Log.d("test_test", "프래그먼트 변화 하기 전 picutureList size : ${jpegViewModel.jpegMCContainer.value!!.imageContent.pictureCount}")
 
         }
     }
 
+    /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
     fun setCurrentOtherImage(){
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
@@ -165,6 +160,7 @@ class ViewerFragment : Fragment() {
                     val scrollImageView: ImageView = scollItemLayout.findViewById(R.id.scrollImageView)
 
                     CoroutineScope(Dispatchers.Main).launch {
+                        // 이미지 바인딩
                         Glide.with(scrollImageView)
                             .load(pictureByteArr)
                             .into(scrollImageView)

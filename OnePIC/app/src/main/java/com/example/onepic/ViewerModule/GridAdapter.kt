@@ -1,11 +1,9 @@
 package com.example.onepic.ViewerModule
 
-import android.annotation.SuppressLint
-import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
+
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
