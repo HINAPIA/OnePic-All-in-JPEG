@@ -17,11 +17,23 @@ class ImageToolModule {
      * bitmapToByteArray(bitmap: Bitmap): ByteArray
      *      - bitmap을 byteArray로 변환해서 제공
      */
-    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
+
+        var matrix = Matrix()
+
+        if (byteArray != null) {
+            matrix = bitmapRotation(byteArray, -1)
+        } else {
+            matrix.postRotate(0f)
+        }
+
+        val newBitmap =
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
         var outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         return outputStream.toByteArray()
+
     }
 
     /**
@@ -30,24 +42,29 @@ class ImageToolModule {
      */
     fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
 
-        val inputStream: InputStream = ByteArrayInputStream(byteArray)
-
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+
+        val matrix = bitmapRotation(byteArray , 1)
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
+        val inputStream: InputStream = ByteArrayInputStream(byteArray)
 
         val exif = ExifInterface(inputStream)
         val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
         val matrix = Matrix()
         when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            else -> return bitmap
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f * value)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f * value)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f * value)
+            else -> matrix.postRotate(0f)
         }
-
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        return matrix
     }
 
 
@@ -57,30 +74,30 @@ class ImageToolModule {
      */
     fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
 
-            var width = (cropRect.right - cropRect.left)
-            var height = cropRect.bottom - cropRect.top
-            var startX = cropRect.left
-            var startY = cropRect.top
-            if (startX < 0)
-                startX = 0
-            else if (startX+width > original.width)
-                width = original.width-startX
-            if (startY < 0)
-                startY = 0
-            else if(startY+height > original.height)
-                height = original.height-startY
+        var width = (cropRect.right - cropRect.left)
+        var height = cropRect.bottom - cropRect.top
+        var startX = cropRect.left
+        var startY = cropRect.top
+        if (startX < 0)
+            startX = 0
+        else if (startX + width > original.width)
+            width = original.width - startX
+        if (startY < 0)
+            startY = 0
+        else if (startY + height > original.height)
+            height = original.height - startY
 
-            val result = Bitmap.createBitmap(
-                original
-                , startX         // X 시작위치
-                , startY         // Y 시작위치
-                , width          // 넓이
-                , height         // 높이
-            )
-            if (result != original) {
-                original.recycle()
-            }
 
+        val result = Bitmap.createBitmap(
+            original, startX         // X 시작위치
+            , startY         // Y 시작위치
+            , width          // 넓이
+            , height         // 높이
+        )
+        // 이미지 할당 해제
+//        if (result != original) {
+//            original.recycle()
+//        }
         return result
     }
 
@@ -110,7 +127,6 @@ class ImageToolModule {
 
         return output
     }
-
 
     /**
      * overlayBitmap(original: Bitmap, add: Bitmap, optimizationX:Int, optimizationY:Int): Bitmap
@@ -146,7 +162,7 @@ class ImageToolModule {
      * floatToDp(f : Float):
      *        float 값을 dp값으로 변화해서 반환
      */
-    private fun floatToDp(f : Float):Int {
+    fun floatToDp(f : Float):Int {
         return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
     }
 
