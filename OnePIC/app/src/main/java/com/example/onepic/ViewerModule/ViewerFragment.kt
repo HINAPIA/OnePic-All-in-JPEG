@@ -18,11 +18,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
@@ -45,27 +42,25 @@ class ViewerFragment : Fragment() {
     private lateinit var mainViewPagerAdapter:ViewPagerAdapter
     private var isViewChanged = MutableLiveData<Boolean>()
     private var isTxtBtnClicked = false
-
+    private var currentPosition:Int? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentViewerBinding.inflate(inflater, container, false)
         Log.d("[ViewerFragment] onCreateView: ","fragment 전환됨")
+        currentPosition = arguments?.getInt("currentPosition")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("[ViewerFragment] onViewCreated: ","")
-        Log.d("jpegContainer = ", jpegViewModel.jpegMCContainer.value?.toString()+"")
-
-        var size = jpegViewModel.imageUriLiveData.value!!.size // activity viewmodel 데이터가 제대로 들어왔는지 확인
-        Log.d("[ViewerFragment] imageUriLIst size : ",""+size)
-
         init()
+        if(currentPosition != null){
+            binding.viewPager2.setCurrentItem(currentPosition!!,false)
+            currentPosition = null
+        }
     }
-
 
     fun init() {
 
@@ -137,6 +132,11 @@ class ViewerFragment : Fragment() {
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
+
+        binding.backBtn.setOnClickListener{
+            Glide.get(requireContext()).clearMemory()
+            findNavController().navigate(R.id.action_viewerFragment_to_galleryFragment)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -200,6 +200,8 @@ class ViewerFragment : Fragment() {
         while (inputStream.read(buffer).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
+        byteBuffer.close()
+        inputStream.close()
         return byteBuffer.toByteArray()
     }
 

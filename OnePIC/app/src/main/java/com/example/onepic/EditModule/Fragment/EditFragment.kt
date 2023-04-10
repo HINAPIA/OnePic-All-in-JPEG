@@ -61,6 +61,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             imageConent.insertPicture(0, mainPicture)
             jpegViewModel.jpegMCContainer.value?.save()
         }
+
         return binding.root
     }
 
