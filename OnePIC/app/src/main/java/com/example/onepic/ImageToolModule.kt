@@ -5,8 +5,11 @@ import android.graphics.*
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
+import androidx.exifinterface.media.ExifInterface
 import com.google.mlkit.vision.face.Face
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 class ImageToolModule {
     /**
@@ -25,9 +28,25 @@ class ImageToolModule {
      *      - byteArray를 bitmap으로 변환해서 제공
      */
     fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
+
+        val inputStream: InputStream = ByteArrayInputStream(byteArray)
+
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
-        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+
+        val exif = ExifInterface(inputStream)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            else -> return bitmap
+        }
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
 

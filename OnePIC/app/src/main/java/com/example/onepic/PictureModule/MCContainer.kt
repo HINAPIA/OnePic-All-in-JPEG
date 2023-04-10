@@ -71,7 +71,7 @@ class MCContainer(_activity: Activity) {
         init()
         imageContent.setContent(byteArrayList, contentAttribute)
         var testString : ArrayList<String> = arrayListOf("안녕하세요", "2071231 김유진")
-        textContent.setContent(ContentAttribute.general, testString)
+        textContent.setContent(ContentAttribute.basic, testString)
         save()
     }
 
@@ -84,8 +84,6 @@ class MCContainer(_activity: Activity) {
         init()
         // 헤더 따로 프레임 따로 저장
         imageContent.setBasicContent(sourceByteArray)
-        // saveResolver.saveImageOnAboveAndroidQ(imageContent.getJpegBytes(imageContent.getPictureAtIndex(0)!!))
-
     }
 
     fun settingHeaderInfo(){

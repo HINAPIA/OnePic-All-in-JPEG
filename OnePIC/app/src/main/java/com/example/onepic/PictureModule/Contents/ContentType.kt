@@ -8,7 +8,7 @@ enum class ContentType {
 }
 enum class ContentAttribute(val code: Int ) {
     none(0),
-    general(1),
+    basic(1),
     focus(2),
     modified(3),
     edited(4);
