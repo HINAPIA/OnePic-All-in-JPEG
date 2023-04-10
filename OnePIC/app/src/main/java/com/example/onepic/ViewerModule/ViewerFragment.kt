@@ -86,15 +86,6 @@ class ViewerFragment : Fragment() {
         })
 
 
-//        val array = arrayOf("apple", "banana", "cherry")
-//        val list = ArrayList<String>(array.toList())
-//
-//        val textViewPagerAdapter = TextViewPagerAdapter(requireContext(),list) //jpegViewModel.jpegMCContainer.value!!.textContent.getAllText())
-//        //Log.d("adapter item count = ",""+adapter.itemCount)
-//        binding.textViewPager2.adapter = textViewPagerAdapter
-//
-//
-
         isViewChanged.observe(requireActivity()){ value ->
             Log.d("[ViewerFragment] jpegMCContainer가 바뀜!","")
             Log.d("test_test", "jpegMCContainer가 바뀜!")
@@ -143,7 +134,7 @@ class ViewerFragment : Fragment() {
      fun setCurrentMCContainer(position:Int){
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-            val sourcePhotoUri = getUriFromPath(jpegViewModel.imageUriLiveData.value!!.get(position))
+            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
@@ -154,7 +145,6 @@ class ViewerFragment : Fragment() {
             Log.d("test_test", "프래그먼트 변화 하기 전 picutureList size : ${jpegViewModel.jpegMCContainer.value!!.imageContent.pictureCount}")
 
         }
-
     }
 
     fun setCurrentOtherImage(){
@@ -203,27 +193,6 @@ class ViewerFragment : Fragment() {
         byteBuffer.close()
         inputStream.close()
         return byteBuffer.toByteArray()
-    }
-
-    @SuppressLint("Range")
-    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
-        val cursor = requireContext().contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null, "_data = '$filePath'", null, null)
-        var uri:Uri
-        if(cursor!=null) {
-            cursor!!.moveToNext()
-            val id = cursor.getInt(cursor.getColumnIndex("_id"))
-            uri = ContentUris.withAppendedId(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                id.toLong()
-            )
-            cursor.close()
-        }
-        else {
-            return Uri.parse("invalid image")
-        }
-        return uri
     }
 
 }

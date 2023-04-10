@@ -16,9 +16,9 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.R
 
-class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<String>): BaseAdapter() {
+class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<Uri>): BaseAdapter() {
 
-    private var items: List<String>
+    private var items: List<Uri>
 
     init {
         this.items = uriArr
@@ -47,30 +47,9 @@ class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<Stri
             bundle.putInt("currentPosition",p)
             fragment.findNavController().navigate(R.id.action_galleryFragment_to_viewerFragment,bundle)
         }
-        var uri = getUriFromPath(items[p])
-        Glide.with(context).load(uri).into(imageView)
-        return imageView
-    }
 
-    @SuppressLint("Range")
-    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
-        val cursor = context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null, "_data = '$filePath'", null, null)
-        var uri: Uri
-        if(cursor!=null) {
-            cursor!!.moveToNext()
-            val id = cursor.getInt(cursor.getColumnIndex("_id"))
-            uri = ContentUris.withAppendedId(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                id.toLong()
-            )
-            cursor.close()
-        }
-        else {
-            return Uri.parse("Invalid path")
-        }
-        return uri
+        Glide.with(context).load(items[p]).into(imageView)
+        return imageView
     }
 
 }

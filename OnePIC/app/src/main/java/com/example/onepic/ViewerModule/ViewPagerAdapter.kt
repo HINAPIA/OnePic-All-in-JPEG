@@ -21,7 +21,7 @@ import com.example.onepic.R
 
 import java.security.AccessController.getContext
 
-class ViewPagerAdapter (val context: Context, uriList: List<String>) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
+class ViewPagerAdapter (val context: Context, uriList: List<Uri>) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
     lateinit var viewHolder: PagerViewHolder
     var galleryMainimages = uriList // gallery에 있는 이미지 리스트
@@ -55,10 +55,10 @@ class ViewPagerAdapter (val context: Context, uriList: List<String>) : RecyclerV
         // TODO: 조금 더 깔끔한 방법으로 바꾸기 (ImageView 하나만으로 구현 - cache 처리 필요)
         private val imageView: ImageView = itemView.findViewById(R.id.imageView) // Main Gallery 이미지 보여주는 view
         val externalImageView:ImageView = itemView.findViewById(R.id.externalImageView) // ScrollView로 부터 선택된 embedded image 보여주는 view
-        fun bind(image:String) { // Main 이미지 보여주기
+        fun bind(image:Uri) { // Main 이미지 보여주기
             imageView.visibility = View.VISIBLE
             externalImageView.visibility = View.GONE
-            Glide.with(context).load(getUriFromPath(image)).into(imageView)
+            Glide.with(context).load(image).into(imageView)
         }
 
         fun bindEmbeddedImage(embeddedImage: ByteArray){ // ScrollView로 부터 선택된 embedded image 보여 주기
@@ -69,25 +69,6 @@ class ViewPagerAdapter (val context: Context, uriList: List<String>) : RecyclerV
                 .into(externalImageView)
         }
 
-        @SuppressLint("Range")
-        fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
-            val cursor = context.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null, "_data = '$filePath'", null, null)
-            var uri:Uri
-            if(cursor!=null) {
-                cursor!!.moveToNext()
-                val id = cursor.getInt(cursor.getColumnIndex("_id"))
-                uri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    id.toLong()
-                )
-                cursor.close()
-            }
-            else {
-                return Uri.parse("Invalid path")
-            }
-            return uri
-        }
     }
 
 }
