@@ -18,8 +18,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var binding: FragmentEditBinding
 
     var activity : MainActivity = MainActivity()
-    //private var MCContainer : MCContainer = MCContainer(activity)
-    //private var loadResolver : LoadResolver = LoadResolver()
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
 
@@ -35,9 +33,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
-        val mainPicture = imageContent.mainPicture
-        val mainByteArray = imageContent.getJpegBytes(mainPicture)
-
         val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
 
         binding.mainImageView.setImageBitmap(mainBitmap)

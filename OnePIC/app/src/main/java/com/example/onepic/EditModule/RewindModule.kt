@@ -178,13 +178,30 @@ class RewindModule() {
             val bestFaceIndex: ArrayList<Int?> = ArrayList()
             val bestFace: ArrayList<Face> = ArrayList()
             var resultBitmap = bitmapList[0]
-            //val facesResult: ArrayList<ArrayList>
+            val facesResultList: ArrayList<ArrayList<Face>> = arrayListOf()
+
+            val checkFinish = BooleanArray(bitmapList.size)
+            for (i in 0 until bitmapList.size) {
+                checkFinish[i] = false
+            }
+
+            for (j in 0 until bitmapList.size) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    println("start = $j")
+                    // j 번째 사진 faces 정보 얻기
+                    facesResultList.add(runFaceContourDetection(bitmapList[j]))
+                    println("end = $j")
+                    checkFinish[j] = true
+                }
+            }
+
+            while(!checkFinish.all { it }) {
+               
+            }
 
             CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
-                    // j 번째 사진 faces 정보 얻기
-                    val facesResult = runFaceContourDetection(bitmapList[j])
-
+                    val facesResult = facesResultList[j]
                     if (j == 0) {
                         // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
                         for (i in 0 until facesResult.size) {
@@ -199,7 +216,7 @@ class RewindModule() {
                             val checkFace = facesResult[i]
 
                             // 현재 face가 비교될 face 배열의 index 값
-                            var index = getBoxComparisonIndex(checkFace, bestFace)
+                            val index = getBoxComparisonIndex(checkFace, bestFace)
 
                             // bestFace 정보 알아내기
                             val best = bestFace[index]

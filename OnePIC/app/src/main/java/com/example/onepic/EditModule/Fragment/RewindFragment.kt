@@ -87,19 +87,20 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
-
-//            if (bitmapList.size == 0) {
-//                setBitmapPicture()
-//            }
-//            CoroutineScope(Dispatchers.Default).launch {
-//                val newBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
-//
-//                withContext(Dispatchers.Main) {
-//                    binding.rewindMainView.setImageBitmap(newBitmap)
-//                }
-//            }
-
             findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
+        }
+
+        binding.autoRewindBtn.setOnClickListener {
+            if (bitmapList.size == 0) {
+                setBitmapPicture()
+            }
+            CoroutineScope(Dispatchers.Default).launch {
+                mainBitmap = rewindModule.autoBestFaceChange( bitmapList, 0)
+
+                withContext(Dispatchers.Main) {
+                    binding.rewindMainView.setImageBitmap(mainBitmap)
+                }
+            }
         }
 
         // 이미지 뷰 클릭 시
@@ -160,9 +161,19 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
      */
     protected fun setBitmapPicture() {
+        val checkFinish = BooleanArray(pictureList.size)
+        for(i in 0 until pictureList.size){
+            checkFinish[i] = false
+        }
         for(i in 0 until pictureList.size) {
-            //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
-            bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList.get(i)))))
+            CoroutineScope(Dispatchers.Default).launch {
+                //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
+                bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
+                checkFinish[i] = true
+            }
+        }
+        while(!checkFinish.all { it }) {
+
         }
     }
 
@@ -175,44 +186,56 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     suspend fun getBoundingBox(touchPoint: Point): ArrayList<List<Int>> = suspendCoroutine { box ->
         val boundingBox: ArrayList<List<Int>> = arrayListOf()
 
+        val checkFinish = BooleanArray(pictureList.size)
+        for (i in 0 until pictureList.size) {
+            checkFinish[i] = false
+        }
+
         CoroutineScope(Dispatchers.Default).launch {
             if (bitmapList.size == 0) {
                 setBitmapPicture()
             }
 
-            for (i in 0 until pictureList.size) {
-
-                // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
-                val rect =
-                    rewindModule.getClickPointBoundingBox(bitmapList[i], touchPoint)
-
-                // 포인트에 해당되는 얼굴이 없을 때
-                if (rect == null) {
-                    // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
-                    if (i == 0) {
-                        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                        setMainImageBoundingBox()
-                        break
-                    }
-                    continue
-                }
-
+            val basicRect =
+                rewindModule.getClickPointBoundingBox(bitmapList[0], touchPoint)
+            if (basicRect == null) {
+                // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
+                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
+                checkFinish.fill(true) // 배열의 모든 요소를 true로 설정
+            } else {
                 // 메인 사진일 경우 나중에 다른 사진을 겹칠 위치 지정
-                if (i == 0) {
-                    changeFaceStartX = rect[4]
-                    changeFaceStartY = rect[5]
-                }
+                changeFaceStartX = basicRect[4]
+                changeFaceStartY = basicRect[5]
 
                 val arrayBounding = listOf(
-                    i,
-                    rect[0], rect[1], rect[2], rect[3],
-                    rect[4], rect[5], rect[6], rect[7]
+                    0,
+                    basicRect[0], basicRect[1], basicRect[2], basicRect[3],
+                    basicRect[4], basicRect[5], basicRect[6], basicRect[7]
                 )
                 boundingBox.add(arrayBounding)
+                checkFinish[0] = true
+                for (i in 1 until pictureList.size) {
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
+                        val rect =
+                            rewindModule.getClickPointBoundingBox(bitmapList[i], touchPoint)
+
+                        if (rect != null) {
+                            val arrayBounding = listOf(
+                                i,
+                                rect[0], rect[1], rect[2], rect[3],
+                                rect[4], rect[5], rect[6], rect[7]
+                            )
+                            boundingBox.add(arrayBounding)
+                            checkFinish[i] = true
+                        }
+                    }
+                }
             }
-
+            while (!checkFinish.all { it }) { }
             box.resume(boundingBox)
-
         }
     }
 
