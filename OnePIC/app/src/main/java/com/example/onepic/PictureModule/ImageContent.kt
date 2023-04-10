@@ -81,23 +81,56 @@ class ImageContent {
         return pictureList.get(index) ?: null
     }
 
+    /**
+     * MetaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
+     */
     fun getJpegBytes(picture : Picture) : ByteArray{
+        var JFIF_startOffset = 0
+        var findCount = 0
+        // 속성이 modified가 아니면 2번 째 JFIF가 나오기 전까지 떼서 이용
+        if(picture.contentAttribute != ContentAttribute.edited){
+            while (JFIF_startOffset < jpegMetaData.size - 1) {
+                if (jpegMetaData[JFIF_startOffset] == 0xFF.toByte() && jpegMetaData[JFIF_startOffset + 1] == 0xE0.toByte()) {
+                    findCount++
+                    if(findCount == 2)
+                        break
+                }
+                JFIF_startOffset++
+            }
+            // 2번의 JFIF를 찾음
+            if (JFIF_startOffset != jpegMetaData.size - 1) {
+                // 2번 째 JFIF 전까지 이용
+                val buffer: ByteBuffer = ByteBuffer.allocate(JFIF_startOffset + picture.size+2)
+                buffer.put(jpegMetaData.copyOfRange(0, JFIF_startOffset))
+                buffer.put(picture._pictureByteArray)
+                buffer.put("ff".toInt(16).toByte())
+                buffer.put("d9".toInt(16).toByte())
+                return buffer.array()
+            }
+        }
+        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData이용
+
+        Log.d("test_test", "2개의 JFIF를 찾지 못함")
         val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
         buffer.put(jpegMetaData)
         buffer.put(picture._pictureByteArray)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("d9".toInt(16).toByte())
         return buffer.array()
+
+       // val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
+
+
     }
 
-    fun getJpegBytes(frameByteArray : ByteArray) : ByteArray{
-        val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + frameByteArray.size+2)
-        buffer.put(jpegMetaData)
-        buffer.put(frameByteArray)
-        buffer.put("ff".toInt(16).toByte())
-        buffer.put("d9".toInt(16).toByte())
-        return buffer.array()
-    }
+//    fun getJpegBytes(frameByteArray : ByteArray) : ByteArray{
+//        val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + frameByteArray.size+2)
+//        buffer.put(jpegMetaData)
+//        buffer.put(frameByteArray)
+//        buffer.put("ff".toInt(16).toByte())
+//        buffer.put("d9".toInt(16).toByte())
+//        return buffer.array()
+//    }
 
     fun extractJpegMeta(jpegBytes: ByteArray) : ByteArray{
 
