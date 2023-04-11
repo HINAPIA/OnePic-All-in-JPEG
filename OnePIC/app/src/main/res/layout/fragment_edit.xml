@@ -3,126 +3,126 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_color">
 
-
-    <ImageButton
-        android:id="@+id/backBtn"
-        android:layout_width="25dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="23dp"
-        android:background="@color/transparent_color"
-        android:src="@drawable/back_icon"
-        app:tint="@color/main_color"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/transparent_color"
-        android:paddingLeft="0dp"
-        android:paddingTop="0dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="0dp"
-        android:text="@string/saveText"
-        android:textAlignment="textEnd"
-        android:textColor="@color/main_color"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.962"
-        app:layout_constraintStart_toEndOf="@+id/backBtn"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/mainImageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        android:background="@drawable/bottombar_round"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-        <Button
-            android:id="@+id/focusBtn"
-            android:layout_width="85dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/transparent_color"
-            android:drawableTop="@drawable/focus_icon_resize"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/focus"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/saveBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="24dp"
+                android:background="@color/transparent_color"
+                android:paddingLeft="0dp"
+                android:paddingTop="0dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="0dp"
+                android:text="@string/saveText"
+                android:textAlignment="textEnd"
+                android:textAllCaps="false"
+                android:textColor="@color/main_color"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/rewindBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/transparent_color"
-            android:drawableTop="@drawable/rewind_icon_resize"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/rewind"
-            android:textSize="12sp" />
+            <ImageButton
+                android:id="@+id/backBtn"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="24dp"
+                android:background="@color/transparent_color"
+                android:scaleType="fitCenter"
+                android:src="@drawable/back_icon"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/main_color" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/removeBtn"
-            android:layout_width="85dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/transparent_color"
-            android:drawableTop="@drawable/remove_icon_resize"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/remove"
-            android:textSize="12sp" />
+        <ImageView
+            android:id="@+id/mainImageView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
 
-        <Button
-            android:id="@+id/magicBtn"
-            android:layout_width="85dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6.5dp"
-            android:layout_weight="1"
-            android:background="@color/transparent_color"
-            android:drawableTop="@drawable/magic_icon_resize"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/magicPicture"
-            android:textSize="12sp" />
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
 
-        <Button
-            android:id="@+id/addBtn"
-            android:layout_width="85dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/transparent_color"
-            android:drawableTop="@drawable/add_icon_resize"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/add"
-            android:textSize="12sp" />
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/focusBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent_color"
+                android:drawableTop="@drawable/focus_icon_resize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/focus"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/rewindBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent_color"
+                android:drawableTop="@drawable/rewind_icon_resize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/rewind"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/magicBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent_color"
+                android:drawableTop="@drawable/magic_icon_resize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/magicPicture"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/addBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent_color"
+                android:drawableTop="@drawable/add_icon_resize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/add"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

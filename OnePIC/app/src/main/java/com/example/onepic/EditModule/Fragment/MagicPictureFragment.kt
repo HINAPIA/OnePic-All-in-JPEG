@@ -13,7 +13,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
+import com.example.onepic.EditModule.RudderKeyClickListener
 import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
@@ -27,7 +29,7 @@ import kotlinx.coroutines.withContext
 class MagicPictureFragment : RewindFragment() {
     private lateinit var binding: FragmentMagicPictureBinding
 
-    var boundingBox: ArrayList<List<Int>> = arrayListOf()
+    var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
 
     var checkMagicPicturePlay = false
     val handler = Handler()
@@ -52,22 +54,10 @@ class MagicPictureFragment : RewindFragment() {
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
 
-        //mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
-        CoroutineScope(Dispatchers.Main).launch {
+        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
-            mainBitmap = withContext(Dispatchers.IO) {
-                Glide.with(fragment)
-                    .asBitmap()
-                    .load(imageContent.getJpegBytes(mainPicture))
-                    .submit()
-                    .get()
-            }
-
-            withContext(Dispatchers.Main) {
-                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                setMainImageBoundingBox()
-            }
-        }
+        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+        setMainImageBoundingBox()
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
         pictureList = imageContent.pictureList
@@ -79,6 +69,12 @@ class MagicPictureFragment : RewindFragment() {
 
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
                 imageContent.mainPicture.waitForByteArrayInitialized()
+
+                val indices = intArrayOf(6,7,8,9) // 추출할 배열의 인덱스
+                for(i in 0 until boundingBox.size) {
+                    pictureList[boundingBox[i][0]].insertEmbeddedData(
+                        boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+                }
 
                 withContext(Dispatchers.Main){
                     findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
@@ -128,36 +124,16 @@ class MagicPictureFragment : RewindFragment() {
             return@setOnTouchListener true
         }
 
-        binding.topArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(0, -2)
-                return@setOnTouchListener true
-            }
-            else {
-                return@setOnTouchListener false
-            }
-        }
-        binding.bottomArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(0, 2)
-            }
-            return@setOnTouchListener true
-        }
-        binding.leftArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(-2, 0)
-            }
-            return@setOnTouchListener true
-        }
-        binding.rightArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(2, 0)
-            }
-            return@setOnTouchListener true
-        }
-
         return binding.root
     }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+        }
+    }
+
 
     override fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
@@ -174,7 +150,7 @@ class MagicPictureFragment : RewindFragment() {
      *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
      *         - 이미지를 자르고 화면에 띄어줌
      */
-    private fun cropImgAndView(boundingBox: ArrayList<List<Int>>) {
+    private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")

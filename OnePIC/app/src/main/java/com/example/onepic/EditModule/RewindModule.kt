@@ -91,7 +91,6 @@ class RewindModule() {
             else
             // faceDetection 결과(bindingBox) 그리기
                 bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
-
         }
     }
 

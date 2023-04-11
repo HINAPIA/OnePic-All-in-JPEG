@@ -48,15 +48,8 @@ class ImageToolModule {
     fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
 
         val options = BitmapFactory.Options()
-        //options.inPreferredConfig = Bitmap.Config.RGB_565
+        options.inPreferredConfig = Bitmap.Config.RGB_565
         //val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.RGB_565 // 적절한 색 공간 설정
-
-        options.inDither = true // 디더링 적용
-
-        options.inSampleSize = 1 // 이미지 크기 조정하지 않음
-
-        options.inJustDecodeBounds = false // 이미지 해상도 변경하지 않음
 
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
@@ -200,9 +193,9 @@ class ImageToolModule {
 
         detectionResults.forEach {
             // draw bounding box
-            pen.color = Color.parseColor("#B8C5BB")
+            pen.color = Color.parseColor("#C1BAF2")
             //pen.color = customColor
-            pen.strokeWidth = floatToDp(3F).toFloat()
+            pen.strokeWidth = floatToDp(6F).toFloat()
             pen.style = Paint.Style.STROKE
             val box = it.boundingBox.toRectF()
             canvas.drawRoundRect(box, floatToDp(10F).toFloat(), floatToDp(10F).toFloat(), pen)
