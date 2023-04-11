@@ -51,14 +51,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .get()
             }
 
-<<<<<<< Updated upstream
             withContext(Dispatchers.Main) {
                 binding.mainImageView.setImageBitmap(mainBitmap)
             }
         }
-=======
 
->>>>>>> Stashed changes
         return binding.root
     }
 
