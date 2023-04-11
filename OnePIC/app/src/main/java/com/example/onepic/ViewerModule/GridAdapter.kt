@@ -1,8 +1,11 @@
 package com.example.onepic.ViewerModule
 
+import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +17,9 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.R
 
-class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<Uri>): BaseAdapter() {
+class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<String>): BaseAdapter() {
 
-    private var items: List<Uri>
+    private var items: List<String>
 
     init {
         this.items = uriArr
@@ -46,8 +49,30 @@ class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<Uri>
             fragment.findNavController().navigate(R.id.action_galleryFragment_to_viewerFragment,bundle)
         }
 
-        Glide.with(context).load(items[p]).into(imageView)
+        Glide.with(context).load(getUriFromPath(items[p])).into(imageView)
         return imageView
+    }
+
+    /** FilePath String 을 Uri로 변환 */
+    @SuppressLint("Range")
+    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
+        val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null, "_data = '$filePath'", null, null)
+        var uri: Uri
+        if(cursor!=null) {
+            cursor!!.moveToNext()
+            val id = cursor.getInt(cursor.getColumnIndex("_id"))
+            uri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                id.toLong()
+            )
+            cursor.close()
+        }
+        else {
+            return Uri.parse("Invalid path")
+        }
+        return uri
     }
 
 }

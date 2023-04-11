@@ -1,8 +1,11 @@
 package com.example.onepic.ViewerModule
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -132,7 +135,7 @@ class ViewerFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
             val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
-            val iStream: InputStream? = requireContext().contentResolver.openInputStream(sourcePhotoUri!!)
+            val iStream: InputStream? = requireContext().contentResolver.openInputStream(getUriFromPath(sourcePhotoUri))
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
                 loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
@@ -189,6 +192,27 @@ class ViewerFragment : Fragment() {
         byteBuffer.close()
         inputStream.close()
         return byteBuffer.toByteArray()
+    }
+
+    @SuppressLint("Range")
+    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
+        val cursor = requireContext(). contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null, "_data = '$filePath'", null, null)
+        var uri: Uri
+        if(cursor!=null) {
+            cursor!!.moveToNext()
+            val id = cursor.getInt(cursor.getColumnIndex("_id"))
+            uri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                id.toLong()
+            )
+            cursor.close()
+        }
+        else {
+            return Uri.parse("Invalid path")
+        }
+        return uri
     }
 
 }
