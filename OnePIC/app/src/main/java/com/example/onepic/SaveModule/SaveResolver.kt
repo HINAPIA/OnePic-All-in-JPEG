@@ -37,7 +37,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             var jpegMetaData = MCContainer.imageContent.jpegMetaData
             //if(firstPicture == null) throw NullPointerException("empty first Picture")
 
-            // app1의 크기
             // APP1 세그먼트의 시작 위치를 찾음
             var pos = 2
             while (pos < jpegMetaData.size - 1) {

@@ -143,9 +143,14 @@ class ImageContent {
         while (extractPos < jpegBytes.size - 1) {
             // APP3 마커가 있는 경우
             if (jpegBytes[extractPos] == 0xFF.toByte() && jpegBytes[extractPos + 1] == 0xE3.toByte()) {
-                app3DataLength = ((jpegBytes[extractPos+2].toInt() and 0xFF) shl 8) or
-                        ((jpegBytes[extractPos+3].toInt() and 0xFF) shl 0)
-                break
+                //MC Format인지 확인
+                if(jpegBytes[extractPos+6] == 0x4D.toByte() &&  jpegBytes[extractPos+7] == 0x43.toByte()
+                    && jpegBytes[extractPos+8] == 0x46.toByte()){
+                    app3DataLength = ((jpegBytes[extractPos+2].toInt() and 0xFF) shl 8) or
+                            ((jpegBytes[extractPos+3].toInt() and 0xFF) shl 0)
+                    break
+                }
+
             }
             extractPos++
         }

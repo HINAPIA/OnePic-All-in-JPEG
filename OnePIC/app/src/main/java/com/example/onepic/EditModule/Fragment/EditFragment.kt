@@ -2,6 +2,7 @@ package com.example.onepic.EditModule.Fragment
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,8 +42,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
         val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
-
+        
         binding.mainImageView.setImageBitmap(mainBitmap)
+
         return binding.root
     }
 
@@ -70,5 +72,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
         }
+        binding.saveBtn.setOnClickListener{
+            val mainPicture = imageContent.mainPicture
+            // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg? 저장
+            //Log.d("test_test", "save 버튼 클릭")
+            imageContent.insertPicture(0, mainPicture)
+            jpegViewModel.jpegMCContainer.value?.save()
+            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+        }
+
     }
 }

@@ -13,7 +13,7 @@ class TextInfo(text: Text) {
         attribute = text.contentAttribute.code
     }
 
-    fun getImageInfoSize() : Int{
+    fun getTextInfoSize() : Int{
         // Int(4) X 3
         return 8 + dataSize*2
     }
