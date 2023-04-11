@@ -17,11 +17,11 @@ class Header(_MC_container : MCContainer) {
     init {
         MCContainer =_MC_container
     }
-    
+
     // MC Container에 채워진 Content의 정보를 Info 클래스들로 생성
     fun settingHeaderInfo(){
-        imageContentInfo = ImageContentInfo(MCContainer.imageContent,0)
-        textContentInfo = TextContentInfo(MCContainer.textContent,imageContentInfo.getEndOffset() +1)
+        imageContentInfo = ImageContentInfo(MCContainer.imageContent)
+        textContentInfo = TextContentInfo(MCContainer.textContent)
         audioContentInfo = AudioContentInfo(MCContainer.audioContent,imageContentInfo.getEndOffset()+1)
         headerDataLength = getAPP3FieldLength()
 
@@ -30,7 +30,7 @@ class Header(_MC_container : MCContainer) {
     }
     //추가한 APP3 extension + JpegMeta data 만큼 offset 변경
     fun applyAddedSize(){
-        // 추가할 APP3 extension 만큼 offset 변경 - APP3 marker(2) + APP3 Data field length
+        // 추가할 APP3 extension 만큼 offset 변경 - APP3 marker(2) + APP3 Data field length + EOI
         var headerLength = 2 + getAPP3FieldLength()
         var jpegMetaLength = MCContainer.getJpegMetaBytes().size
         for(i in 0..imageContentInfo.imageCount-1){
@@ -42,26 +42,31 @@ class Header(_MC_container : MCContainer) {
             }
         }
         audioContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
-       // textContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
+        //textContentInfo.dataStartOffset += (headerLength+jpegMetaLength)
     }
     fun getAPP3FieldLength(): Int{
         var size = 0
         size += imageContentInfo.getLength()
         size += textContentInfo.getLength()
         size += audioContentInfo.getLength()
-        return size + 4
+        return size + 8
     }
     fun convertBinaryData() : ByteArray {
         val buffer: ByteBuffer = ByteBuffer.allocate(getAPP3FieldLength() + 2)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("e3".toInt(16).toByte())
         buffer.putInt(headerDataLength)
+        // M, C, F, 0
+        buffer.put(0x4D.toByte())
+        buffer.put(0x43.toByte())
+        buffer.put(0x46.toByte())
+        buffer.put(0x00.toByte())
         buffer.put(imageContentInfo.converBinaryData())
         buffer.put(textContentInfo.converBinaryData())
         buffer.put(audioContentInfo.converBinaryData())
         return buffer.array()
     }
-     //헤더의 내용을 바이너리 데이터로 변환하는 함수
+    //헤더의 내용을 바이너리 데이터로 변환하는 함수
 //    fun convertBinaryData(): ByteArray{
 //         var bufferSize  = pictureInfoList?.size!! * INFO_SIZE +6
 //        //App3 마커

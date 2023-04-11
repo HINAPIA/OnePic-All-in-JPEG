@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a77823c6-a3a4-479d-9ec5-12427988d195" name="Changes" comment="" />
+    <list default="true" id="a77823c6-a3a4-479d-9ec5-12427988d195" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/EditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/EditFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/LoadModule/LoadResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/LoadModule/LoadResolver.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +31,7 @@
     "RunOnceActivity.cidr.known.project.marker": "true",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "C:/Users/USER/Desktop/capstone/JPEG/OnePIC/OnePIC",
+    "last_opened_file_path": "C:/Users/USER/Desktop/capstone/JPEG/OnePIC",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
