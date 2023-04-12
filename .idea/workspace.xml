@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a77823c6-a3a4-479d-9ec5-12427988d195" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/CameraModule/CameraFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/CameraModule/CameraFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/RewindFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/RewindFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/PictureModule/Contents/ContentType.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/PictureModule/Contents/ContentType.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/PictureModule/ImageContent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/PictureModule/ImageContent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/SaveModule/SaveResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/OnePIC/app/src/main/java/com/example/onepic/SaveModule/SaveResolver.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
