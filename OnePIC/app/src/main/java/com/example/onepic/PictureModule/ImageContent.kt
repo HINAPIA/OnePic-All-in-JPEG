@@ -87,8 +87,8 @@ class ImageContent {
     fun getJpegBytes(picture : Picture) : ByteArray{
         var JFIF_startOffset = 0
         var findCount = 0
-        // 속성이 modified가 아니면 2번 째 JFIF가 나오기 전까지 떼서 이용
-        if(picture.contentAttribute != ContentAttribute.edited){
+        // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
+        if(picture.contentAttribute != ContentAttribute.edited || picture.contentAttribute != ContentAttribute.magic){
             while (JFIF_startOffset < jpegMetaData.size - 1) {
                 if (jpegMetaData[JFIF_startOffset] == 0xFF.toByte() && jpegMetaData[JFIF_startOffset + 1] == 0xE0.toByte()) {
                     findCount++
@@ -140,6 +140,47 @@ class ImageContent {
         var pos = 0
         var extractPos = 0
         var app3DataLength = 0
+
+        var app1StartPos = 0
+        var app1DataLength = 0
+        var findApp1 = false
+
+        // app1 위치와 datalength 찾기
+        while (app1StartPos < jpegBytes.size - 1) {
+            // APP1 마커가 있는 경우
+            if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
+                app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
+                            ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
+                findApp1 = true
+                Log.d("MCcontainer","extract metadata : APP1 find - pos :${pos}, length : ${app1DataLength}")
+                break
+            }
+            app1StartPos++
+        }
+
+        // SOF 시작 offset 찾기
+        while (pos < jpegBytes.size - 1) {
+            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
+                if(findApp1){
+                    Log.d("MCcontainer","extract metadata : SOF find - ${pos}")
+                    // 썸네일의 sof가 아닐 때
+                    if(pos >= app1StartPos + app1DataLength + 2){
+                        Log.d("MCcontainer","extract metadata : 진짜 SOF find - ${pos}")
+                        isFindStartMarker = true
+                        break
+                    }
+                }
+            }
+            pos++
+        }
+        if (!isFindStartMarker) {
+            println("startIndex :${startIndex}")
+            Log.d("MCcontainer","extract metadata : SOF가 존재하지 않음")
+            return ByteArray(0)
+        }
+        //end of SOF find
+
+        // MC Format인지 확인 - MC Format일 경우 APP3 데이터 빼고 set
         while (extractPos < jpegBytes.size - 1) {
             // APP3 마커가 있는 경우
             if (jpegBytes[extractPos] == 0xFF.toByte() && jpegBytes[extractPos + 1] == 0xE3.toByte()) {
@@ -148,37 +189,26 @@ class ImageContent {
                     && jpegBytes[extractPos+8] == 0x46.toByte()){
                     app3DataLength = ((jpegBytes[extractPos+2].toInt() and 0xFF) shl 8) or
                             ((jpegBytes[extractPos+3].toInt() and 0xFF) shl 0)
+                    Log.d("MCcontainer", "extract metadata : MC 포맷")
                     break
                 }
 
             }
             extractPos++
         }
-
-        while (pos < jpegBytes.size - 1) {
-            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
-                isFindStartMarker = true
-                break
-            }
-            pos++
-        }
-        if (!isFindStartMarker) {
-            println("startIndex :${startIndex}")
-            Log.d("이미지","Error: SOF가 존재하지 않음")
-            return ByteArray(0)
-        }
+        // write
         val byteBuffer = ByteArrayOutputStream()
-        if(extractPos != jpegBytes.size-1){
+        if(extractPos <jpegBytes.size-1){
+            Log.d("MCcontainer", "extract metadata : MC 포맷이여서 APP3 메타 데이터 뺴고 저장")
             byteBuffer.write(jpegBytes, 0, extractPos)
             byteBuffer.write(jpegBytes, extractPos + app3DataLength + 2, pos - (extractPos + app3DataLength + 2))
             resultByte = byteBuffer.toByteArray()
         }else{
-            // 추출
+            Log.d("MCcontainer", "extract metadata : 일반 JEPG처럼 저장 pos : ${pos}")
+            // SOF 전까지 추출
             resultByte = jpegBytes.copyOfRange(0, pos)
         }
 
-        // start 마커부터 end 마커를 포함한 영역까지 복사해서 resultBytes에 저장
-        // System.arraycopy(jpegBytes, startIndex, resultByte, 0, endIndex - startIndex + 2)
         return resultByte
     }
 

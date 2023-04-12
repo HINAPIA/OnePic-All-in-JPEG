@@ -37,7 +37,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     protected lateinit var mainPicture: Picture
     protected lateinit var mainBitmap: Bitmap
-    protected lateinit var preMainBitmap: Bitmap
+    protected var preMainBitmap: Bitmap? = null
 
     var activity : MainActivity = MainActivity()
 
@@ -86,7 +86,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
+                if(preMainBitmap != null)
+                    mainBitmap = preMainBitmap!!
+
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 withContext(Dispatchers.Main){
@@ -116,6 +120,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
+                if(preMainBitmap != null) {
+                    mainBitmap = preMainBitmap!!
+                    newImage = null
+                }
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
@@ -289,10 +297,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     Rect(rect[5], rect[6], rect[7], rect[8])
                 )
                 newImage = imageToolModule.circleCropBitmap(newImage!!)
-                preMainBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                mainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY)
+                preMainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY)
 
-                binding.rewindMainView.setImageBitmap(mainBitmap)
+                binding.rewindMainView.setImageBitmap(preMainBitmap)
             }
 
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
@@ -312,14 +319,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             if(changeFaceStartY < 0)
                 changeFaceStartY = 0
 
-            mainBitmap = imageToolModule.overlayBitmap(
-                preMainBitmap,
+            preMainBitmap = imageToolModule.overlayBitmap(
+                mainBitmap,
                 newImage!!,
                 changeFaceStartX,
                 changeFaceStartY
             )
 
-            binding.rewindMainView.setImageBitmap(mainBitmap)
+            binding.rewindMainView.setImageBitmap(preMainBitmap)
         }
     }
 }
