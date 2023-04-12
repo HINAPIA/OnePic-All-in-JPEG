@@ -6,13 +6,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".CameraModule.CameraEditorActivity"
     android:id="@+id/constraintLayout"
-    android:background="@color/black">
+    android:backgroundTint="@color/background">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/black"
+        android:backgroundTint="@color/background"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline2"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
         app:scaleType="fitCenter" />
