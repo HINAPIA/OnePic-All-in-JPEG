@@ -20,4 +20,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="layout_background">#80000000</color>
+    <color name="background">#EDEDED</color>
 </resources>
