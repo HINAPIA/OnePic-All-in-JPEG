@@ -3,6 +3,7 @@ package com.example.onepic.CameraModule
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -15,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -28,12 +28,13 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.onepic.JpegViewModel
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
-import com.example.onepic.PictureModule.MCContainer
 import com.example.onepic.R
+import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
 class CameraFragment : Fragment() {
@@ -85,6 +87,15 @@ class CameraFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
+
+        // 카메라 권한 확인 후 카메라 시작하기
+        if(allPermissionsGranted()){
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
     }
 
     override fun onCreateView(
@@ -100,14 +111,14 @@ class CameraFragment : Fragment() {
         // Initialize the detector object
         setDetecter()
 
-        // 카메라 권한 확인 후 카메라 시작하기
-        if(allPermissionsGranted()){
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
+//        // 카메라 권한 확인 후 카메라 시작하기
+//        if(allPermissionsGranted()){
+//            startCamera()
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+//            )
+//        }
 
         /**
          * radioGroup.setOnCheckedChangeListener
@@ -169,8 +180,18 @@ class CameraFragment : Fragment() {
             }
 
             else if(binding.autoRewindRadio.isChecked){
-                //TODO Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
+                //TODO : Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
             }
+        }
+
+        binding.galleryButton.setOnClickListener{
+            val intent =
+                Intent(activity, ViewerEditorActivity::class.java) //fragment라서 activity intent와는 다른 방식
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            activity?.supportFragmentManager?.beginTransaction()?.addToBackStack(null)?.commit()
+
+            startActivity(intent)
         }
 
         /**
@@ -452,6 +473,7 @@ class CameraFragment : Fragment() {
             if (isFocusSuccess == true) {
                 takePhoto()
                 previewToByteArray()
+                Log.v("list size", "${previewByteArrayList.size}")
                 takeObjectFocusMode(index + 1)
                 isFocusSuccess = false
             } else {
@@ -624,7 +646,7 @@ class CameraFragment : Fragment() {
     }
 
     companion object {
-        private const val TAG = "TEST_EditAfterFocus"
+        private const val TAG = "OnePIC"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private const val DISTANCE_FOCUS_PHOTO_COUNT = 10

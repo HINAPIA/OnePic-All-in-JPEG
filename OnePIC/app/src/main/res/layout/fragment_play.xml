@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_color"
     android:orientation="vertical"
-    tools:context=".EditModule.Fragment.MagicPictureFragment">
+    tools:context=".EditModule.Fragment.PlayFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -40,13 +40,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/magicSaveBtn"
             app:layout_constraintStart_toEndOf="@+id/magicCloseBtn"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="181dp"
+            tools:layout_editor_absoluteY="33dp" />
 
         <ImageButton
             android:id="@+id/magicSaveBtn"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="42dp"
             android:background="@color/transparent_color"
             android:scaleType="fitXY"
             android:src="@drawable/check_icon"
@@ -75,70 +77,29 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
+        <ImageView
+            android:id="@+id/magicIng"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/magic_icon"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.916" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/magicPlayBtn"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="20dp"
         android:background="@color/transparent_color"
         android:scaleType="fitCenter"
         android:src="@drawable/magic_picture_play_icon"
         app:tint="@color/main_color" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5"
-        android:orientation="horizontal">
-
-        <HorizontalScrollView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="3">
-
-            <LinearLayout
-                android:id="@+id/magicCandidateLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal" />
-        </HorizontalScrollView>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <ImageButton
-                android:id="@+id/maxArrowBtn"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="@color/transparent_color"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/circle_icon"
-                app:tint="#CE858585" />
-
-            <ImageButton
-                android:id="@+id/circleArrowBtn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@color/transparent_color"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/circle_icon"
-                app:tint="#A1A1A1" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
-
 
 </LinearLayout>
