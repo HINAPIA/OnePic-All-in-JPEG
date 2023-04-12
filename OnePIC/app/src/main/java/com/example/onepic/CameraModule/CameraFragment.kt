@@ -62,12 +62,14 @@ class CameraFragment : Fragment() {
     private lateinit var mediaPlayer : MediaPlayer
 
     // Camera
+    private lateinit var analyzer: ImageAnalysis.Analyzer
     private lateinit var camera: Camera
     private lateinit var cameraController: CameraControl
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var camera2CameraInfo: Camera2CameraInfo
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var cameraSelector: CameraSelector
+    private lateinit var imageAnalysis: ImageAnalysis
     private lateinit var imageCapture: ImageCapture
 
     // TFLite
@@ -446,20 +448,26 @@ class CameraFragment : Fragment() {
     private fun takeObjectFocusMode(index: Int) {
         if(index >= detectedList.size){
             mediaPlayer.start()
-
+            Log.v("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
             CoroutineScope(Dispatchers.IO).launch{
                 // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                Log.d("MCcontainer", "${previewByteArrayList.size}")
+                Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
                 if(previewByteArrayList.size != 0){
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                 }
 
             }
 
+//            CoroutineScope(Dispatchers.IO).launch{
+//                // 초점 사진들이 모두 저장 완료 되었을 때
+////                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+//                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+//            }
+
             return
         }
-
+        Log.v("index cnt", "index : ${index}, detectedList.size : ${detectedList.size}, pointArrayList.size : ${pointArrayList.size}")
         val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
         val action = FocusMeteringAction.Builder(point)
             .build()
@@ -475,7 +483,7 @@ class CameraFragment : Fragment() {
             }
 
             if (isFocusSuccess == true) {
-                takePhoto()
+//                takePhoto()
                 previewToByteArray()
                 Log.v("list size", "${previewByteArrayList.size}")
                 takeObjectFocusMode(index + 1)
@@ -495,6 +503,14 @@ class CameraFragment : Fragment() {
     private fun controlLensFocusDistance(photoCnt: Int) {
         if (photoCnt >= DISTANCE_FOCUS_PHOTO_COUNT){
             mediaPlayer.start()
+            CoroutineScope(Dispatchers.IO).launch{
+                // 초점 사진들이 모두 저장 완료 되었을 때
+//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                if(previewByteArrayList.size != 0){
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                }
+
+            }
             return
         }
 
@@ -599,6 +615,21 @@ class CameraFragment : Fragment() {
 
             imageCapture = ImageCapture.Builder().build()
 
+            // ImageAnalysis 설정
+            imageAnalysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+
+            // 이미지 처리를 위한 Analyzer 정의
+            analyzer = ImageAnalysis.Analyzer { image ->
+                val buffer = image.planes[0].buffer
+                val data = ByteArray(buffer.remaining())
+                buffer.get(data)
+                // 여기서 data 변수가 ByteArray로 프리뷰 이미지를 포함합니다.
+                image.close()
+            }
+
+
             // 3-2. 카메라 세팅
             // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
             cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -607,10 +638,16 @@ class CameraFragment : Fragment() {
                 // binding 전에 binding 초기화
                 cameraProvider.unbindAll()
 
+                // 미리보기를 시작하기 전에 View를 숨기는 코드
+                binding.viewFinder.visibility = View.GONE
+
                 // 3-3. use case와 카메라를 생명 주기에 binding
                 camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture
                 )
+
+                // View를 다시 보이도록 하는 코드
+                binding.viewFinder.visibility = View.VISIBLE
 
                 cameraController = camera!!.cameraControl
                 camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
