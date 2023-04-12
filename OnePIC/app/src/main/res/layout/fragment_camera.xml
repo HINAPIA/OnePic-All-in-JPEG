@@ -1,18 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".CameraModule.CameraEditorActivity"
-    android:id="@+id/constraintLayout"
-    android:backgroundTint="@color/background">
+    android:background="@color/background">
+
+    <ToggleButton
+        android:id="@+id/basic_toggle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/basic_toggle_selector"
+        android:padding="6dp"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline5"
+        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline4"
+        app:layout_constraintStart_toStartOf="@+id/vertical_centerline3"
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline4" />
+
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:backgroundTint="@color/background"
+        android:background="@color/preview_color"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline2"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
         app:scaleType="fitCenter" />
@@ -26,7 +40,83 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
         app:layout_constraintStart_toEndOf="@id/vertical_centerline"
-        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline3"/>
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline3" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2"
+        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline3"
+        tools:layout_editor_absoluteX="1dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/basic_radio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/camera_option_radio_selector"
+                    android:button="@drawable/null_radio_button"
+                    android:checked="true"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="5dp"
+                    android:gravity="center"
+                    android:textColor="@drawable/radio_text_selector"
+                    android:text="@string/basic_option"/>
+
+                <RadioButton
+                    android:id="@+id/object_focus_radio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/camera_option_radio_selector"
+                    android:button="@drawable/null_radio_button"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="5dp"
+                    android:gravity="center"
+                    android:textColor="@drawable/radio_text_selector"
+                    android:text="@string/object_focus_option"/>
+
+                <RadioButton
+                    android:id="@+id/distance_focus_radio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/camera_option_radio_selector"
+                    android:button="@drawable/null_radio_button"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="5dp"
+                    android:gravity="center"
+                    android:textColor="@drawable/radio_text_selector"
+                    android:text="@string/distance_focus_option"/>
+
+                <RadioButton
+                    android:id="@+id/auto_rewind_radio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/camera_option_radio_selector"
+                    android:button="@drawable/null_radio_button"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="5dp"
+                    android:gravity="center"
+                    android:textColor="@drawable/radio_text_selector"
+                    android:text="@string/auto_rewind_option"/>
+
+            </RadioGroup>
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_centerline"
