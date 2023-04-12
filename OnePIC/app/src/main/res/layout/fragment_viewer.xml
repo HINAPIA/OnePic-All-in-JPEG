@@ -120,23 +120,22 @@
             android:text="T"
             android:textSize="22sp" />
 
-        <android.widget.Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            
-            android:minWidth="34dp"
-            android:minHeight="34dp"
-            android:textColor="@color/text_selector" />
-
+        <ImageButton
+            android:id="@+id/audioBtn"
+            android:padding="4.5dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="10dp"
+            android:background="@color/transparent_color"
+            android:src="@drawable/sound_icon_2"
+            android:scaleType="fitCenter"
+        />
 
         <android.widget.Button
             android:id="@+id/magicBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-
             android:minWidth="34dp"
             android:minHeight="34dp"
             android:textColor="@color/text_selector" />
