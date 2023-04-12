@@ -20,5 +20,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="layout_background">#80000000</color>
-    <color name="background">#474554</color>
+
+    <color name="background">#FAF8FF</color>
+    <color name="preview_color">#FFFADE</color>
 </resources>

@@ -2,6 +2,8 @@ package com.example.onepic.ViewerModule
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -82,7 +84,7 @@ class ViewerFragment : Fragment() {
                 mainViewPagerAdapter.notifyDataSetChanged()
                 // 텍스트 버튼 초기화
                 if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.textBtn.setBackgroundResource(R.drawable.round_button)
+                    binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isTxtBtnClicked = false
                     binding.textLinear.visibility = View.INVISIBLE
                     //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
@@ -112,7 +114,7 @@ class ViewerFragment : Fragment() {
 
             if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
                 /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button_clicked)
+                it.setBackgroundResource(R.drawable.round_button)
                 isTxtBtnClicked = true
                 textLinear.visibility = View.VISIBLE
 
@@ -121,7 +123,7 @@ class ViewerFragment : Fragment() {
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
                 /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
+                it.background = ColorDrawable(Color.TRANSPARENT)
                 isTxtBtnClicked = false
                 textLinear.visibility = View.INVISIBLE
             }

@@ -55,6 +55,9 @@ dependencies {
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-extensions:${camerax_version}"
 
+    // TFLite
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.3.1'
+
     // Face features
     implementation 'com.google.mlkit:face-detection:16.0.0'
 
