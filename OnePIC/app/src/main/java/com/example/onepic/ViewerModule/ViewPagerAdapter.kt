@@ -21,10 +21,10 @@ import com.example.onepic.R
 
 import java.security.AccessController.getContext
 
-class ViewPagerAdapter (val context: Context, uriList: List<String>) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
+class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
     lateinit var viewHolder: PagerViewHolder
-    var galleryMainimages = uriList // gallery에 있는 이미지 리스트
+    lateinit var galleryMainimages:List<String>// gallery에 있는 이미지 리스트
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : PagerViewHolder {
@@ -48,6 +48,10 @@ class ViewPagerAdapter (val context: Context, uriList: List<String>) : RecyclerV
     fun setExternalImage(byteArray: ByteArray){
         externalImage = byteArray
         notifyDataSetChanged()
+    }
+
+    fun setUriList(uriList: List<String>){
+        galleryMainimages = uriList
     }
 
     /** ViewHolder 정의 = Main Image UI */

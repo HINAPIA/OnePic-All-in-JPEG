@@ -17,12 +17,13 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.R
 
-class GridAdapter(val fragment: Fragment, val context: Context, uriArr:List<String>): BaseAdapter() {
+class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
 
-    private var items: List<String>
+    private lateinit var items: List<String>
 
-    init {
-        this.items = uriArr
+    fun setItems(uriArr:List<String>){
+        items = uriArr
+        notifyDataSetChanged()
     }
 
     override fun getCount(): Int {

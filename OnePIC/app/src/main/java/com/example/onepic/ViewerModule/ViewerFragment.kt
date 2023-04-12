@@ -14,6 +14,7 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
@@ -57,12 +58,20 @@ class ViewerFragment : Fragment() {
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
             currentPosition = null
         }
+
+        // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
+        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+            // 기존 위치 curr Position을 가지고 있어야 하나..?
+            mainViewPagerAdapter.notifyDataSetChanged()
+        }
     }
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
     fun init() {
 
-        mainViewPagerAdapter = ViewPagerAdapter(requireContext(),jpegViewModel.imageUriLiveData.value!!)
+        mainViewPagerAdapter = ViewPagerAdapter(requireContext())
+        mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
         Log.d("adapter item count = ",""+mainViewPagerAdapter.itemCount)
         binding.viewPager2.adapter = mainViewPagerAdapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
