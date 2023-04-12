@@ -90,6 +90,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     mainBitmap = preMainBitmap!!
 
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 withContext(Dispatchers.Main){

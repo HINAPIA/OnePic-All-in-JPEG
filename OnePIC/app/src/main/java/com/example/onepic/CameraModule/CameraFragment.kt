@@ -450,7 +450,8 @@ class CameraFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch{
                 // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                if(previewByteArrayList.size != 0)
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
             }
 
             return

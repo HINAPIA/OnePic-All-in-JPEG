@@ -37,24 +37,30 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             var jpegMetaData = MCContainer.imageContent.jpegMetaData
             //if(firstPicture == null) throw NullPointerException("empty first Picture")
 
+
+            /*
+             APP1뒤에 APP3를 쓰는 작업
+             */
             // APP1 세그먼트의 시작 위치를 찾음
             var pos = 2
+            var exifDataLength = 0
             while (pos < jpegMetaData.size - 1) {
+                // APP1 존재
                 if (jpegMetaData[pos] == 0xFF.toByte() && jpegMetaData[pos + 1] == 0xE1.toByte()) {
+                    exifDataLength = ((jpegMetaData[pos+2].toInt() and 0xFF) shl 8) or
+                            ((jpegMetaData[pos+3].toInt() and 0xFF) shl 0)
+                    //SOI + APP1(EXIF) 쓰기
+                    byteBuffer.write(jpegMetaData,0,4 + exifDataLength)
                     break
                 }
                 pos++
             }
+            // APP1 미존재
             if (pos == jpegMetaData.size - 1) {
-                // APP1 세그먼트를 찾지 못함
+                // SOI 쓰기
+                byteBuffer.write(jpegMetaData,0,2)
                 Log.d("test_test", "APP1 세그먼트를 찾지 못함")
-                return@launch
             }
-            val exifDataLength = ((jpegMetaData[pos+2].toInt() and 0xFF) shl 8) or
-                    ((jpegMetaData[pos+3].toInt() and 0xFF) shl 0)
-
-            //SOI + APP1(EXIF) 쓰기
-            byteBuffer.write(jpegMetaData,0,4 + exifDataLength)
 
             //헤더 쓰기
             //App3 Extension 데이터 생성
