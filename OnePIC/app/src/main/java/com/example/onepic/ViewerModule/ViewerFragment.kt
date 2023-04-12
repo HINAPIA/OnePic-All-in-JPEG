@@ -43,6 +43,7 @@ class ViewerFragment : Fragment() {
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
+    private var isMagicBtnClicked = false
     private var currentPosition:Int? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,7 +97,12 @@ class ViewerFragment : Fragment() {
                     isAudioBtnClicked = false
 
                 }
-                
+                // 매직 버튼 초기화
+                if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
+                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+                    isMagicBtnClicked = false
+
+                }
                 setCurrentMCContainer(position)
             }
         })
@@ -152,6 +158,25 @@ class ViewerFragment : Fragment() {
                 /* layout 변경 */
                 it.background = ColorDrawable(Color.TRANSPARENT)
                 isAudioBtnClicked = false
+            }
+        }
+
+        binding.magicBtn.setOnClickListener{
+
+            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+
+            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
+                /* layout 변경 */
+                it.setBackgroundResource(R.drawable.round_button)
+                isMagicBtnClicked = true
+            }
+
+            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
+            else { // 클릭 되어 있던 상태
+                /* layout 변경 */
+                it.background = ColorDrawable(Color.TRANSPARENT)
+                isMagicBtnClicked = false
             }
         }
 
