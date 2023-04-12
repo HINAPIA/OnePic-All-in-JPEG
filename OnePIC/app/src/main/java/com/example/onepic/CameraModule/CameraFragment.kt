@@ -1,12 +1,19 @@
 package com.example.onepic.CameraModule
 
+import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.RectF
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -21,16 +28,36 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
+import com.example.onepic.JpegViewModel
+import com.example.onepic.PictureModule.Contents.ContentAttribute
+import com.example.onepic.PictureModule.Contents.ContentType
+import com.example.onepic.PictureModule.MCContainer
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentCameraBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.task.vision.detector.ObjectDetector
+import java.lang.reflect.InvocationTargetException
+import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
 class CameraFragment : Fragment() {
+    data class pointData(var x: Float, var y: Float)
+    data class DetectionResult(val boundingBox: RectF, val text: String)
+
+    private var pointArrayList: ArrayList<pointData> = arrayListOf() // Object Focus
+    private var previewByteArrayList: ArrayList<ByteArray> = arrayListOf()
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
+    private lateinit var mediaPlayer : MediaPlayer
 
     // Camera
     private lateinit var camera: Camera
@@ -41,9 +68,19 @@ class CameraFragment : Fragment() {
     private lateinit var cameraSelector: CameraSelector
     private lateinit var imageCapture: ImageCapture
 
+    // TFLite
+    private lateinit var customObjectDetector: ObjectDetector
+    private lateinit var detectedList: List<DetectionResult>
+
     // Distance Focus
-    private var minFocusDistance: Float = 0F
     private var lensDistanceSteps: Float = 0F
+    private var minFocusDistance: Float = 0F
+
+    // Object Focus
+    private lateinit var factory: MeteringPointFactory
+    private var isFocusSuccess: Boolean? = null
+
+    private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -57,6 +94,12 @@ class CameraFragment : Fragment() {
 
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 
+        factory = binding.viewFinder.meteringPointFactory
+        mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
+
+        // Initialize the detector object
+        setDetecter()
+
         // 카메라 권한 확인 후 카메라 시작하기
         if(allPermissionsGranted()){
             startCamera()
@@ -64,6 +107,70 @@ class CameraFragment : Fragment() {
             ActivityCompat.requestPermissions(
                 activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
+        }
+
+        /**
+         * radioGroup.setOnCheckedChangeListener
+         *      1. Basic 버튼 눌렸을 때, Single Mode나 Burst Mode 선택 버튼이 나타나게 하기
+         *      2. Basic 버튼 안 누르면 사라지게 하기
+         *      3. Option에 따른 카메라 설정
+         */
+        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId){
+                binding.basicRadio.id -> {
+                    binding.basicToggle.visibility = View.VISIBLE
+                    turnOnAEMode()
+                }
+
+                binding.distanceFocusRadio.id -> {
+                    binding.basicToggle.visibility = View.INVISIBLE
+                    turnOffAFMode(0F)
+                }
+
+                else -> {
+                    binding.basicToggle.visibility = View.INVISIBLE
+                    turnOnAEMode()
+                }
+            }
+        }
+
+        /**
+         * shutterButton.setOnClickListener{ }
+         *      - 셔터 버튼 눌렀을 때 Option에 따른 촬영
+         */
+        binding.shutterButton.setOnClickListener {
+            // previewByteArrayList 초기화
+            previewByteArrayList.clear()
+
+            // Basic Mode
+            if(binding.basicRadio.isChecked){
+                if(!(binding.basicToggle.isChecked)){
+                    // Single Mode
+                    takePhotoIndex(0, 1)
+//                    previewToByteArray()
+                    mediaPlayer.start()
+                }
+                else{
+
+                    // Burst Mode
+//                    takePhotoIndex(0, 10)
+//                    takeBurstMode(0,10)
+                }
+            }
+
+            else if(binding.objectFocusRadio.isChecked){
+                pointArrayList.clear()
+                isFocusSuccess = false
+                startObjectFocusMode()
+            }
+
+            else if(binding.distanceFocusRadio.isChecked){
+                controlLensFocusDistance(0)
+            }
+
+            else if(binding.autoRewindRadio.isChecked){
+                //TODO Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
+            }
         }
 
         /**
@@ -103,6 +210,339 @@ class CameraFragment : Fragment() {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         return binding.root
+    }
+
+    private fun setDetecter() {
+        // Step 2: Initialize the detector object
+        val options = ObjectDetector.ObjectDetectorOptions.builder()
+            .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
+            .setScoreThreshold(0.2f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .build()
+        customObjectDetector = ObjectDetector.createFromFileAndOptions(
+            activity,
+            "lite-model_efficientdet_lite0_detection_metadata_1.tflite",
+            options
+        )
+    }
+
+    private fun turnOffAFMode(distance : Float){
+        Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
+            CaptureRequestOptions.Builder()
+                .apply {
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CameraMetadata.CONTROL_AF_MODE_OFF
+                    )
+                    // Fix focus lens distance to infinity to get focus far away (avoid to get a close focus)
+                    setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)
+                }.build()
+    }
+
+    private fun turnOnAEMode(){
+        Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
+            CaptureRequestOptions.Builder()
+                .apply {
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CameraMetadata.CONTROL_AF_MODE_AUTO
+                    )
+                }.build()
+    }
+
+    /**
+     * < TEST >
+     * takePhotoIndex(index : Int, maxIndex : Int)
+     *      - 사진 촬영 시, 저장
+     */
+    private fun takePhotoIndex(index : Int, maxIndex : Int) {
+        if(index >= maxIndex){
+            mediaPlayer.start()
+            return
+        }
+        // Get a stable reference of the modifiable image capture use case
+        val imageCapture = imageCapture ?: return
+
+        // Create time stamped name and MediaStore entry.
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
+        }
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(
+                activity.contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+            .build()
+
+        // Set up image capture listener, which is triggered after photo has
+        // been taken
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(activity),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                }
+
+                override fun
+                        onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val msg = "Photo capture succeeded: ${output.savedUri}"
+                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+                    takePhotoIndex(index + 1, maxIndex)
+                }
+            }
+        )
+    }
+
+    private fun previewToByteArray(){
+        val imageCapture = imageCapture
+
+        imageCapture!!.takePicture(cameraExecutor, object :
+            ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+
+                val buffer = image.planes[0].buffer
+                buffer.rewind()
+                val bytes = ByteArray(buffer.capacity())
+                buffer.get(bytes)
+                previewByteArrayList.add(bytes)
+
+                image.close()
+                super.onCaptureSuccess(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+            }
+        })
+    }
+
+    /**
+     * startObjectFocusMode()
+     *      - Preview에서 Bitmap 가져오고 runObjectDetection에 넘겨주기
+     */
+    private fun startObjectFocusMode() {
+        val imageCapture = imageCapture ?: return
+
+        imageCapture.takePicture(cameraExecutor, object :
+            ImageCapture.OnImageCapturedCallback() {
+            @SuppressLint("RestrictedApi")
+            override fun onCaptureSuccess(image: ImageProxy) {
+                //get bitmap from image
+                val bitmap = imageProxyToBitmap(image)
+                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1440, false)
+
+                // resizedBitmap 에서 객체 인식하기
+                runObjectDetection(resizedBitmap)
+
+                // 객체 별로 초점 맞춰서 저장
+                takeObjectFocusMode(0)
+
+                image.close()
+                super.onCaptureSuccess(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+            }
+        })
+    }
+
+    /**
+     * imageProxyToBitmap(image: ImageProxy): Bitmap
+     *      - ImageProxy를 Bitmap으로 변환
+     */
+    private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
+        val planeProxy = image.planes[0]
+        val buffer: ByteBuffer = planeProxy.buffer
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
+    /**
+     * runObjectDetection(bitmap: Bitmap)
+     *      - Tensorflow Lite 객체 인식
+     *          객체 별 가운데 좌표 계산 > 초점 > 촬영
+     */
+    private fun runObjectDetection(bitmap: Bitmap) {
+        // 객체 인지 후 객체 정보 받기
+        detectedList = getObjectDetection(bitmap)
+
+        for (obj in detectedList) {
+            try {
+                var pointX: Float =
+                    (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) / 2))
+                var pointY: Float =
+                    (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) / 2))
+
+                pointArrayList.add(pointData(pointX, pointY))
+
+            } catch (e: IllegalAccessException) {
+                e.printStackTrace();
+            } catch (e: InvocationTargetException) {
+                e.targetException.printStackTrace(); //getTargetException
+            }
+        }
+    }
+
+    /**
+     * getObjectDetection(bitmap: Bitmap):
+     *         ObjectDetection 결과(bindingBox) 및 category 그리기
+     */
+    private fun getObjectDetection(bitmap: Bitmap): List<DetectionResult> {
+        // Step 1: Create TFLite's TensorImage object
+        val image = TensorImage.fromBitmap(bitmap)
+
+        // Step 3: Feed given image to the detector
+        val results = customObjectDetector.detect(image)
+
+        // Step 4: Parse the detection result and show it
+        val resultToDisplay = results.map {
+            // Get the top-1 category and craft the display text
+            val category = it.categories.first()
+            val text = "${category.label}"
+
+            // Create a data object to display the detection result
+            DetectionResult(it.boundingBox, text)
+        }
+        return resultToDisplay
+    }
+
+    /**
+     * takeObjectFocusMode(index: Int)
+     *      - 감지된 객체 별로 초점을 맞추고
+     *          Preview를 ByteArray로 저장
+     */
+    private fun takeObjectFocusMode(index: Int) {
+        if(index >= detectedList.size){
+            mediaPlayer.start()
+
+            CoroutineScope(Dispatchers.IO).launch{
+                // 초점 사진들이 모두 저장 완료 되었을 때
+//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+            }
+
+            return
+        }
+
+        val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
+        val action = FocusMeteringAction.Builder(point)
+            .build()
+
+        val result = cameraController?.startFocusAndMetering(action)
+        result?.addListener({
+            try {
+                isFocusSuccess = result.get().isFocusSuccessful
+            } catch (e: IllegalAccessException) {
+                Log.e("Error", "IllegalAccessException")
+            } catch (e: InvocationTargetException) {
+                Log.e("Error", "InvocationTargetException")
+            }
+
+            if (isFocusSuccess == true) {
+                takePhoto()
+                previewToByteArray()
+                takeObjectFocusMode(index + 1)
+                isFocusSuccess = false
+            } else {
+                // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
+                Log.v("Focus", "false")
+                takeObjectFocusMode(index)
+            }
+        }, ContextCompat.getMainExecutor(activity))
+    }
+
+
+    /**
+     * Lens Focus Distance 바꾸면서 사진 찍기
+     */
+    private fun controlLensFocusDistance(photoCnt: Int) {
+        if (photoCnt >= DISTANCE_FOCUS_PHOTO_COUNT){
+            mediaPlayer.start()
+            return
+        }
+
+        val distance: Float? = 0F + lensDistanceSteps * photoCnt
+        turnOffAFMode(distance!!)
+
+        val imageCapture = imageCapture ?: return
+
+        imageCapture.takePicture(cameraExecutor, object :
+            ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                controlLensFocusDistance(photoCnt + 1)
+                val buffer = image.planes[0].buffer
+                buffer.rewind()
+                val bytes = ByteArray(buffer.capacity())
+                buffer.get(bytes)
+                previewByteArrayList.add(bytes)
+                image.close()
+                super.onCaptureSuccess(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+            }
+        })
+    }
+
+    /**
+     * takePhoto()
+     *      - 사진 촬영 후 저장
+     *          오로지 저장이 잘 되는지 확인하는 용도
+     */
+    private fun takePhoto() {
+        // Get a stable reference of the modifiable image capture use case
+        val imageCapture = imageCapture ?: return
+
+        // Create time stamped name and MediaStore entry.
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
+        }
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(
+                activity.contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+            .build()
+
+        // Set up image capture listener, which is triggered after photo has
+        // been taken
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(activity),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                }
+
+                override fun
+                        onImageSaved(output: ImageCapture.OutputFileResults) {
+//                    val msg = "Photo capture succeeded: ${output.savedUri}"
+//                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+//                    mediaPlayer.start()
+                }
+            }
+        )
     }
 
     /**
@@ -198,5 +638,4 @@ class CameraFragment : Fragment() {
                 }
             }.toTypedArray()
     }
-
 }
