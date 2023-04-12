@@ -118,20 +118,7 @@ class ImageContent {
         buffer.put("d9".toInt(16).toByte())
         return buffer.array()
 
-       // val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
-
-
     }
-
-//    fun getJpegBytes(frameByteArray : ByteArray) : ByteArray{
-//        val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + frameByteArray.size+2)
-//        buffer.put(jpegMetaData)
-//        buffer.put(frameByteArray)
-//        buffer.put("ff".toInt(16).toByte())
-//        buffer.put("d9".toInt(16).toByte())
-//        return buffer.array()
-//    }
-
     fun extractJpegMeta(jpegBytes: ByteArray) : ByteArray{
 
         var resultByte: ByteArray
@@ -140,7 +127,6 @@ class ImageContent {
         var pos = 0
         var extractPos = 0
         var app3DataLength = 0
-
         var app1StartPos = 0
         var app1DataLength = 0
         var findApp1 = false
@@ -152,7 +138,7 @@ class ImageContent {
                 app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
                             ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
                 findApp1 = true
-                Log.d("MCcontainer","extract metadata : APP1 find - pos :${pos}, length : ${app1DataLength}")
+                Log.d("MCcontainer","extract metadata : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
                 break
             }
             app1StartPos++
@@ -192,7 +178,6 @@ class ImageContent {
                     Log.d("MCcontainer", "extract metadata : MC 포맷")
                     break
                 }
-
             }
             extractPos++
         }
@@ -208,7 +193,6 @@ class ImageContent {
             // SOF 전까지 추출
             resultByte = jpegBytes.copyOfRange(0, pos)
         }
-
         return resultByte
     }
 
@@ -217,66 +201,60 @@ class ImageContent {
     }
     // 한 파일에서 SOF~EOI 부분의 바이너리 데이터를 찾아 ByteArray에 담아 리턴
      fun extractFrame(jpegBytes: ByteArray): ByteArray {
-        Log.d("이미지","extractFrame 시작")
-        var n1: Int
-        var n2: Int
         var resultByte: ByteArray
         var startIndex = 0
         var endIndex = jpegBytes.size
-        var startCount = 0
-        var endCount = 0
-        var startMax = 1
-        val endMax = 1
         var isFindStartMarker = false // 시작 마커를 찾았는지 여부
         var isFindEndMarker = false // 종료 마커를 찾았는지 여부
+        var pos = 0
+        var app1StartPos = 0
+        var app1DataLength = 0
+        var findApp1 = false
 
+        // app1 위치와 datalength 찾기
+        while (app1StartPos < jpegBytes.size - 1) {
+            // APP1 마커가 있는 경우
+            if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
+                app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
+                        ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
+                findApp1 = true
+                Log.d("MCcontainer","extract Frame : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
+                break
+            }
+            app1StartPos++
+        }
 
-        for (i in 0 until jpegBytes.size - 1) {
-            n1 = Integer.valueOf(jpegBytes[i].toInt())
-            if (n1 < 0) {
-                n1 += 256
-            }
-            n2 = Integer.valueOf(jpegBytes[i+1].toInt())
-            if (n2 < 0) {
-                n2 += 256
-            }
-            val twoByteToNum = n1 + n2
-            if (markerHashMap.containsKey(twoByteToNum) && n1 == 255) {
-                if (twoByteToNum == jpegConstant.SOF0_MARKER) {
-                    Log.d("이미지","SOF 마커 찾음 : ${i}")
-                    startCount++
-                    if (startCount == startMax) {
-                        startIndex = i
+        // SOF 시작 offset 찾기
+        while (pos < jpegBytes.size - 1) {
+            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
+                if(findApp1){
+                    Log.d("MCcontainer","extract Frame : SOF find - ${pos}")
+                    // 썸네일의 sof가 아닐 때
+                    if(pos >= app1StartPos + app1DataLength + 2){
+                        Log.d("MCcontainer","extract Frame : 진짜 SOF find - ${pos}")
                         isFindStartMarker = true
+                        startIndex = pos
                         break
                     }
                 }
             }
+            pos++
         }
-        for(j in jpegBytes.size-2 downTo 0 ){
-            n1 = Integer.valueOf(jpegBytes[j].toInt())
-            if (n1 < 0) {
-                n1 += 256
-            }
-            n2 = Integer.valueOf(jpegBytes[j+1].toInt())
-            if (n2 < 0) {
-                n2 += 256
-            }
-            val twoByteToNum = n1 + n2
-            if (markerHashMap.containsKey(twoByteToNum) && n1 == 255){
-                if (isFindStartMarker) { // 조건에 부합하는 start 마커를 찾은 후, end 마커 찾기
-                    if (twoByteToNum == jpegConstant.EOI_MARKER) {
-                        Log.d("이미지","EOI 마커 찾음 : ${j}")
-                        endCount++
-                        if (endCount == endMax) {
-                            endIndex =j
-                            isFindEndMarker = true
-                            break
-                        }
-                    }
-                }
-            }
+        if (!isFindStartMarker) {
+            println("startIndex :${startIndex}")
+            Log.d("MCcontainer","extract Frame : SOF가 존재하지 않음")
+            return ByteArray(0)
+        }
 
+        pos = jpegBytes.size-2
+        // EOI 시작 offset 찾기
+        while (pos > 0) {
+            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xD9.toByte()) {
+                endIndex = pos
+                isFindEndMarker = true
+                break
+            }
+            pos--
         }
         if (!isFindStartMarker || !isFindEndMarker) {
             //println("startIndex :${startIndex}")
@@ -286,12 +264,8 @@ class ImageContent {
             return ByteArray(0)
         }
         // 추출
-        //resultByte = ByteArray(endIndex - startIndex)
         resultByte = jpegBytes.copyOfRange(startIndex, endIndex )
-        // start 마커부터 end 마커를 포함한 영역까지 복사해서 resultBytes에 저장
-       // System.arraycopy(jpegBytes, startIndex, resultByte, 0, endIndex - startIndex )
         return resultByte
-
 
     }
 
