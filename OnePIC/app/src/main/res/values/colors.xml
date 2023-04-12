@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Application Custom Color -->
-    <color name="main_color">#B8C5BB</color>
+<!--    <color name="main_color">#B8C5BB</color>-->
+    <color name="background_color">#000000</color>
+    <color name="main_color">#FFFFFF</color>
+    <color name="edit_bar_color">#000000</color>
+    <color name="point_color">#C1BAF2</color>
+    <color name="rewind_button_color">#80818181</color>
     <color name="sideBar_color">#80D7D7D7</color>
     <color name="dialog_button_color">#BEDFDFDF</color>
     <color name="arrow_triangle_color">#D7D7D7</color>

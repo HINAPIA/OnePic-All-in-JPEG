@@ -41,20 +41,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
-        //val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
-        CoroutineScope(Dispatchers.Main).launch {
-            val mainBitmap = withContext(Dispatchers.IO) {
-                Glide.with(fragment)
-                    .asBitmap()
-                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
-                    .submit()
-                    .get()
-            }
-
-            withContext(Dispatchers.Main) {
-                binding.mainImageView.setImageBitmap(mainBitmap)
-            }
-        }
+        val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
+        
+        binding.mainImageView.setImageBitmap(mainBitmap)
 
         return binding.root
     }

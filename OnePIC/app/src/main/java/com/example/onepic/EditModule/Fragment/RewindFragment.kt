@@ -18,7 +18,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.*
+import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
+import com.example.onepic.EditModule.RudderKeyClickListener
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
@@ -71,21 +73,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-        //mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
-        CoroutineScope(Dispatchers.Main).launch {
-            mainBitmap = withContext(Dispatchers.IO) {
-                Glide.with(fragment)
-                    .asBitmap()
-                    .load(imageContent.getJpegBytes(mainPicture))
-                    .submit()
-                    .get()
-            }
+        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
-            withContext(Dispatchers.Main) {
-                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                setMainImageBoundingBox()
-            }
-        }
+        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+        setMainImageBoundingBox()
+
         // rewind 가능한 연속 사진 속성의 picture list 얻음
         pictureList = imageContent.pictureList
 
@@ -147,35 +139,27 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             return@setOnTouchListener true
         }
 
-        binding.topArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(0, -2)
-                return@setOnTouchListener true
-            }
-            else {
-                return@setOnTouchListener false
-            }
-        }
-        binding.bottomArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(0, 2)
-            }
-            return@setOnTouchListener true
-        }
-        binding.leftArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(-2, 0)
-            }
-            return@setOnTouchListener true
-        }
-        binding.rightArrowBtn.setOnTouchListener { view, motionEvent ->
-            if (motionEvent!!.action == MotionEvent.ACTION_DOWN) {
-                moveCropFace(2, 0)
-            }
-            return@setOnTouchListener true
-        }
+//        val topButtonListener = RudderKeyClickListener{ moveCropFace(0, -2) }
+//        binding.topArrowBtn.setOnTouchListener(topButtonListener)
+//
+//        val bottomButtonListener = RudderKeyClickListener{ moveCropFace(0, 2) }
+//        binding.bottomArrowBtn.setOnTouchListener(bottomButtonListener)
+//
+//        val leftButtonListener = RudderKeyClickListener{ moveCropFace(-2, 0) }
+//        binding.leftArrowBtn.setOnTouchListener(leftButtonListener)
+//
+//        val rightButtonListener = RudderKeyClickListener{ moveCropFace(2, 0) }
+//        binding.rightArrowBtn.setOnTouchListener(rightButtonListener)
+
 
         return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+        }
     }
 
     /**
@@ -206,16 +190,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         for(i in 0 until pictureList.size) {
             CoroutineScope(Dispatchers.Default).launch {
-                //bitmapList.add(imageToolModule.byteArrayToBitmap(pictureList[i].byteArray))
-                ///bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
-                bitmapList.add(withContext(Dispatchers.IO) {
-                    Glide.with(fragment)
-                        .asBitmap()
-                        .load(imageContent.getJpegBytes(pictureList[i]))
-                        .submit()
-                        .get()
-                })
-
+                bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
                 checkFinish[i] = true
             }
         }
@@ -230,8 +205,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      *       해당 포인트가 객체 감지 결과 bounding Box 속에 존재하는지 찾아서
      *       만약 포인트를 포함하는 boundingBox를 찾으면 모아 return
      */
-    suspend fun getBoundingBox(touchPoint: Point): ArrayList<List<Int>> = suspendCoroutine { box ->
-        val boundingBox: ArrayList<List<Int>> = arrayListOf()
+    suspend fun getBoundingBox(touchPoint: Point): ArrayList<ArrayList<Int>> = suspendCoroutine { box ->
+        val boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
 
         val checkFinish = BooleanArray(pictureList.size)
         for (i in 0 until pictureList.size) {
@@ -255,7 +230,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 changeFaceStartX = basicRect[4]
                 changeFaceStartY = basicRect[5]
 
-                val arrayBounding = listOf(
+                val arrayBounding = arrayListOf(
                     0,
                     basicRect[0], basicRect[1], basicRect[2], basicRect[3],
                     basicRect[4], basicRect[5], basicRect[6], basicRect[7]
@@ -270,7 +245,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                             rewindModule.getClickPointBoundingBox(bitmapList[i], touchPoint)
 
                         if (rect != null) {
-                            val arrayBounding = listOf(
+                            val arrayBounding = arrayListOf(
                                 i,
                                 rect[0], rect[1], rect[2], rect[3],
                                 rect[4], rect[5], rect[6], rect[7]
@@ -291,7 +266,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
      *         - 이미지를 자르고 화면에 띄어줌
      */
-    private fun cropImgAndView(boundingBox: ArrayList<List<Int>>) {
+    private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.candidateLayout.removeAllViews()
@@ -344,6 +319,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             binding.candidateLayout.addView(candidateLayout)
         }
     }
+
 
     private fun moveCropFace(moveX:Int, moveY:Int) {
         if (newImage != null) {

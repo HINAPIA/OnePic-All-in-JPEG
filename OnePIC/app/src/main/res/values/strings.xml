@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">OnePIC</string>
-    <string name="rewind">REWIND</string>
-    <string name="remove">REMOVE</string>
-    <string name="magicPicture">MAGIG PICTURE</string>
-    <string name="focus">FOCUS</string>
-    <string name="add">ADD</string>
-    <string name="saveText">확인</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="rewind">Rewind</string>
+    <string name="remove">Remove</string>
+    <string name="magicPicture">Magic</string>
+    <string name="focus">Focus</string>
+    <string name="add">Add</string>
+    <string name="saveText">Save</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
