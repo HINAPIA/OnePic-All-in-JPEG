@@ -2,6 +2,7 @@ package com.example.onepic.ViewerModule
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,8 @@ class GalleryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentGalleryBinding.inflate(inflater, container, false)
-        gridAdapter = GridAdapter(this, requireContext(),jpegViewModel.imageUriLiveData.value!!)
+        gridAdapter = GridAdapter(this, requireContext())
+        gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
         return binding.root
     }
 
@@ -30,7 +32,10 @@ class GalleryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.gridView.numColumns = 3
         binding.gridView.adapter = gridAdapter
+        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+            Log.d("변했다","변했다 ㅅㅂㅂㅂㅂㅂㅂㅂㅂㅂ")
+            gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
+        }
     }
-
 
 }

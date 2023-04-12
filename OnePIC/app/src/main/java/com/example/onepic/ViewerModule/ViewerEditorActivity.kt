@@ -15,11 +15,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.PictureModule.MCContainer
 
 import com.example.onepic.JpegViewModel
+import com.example.onepic.JpegViewModelFactory
 import com.example.onepic.databinding.ActivityViewerEditorBinding
 
 
@@ -29,19 +31,23 @@ class ViewerEditorActivity : AppCompatActivity() {
     private lateinit var binding : ActivityViewerEditorBinding
     private var loadResolver : LoadResolver = LoadResolver()
     private val viewerFragment = ViewerFragment()
-    private val jpegViewModels: JpegViewModel by viewModels()
+//    private val jpegViewModels: JpegViewModel by viewModels()
+    private lateinit var jpegViewModelFactory: JpegViewModelFactory
+    private lateinit var jpegViewModels: JpegViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityViewerEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        jpegViewModelFactory = JpegViewModelFactory(this)
+        jpegViewModels = ViewModelProvider(this, jpegViewModelFactory).get(JpegViewModel::class.java)
+
         var MCContainer : MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
 
         // 권한 요청
         requestStoragePermission()
-
 
         jpegViewModels.imageUriLiveData.observe(this){
             var size = jpegViewModels.imageUriLiveData.value?.size
@@ -109,9 +115,8 @@ class ViewerEditorActivity : AppCompatActivity() {
         val uriList = mutableListOf<String>()
         if(cursor!=null){
             while(cursor.moveToNext()){
-                // 사진 경로 Uri 가져오기
+                // 사진 경로 FilePath 가져오기
                 val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-                //uriList.add(getUriFromPath(uri))
                 uriList.add(uri)
             }
             cursor.close()

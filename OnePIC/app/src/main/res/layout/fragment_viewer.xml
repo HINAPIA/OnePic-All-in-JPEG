@@ -35,44 +35,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:background="#00ff0000"
-            android:text="편집"
+            android:text="Edit"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="#6B8B7A"
             android:textStyle="bold" />
     </LinearLayout>`
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:orientation="horizontal">
-
-        <android.widget.Button
-            android:id="@+id/textBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginLeft="12dp"
-            android:background="@drawable/round_button"
-            android:fontFamily="serif"
-            android:minWidth="42dp"
-            android:minHeight="42dp"
-            android:text="T"
-            android:textSize="22sp" />
-
-        <android.widget.Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/round_button"
-            android:minWidth="42dp"
-            android:minHeight="42dp"
-            android:textColor="@color/text_selector" />
-
-    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -129,11 +96,55 @@
 
 
         </LinearLayout>
-
-
-
-
     </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <android.widget.Button
+            android:id="@+id/textBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/round_button"
+            android:fontFamily="serif"
+            android:minWidth="42dp"
+            android:minHeight="42dp"
+            android:text="T"
+            android:textSize="22sp" />
+
+        <android.widget.Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/round_button"
+            android:minWidth="42dp"
+            android:minHeight="42dp"
+            android:textColor="@color/text_selector" />
+
+
+        <android.widget.Button
+            android:id="@+id/magicBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/round_button"
+            android:minWidth="42dp"
+            android:minHeight="42dp"
+            android:textColor="@color/text_selector" />
+
+    </LinearLayout>
+
+
+
+
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -151,4 +162,6 @@
 
         </LinearLayout>
     </HorizontalScrollView>
+
+
 </LinearLayout>
