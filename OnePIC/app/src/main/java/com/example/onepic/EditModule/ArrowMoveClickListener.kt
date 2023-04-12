@@ -7,6 +7,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.max
 
 class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, maxView: View, view: View) : View.OnTouchListener {
     private var handler = Handler()
@@ -23,14 +24,16 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     private val maxY: Float
 
     private val basicPointF: PointF
+    private val checkPointF: PointF
 
     init {
-        minX = maxView.x
-        minY = maxView.y
+        minX = maxView.x - (maxView.width/2)
+        minY = maxView.y - (maxView.height/2)
 
         maxX = maxView.width + minX
         maxY = maxView.height + minY
 
+        checkPointF = PointF(view.x+(view.width/2), view.y+(view.height/2))
         basicPointF = PointF(view.x, view.y)
     }
 
@@ -58,25 +61,28 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                 return false
             }
             MotionEvent.ACTION_MOVE -> {
-                println("point(${event.rawX}, ${event.rawY}) - x($minX, $maxX) y($minY, $maxY)  ")
-                //if (event.rawX > minX && event.rawX < maxX && event.rawY > minY && event.rawY < maxY) {
-                    val dx = event.rawX - prevX
-                    val dy = event.rawY - prevY
+                println("point(${v.translationX}, ${v.translationY}) - x($minX, $maxX) y($minY, $maxY)  ")
 
-                    v.translationX += dx // 버튼의 위치 변경
-                    v.translationY += dy
+                val dx = event.rawX - prevX
+                val dy = event.rawY - prevY
 
-                    if (v.x + dx > maxX)
-                        v.translationX = maxX
-                    else if (v.x + dx < minX)
-                        v.translationX = minX
-                    if (v.y + dy > maxY)
-                        v.translationY = maxY
-                    else if (v.y + dy < minY)
-                        v.translationY = minY
+                var moveX = v.translationX + dx // 버튼의 위치 변경
+                var moveY = v.translationY + dy
 
-                    myFunction(dx.toInt(), dy.toInt())
-                //}
+                if (moveX > maxX)
+                    moveX = maxX
+                else if (moveX < minX)
+                    moveX = minX
+
+                if (moveY > maxY)
+                    moveY = maxY
+                else if (moveY < minY)
+                    moveY = minY
+
+                v.translationX = moveX
+                v.translationY = moveY
+
+                myFunction(dx.toInt(), dy.toInt())
                 return true
             }
             else -> return false

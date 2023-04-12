@@ -16,14 +16,13 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.example.onepic.*
 import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
-import com.example.onepic.EditModule.RudderKeyClickListener
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
+import com.example.onepic.PictureModule.MCContainer
 import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
@@ -56,6 +55,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     var newImage: Bitmap? = null
 
+
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -66,7 +66,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        fragment = this
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
@@ -79,7 +78,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         setMainImageBoundingBox()
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = imageContent.pictureList
+        pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
 
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
@@ -138,20 +137,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
             return@setOnTouchListener true
         }
-
-//        val topButtonListener = RudderKeyClickListener{ moveCropFace(0, -2) }
-//        binding.topArrowBtn.setOnTouchListener(topButtonListener)
-//
-//        val bottomButtonListener = RudderKeyClickListener{ moveCropFace(0, 2) }
-//        binding.bottomArrowBtn.setOnTouchListener(bottomButtonListener)
-//
-//        val leftButtonListener = RudderKeyClickListener{ moveCropFace(-2, 0) }
-//        binding.leftArrowBtn.setOnTouchListener(leftButtonListener)
-//
-//        val rightButtonListener = RudderKeyClickListener{ moveCropFace(2, 0) }
-//        binding.rightArrowBtn.setOnTouchListener(rightButtonListener)
-
-
         return binding.root
     }
 
@@ -189,13 +174,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             checkFinish[i] = false
         }
         for(i in 0 until pictureList.size) {
-            CoroutineScope(Dispatchers.Default).launch {
-                bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
-                checkFinish[i] = true
-            }
-        }
-        while(!checkFinish.all { it }) {
-
+            bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
+            checkFinish[i] = true
         }
     }
 
@@ -326,6 +306,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             changeFaceStartX += moveX
             changeFaceStartY += moveY
+
+            if(changeFaceStartX < 0)
+                changeFaceStartX = 0
+            if(changeFaceStartY < 0)
+                changeFaceStartY = 0
 
             mainBitmap = imageToolModule.overlayBitmap(
                 preMainBitmap,

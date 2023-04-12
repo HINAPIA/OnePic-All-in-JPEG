@@ -12,10 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
-import com.example.onepic.EditModule.RudderKeyClickListener
 import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
@@ -37,6 +35,8 @@ class MagicPictureFragment : RewindFragment() {
     var magicPlaySpeed: Long = 100
 
     val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +46,6 @@ class MagicPictureFragment : RewindFragment() {
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        fragment = this
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
@@ -59,21 +58,33 @@ class MagicPictureFragment : RewindFragment() {
         // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
         setMainImageBoundingBox()
 
-        // rewind 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = imageContent.pictureList
+        // magic 가능한 연속 사진 속성의 picture list 얻음
+        pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
 
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
-                imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+                imageContent.mainPicture = Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes) )
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
-                val indices = intArrayOf(6,7,8,9) // 추출할 배열의 인덱스
-                for(i in 0 until boundingBox.size) {
-                    pictureList[boundingBox[i][0]].insertEmbeddedData(
-                        boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+                // EmbeddedData 추가
+                val indices = intArrayOf(5,6,7,8) // 추출할 배열의 인덱스
+
+                if(boundingBox.size > 0) {
+                    val mainBoundingBox: ArrayList<Int> =
+                        boundingBox[0].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
+
+                    mainBoundingBox.add(changeFaceStartX)
+                    mainBoundingBox.add(changeFaceStartY)
+
+                    pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
+
+                    for (i in 1 until boundingBox.size) {
+                        pictureList[boundingBox[i][0]].insertEmbeddedData(
+                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+                    }
                 }
 
                 withContext(Dispatchers.Main){
@@ -90,7 +101,7 @@ class MagicPictureFragment : RewindFragment() {
         // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
         binding.magicPlayBtn.setOnClickListener {
             if(!checkMagicPicturePlay) {
-                cinemagraphRun(cropBitmapList)
+                magicPictureRun(cropBitmapList)
                 binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
                 checkMagicPicturePlay = true
             }
@@ -169,12 +180,12 @@ class MagicPictureFragment : RewindFragment() {
 
             // bitmap를 자르기
             val cropImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                bitmapList[rect[0]],
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
 
             val ovelapImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                bitmapList[rect[0]],
                 Rect(rect[5], rect[6], rect[7], rect[8])
             )
             // 크롭이미지 배열에 값 추가
@@ -195,7 +206,7 @@ class MagicPictureFragment : RewindFragment() {
         }
     }
 
-    private fun cinemagraphRun(cropBitmapList: ArrayList<Bitmap>) {
+    private fun magicPictureRun(cropBitmapList: ArrayList<Bitmap>) {
         ovelapBitmap.clear()
         CoroutineScope(Dispatchers.Main).launch {
             for (i in 0 until cropBitmapList.size) {
@@ -214,19 +225,20 @@ class MagicPictureFragment : RewindFragment() {
 
             val runnable = object : Runnable {
                 override fun run() {
-                    binding.magicMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
-                    //currentImageIndex++
+                    if (ovelapBitmap.size > 0) {
+                        binding.magicMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                        //currentImageIndex++
 
-                    currentImageIndex = currentImageIndex + increaseIndex
+                        currentImageIndex += increaseIndex
 
-                    if (currentImageIndex >= ovelapBitmap.size - 1) {
-                        //currentImageIndex = 0
-                        increaseIndex = -1
+                        if (currentImageIndex >= ovelapBitmap.size - 1) {
+                            //currentImageIndex = 0
+                            increaseIndex = -1
+                        } else if (currentImageIndex <= 0) {
+                            increaseIndex = 1
+                        }
+                        handler.postDelayed(this, magicPlaySpeed)
                     }
-                    else if(currentImageIndex <= 0){
-                        increaseIndex = 1
-                    }
-                    handler.postDelayed(this, magicPlaySpeed)
                 }
             }
             handler.postDelayed(runnable, magicPlaySpeed)

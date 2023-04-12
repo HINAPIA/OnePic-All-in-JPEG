@@ -68,6 +68,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
 
+        binding.addBtn.setOnClickListener {
+            // 일반 사진이면 안 넘어가도록
+            if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic)) {
+                // MagicPictureFragment로 이동
+                findNavController().navigate(R.id.action_editFragment_to_playFragment)
+            }
+        }
+
         binding.backBtn.setOnClickListener {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 

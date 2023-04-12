@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#B87272">
+    android:layout_height="match_parent">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:backgroundTint="#BEFFBABA"
+        android:backgroundTint="@color/background"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline2"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
         app:scaleType="fitCenter" />
