@@ -27,14 +27,17 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     private val checkPointF: PointF
 
     init {
-        minX = maxView.x - (maxView.width/2)
-        minY = maxView.y - (maxView.height/2)
+        minX = -(maxView.width/2).toFloat()
+        minY = -(maxView.height/2).toFloat()
 
-        maxX = maxView.width + minX
-        maxY = maxView.height + minY
+        maxX = (maxView.width/2).toFloat()
+        maxY = (maxView.height/2).toFloat()
+
 
         checkPointF = PointF(view.x+(view.width/2), view.y+(view.height/2))
         basicPointF = PointF(view.x, view.y)
+        println("=========== point(${view.x}, ${view.y}) - point(${maxView.x},${maxView.y})  ")
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
