@@ -22,7 +22,7 @@ class Header(_MC_container : MCContainer) {
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(MCContainer.imageContent)
         textContentInfo = TextContentInfo(MCContainer.textContent)
-        audioContentInfo = AudioContentInfo(MCContainer.audioContent,imageContentInfo.getEndOffset()+1)
+        audioContentInfo = AudioContentInfo(MCContainer.audioContent,imageContentInfo.getEndOffset()+3)
         headerDataLength = getAPP3FieldLength()
 
         applyAddedSize()

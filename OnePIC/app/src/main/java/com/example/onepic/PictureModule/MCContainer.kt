@@ -1,7 +1,10 @@
 package com.example.onepic.PictureModule
 
 import android.app.Activity
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import com.example.onepic.AudioModule.AudioResolver
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
 import com.example.onepic.PictureModule.Contents.Picture
@@ -10,8 +13,10 @@ import com.example.onepic.SaveModule.SaveResolver
 
 class MCContainer(_activity: Activity) {
      var saveResolver : SaveResolver
+     var audioResolver : AudioResolver = AudioResolver(_activity)
     private lateinit var activity : Activity
     var header : Header
+
 
 
     var imageContent : ImageContent = ImageContent()
@@ -64,15 +69,18 @@ class MCContainer(_activity: Activity) {
 
 
     // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채운다
-
     fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute){
-        init()
+        imageContent.init()
         imageContent.setContent(byteArrayList, contentAttribute)
         var testString : ArrayList<String> = arrayListOf("안녕하세요", "2071231 김유진")
         textContent.setContent(ContentAttribute.basic, testString)
-        save()
+        //save()
     }
 
+    fun setAudioContent(audioBytes : ByteArray, contentAttribute: ContentAttribute){
+        audioContent.init()
+        audioContent.setContent(audioBytes, contentAttribute)
+    }
     // Text Content를 초기화. 뷰어에서 텍스트를 추가 후 Container에게 넣기
 
     fun setTextConent(contentAttribute: ContentAttribute, textList : ArrayList<String>){
@@ -95,6 +103,14 @@ class MCContainer(_activity: Activity) {
         saveResolver.save()
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun audioPlay(){
+        var audio = audioContent.audio
+        if(audio != null){
+            audioResolver.audioPlay(audio)
+        }
+
+    }
     fun getJpegMetaBytes() : ByteArray{
         if(imageContent.jpegMetaData.size == 0){
             Log.e("user error", "JpegMetaData size가 0입니다.")

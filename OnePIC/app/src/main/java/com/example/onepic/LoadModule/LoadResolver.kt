@@ -2,6 +2,7 @@ package com.example.onepic.LoadModule
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.example.onepic.PictureModule.Contents.Audio
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Text
 import com.example.onepic.PictureModule.Contents.Picture
@@ -83,10 +84,28 @@ class LoadResolver() {
                 }
 
                 // 3. AudioContent
-                // MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(0)))
-                //  MCContainer.saveResolver.saveImageOnAboveAndroidQ(MCContainer.imageContent.getJpegBytes(pictureList.get(1)))
-                // MCContainer.setContainer(groupContentList)
+                var audioContentStartOffset = textContentStartOffset + textContentInfoSize
+                var audioContentInfoSize = ByteArraytoInt(sourceByteArray, audioContentStartOffset)
+                Log.d("AudioModule" , "audioContentInfoSize : ${audioContentInfoSize}")
+                if (audioContentInfoSize > 0) {
 
+                    var audioDataStartOffset = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 4)
+                    Log.d("AudioModule" , "audioDataStartOffset : ${audioDataStartOffset}")
+
+                    var audioAttribute = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 8)
+                    Log.d("AudioModule" , "audioAttribute : ${audioAttribute}")
+
+                    var audioDataLength = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 12)
+                    Log.d("AudioModule" , "audioDataLength : ${audioDataLength}")
+
+
+                    var audioBytes = sourceByteArray.copyOfRange(audioDataStartOffset, audioDataStartOffset+audioDataLength)
+                    Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
+                    var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
+                    MCContainer.audioContent.setContent(audio)
+                    MCContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!)
+                   // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
+                }
             }
             CoroutineScope(Dispatchers.Main).launch {
                 isViewChanged.value = true

@@ -2,19 +2,29 @@ package com.example.onepic.PictureModule.Contents
 
 import android.util.Log
 
-class Audio (_audioByteArray : ByteArray, _Content_attribute: ContentAttribute){
-    var audioByteArray : ByteArray
+class Audio (audioByteArray : ByteArray? = null, _Content_attribute: ContentAttribute){
+    var _audioByteArray : ByteArray? = null
     var attribute = _Content_attribute
-    var size : Int = 0
+    var size : Int = audioByteArray?.size ?: 0
     init {
-        audioByteArray = _audioByteArray
+        if (audioByteArray != null) {
+            _audioByteArray = audioByteArray
+            size = audioByteArray!!.size
+        }
         attribute = _Content_attribute
-        size = audioByteArray.size
-        Log.d("Picture Module",
-            "[create Audio]size :${audioByteArray.size}")
     }
-    fun getInfoLength() : Int{
-        // offset(4) + attribute(4) + size(4)
-        return 12
+
+    fun waitForByteArrayInitialized() {
+        while (!isByteArrayInitialized()) {
+            Thread.sleep(100)
+        }
     }
+
+    fun isByteArrayInitialized(): Boolean {
+        return _audioByteArray != null
+    }
+//    fun getInfoLength() : Int{
+//        // offset(4) + attribute(4) + size(4)
+//        return 16
+//    }
 }

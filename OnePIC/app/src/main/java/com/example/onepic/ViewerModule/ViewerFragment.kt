@@ -55,6 +55,7 @@ class ViewerFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
@@ -72,6 +73,7 @@ class ViewerFragment : Fragment() {
     }
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
+    @RequiresApi(Build.VERSION_CODES.M)
     fun init() {
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
@@ -151,6 +153,9 @@ class ViewerFragment : Fragment() {
                 /* layout 변경 */
                 it.setBackgroundResource(R.drawable.round_button)
                 isAudioBtnClicked = true
+
+                // 오디오 재생
+                jpegViewModel.jpegMCContainer.value!!.audioPlay()
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
