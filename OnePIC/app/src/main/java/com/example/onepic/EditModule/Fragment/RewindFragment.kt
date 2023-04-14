@@ -84,13 +84,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.rewindSaveBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.Default).launch {
-                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
-                if(preMainBitmap != null)
+                if(preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
+                    newImage = null
+                }
 
+                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
-
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 withContext(Dispatchers.Main){
@@ -151,7 +152,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+            val arrowListener = ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
+            binding.circleArrowBtn.setOnTouchListener(arrowListener)
+//            binding.circleArrowBtn.setOnLongClickListener(arrowListener)
         }
     }
 
@@ -314,11 +317,17 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             changeFaceStartX += moveX
             changeFaceStartY += moveY
 
+            println("!!!!!!!!!! change point (${changeFaceStartX}, ${changeFaceStartY})")
             if(changeFaceStartX < 0)
                 changeFaceStartX = 0
+            else if(changeFaceStartX > mainBitmap.width- newImage!!.width)
+                changeFaceStartX = mainBitmap.width - newImage!!.width
             if(changeFaceStartY < 0)
                 changeFaceStartY = 0
+            else if(changeFaceStartY > mainBitmap.height - newImage!!.height)
+                changeFaceStartY = mainBitmap.height - newImage!!.height
 
+            println("==== change point (${changeFaceStartX}, ${changeFaceStartY})")
             preMainBitmap = imageToolModule.overlayBitmap(
                 mainBitmap,
                 newImage!!,

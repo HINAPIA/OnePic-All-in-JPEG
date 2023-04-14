@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_editFragment_to_playFragment"
             app:destination="@id/playFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_addFragment"
+            app:destination="@id/addFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -68,6 +71,15 @@
         tools:layout="@layout/fragment_play" >
         <action
             android:id="@+id/action_playFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addFragment"
+        android:name="com.example.onepic.EditModule.Fragment.AddFragment"
+        android:label="fragment_add"
+        tools:layout="@layout/fragment_add" >
+        <action
+            android:id="@+id/action_addFragment_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
 </navigation>

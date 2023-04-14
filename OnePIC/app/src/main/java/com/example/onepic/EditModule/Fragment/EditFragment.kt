@@ -74,6 +74,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 // MagicPictureFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_playFragment)
             }
+
+            //findNavController().navigate(R.id.action_editFragment_to_addFragment)
         }
 
         binding.backBtn.setOnClickListener {

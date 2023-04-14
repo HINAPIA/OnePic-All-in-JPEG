@@ -198,12 +198,20 @@ class PlayFragment : Fragment() {
      */
     private fun setBitmapPicture() {
         val checkFinish = BooleanArray(pictureList.size)
-        for(i in 0 until pictureList.size){
+        for (i in 0 until pictureList.size) {
             checkFinish[i] = false
         }
-        for(i in 0 until pictureList.size) {
-            bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
-            checkFinish[i] = true
+        for (i in 0 until pictureList.size) {
+            CoroutineScope(Dispatchers.Default).launch {
+                bitmapList.add(
+                    imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))
+                    )
+                )
+                checkFinish[i] = true
+            }
+        }
+        while (!checkFinish.all { it }) {
+
         }
     }
 

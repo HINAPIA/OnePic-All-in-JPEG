@@ -245,6 +245,12 @@ class MagicPictureFragment : RewindFragment() {
         }
     }
     private fun moveCropFace(moveX:Int, moveY:Int) {
+        if(checkMagicPicturePlay) {
+            handler.removeCallbacksAndMessages(null)
+            binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+            checkMagicPicturePlay = false
+        }
+
         if (newImage != null) {
 
             changeFaceStartX += moveX

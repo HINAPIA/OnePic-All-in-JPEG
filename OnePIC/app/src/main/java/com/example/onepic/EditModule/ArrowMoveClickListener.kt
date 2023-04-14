@@ -40,6 +40,8 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
 
     }
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action) {
@@ -61,7 +63,7 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
 
                 v.x = basicPointF.x // 버튼의 위치 변경
                 v.y = basicPointF.y
-                return false
+                return true
             }
             MotionEvent.ACTION_MOVE -> {
                 println("point(${v.translationX}, ${v.translationY}) - x($minX, $maxX) y($minY, $maxY)  ")
@@ -85,10 +87,12 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                 v.translationX = moveX
                 v.translationY = moveY
 
+                println("D point (${dx}, ${dy})")
                 myFunction(dx.toInt(), dy.toInt())
                 return true
             }
             else -> return false
         }
     }
+
 }
