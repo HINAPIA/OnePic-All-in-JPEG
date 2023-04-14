@@ -88,7 +88,7 @@ class ImageContent {
         var JFIF_startOffset = 0
         var findCount = 0
         // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
-        if(picture.contentAttribute != ContentAttribute.edited || picture.contentAttribute != ContentAttribute.magic){
+        if(picture.contentAttribute != ContentAttribute.edited && picture.contentAttribute != ContentAttribute.magic){
             while (JFIF_startOffset < jpegMetaData.size - 1) {
                 if (jpegMetaData[JFIF_startOffset] == 0xFF.toByte() && jpegMetaData[JFIF_startOffset + 1] == 0xE0.toByte()) {
                     findCount++

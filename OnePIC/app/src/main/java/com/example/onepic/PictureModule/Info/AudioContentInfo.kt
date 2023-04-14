@@ -17,9 +17,9 @@ class AudioContentInfo(audioContent: AudioContent, startOffset : Int) {
         // size
         if(audioContent.audio != null){
             attribute = audioContent.audio!!.attribute.code
-            datasize = audioContent.audio!!.size
+            datasize = audioContent.audio!!._audioByteArray!!.size
         }else {
-            attribute = ContentAttribute.none.code
+            attribute = ContentAttribute.basic.code
             datasize = 0
         }
     }
@@ -28,8 +28,8 @@ class AudioContentInfo(audioContent: AudioContent, startOffset : Int) {
         //Image Content
         buffer.putInt(contentInfoSize)
         buffer.putInt(dataStartOffset)
-        buffer.putInt(datasize)
         buffer.putInt(attribute)
+        buffer.putInt(datasize)
         return buffer.array()
     }
     fun getLength() : Int {

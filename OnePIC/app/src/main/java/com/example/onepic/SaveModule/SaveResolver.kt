@@ -91,7 +91,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             // Audio Write
             if(MCContainer.audioContent.audio!= null){
                 var audio = MCContainer.audioContent.audio
-                byteBuffer.write(/* b = */ audio!!.audioByteArray)
+                byteBuffer.write(/* b = */ audio!!._audioByteArray)
             }
 
             // 순서는 이미지 > 텍스트 > 오디오

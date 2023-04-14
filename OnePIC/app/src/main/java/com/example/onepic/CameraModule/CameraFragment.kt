@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.onepic.AudioModule.AudioResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
@@ -86,10 +87,13 @@ class CameraFragment : Fragment() {
 
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
+    // audio
+    private lateinit var audioResolver : AudioResolver
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
-
+        audioResolver = AudioResolver(activity)
         // 카메라 권한 확인 후 카메라 시작하기
         if(allPermissionsGranted()){
             startCamera()
@@ -175,6 +179,7 @@ class CameraFragment : Fragment() {
                 pointArrayList.clear()
                 isFocusSuccess = false
                 startObjectFocusMode()
+               // audioResolver.startRecording()
             }
 
             else if(binding.distanceFocusRadio.isChecked){
@@ -454,9 +459,16 @@ class CameraFragment : Fragment() {
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                 Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
                 if(previewByteArrayList.size != 0){
+                    // 녹음 중단
+//                    val savedFile = audioResolver.stopRecording()
+//                    if(savedFile != null){
+//                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+//                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
+//                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+//                    }
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                    jpegViewModel.jpegMCContainer.value!!.save()
                 }
-
             }
 
 //            CoroutineScope(Dispatchers.IO).launch{

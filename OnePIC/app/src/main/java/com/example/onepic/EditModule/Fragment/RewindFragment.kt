@@ -78,6 +78,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         setMainImageBoundingBox()
 
         // rewind 가능한 연속 사진 속성의 picture list 얻음
+        // pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
         pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
 
         // save btn 클릭 시
