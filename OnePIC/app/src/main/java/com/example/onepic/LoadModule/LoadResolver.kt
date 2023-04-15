@@ -98,7 +98,6 @@ class LoadResolver() {
                     var audioDataLength = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 12)
                     Log.d("AudioModule" , "audioDataLength : ${audioDataLength}")
 
-
                     var audioBytes = sourceByteArray.copyOfRange(audioDataStartOffset, audioDataStartOffset+audioDataLength)
                     Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
                     var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))

@@ -36,9 +36,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             //Jpeg Meta
             var jpegMetaData = MCContainer.imageContent.jpegMetaData
             //if(firstPicture == null) throw NullPointerException("empty first Picture")
-            /*
-             APP1뒤에 APP3를 쓰는 작업
-             */
+
+            /* APP1뒤에 APP3를 쓰는 작업*/
             // APP1 세그먼트의 시작 위치를 찾음
             var pos = 2
             var exifDataLength = 0
