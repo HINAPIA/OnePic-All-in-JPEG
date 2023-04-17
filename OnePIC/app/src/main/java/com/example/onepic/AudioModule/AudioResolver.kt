@@ -26,10 +26,9 @@ class AudioResolver(val context : Context) {
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
     private var savedFile: File?  = null
-    private var inputStream : ByteArrayInputStream? = null
-
-
-
+   // private var inputStream : ByteArrayInputStream? = null
+    val mediaPlayer = MediaPlayer()
+    
     fun startRecording() : File? {
         if(isRecording){
             return null
@@ -46,8 +45,9 @@ class AudioResolver(val context : Context) {
             // 해당 파일에 write
             setOutputFile(savedFile!!.path)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setAudioSamplingRate(44100)
-            setAudioChannels(1)
+            setAudioSamplingRate(48000) // 샘플링 레이트를 48kHz로 설정
+            setAudioEncodingBitRate(192000) // 비트 레이트를 192kbps로 설정
+            setAudioChannels(2)
             try {
                 prepare()
                 start()
@@ -73,6 +73,9 @@ class AudioResolver(val context : Context) {
         return savedFile
     }
 
+    fun savedFileDelete(){
+        savedFile?.delete()
+    }
     fun getByteArrayInFile(audioFile : File) : ByteArray{
         var audioBytes : ByteArray = audioFile.readBytes()
         while (!(audioBytes != null)) {
@@ -86,7 +89,7 @@ class AudioResolver(val context : Context) {
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val mediaDir = "audio"
 
-        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/$timeStamp.${"aac"}")
+        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/create.${"aac"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
@@ -98,7 +101,7 @@ class AudioResolver(val context : Context) {
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val mediaDir = "audio"
 
-        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/PARSING_$timeStamp.${"aac"}")
+        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/playing.${"aac"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
@@ -117,7 +120,7 @@ class AudioResolver(val context : Context) {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(audio : Audio){
-        val mediaPlayer = MediaPlayer()
+
         mediaPlayer.reset()
         var byteData = audio._audioByteArray
         if (byteData == null || byteData.isEmpty()) {
@@ -125,46 +128,33 @@ class AudioResolver(val context : Context) {
             Log.e("AudioModule", "Failed to play audio: _audioByteArray is null or empty.")
             return
         }
-         CoroutineScope(Dispatchers.Main).launch {
-             // MediaDataSource를 구현하는 클래스를 작성한다.
-//             val dataSource = @RequiresApi(Build.VERSION_CODES.M)
-//             object : MediaDataSource() {
-//                 var byteData = audio._audioByteArray
-//                 // ByteArray를 ByteArrayInputStream으로 변환한다.
-//                 var inputStream = ByteArrayInputStream(byteData)
-//                 override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
-//                     return inputStream!!.read(buffer, offset, size)
-//                 }
-//
-//                 override fun getSize(): Long {
-//                     return byteData?.size!!.toLong()
-//                 }
-//
-//                 override fun close() {
-//                     inputStream!!.close()
-//                 }
-//             }
-             // MediaPlayer 인스턴스를 생성하고 오디오 데이터를 설정한다.
+         CoroutineScope(Dispatchers.IO).launch {
+             // MediaPlayer 인스턴스를 생성하고 오디오 데이터를 설정
              mediaPlayer.apply {
                  setAudioAttributes(
                      AudioAttributes.Builder()
                          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                          .build())
 
-           // try {
+            try {
                  setDataSource(savedFile!!.path)
                  prepare()
-                     // MediaPlayer를 시작하여 오디오를 재생한다.
+                 // MediaPlayer를 시작하여 오디오를 재생한다.
                  start()
-           //      } catch (e: IOException) {
+                 } catch (e: IOException) {
                      // IOException을 처리하는 코드를 추가한다.
-                 //    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
-                //     e.printStackTrace()
-             //    }
+                     Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
+                     e.printStackTrace()
+                 }
              }
 
          }
 
+    }
+
+    fun audioStop(){
+        mediaPlayer.stop()
+        mediaPlayer.reset()
     }
 
 }

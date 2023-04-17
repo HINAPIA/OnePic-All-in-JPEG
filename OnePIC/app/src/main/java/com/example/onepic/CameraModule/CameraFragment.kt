@@ -179,7 +179,7 @@ class CameraFragment : Fragment() {
                 pointArrayList.clear()
                 isFocusSuccess = false
                 startObjectFocusMode()
-               // audioResolver.startRecording()
+                audioResolver.startRecording()
             }
 
             else if(binding.distanceFocusRadio.isChecked){
@@ -460,12 +460,12 @@ class CameraFragment : Fragment() {
                 Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
                 if(previewByteArrayList.size != 0){
                     // 녹음 중단
-//                    val savedFile = audioResolver.stopRecording()
-//                    if(savedFile != null){
-//                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-//                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
-//                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-//                    }
+                    val savedFile = audioResolver.stopRecording()
+                    if(savedFile != null){
+                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
+                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    }
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                     jpegViewModel.jpegMCContainer.value!!.save()
                 }
