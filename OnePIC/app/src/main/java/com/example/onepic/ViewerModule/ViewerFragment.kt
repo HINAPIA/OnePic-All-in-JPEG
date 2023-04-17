@@ -98,7 +98,12 @@ class ViewerFragment : Fragment() {
                     binding.audioBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isAudioBtnClicked = false
 
+
                 }
+
+                // 재생 중인 오디오 stop
+                jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
+
                 // 매직 버튼 초기화
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
                     binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)

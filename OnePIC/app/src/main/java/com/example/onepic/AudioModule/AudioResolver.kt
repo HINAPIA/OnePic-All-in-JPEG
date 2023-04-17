@@ -26,8 +26,8 @@ class AudioResolver(val context : Context) {
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
     private var savedFile: File?  = null
-    private var inputStream : ByteArrayInputStream? = null
-
+   // private var inputStream : ByteArrayInputStream? = null
+    val mediaPlayer = MediaPlayer()
     
     fun startRecording() : File? {
         if(isRecording){
@@ -120,7 +120,7 @@ class AudioResolver(val context : Context) {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(audio : Audio){
-        val mediaPlayer = MediaPlayer()
+
         mediaPlayer.reset()
         var byteData = audio._audioByteArray
         if (byteData == null || byteData.isEmpty()) {
@@ -129,7 +129,6 @@ class AudioResolver(val context : Context) {
             return
         }
          CoroutineScope(Dispatchers.IO).launch {
-
              // MediaPlayer 인스턴스를 생성하고 오디오 데이터를 설정
              mediaPlayer.apply {
                  setAudioAttributes(
@@ -151,6 +150,11 @@ class AudioResolver(val context : Context) {
 
          }
 
+    }
+
+    fun audioStop(){
+        mediaPlayer.stop()
+        mediaPlayer.reset()
     }
 
 }
