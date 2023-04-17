@@ -50,7 +50,7 @@ class PlayFragment : Fragment() {
     private var changeFaceStartY = 0
 
     private var pictureList: ArrayList<Picture> = arrayListOf()
-    private val bitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var bitmapList: ArrayList<Bitmap> = arrayListOf()
 
     private lateinit var mainPicture: Picture
     private lateinit var mainBitmap: Bitmap
@@ -133,9 +133,21 @@ class PlayFragment : Fragment() {
                 changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
                 changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
 
-                for (i in basicIndex until bitmapList.size) {
+                val checkFinish = BooleanArray(pictureList.size - basicIndex)
+                for (i in basicIndex until pictureList.size) {
+                    checkFinish[i - basicIndex] = false
                     pictureList[i].embeddedData?.let { boundingBox.add(it) }
-                    createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
+                }
+
+                for (i in basicIndex until pictureList.size) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
+                        checkFinish[i - basicIndex] = true
+                    }
+                }
+
+                while (!checkFinish.all { it }) {
+                    // Wait for all tasks to finish
                 }
             }
             result.resume(overlayImg)
@@ -178,7 +190,6 @@ class PlayFragment : Fragment() {
                         currentImageIndex += increaseIndex
 
                         if (currentImageIndex >= ovelapBitmap.size - 1) {
-                            //currentImageIndex = 0
                             increaseIndex = -1
                         } else if (currentImageIndex <= 0) {
                             increaseIndex = 1
@@ -197,22 +208,23 @@ class PlayFragment : Fragment() {
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
      */
     private fun setBitmapPicture() {
+
         val checkFinish = BooleanArray(pictureList.size)
         for (i in 0 until pictureList.size) {
             checkFinish[i] = false
+            bitmapList.add(mainBitmap)
         }
         for (i in 0 until pictureList.size) {
             CoroutineScope(Dispatchers.Default).launch {
-                bitmapList.add(
-                    imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))
-                    )
-                )
+                val bitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
+                bitmapList.add(i, bitmap)
                 checkFinish[i] = true
             }
         }
         while (!checkFinish.all { it }) {
-
+            // Wait for all tasks to finish
         }
     }
+
 
 }

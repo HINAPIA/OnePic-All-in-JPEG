@@ -37,7 +37,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        fragment = this
 
         // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
         // 메인 이미지 설정
