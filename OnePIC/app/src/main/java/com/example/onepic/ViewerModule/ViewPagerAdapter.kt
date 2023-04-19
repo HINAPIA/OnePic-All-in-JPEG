@@ -5,8 +5,9 @@ import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
+import android.graphics.Rect
 import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,18 +16,42 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.Priority
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.onepic.ImageToolModule
+import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
-
-import java.security.AccessController.getContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
-    lateinit var viewHolder: PagerViewHolder
+    lateinit var viewHolder: PagerViewHolder // Viewholder
     lateinit var galleryMainimages:List<String>// gallery에 있는 이미지 리스트
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
+    private var checkMagicPicturePlay = false // magic picture 재생 or stop
 
+
+    /* Magic picture 변수 */
+    var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
+    val handler = Handler()
+    var magicPlaySpeed: Long = 100
+
+    private lateinit var imageContent : ImageContent
+    private lateinit var imageToolModule: ImageToolModule
+
+    private var changeFaceStartX = 0
+    private var changeFaceStartY = 0
+
+    private var pictureList: ArrayList<Picture> = arrayListOf()
+    private val bitmapList: ArrayList<Bitmap> = arrayListOf()
+
+    private lateinit var mainPicture: Picture
+    private lateinit var mainBitmap: Bitmap
+
+    private var overlayImg: ArrayList<Bitmap> = arrayListOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : PagerViewHolder {
         viewHolder = PagerViewHolder(parent)
         return viewHolder
@@ -37,14 +62,26 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             holder.bindEmbeddedImage(externalImage!!)
             externalImage = null // 초기화
         }
+        else if (checkMagicPicturePlay){ //magic picture 재생
+            holder.magicPictureRun(overlayImg)
+        }
         else { // 사용자가 스와이프로 화면 넘길 때
             holder.bind(galleryMainimages[position]) // binding
         }
+
     }
 
     override fun getItemCount(): Int = galleryMainimages.size
 
     /** 숨겨진 사진 중, 선택된 것 -> Main View에서 보이도록 설정 */
+    fun setImageContent(imageContent: ImageContent){
+        this.imageContent = imageContent
+        imageToolModule = ImageToolModule()
+        // main Picture의 byteArray를 bitmap 제작
+        mainPicture = imageContent.mainPicture
+        mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+    }
+
     fun setExternalImage(byteArray: ByteArray){
         externalImage = byteArray
         notifyDataSetChanged()
@@ -54,7 +91,140 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         galleryMainimages = uriList
     }
 
-    /** ViewHolder 정의 = Main Image UI */
+    fun setCheckMagicPicturePlay(value:Boolean){
+
+        if(!value) {
+            handler.removeCallbacksAndMessages(null)
+            checkMagicPicturePlay = false
+            viewHolder.magicPictureStop()
+           // viewHolder.externalImageView.visibility = View.INVISIBLE
+        }
+        else {
+            CoroutineScope(Dispatchers.Default).launch {
+                if (overlayImg.size <= 0) {
+                    overlayImg = magicPictureProcessing()
+                }
+                //magicPictureRun(overlayImg)
+                checkMagicPicturePlay = true
+                CoroutineScope(Dispatchers.Main).launch {
+                    notifyDataSetChanged()
+                }
+            }
+        }
+    }
+
+/*--------------------------------------------------------------------------------------------------------------*/
+
+    /** FilePath String 을 Uri로 변환 */
+    @SuppressLint("Range")
+    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
+        val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null, "_data = '$filePath'", null, null)
+        var uri: Uri
+        if(cursor!=null) {
+            cursor!!.moveToNext()
+            val id = cursor.getInt(cursor.getColumnIndex("_id"))
+            uri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                id.toLong()
+            )
+            cursor.close()
+        }
+        else {
+            return Uri.parse("Invalid path")
+        }
+        return uri
+    }
+
+    /* ---------------------------------------------------------- Magic Picture ----------------------------------------------- */
+     /** ViewHolder 정의 = Main Image UI */
+
+     private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
+         suspendCoroutine { result ->
+             val overlayImg: ArrayList<Bitmap> = arrayListOf()
+             // rewind 가능한 연속 사진 속성의 picture list 얻음
+             pictureList = imageContent.pictureList
+             if (bitmapList.size == 0) {
+                 setBitmapPicture()
+             }
+
+             var basicIndex = 0
+             var checkEmbedded = false
+             for (i in 0 until pictureList.size) {
+                 if (pictureList[basicIndex].embeddedData?.size!! > 0) {
+                     checkEmbedded = true
+                     break
+                 }
+                 basicIndex++
+             }
+
+             if (checkEmbedded) {
+                 changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
+                 changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
+
+                 val checkFinish = BooleanArray(pictureList.size - basicIndex)
+                 for (i in basicIndex until pictureList.size) {
+                     checkFinish[i - basicIndex] = false
+                     pictureList[i].embeddedData?.let { boundingBox.add(it) }
+                 }
+
+                 for (i in basicIndex until pictureList.size) {
+                     CoroutineScope(Dispatchers.Default).launch {
+                         createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
+                         checkFinish[i - basicIndex] = true
+                     }
+                 }
+
+                 while (!checkFinish.all { it }) {
+                     // Wait for all tasks to finish
+                 }
+             }
+             result.resume(overlayImg)
+         }
+
+
+    private fun createOverlayImg(ovelapBitmap: ArrayList<Bitmap> , rect: ArrayList<Int>, index: Int) {
+
+        // 감지된 모든 boundingBox 출력
+        println("=======================================================")
+
+        // bitmap를 자르기
+        val cropImage = imageToolModule.cropBitmap(
+            bitmapList[index],
+            Rect(rect[0], rect[1], rect[2], rect[3])
+        )
+
+        val newImage = imageToolModule.circleCropBitmap(cropImage)
+        ovelapBitmap.add(
+            imageToolModule.overlayBitmap(
+                mainBitmap,
+                newImage,
+                changeFaceStartX,
+                changeFaceStartY
+            )
+        )
+    }
+
+    private fun setBitmapPicture() {
+
+        val checkFinish = BooleanArray(pictureList.size)
+        for (i in 0 until pictureList.size) {
+            checkFinish[i] = false
+            bitmapList.add(mainBitmap)
+        }
+        for (i in 0 until pictureList.size) {
+            CoroutineScope(Dispatchers.Default).launch {
+                val bitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
+                bitmapList.add(i, bitmap)
+                checkFinish[i] = true
+            }
+        }
+        while (!checkFinish.all { it }) {
+            // Wait for all tasks to finish
+        }
+    }
+
     inner class PagerViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder
         (LayoutInflater.from(parent.context).inflate(R.layout.main_image_list_item, parent, false)){
         // TODO: 조금 더 깔끔한 방법으로 바꾸기 (ImageView 하나만으로 구현 - cache 처리 필요)
@@ -77,29 +247,41 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                 .into(externalImageView)
         }
 
-    }
+        fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
+            externalImageView.visibility = View.VISIBLE
+            CoroutineScope(Dispatchers.Main).launch {
+                var currentImageIndex = 0
+                var increaseIndex = 1
 
+                val runnable = object : Runnable {
+                    override fun run() {
+                        if (ovelapBitmap.size > 0) {
+                            externalImageView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                            //currentImageIndex++
 
-    /** FilePath String 을 Uri로 변환 */
-    @SuppressLint("Range")
-    fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
-        val cursor = context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null, "_data = '$filePath'", null, null)
-        var uri: Uri
-        if(cursor!=null) {
-            cursor!!.moveToNext()
-            val id = cursor.getInt(cursor.getColumnIndex("_id"))
-            uri = ContentUris.withAppendedId(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                id.toLong()
-            )
-            cursor.close()
+                            currentImageIndex += increaseIndex
+
+                            if (currentImageIndex >= ovelapBitmap.size - 1) {
+                                //currentImageIndex = 0
+                                increaseIndex = -1
+                            } else if (currentImageIndex <= 0) {
+                                increaseIndex = 1
+                            }
+                            handler.postDelayed(this, magicPlaySpeed)
+                        }
+                        else {
+                            Log.d("overlay bitmap","size == 0")
+                        }
+                    }
+                }
+                handler.postDelayed(runnable, magicPlaySpeed)
+            }
         }
-        else {
-            return Uri.parse("Invalid path")
+
+        fun magicPictureStop(){
+            externalImageView.setImageResource(0)
+            externalImageView.visibility = View.INVISIBLE
         }
-        return uri
     }
 
 }

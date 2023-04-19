@@ -16,12 +16,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.PictureModule.MCContainer
 
 import com.example.onepic.JpegViewModel
 import com.example.onepic.JpegViewModelFactory
+import com.example.onepic.R
 import com.example.onepic.databinding.ActivityViewerEditorBinding
 
 
@@ -31,7 +34,7 @@ class ViewerEditorActivity : AppCompatActivity() {
     private lateinit var binding : ActivityViewerEditorBinding
     private var loadResolver : LoadResolver = LoadResolver()
     private val viewerFragment = ViewerFragment()
-//    private val jpegViewModels: JpegViewModel by viewModels()
+
     private lateinit var jpegViewModelFactory: JpegViewModelFactory
     private lateinit var jpegViewModels: JpegViewModel
 
@@ -53,9 +56,14 @@ class ViewerEditorActivity : AppCompatActivity() {
             var size = jpegViewModels.imageUriLiveData.value?.size
             Log.d("[ViewerEditorActivity] imageUriLIst size : ",""+size)
             val uriList = mutableListOf<Uri>()
+
+            val navController = findNavController(R.id.framelayout)
+
             if (size == 0){
                 // TODO: 갤러리에 사진이 아무것도 없을 때 -> Empty Fragment 만들기
                 Log.d("[ViewerEditorActivity]","갤러리에 사진이 아무것도 없을 때 처리해야함")
+                // NavController 객체를 사용하여 네비게이션 작업 수행
+                navController.navigate(R.id.galleryFragment)
             }
         }
     }

@@ -25,10 +25,7 @@ import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentViewerBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -41,10 +38,13 @@ class ViewerFragment : Fragment() {
     private var loadResolver : LoadResolver = LoadResolver()
     private lateinit var mainViewPagerAdapter:ViewPagerAdapter
     private var isContainerChanged = MutableLiveData<Boolean>()
+    private var currentPosition:Int? = null
+
+    /* text, audio, magic 선택 여부 */
     private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
-    private var currentPosition:Int? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -108,6 +108,7 @@ class ViewerFragment : Fragment() {
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
                     binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isMagicBtnClicked = false
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false)
 
                 }
                 setCurrentMCContainer(position)
@@ -180,6 +181,10 @@ class ViewerFragment : Fragment() {
                 /* layout 변경 */
                 it.setBackgroundResource(R.drawable.round_button)
                 isMagicBtnClicked = true
+                CoroutineScope(Dispatchers.Default).launch {
+                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(true)
+                }
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
@@ -187,6 +192,7 @@ class ViewerFragment : Fragment() {
                 /* layout 변경 */
                 it.background = ColorDrawable(Color.TRANSPARENT)
                 isMagicBtnClicked = false
+                mainViewPagerAdapter.setCheckMagicPicturePlay(false)
             }
         }
 
