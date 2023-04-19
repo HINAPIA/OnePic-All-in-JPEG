@@ -60,11 +60,7 @@ class RewindModule() {
         CoroutineScope(Dispatchers.Default).launch {
             faces = runFaceContourDetection(bitmap)
 
-            if (faces == null)
-                bitmapResult.resume(bitmap)
-            else
-            // faceDetection 결과(bindingBox) 그리기
-                bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
+            bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
     }
 

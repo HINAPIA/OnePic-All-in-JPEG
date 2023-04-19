@@ -39,11 +39,12 @@
 
             <ImageButton
                 android:id="@+id/backBtn"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_marginStart="24dp"
                 android:background="@color/transparent_color"
-                android:scaleType="fitCenter"
+                android:paddingStart="-20dp"
+                android:scaleType="center"
                 android:src="@drawable/back_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -7,6 +7,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.onepic.*
 import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
@@ -37,9 +39,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     protected lateinit var mainPicture: Picture
     protected lateinit var mainBitmap: Bitmap
-    protected var preMainBitmap: Bitmap? = null
-
-    var activity : MainActivity = MainActivity()
+    private var preMainBitmap: Bitmap? = null
 
     protected var changeFaceStartX = 0
     protected var changeFaceStartY = 0
@@ -54,7 +54,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     lateinit var fragment :Fragment
 
     var newImage: Bitmap? = null
-
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
@@ -72,15 +71,31 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        setMainImageBoundingBox()
+        // 메인 이미지 임시 설정
+        CoroutineScope(Dispatchers.Default).launch {
+            withContext(Dispatchers.Main) {
+                Glide.with(binding.rewindMainView)
+                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                    .into(binding.rewindMainView)
+            }
+        }
+        CoroutineScope(Dispatchers.Default).launch {
+            val startTime = System.currentTimeMillis()
 
-        // rewind 가능한 연속 사진 속성의 picture list 얻음
-        // pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
-        pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+            mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
+            val endTime = System.currentTimeMillis()
+
+            val elapsedTime = endTime - startTime
+            Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
+            // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+            setMainImageBoundingBox()
+
+            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            pictureList =
+                jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+        }
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
 
@@ -166,20 +181,22 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      */
     open fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
+            val startTime = System.currentTimeMillis()
+
             val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap)
+
+            val endTime = System.currentTimeMillis()
+
+            val elapsedTime = endTime - startTime
+            Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
 
             // imageView 변환
             withContext(Dispatchers.Main) {
                 binding.rewindMainView.setImageBitmap(faceResultBitmap)
-
             }
         }
     }
 
-    /**
-     * setBitmapPicture()
-     *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
-     */
     /**
      * setBitmapPicture()
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장

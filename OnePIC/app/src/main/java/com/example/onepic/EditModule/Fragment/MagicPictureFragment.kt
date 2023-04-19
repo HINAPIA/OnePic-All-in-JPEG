@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ImageToolModule
@@ -53,14 +54,24 @@ class MagicPictureFragment : RewindFragment() {
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
 
-        mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        // 메인 이미지 임시 설정
+        CoroutineScope(Dispatchers.Default).launch {
+            withContext(Dispatchers.Main) {
+                Glide.with(binding.magicMainView)
+                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                    .into(binding.magicMainView)
+            }
+        }
+        CoroutineScope(Dispatchers.Default).launch {
+            mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
 
-        // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-        setMainImageBoundingBox()
+            // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+            setMainImageBoundingBox()
 
-        // magic 가능한 연속 사진 속성의 picture list 얻음
-        pictureList = jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
-
+            // magic 가능한 연속 사진 속성의 picture list 얻음
+            pictureList =
+                jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+        }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {

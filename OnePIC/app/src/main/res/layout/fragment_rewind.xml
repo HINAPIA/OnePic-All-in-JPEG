@@ -15,16 +15,19 @@
 
         <ImageButton
             android:id="@+id/rewindCloseBtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="24dp"
             android:background="@color/transparent_color"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/close_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/main_color" />
+
 
         <TextView
             android:id="@+id/rewindOption"
@@ -43,10 +46,12 @@
 
         <ImageButton
             android:id="@+id/rewindSaveBtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginEnd="24dp"
             android:background="@color/transparent_color"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/check_icon"
             android:textAlignment="textEnd"

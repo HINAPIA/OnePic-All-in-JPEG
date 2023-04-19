@@ -1,21 +1,15 @@
 package com.example.onepic
 
-import android.app.Activity
 import android.content.res.Resources
 import android.graphics.*
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import androidx.exifinterface.media.ExifInterface
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.NavHostFragment
 import com.google.mlkit.vision.face.Face
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import com.bumptech.glide.Glide
-import kotlinx.coroutines.CoroutineScope
-
 
 class ImageToolModule {
     /**
@@ -58,6 +52,18 @@ class ImageToolModule {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
     }
+
+//    fun byteArrayToBitmap(context: Context, byteArray: ByteArray): Bitmap {
+//        val requestOptions = RequestOptions()
+//            .format(DecodeFormat.PREFER_RGB_565)
+//        val bitmap = Glide.with(context)
+//            .asBitmap()
+//            .load(byteArray)
+//            .apply(requestOptions)
+//            .submit()
+//            .get()
+//        return bitmap
+//    }
 
     fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
         val inputStream: InputStream = ByteArrayInputStream(byteArray)

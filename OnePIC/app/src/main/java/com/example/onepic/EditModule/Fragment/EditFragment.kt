@@ -36,14 +36,17 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        CoroutineScope(Dispatchers.Default).launch {
+            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
-        // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
-        // 메인 이미지 설정
-        val mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
-        
-        binding.mainImageView.setImageBitmap(mainBitmap)
-
+            // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
+            // 메인 이미지 설정
+            withContext(Dispatchers.Main) {
+                Glide.with(binding.mainImageView)
+                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                    .into(binding.mainImageView)
+            }
+        }
         return binding.root
     }
 

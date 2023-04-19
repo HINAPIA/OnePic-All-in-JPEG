@@ -188,6 +188,49 @@ class CameraFragment : Fragment() {
 
             else if(binding.autoRewindRadio.isChecked){
                 //TODO : Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
+                // Burst Mode
+                turnOnBurstMode()
+//                    takePhotoIndex(0, 10)
+//                    takeBurstMode(0,10)
+                for(i in 1..10) {
+                    Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
+                    imageCapture.takePicture(cameraExecutor, object :
+                        ImageCapture.OnImageCapturedCallback() {
+                        override fun onCaptureSuccess(image: ImageProxy) {
+                            Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
+                            val buffer = image.planes[0].buffer
+                            buffer.rewind()
+                            val bytes = ByteArray(buffer.capacity())
+                            buffer.get(bytes)
+                            Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
+                            previewByteArrayList.add(bytes)
+                            Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
+                            image.close()
+
+                            super.onCaptureSuccess(image)
+                        }
+
+                        override fun onError(exception: ImageCaptureException) {
+                            super.onError(exception)
+                        }
+                    })
+                    Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
+                } // end of the for …
+
+                CoroutineScope(Dispatchers.IO).launch{
+                    // 초점 사진들이 모두 저장 완료 되었을 때
+                    while(true){
+                        if(previewByteArrayList.size == 10){
+
+                            // TODO: autoRewind 코드 삽입
+
+                            Log.v("checkk","!!!!!!!!!!")
+                            jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                            mediaPlayer.start()
+                            break
+                        }
+                    }
+                } // end of CoroutineScope …
             }
         }
 
@@ -277,6 +320,16 @@ class CameraFragment : Fragment() {
                 }.build()
     }
 
+    private fun turnOnBurstMode(){
+        Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
+            CaptureRequestOptions.Builder()
+                .apply {
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_CAPTURE_INTENT,
+                        CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
+                    )
+                }.build()
+    }
     /**
      * < TEST >
      * takePhotoIndex(index : Int, maxIndex : Int)
