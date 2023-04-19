@@ -33,7 +33,6 @@ class GalleryFragment : Fragment() {
         binding.gridView.numColumns = 3
         binding.gridView.adapter = gridAdapter
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
-            Log.d("변했다","변했다 ㅅㅂㅂㅂㅂㅂㅂㅂㅂㅂ")
             gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
         }
     }
