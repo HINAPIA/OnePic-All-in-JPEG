@@ -56,14 +56,13 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             if (pos == jpegMetaData.size - 1) {
                 // SOI 쓰기
                 byteBuffer.write(jpegMetaData,0,2)
-                Log.d("test_test", "APP1 세그먼트를 찾지 못함")
+                //Log.d("test_test", "APP1 세그먼트를 찾지 못함")
             }
 
             //헤더 쓰기
             //App3 Extension 데이터 생성
             MCContainer.settingHeaderInfo()
             var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
-
             byteBuffer.write(APP3ExtensionByteArray)
 
             //나머지 첫번째 사진의 데이터 쓰기
@@ -99,7 +98,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
                 saveImageOnAboveAndroidQ(resultByteArray)
-                Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ ")
+                Log.d("Save Resolver", "save")
             } else {
                 // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
                 val writePermission = mainActivity?.let {
@@ -128,7 +127,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
             }
-            Log.d("이미지","insertFrameToJpeg 끝")
+
         }
 
     }
@@ -167,7 +166,9 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             if (outputStream != null) {
                 outputStream.write(byteArray)
                 outputStream.close()
-                Toast.makeText(mainActivity, "Image saved successfully", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(mainActivity, "Image saved successfully", Toast.LENGTH_SHORT).show()
+                }
 
             }
 

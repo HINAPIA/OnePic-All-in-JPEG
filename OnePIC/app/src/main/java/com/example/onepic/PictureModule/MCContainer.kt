@@ -78,7 +78,6 @@ class MCContainer(_activity: Activity) {
     }
 
     fun setAudioContent(audioBytes : ByteArray, contentAttribute: ContentAttribute){
-        audioContent.init()
         audioContent.setContent(audioBytes, contentAttribute)
     }
     // Text Content를 초기화. 뷰어에서 텍스트를 추가 후 Container에게 넣기

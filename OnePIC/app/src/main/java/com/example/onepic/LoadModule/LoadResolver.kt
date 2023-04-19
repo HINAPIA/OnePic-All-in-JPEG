@@ -204,7 +204,9 @@ class LoadResolver() {
                 }
                 startIndex += size*2
             }
-            var text = Text(charArray.contentToString(), ContentAttribute.fromCode(attribute))
+            Log.d("Load Module", "${charArray.contentToString().toString()}")
+            var string : String = String(charArray)
+            var text = Text(string, ContentAttribute.fromCode(attribute))
             textList.add(text)
         }
         return textList
