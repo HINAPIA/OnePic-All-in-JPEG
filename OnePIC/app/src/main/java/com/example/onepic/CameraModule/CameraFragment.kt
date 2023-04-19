@@ -8,19 +8,19 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.*
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -28,6 +28,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.onepic.AudioModule.AudioResolver
@@ -37,9 +38,7 @@ import com.example.onepic.PictureModule.Contents.ContentType
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 import java.lang.reflect.InvocationTargetException
@@ -48,6 +47,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
@@ -168,11 +169,41 @@ class CameraFragment : Fragment() {
                     mediaPlayer.start()
                 }
                 else{
-
                     // Burst Mode
+                    turnOnBurstMode()
 //                    takePhotoIndex(0, 10)
 //                    takeBurstMode(0,10)
-                }
+
+                        for (i in 1..10) {
+
+
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
+                                val result = takePicture(i)
+                                if (result == 1) {
+                                    Log.v("CameraX Speed Test", "[$i] 11111111111")
+                                } else {
+                                    Log.v("CameraX Speed Test", "[$i] 00000000000")
+                                }
+                                Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
+                            }
+
+
+                        } // end of the for ...
+
+
+                    CoroutineScope(Dispatchers.IO).launch{
+                        // 초점 사진들이 모두 저장 완료 되었을 때
+                        while(true){
+                            if(previewByteArrayList.size == 10){
+                                Log.v("checkk","!!!!!!!!!!")
+                                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                                mediaPlayer.start()
+                                break
+                            }
+                        }
+                    } // end of CoroutineScope ...
+                } // end of else ...
             }
 
             else if(binding.objectFocusRadio.isChecked){
@@ -240,11 +271,37 @@ class CameraFragment : Fragment() {
         return binding.root
     }
 
+    suspend fun takePicture(i : Int) : Int {
+        return suspendCoroutine { continuation ->
+            imageCapture.takePicture(cameraExecutor, object :
+                ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
+                    val buffer = image.planes[0].buffer
+                    buffer.rewind()
+                    val bytes = ByteArray(buffer.capacity())
+                    buffer.get(bytes)
+                    Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
+                    previewByteArrayList.add(bytes)
+                    Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
+                    image.close()
+
+                    continuation.resume(1)
+                    super.onCaptureSuccess(image)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                }
+            })
+        }
+    }
+
     private fun setDetecter() {
         // Step 2: Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()
             .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
-            .setScoreThreshold(0.2f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .setScoreThreshold(0.3f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
             .build()
         customObjectDetector = ObjectDetector.createFromFileAndOptions(
             activity,
@@ -277,6 +334,18 @@ class CameraFragment : Fragment() {
                 }.build()
     }
 
+    private fun turnOnBurstMode(){
+        Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
+            CaptureRequestOptions.Builder()
+                .apply {
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_CAPTURE_INTENT,
+                        CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
+                    )
+                }.build()
+    }
+
+
     /**
      * < TEST >
      * takePhotoIndex(index : Int, maxIndex : Int)
@@ -284,7 +353,7 @@ class CameraFragment : Fragment() {
      */
     private fun takePhotoIndex(index : Int, maxIndex : Int) {
         if(index >= maxIndex){
-            mediaPlayer.start()
+//            mediaPlayer.start()
             return
         }
         // Get a stable reference of the modifiable image capture use case
@@ -328,6 +397,45 @@ class CameraFragment : Fragment() {
                 }
             }
         )
+    }
+
+    /**
+     * burstMode(index : Int, maxIndex : Int)
+     *      - 연속 촬영 모드
+     *          재귀로 돌면서 preview를 ByteArray로 변환
+     *          previewByteArrayList에 저장
+     */
+    private fun takeBurstMode(index : Int, maxIndex : Int){
+        if(index >= maxIndex){
+            mediaPlayer.start()
+            return
+        }
+
+
+        val imageCapture = imageCapture ?: return
+
+        imageCapture.takePicture(cameraExecutor, object :
+            ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+
+                val buffer = image.planes[0].buffer
+                buffer.rewind()
+                val bytes = ByteArray(buffer.capacity())
+                buffer.get(bytes)
+                previewByteArrayList.add(bytes)
+
+                // 다시 호출
+                takeBurstMode(index + 1, maxIndex)
+
+                image.close()
+
+                super.onCaptureSuccess(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+            }
+        })
     }
 
     private fun previewToByteArray(){
@@ -480,32 +588,67 @@ class CameraFragment : Fragment() {
             return
         }
         Log.v("index cnt", "index : ${index}, detectedList.size : ${detectedList.size}, pointArrayList.size : ${pointArrayList.size}")
-        val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
-        val action = FocusMeteringAction.Builder(point)
-            .build()
 
-        val result = cameraController?.startFocusAndMetering(action)
-        result?.addListener({
-            try {
-                isFocusSuccess = result.get().isFocusSuccessful
-            } catch (e: IllegalAccessException) {
-                Log.e("Error", "IllegalAccessException")
-            } catch (e: InvocationTargetException) {
-                Log.e("Error", "InvocationTargetException")
-            }
 
-            if (isFocusSuccess == true) {
+        GlobalScope.launch(Dispatchers.Default){
+            withContext(Dispatchers.Main){
+//                val factory = binding.viewFinder.meteringPointFactory
+                val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
+                val action = FocusMeteringAction.Builder(point)
+                    .build()
+
+                val result = cameraController?.startFocusAndMetering(action)
+                result?.addListener({
+                    try {
+                        isFocusSuccess = result.get().isFocusSuccessful
+                    } catch (e: IllegalAccessException) {
+                        Log.e("Error", "IllegalAccessException")
+                    } catch (e: InvocationTargetException) {
+                        Log.e("Error", "InvocationTargetException")
+                    }
+
+                    if (isFocusSuccess == true) {
 //                takePhoto()
-                previewToByteArray()
-                Log.v("list size", "${previewByteArrayList.size}")
-                takeObjectFocusMode(index + 1)
-                isFocusSuccess = false
-            } else {
-                // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
-                Log.v("Focus", "false")
-                takeObjectFocusMode(index)
+                        previewToByteArray()
+                        Log.v("list size", "${previewByteArrayList.size}")
+                        takeObjectFocusMode(index + 1)
+                        isFocusSuccess = false
+                    } else {
+                        // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
+                        Log.v("Focus", "false")
+                        takeObjectFocusMode(index)
+                    }
+                }, ContextCompat.getMainExecutor(activity))
             }
-        }, ContextCompat.getMainExecutor(activity))
+        }
+
+//        val factory = binding.viewFinder.meteringPointFactory
+//        val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
+//        val action = FocusMeteringAction.Builder(point)
+//            .build()
+//
+//        val result = cameraController?.startFocusAndMetering(action)
+//        result?.addListener({
+//            try {
+//                isFocusSuccess = result.get().isFocusSuccessful
+//            } catch (e: IllegalAccessException) {
+//                Log.e("Error", "IllegalAccessException")
+//            } catch (e: InvocationTargetException) {
+//                Log.e("Error", "InvocationTargetException")
+//            }
+//
+//            if (isFocusSuccess == true) {
+////                takePhoto()
+//                previewToByteArray()
+//                Log.v("list size", "${previewByteArrayList.size}")
+//                takeObjectFocusMode(index + 1)
+//                isFocusSuccess = false
+//            } else {
+//                // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
+//                Log.v("Focus", "false")
+//                takeObjectFocusMode(index)
+//            }
+//        }, ContextCompat.getMainExecutor(activity))
     }
 
 
@@ -625,21 +768,22 @@ class CameraFragment : Fragment() {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
-
-            // ImageAnalysis 설정
-            imageAnalysis = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            imageCapture = ImageCapture.Builder()
                 .build()
 
-            // 이미지 처리를 위한 Analyzer 정의
-            analyzer = ImageAnalysis.Analyzer { image ->
-                val buffer = image.planes[0].buffer
-                val data = ByteArray(buffer.remaining())
-                buffer.get(data)
-                // 여기서 data 변수가 ByteArray로 프리뷰 이미지를 포함합니다.
-                image.close()
-            }
+//            imageCapture = ImageCapture.Builder()
+//                .setTargetResolution(Size(756 , 1008))
+//                .build()
+
+            // ImageAnalysis 설정
+//            imageAnalysis = ImageAnalysis.Builder()
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                .build()
+
+            // 카메라 해상도 설정
+//            imageAnalysis = ImageAnalysis.Builder()
+//                .setTargetResolution(Size(1080, 720))
+//                .build()
 
 
             // 3-2. 카메라 세팅
@@ -664,6 +808,17 @@ class CameraFragment : Fragment() {
                 cameraController = camera!!.cameraControl
                 camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
 
+
+                // 지원되는 MeteringPoints 가져오기
+                val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
+                if (meteringPoints == null || meteringPoints == 0) {
+                    // 사용자에게 에러 메시지를 표시하거나 다른 처리를 수행합니다.
+                    Log.v("meteringPoints", "해당 기기는 meteringPoints를 지원하지 않습니다.")
+                } else {
+                    // 지원되는 MeteringPoints를 사용하여 카메라 기능을 사용합니다.
+                    Log.v("meteringPoints", "해당 기기는 meteringPoints를 지원합니다.")
+                }
+
                 // 스마트폰 기기 별 min Focus Distance 알아내기 ( 가장 `가까운` 곳에 초점을 맞추기 위한 렌즈 초점 거리 )
                 // 대부분 10f
                 minFocusDistance =
@@ -671,12 +826,12 @@ class CameraFragment : Fragment() {
                 // 연속 사진 촬영 장수에 따른 Step 거리
                 lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
 
-                Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
-                    CaptureRequestOptions.Builder()
-                        .apply {
-                            setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
-                        }
-                        .build()
+//                Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
+//                    CaptureRequestOptions.Builder()
+//                        .apply {
+//                            setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+//                        }
+//                        .build()
 
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
