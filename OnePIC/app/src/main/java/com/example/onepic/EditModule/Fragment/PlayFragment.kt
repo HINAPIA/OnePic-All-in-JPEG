@@ -141,7 +141,8 @@ class PlayFragment : Fragment() {
 
                 for (i in basicIndex until pictureList.size) {
                     CoroutineScope(Dispatchers.Default).launch {
-                        createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
+                        println("${i-basicIndex} || $i")
+                        createOverlayImg(overlayImg, boundingBox[i - basicIndex], i - basicIndex)
                         checkFinish[i - basicIndex] = true
                     }
                 }
@@ -157,6 +158,7 @@ class PlayFragment : Fragment() {
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
+
 
         // bitmap를 자르기
         val cropImage = imageToolModule.cropBitmap(
