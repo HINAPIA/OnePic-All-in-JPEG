@@ -180,14 +180,26 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      * setBitmapPicture()
      *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
      */
+    /**
+     * setBitmapPicture()
+     *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
+     */
     protected fun setBitmapPicture() {
+
         val checkFinish = BooleanArray(pictureList.size)
-        for(i in 0 until pictureList.size){
+        for (i in 0 until pictureList.size) {
             checkFinish[i] = false
+            bitmapList.add(mainBitmap)
         }
-        for(i in 0 until pictureList.size) {
-            bitmapList.add(imageToolModule.byteArrayToBitmap((imageContent.getJpegBytes(pictureList[i]))))
-            checkFinish[i] = true
+        for (i in 0 until pictureList.size) {
+            CoroutineScope(Dispatchers.Default).launch {
+                val bitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
+                bitmapList.add(i, bitmap)
+                checkFinish[i] = true
+            }
+        }
+        while (!checkFinish.all { it }) {
+            // Wait for all tasks to finish
         }
     }
 
