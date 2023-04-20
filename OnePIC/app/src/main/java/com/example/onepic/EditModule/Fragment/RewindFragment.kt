@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -99,6 +100,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.rewindSaveBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.Default).launch {
+                showProgress(binding.progressBar , true)
 
                 if(preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
@@ -112,6 +114,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 withContext(Dispatchers.Main){
                     findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
                 }
+                showProgress(binding.progressBar , false)
+
             }
         }
 
@@ -135,6 +139,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
+                showProgress(binding.progressBar , true)
+
                 if(preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
                     newImage = null
@@ -162,11 +168,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     withContext(Dispatchers.Main) {
                         cropImgAndView(boundingBox)
                     }
+
+                    showProgress(binding.progressBar , false)
+
                     endTime = System.currentTimeMillis()
                     elapsedTime = endTime - startTime
                     Log.d("ElapsedTime", "cropImgAndView Time: $elapsedTime ms")
-
-
                 }
             }
             return@setOnTouchListener true
@@ -180,6 +187,15 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             val arrowListener = ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
             binding.circleArrowBtn.setOnTouchListener(arrowListener)
 //            binding.circleArrowBtn.setOnLongClickListener(arrowListener)
+        }
+    }
+
+    fun showProgress(progress: ProgressBar, isShow: Boolean){
+        CoroutineScope(Dispatchers.Default).launch {
+            withContext(Dispatchers.Main) {
+                if (isShow) progress.visibility = View.VISIBLE
+                else progress.visibility = View.GONE
+            }
         }
     }
 

@@ -1,17 +1,16 @@
 package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
@@ -28,6 +27,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
 class MagicPictureFragment : RewindFragment() {
     private lateinit var binding: FragmentMagicPictureBinding
 
@@ -42,11 +42,15 @@ class MagicPictureFragment : RewindFragment() {
 
     var pictureList: ArrayList<Picture> = arrayListOf()
 
+    private lateinit var context : Context
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        context = requireContext()
+
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
@@ -91,6 +95,8 @@ class MagicPictureFragment : RewindFragment() {
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
+            showProgress(binding.progressBar , true)
+
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
@@ -118,6 +124,8 @@ class MagicPictureFragment : RewindFragment() {
                 withContext(Dispatchers.Main){
                     findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
                 }
+
+                showProgress(binding.progressBar, false)
             }
         }
 
@@ -143,6 +151,8 @@ class MagicPictureFragment : RewindFragment() {
         // 이미지 뷰 클릭 시
         binding.magicMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
+                showProgress(binding.progressBar , true)
+
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
@@ -158,6 +168,8 @@ class MagicPictureFragment : RewindFragment() {
                     withContext(Dispatchers.Main) {
                         cropImgAndView(boundingBox)
                     }
+                    showProgress(binding.progressBar , false)
+
                 }
             }
             return@setOnTouchListener true

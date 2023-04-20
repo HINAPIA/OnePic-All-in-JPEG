@@ -6,6 +6,7 @@
     <color name="main_color">#FFFFFF</color>
     <color name="edit_bar_color">#000000</color>
     <color name="point_color">#C1BAF2</color>
+    <color name="progressive_color">#DDFF8E</color>
     <color name="rewind_button_color">#80818181</color>
     <color name="sideBar_color">#80D7D7D7</color>
     <color name="dialog_button_color">#BEDFDFDF</color>
