@@ -29,14 +29,13 @@ class AudioResolver(val context : Context) {
    // private var inputStream : ByteArrayInputStream? = null
     val mediaPlayer = MediaPlayer()
     
-    fun startRecording() : File? {
+    fun startRecording(fileName: String) : File? {
         if(isRecording){
             return null
         }
         isRecording = true
         Log.d("AudioModule", "녹음 start")
-       
-        savedFile = getOutputMediaFilePath()
+        savedFile = getOutputMediaFilePath(fileName)
 
         // 녹음 시작
         mediaRecorder = MediaRecorder().apply {
@@ -84,12 +83,12 @@ class AudioResolver(val context : Context) {
         return audioBytes
     }
 
-    private fun getOutputMediaFilePath(): File {
+    private fun getOutputMediaFilePath(fileName : String): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val mediaDir = "audio"
 
-        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/create.${"aac"}")
+        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/$fileName.${"aac"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
@@ -109,7 +108,7 @@ class AudioResolver(val context : Context) {
     }
 
     fun saveByteArrToAacFile(byteArr: ByteArray) {
-        savedFile = getOutputMediaFilePath2()
+        savedFile = getOutputMediaFilePath("viewer_record")
         val outputStream = FileOutputStream(savedFile)
         Log.d("AudioModule", "파싱 후 저장 완료")
         outputStream.write(byteArr)

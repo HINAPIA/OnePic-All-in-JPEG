@@ -27,6 +27,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
 
+    private var isAdd : Boolean = false
+
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,7 +68,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
             }
         }
-
+        // Masic
         binding.magicBtn.setOnClickListener {
             // 일반 사진이면 안 넘어가도록
             if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic)) {
@@ -74,26 +76,31 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
             }
         }
-
+        // ADD
         binding.addBtn.setOnClickListener {
             // 일반 사진이면 안 넘어가도록
-            if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic)) {
-                // MagicPictureFragment로 이동
-                findNavController().navigate(R.id.action_editFragment_to_playFragment)
-            }
+            isAdd = true
+            // MagicPictureFragment로 이동
+            findNavController().navigate(R.id.action_editFragment_to_addFragment)
+
+           // if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic))
 
             //findNavController().navigate(R.id.action_editFragment_to_addFragment)
         }
 
+        // Viewer
         binding.backBtn.setOnClickListener {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
         }
+        // Save
         binding.saveBtn.setOnClickListener{
-            val mainPicture = imageContent.mainPicture
-            // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg? 저장
-            //Log.d("test_test", "save 버튼 클릭")
-            imageContent.insertPicture(0, mainPicture)
+            if(!isAdd){
+                val mainPicture = imageContent.mainPicture
+                // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+                imageContent.insertPicture(0, mainPicture)
+            } else isAdd = false
+
             jpegViewModel.jpegMCContainer.value?.save()
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
         }

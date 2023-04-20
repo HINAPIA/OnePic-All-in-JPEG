@@ -210,7 +210,7 @@ class CameraFragment : Fragment() {
                 pointArrayList.clear()
                 isFocusSuccess = false
                 startObjectFocusMode()
-                audioResolver.startRecording()
+                audioResolver.startRecording("camera_record")
             }
 
             else if(binding.distanceFocusRadio.isChecked){
