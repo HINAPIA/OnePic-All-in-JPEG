@@ -1,28 +1,21 @@
 package com.example.onepic.EditModule.Fragment
 
 import android.graphics.Bitmap
-import android.graphics.PointF
 import android.graphics.Rect
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
-import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentPlayBinding
-import com.example.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -116,7 +109,7 @@ class PlayFragment : Fragment() {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
-                setBitmapPicture()
+                bitmapList = imageContent.getBitmapList()
             }
 
             var basicIndex = 0
@@ -203,30 +196,4 @@ class PlayFragment : Fragment() {
             handler.postDelayed(runnable, magicPlaySpeed)
         }
     }
-
-
-    /**
-     * setBitmapPicture()
-     *      - Picture의 ArrayList를 모두 Bitmap으로 전환해서 저장
-     */
-    private fun setBitmapPicture() {
-
-        val checkFinish = BooleanArray(pictureList.size)
-        for (i in 0 until pictureList.size) {
-            checkFinish[i] = false
-            bitmapList.add(mainBitmap)
-        }
-        for (i in 0 until pictureList.size) {
-            CoroutineScope(Dispatchers.Default).launch {
-                val bitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
-                bitmapList.add(i, bitmap)
-                checkFinish[i] = true
-            }
-        }
-        while (!checkFinish.all { it }) {
-            // Wait for all tasks to finish
-        }
-    }
-
-
 }

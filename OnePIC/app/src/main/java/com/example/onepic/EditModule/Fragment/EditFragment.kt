@@ -2,7 +2,6 @@ package com.example.onepic.EditModule.Fragment
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,9 +35,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
-        CoroutineScope(Dispatchers.Default).launch {
-            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
+        CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
             withContext(Dispatchers.Main) {
@@ -46,6 +45,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
                     .into(binding.mainImageView)
             }
+        }
+        CoroutineScope(Dispatchers.Default).launch{
+             imageContent.getMainBitmap()
+        }
+        CoroutineScope(Dispatchers.Default).launch{
+            imageContent.getBitmapList()
         }
         return binding.root
     }

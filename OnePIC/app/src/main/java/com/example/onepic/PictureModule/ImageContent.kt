@@ -1,8 +1,13 @@
 package com.example.onepic.PictureModule
 
+import android.graphics.Bitmap
 import android.util.Log
+import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -13,9 +18,14 @@ class ImageContent {
     var markerHashMap: HashMap<Int?, String?> = jpegConstant.nameHashMap
     var pictureList : ArrayList<Picture> = arrayListOf()
     var pictureCount = 0
-    lateinit var jpegMetaData : ByteArray
 
+    lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture
+
+    private var mainBitmap: Bitmap? = null
+    private val bitmapList: ArrayList<Bitmap> = arrayListOf()
+    private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var bitmapListAttribute : ContentAttribute? = null
     fun init() {
 
         pictureList.clear()
@@ -46,6 +56,65 @@ class ImageContent {
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
 
+    }
+
+    /**
+     * getBitmapList()
+     *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
+     *          있다면 bitmapList 전달
+     */
+    // bitmapList getter
+    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap> {
+        if(bitmapListAttribute == null || bitmapListAttribute != attribute) {
+            attributeBitmapList.clear()
+            bitmapListAttribute = attribute
+        }
+
+        if(attributeBitmapList.size == 0) {
+            if(bitmapList.size == 0)
+                getBitmapList()
+
+            for(i in 0 until pictureList.size){
+                if(pictureList[i].contentAttribute == attribute)
+                    attributeBitmapList.add(bitmapList[i])
+            }
+        }
+
+        return attributeBitmapList
+    }
+
+    fun getBitmapList() : ArrayList<Bitmap> {
+        if(bitmapList.size == 0){
+            val checkFinish = BooleanArray(pictureList.size)
+
+            val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
+
+            for (i in 0 until pictureList.size) {
+                checkFinish[i] = false
+                bitmapList.add(exBitmap)
+            }
+
+            for (i in 0 until pictureList.size) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
+                    bitmapList.add(i, bitmap)
+                    checkFinish[i] = true
+                }
+            }
+            while (!checkFinish.all { it }) {
+                // Wait for all tasks to finish
+            }
+        }
+
+        return bitmapList
+    }
+
+
+    fun getMainBitmap() : Bitmap {
+        if(mainBitmap == null){
+            mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+        }
+        return mainBitmap!!
     }
 
     // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성

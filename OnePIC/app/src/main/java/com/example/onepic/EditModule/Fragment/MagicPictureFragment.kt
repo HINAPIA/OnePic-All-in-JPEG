@@ -6,6 +6,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -39,6 +40,7 @@ class MagicPictureFragment : RewindFragment() {
 
     val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
 
+    var pictureList: ArrayList<Picture> = arrayListOf()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -56,6 +58,10 @@ class MagicPictureFragment : RewindFragment() {
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
 
+        // magic 가능한 연속 사진 속성의 picture list 얻음
+        pictureList =
+            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
@@ -65,14 +71,23 @@ class MagicPictureFragment : RewindFragment() {
             }
         }
         CoroutineScope(Dispatchers.Default).launch {
-            mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+            CoroutineScope(Dispatchers.Default).launch {
+                val startTime = System.currentTimeMillis()
 
-            // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-            setMainImageBoundingBox()
+                mainBitmap = imageContent.getMainBitmap()
 
-            // magic 가능한 연속 사진 속성의 picture list 얻음
-            pictureList =
-                jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+                val endTime = System.currentTimeMillis()
+
+                val elapsedTime = endTime - startTime
+
+                Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
+                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
+            }
+            CoroutineScope(Dispatchers.Default).launch {
+                // rewind 가능한 연속 사진 속성의 picture list 얻음
+                bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+            }
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
@@ -182,7 +197,7 @@ class MagicPictureFragment : RewindFragment() {
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
-            setBitmapPicture()
+            bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
         }
 
         for (i in 0 until boundingBox.size) {
@@ -264,7 +279,7 @@ class MagicPictureFragment : RewindFragment() {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
-                setBitmapPicture()
+                bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
             }
 
             var basicIndex = 0

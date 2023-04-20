@@ -9,10 +9,6 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.R
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
-import com.google.mlkit.vision.face.Face
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetector
-import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,7 +98,6 @@ class RewindModule() {
             var faces: ArrayList<Face>? = null
             CoroutineScope(Dispatchers.Default).launch {
                 faces = runFaceContourDetection(bitmap)
-
                 if (faces == null)
                     bitmapResult.resume(null)
                 else {
@@ -136,7 +131,6 @@ class RewindModule() {
                 }
             }
         }
-
 
     /**
      * runFaceContourDetection(bitmap: Bitmap): ArrayList<Face>
