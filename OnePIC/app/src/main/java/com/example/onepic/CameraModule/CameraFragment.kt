@@ -1,5 +1,6 @@
 package com.example.onepic.CameraModule
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
@@ -7,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
 import android.graphics.RectF
 import android.hardware.camera2.*
 import android.media.MediaPlayer
@@ -19,9 +21,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.camera2.interop.Camera2CameraControl
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.CaptureRequestOptions
+import androidx.annotation.OptIn
+import androidx.camera.camera2.interop.*
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
@@ -50,8 +51,10 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+import androidx.camera.core.SurfaceRequest
 
-@androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
+
+@OptIn(ExperimentalCamera2Interop::class)
 class CameraFragment : Fragment() {
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
@@ -174,33 +177,80 @@ class CameraFragment : Fragment() {
 //                    takePhotoIndex(0, 10)
 //                    takeBurstMode(0,10)
 
-                        for (i in 1..10) {
 
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
-                                val result = takePicture(i)
-                                if (result == 1) {
-                                    Log.v("CameraX Speed Test", "[$i] 11111111111")
-                                } else {
-                                    Log.v("CameraX Speed Test", "[$i] 00000000000")
-                                }
-                                Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
+//                    val captureList: ArrayList<ImageCapture> = arrayListOf(ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build())
+                    for (i in 1..10) {
+//                        Log.v("CameraX Speed Test", "[$i] takePicture 입장 ####")
+//                        val preview = Preview.Builder()
+//                            .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
+//                            .build()
+//                            .also {
+//                                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+//                            }
+//                        cameraProvider.unbindAll()
+//                        // 3-3. use case와 카메라를 생명 주기에 binding
+//                        camera = cameraProvider.bindToLifecycle(
+//                            this, cameraSelector, preview, captureList[i-1]
+//                        )
+//
+//                        captureList[i-1].takePicture(cameraExecutor, object :
+//                            ImageCapture.OnImageCapturedCallback() {
+//                            init{
+//                                Log.v("CameraX Speed Test", "[$i] takePicture 시작 ####")
+//                            }
+//
+//                            override fun onCaptureSuccess(image: ImageProxy) {
+//                                Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
+//                                val buffer = image.planes[0].buffer
+//                                buffer.rewind()
+//                                val bytes = ByteArray(buffer.capacity())
+//                                buffer.get(bytes)
+//                                Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
+//                                previewByteArrayList.add(bytes)
+//                                Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
+//                                image.close()
+//
+////                                    continuation.resume(1)
+//                                super.onCaptureSuccess(image)
+//                            }
+//
+//                            override fun onError(exception: ImageCaptureException) {
+//                                super.onError(exception)
+//                            }
+//                        })
+                        //--------------------------
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
+                            val result = takePicture(i)
+                            if (result == 1) {
+                                Log.v("CameraX Speed Test", "[$i] 11111111111")
+                            } else {
+                                Log.v("CameraX Speed Test", "[$i] 00000000000")
                             }
-
-                        } // end of the for ...
-
-
-                    CoroutineScope(Dispatchers.IO).launch{
-                        // 초점 사진들이 모두 저장 완료 되었을 때
-                        while(true){
-                            if(previewByteArrayList.size == 10){
-                                Log.v("checkk","!!!!!!!!!!")
-                                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                                mediaPlayer.start()
-                                break
-                            }
+                            Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
                         }
-                    } // end of CoroutineScope ...
+                    } // end of the for ...
+
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        // 초점 사진들이 모두 저장 완료 되었을 때
+//                        while (true) {
+//                            Log.v(
+//                                "CameraX Speed Test",
+//                                "waiting... ${previewByteArrayList.size}"
+//                            )
+//                            if (previewByteArrayList.size == 9) {
+//                                Log.v("CameraX Speed Test", "!!!!!!!!!!")
+//                                jpegViewModel.jpegMCContainer.value!!.setImageContent(
+//                                    previewByteArrayList,
+//                                    ContentType.Image,
+//                                    ContentAttribute.focus
+//                                )
+//                                mediaPlayer.start()
+//                                break
+//                            }
+//                        }
+//                    } // end of CoroutineScope ...
+
                 } // end of else ...
             }
 
@@ -329,8 +379,28 @@ class CameraFragment : Fragment() {
 
     suspend fun takePicture(i : Int) : Int {
         return suspendCoroutine { continuation ->
+
+//            Log.v("CameraX Speed Test", "[$i] takePicture 입장 ####")
+//            val preview = Preview.Builder()
+//                .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
+//                .build()
+//                .also {
+//                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+//                }
+//            val imageCapture2 = ImageCapture.Builder().build()
+//            cameraProvider.unbindAll()
+//            // 3-3. use case와 카메라를 생명 주기에 binding
+//            camera = cameraProvider.bindToLifecycle(
+//                this, cameraSelector, preview, imageCapture2
+//            )
+
+
             imageCapture.takePicture(cameraExecutor, object :
                 ImageCapture.OnImageCapturedCallback() {
+                init{
+                    Log.v("CameraX Speed Test", "[$i] takePicture 시작 ####")
+                }
+
                 override fun onCaptureSuccess(image: ImageProxy) {
                     Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
                     val buffer = image.planes[0].buffer
@@ -342,6 +412,22 @@ class CameraFragment : Fragment() {
                     Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
                     image.close()
 
+                    CoroutineScope(Dispatchers.IO).launch{
+                        // 초점 사진들이 모두 저장 완료 되었을 때
+//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                        if(previewByteArrayList.size == 10){
+                            // 녹음 중단
+                            val savedFile = audioResolver.stopRecording()
+                            if(savedFile != null){
+                                var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                                jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
+                                Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                            }
+                            jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                            jpegViewModel.jpegMCContainer.value!!.save()
+                        }
+                    }
+
                     continuation.resume(1)
                     super.onCaptureSuccess(image)
                 }
@@ -352,6 +438,7 @@ class CameraFragment : Fragment() {
             })
         }
     }
+
 
     private fun setDetecter() {
         // Step 2: Initialize the detector object
@@ -394,9 +481,13 @@ class CameraFragment : Fragment() {
         Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
             CaptureRequestOptions.Builder()
                 .apply {
+//                    setCaptureRequestOption(
+//                        CaptureRequest.CONTROL_CAPTURE_INTENT,
+//                        CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
+//                    )
                     setCaptureRequestOption(
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
+                        CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE
                     )
                 }.build()
     }
@@ -849,16 +940,10 @@ class CameraFragment : Fragment() {
                 // binding 전에 binding 초기화
                 cameraProvider.unbindAll()
 
-                // 미리보기를 시작하기 전에 View를 숨기는 코드
-                binding.viewFinder.visibility = View.GONE
-
                 // 3-3. use case와 카메라를 생명 주기에 binding
                 camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture
                 )
-
-                // View를 다시 보이도록 하는 코드
-                binding.viewFinder.visibility = View.VISIBLE
 
                 cameraController = camera!!.cameraControl
                 camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
@@ -915,11 +1000,11 @@ class CameraFragment : Fragment() {
         private const val DISTANCE_FOCUS_PHOTO_COUNT = 10
         private val REQUIRED_PERMISSIONS = // Array<String>
             mutableListOf(
-                android.Manifest.permission.CAMERA,
-                android.Manifest.permission.RECORD_AUDIO
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
             ).apply {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
             }.toTypedArray()
     }
