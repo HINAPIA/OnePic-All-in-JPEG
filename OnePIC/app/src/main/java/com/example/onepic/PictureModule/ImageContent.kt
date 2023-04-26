@@ -3,6 +3,7 @@ package com.example.onepic.PictureModule
 import android.graphics.Bitmap
 import android.util.Log
 import com.example.onepic.ImageToolModule
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import kotlinx.coroutines.CoroutineScope
@@ -23,9 +24,10 @@ class ImageContent {
     lateinit var mainPicture : Picture
 
     private var mainBitmap: Bitmap? = null
-    private val bitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var bitmapList: ArrayList<Bitmap> = arrayListOf()
     private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
+    var activityType: ActivityType? = null
     fun init() {
 
         pictureList.clear()
@@ -97,7 +99,7 @@ class ImageContent {
             for (i in 0 until pictureList.size) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
-                    bitmapList.add(i, bitmap)
+                    bitmapList[i] = bitmap
                     checkFinish[i] = true
                 }
             }
@@ -109,12 +111,21 @@ class ImageContent {
         return bitmapList
     }
 
+    fun setBitmapList(bitmapList: ArrayList<Bitmap>, bitmapListAttribute : ContentAttribute) {
+        this.bitmapList = bitmapList
+        this.bitmapListAttribute = bitmapListAttribute
+    }
+
 
     fun getMainBitmap() : Bitmap {
         if(mainBitmap == null){
             mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
         }
         return mainBitmap!!
+    }
+
+    fun setMainBitmap(bitmap: Bitmap) {
+        this.mainBitmap = mainBitmap
     }
 
     // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성

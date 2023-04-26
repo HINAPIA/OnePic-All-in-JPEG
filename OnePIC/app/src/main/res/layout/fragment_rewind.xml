@@ -72,25 +72,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="7"
+            android:background="@color/edit_bar_color"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/autoRewindBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/rewind_button_color"
-            android:includeFontPadding="false"
-            android:text="Auto Rewind"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@+id/rewindMainView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -105,6 +94,51 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageResetBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="-5dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="-5dp"
+            android:backgroundTint="@color/transparent_color"
+            android:scaleType="centerInside"
+            android:src="@drawable/reset_icon"
+            app:tint="@color/main_color" />
+
+        <Button
+            android:id="@+id/autoRewindBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/rewind_button_color"
+            android:includeFontPadding="false"
+            android:text="Auto Rewind"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+        <ImageButton
+            android:id="@+id/imageCompareBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="-5dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="-5dp"
+            android:backgroundTint="@color/transparent_color"
+            android:scaleType="fitCenter"
+            android:src="@drawable/compare_icon"
+            app:tint="@color/main_color" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.Log
 import androidx.core.graphics.toRectF
 import com.example.onepic.ImageToolModule
 import com.example.onepic.R
@@ -57,32 +58,6 @@ class RewindModule() {
             faces = runFaceContourDetection(bitmap)
 
             bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
-        }
-    }
-
-    /**
-     * getDrawRectFaceBitmap(bitmap: Bitmap)
-     *      - bitmap에서 얼굴 detection을 실행 및
-     *        감지된 얼굴에 사각형 그리기
-     */
-    suspend fun getDrawRectFaceBitmap(bitmap: Bitmap): Bitmap = suspendCoroutine { bitmapResult ->
-
-        // face Detection
-        var faces : ArrayList<Face>? = null
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                faces = runFaceContourDetection(bitmap)
-                // 얼굴 검출 결과값을 이용하여 다음 작업을 수행합니다.
-            } catch (e: Exception) {
-                e.printStackTrace()
-                // 예외 처리를 수행합니다.
-            }
-
-            if (faces == null)
-                bitmapResult.resume(bitmap)
-            else
-            // faceDetection 결과(bindingBox) 그리기
-                bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces!!, R.color.main_color))
         }
     }
 
@@ -142,7 +117,8 @@ class RewindModule() {
 
             detector.process(image)
                 .addOnSuccessListener { faces ->
-                    println("success")
+
+                    Log.d("RewindModule", "success")
                     // 얼굴 검출 성공 시 콜백 함수
                     continuation.resume(faces as ArrayList<Face>)
                 }
@@ -176,10 +152,10 @@ class RewindModule() {
 
             for (j in 0 until bitmapList.size) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    println("start = $j")
+                    Log.d("RewindModule", "start = $j")
                     // j 번째 사진 faces 정보 얻기
                     facesResultList.add(runFaceContourDetection(bitmapList[j]))
-                    println("end = $j")
+                    Log.d("RewindModule", "end = $j")
                     checkFinish[j] = true
                 }
             }
@@ -207,26 +183,29 @@ class RewindModule() {
                             // 현재 face가 비교될 face 배열의 index 값
                             val index = getBoxComparisonIndex(checkFace, bestFace)
 
-                            // bestFace 정보 알아내기
-                            val best = bestFace[index]
+                            if (bestFace.size > index) {
+                                // bestFace 정보 알아내기
+                                val best = bestFace[index]
 
-                            if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
-                                best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!)
-                            {
-                                if(best.smilingProbability!! < checkFace.smilingProbability!!) {
+                                if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
+                                    best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
+                                ) {
+                                    if (best.smilingProbability!! < checkFace.smilingProbability!!) {
+                                        bestFace[index] = checkFace
+                                        bestFaceIndex[index] = j
+                                    }
+                                }
+                                if (checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
+                                    && best.smilingProbability!! < checkFace.smilingProbability!!
+                                ) {
                                     bestFace[index] = checkFace
                                     bestFaceIndex[index] = j
                                 }
                             }
-                            if(checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
-                                && best.smilingProbability!! < checkFace.smilingProbability!!) {
-                                bestFace[index] = checkFace
-                                bestFaceIndex[index] = j
-                            }
                         }
                     }
                 }
-                println(bestFaceIndex)
+                Log.d("RewindModule", bestFaceIndex.toString())
 
 
                 for (i in 0 until bestFace.size) {

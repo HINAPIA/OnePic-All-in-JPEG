@@ -32,6 +32,9 @@
         android:label="fragment_rewind"
         tools:layout="@layout/fragment_rewind" >
         <action
+            android:id="@+id/action_fregemnt_to_editFragment"
+            app:destination="@id/cameraFragment" />
+        <action
             android:id="@+id/action_rewindFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
     </fragment>

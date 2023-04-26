@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
 import android.graphics.RectF
 import android.hardware.camera2.*
 import android.media.MediaPlayer
@@ -29,13 +28,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.onepic.AudioModule.AudioResolver
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
-import com.example.onepic.PictureModule.Contents.Picture
+import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
@@ -50,8 +51,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-import androidx.camera.core.SurfaceRequest
 
 
 @OptIn(ExperimentalCamera2Interop::class)
@@ -94,6 +93,11 @@ class CameraFragment : Fragment() {
     // audio
     private lateinit var audioResolver : AudioResolver
 
+    // imageContent
+    private lateinit var imageContent : ImageContent
+    private lateinit var imageToolModule: ImageToolModule
+    private lateinit var rewindModule: RewindModule
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
@@ -117,6 +121,14 @@ class CameraFragment : Fragment() {
 
         factory = binding.viewFinder.meteringPointFactory
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
+
+        // imageContent 설정
+        imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+        imageContent.activityType = ActivityType.Camera
+
+        //rewind
+        imageToolModule = ImageToolModule()
+        rewindModule = RewindModule()
 
         // Initialize the detector object
         setDetecter()
@@ -177,48 +189,7 @@ class CameraFragment : Fragment() {
 //                    takePhotoIndex(0, 10)
 //                    takeBurstMode(0,10)
 
-
-//                    val captureList: ArrayList<ImageCapture> = arrayListOf(ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build(),ImageCapture.Builder().build())
                     for (i in 1..10) {
-//                        Log.v("CameraX Speed Test", "[$i] takePicture 입장 ####")
-//                        val preview = Preview.Builder()
-//                            .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
-//                            .build()
-//                            .also {
-//                                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-//                            }
-//                        cameraProvider.unbindAll()
-//                        // 3-3. use case와 카메라를 생명 주기에 binding
-//                        camera = cameraProvider.bindToLifecycle(
-//                            this, cameraSelector, preview, captureList[i-1]
-//                        )
-//
-//                        captureList[i-1].takePicture(cameraExecutor, object :
-//                            ImageCapture.OnImageCapturedCallback() {
-//                            init{
-//                                Log.v("CameraX Speed Test", "[$i] takePicture 시작 ####")
-//                            }
-//
-//                            override fun onCaptureSuccess(image: ImageProxy) {
-//                                Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
-//                                val buffer = image.planes[0].buffer
-//                                buffer.rewind()
-//                                val bytes = ByteArray(buffer.capacity())
-//                                buffer.get(bytes)
-//                                Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
-//                                previewByteArrayList.add(bytes)
-//                                Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
-//                                image.close()
-//
-////                                    continuation.resume(1)
-//                                super.onCaptureSuccess(image)
-//                            }
-//
-//                            override fun onError(exception: ImageCaptureException) {
-//                                super.onError(exception)
-//                            }
-//                        })
-                        //--------------------------
                         CoroutineScope(Dispatchers.IO).launch {
                             Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
                             val result = takePicture(i)
@@ -231,25 +202,6 @@ class CameraFragment : Fragment() {
                         }
                     } // end of the for ...
 
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        // 초점 사진들이 모두 저장 완료 되었을 때
-//                        while (true) {
-//                            Log.v(
-//                                "CameraX Speed Test",
-//                                "waiting... ${previewByteArrayList.size}"
-//                            )
-//                            if (previewByteArrayList.size == 9) {
-//                                Log.v("CameraX Speed Test", "!!!!!!!!!!")
-//                                jpegViewModel.jpegMCContainer.value!!.setImageContent(
-//                                    previewByteArrayList,
-//                                    ContentType.Image,
-//                                    ContentAttribute.focus
-//                                )
-//                                mediaPlayer.start()
-//                                break
-//                            }
-//                        }
-//                    } // end of CoroutineScope ...
 
                 } // end of else ...
             }
@@ -268,63 +220,69 @@ class CameraFragment : Fragment() {
             else if(binding.autoRewindRadio.isChecked){
                 //TODO : Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
                 // Burst Mode
+
                 turnOnBurstMode()
 //                    takePhotoIndex(0, 10)
 //                    takeBurstMode(0,10)
-                for(i in 1..10) {
-                    Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
-                    imageCapture.takePicture(cameraExecutor, object :
-                        ImageCapture.OnImageCapturedCallback() {
-                        override fun onCaptureSuccess(image: ImageProxy) {
-                            Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
-                            val buffer = image.planes[0].buffer
-                            buffer.rewind()
-                            val bytes = ByteArray(buffer.capacity())
-                            buffer.get(bytes)
-                            Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
-                            previewByteArrayList.add(bytes)
-                            Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
-                            image.close()
 
-                            super.onCaptureSuccess(image)
+                for (i in 1..10) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
+                        val result = takePicture(i)
+                        if (result == 1) {
+                            Log.v("CameraX Speed Test", "[$i] 11111111111")
+                        } else {
+                            Log.v("CameraX Speed Test", "[$i] 00000000000")
                         }
+                        Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
+                    }
+                } // end of the for ...
 
-                        override fun onError(exception: ImageCaptureException) {
-                            super.onError(exception)
-                        }
-                    })
-                    Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
-                } // end of the for …
 
-                CoroutineScope(Dispatchers.IO).launch{
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    while(previewByteArrayList.size < 10) {
+
+                    }
                     // 초점 사진들이 모두 저장 완료 되었을 때
-                    while(true){
-                        if(previewByteArrayList.size == 10){
+//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                    if (previewByteArrayList.size == 10) {
+                        // 녹음 중단
+                        val savedFile = audioResolver.stopRecording()
+                        if (savedFile != null) {
+                            var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                                audioBytes,
+                                ContentAttribute.basic
+                            )
+                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                        }
 
-                            // TODO: autoRewind 코드 삽입
-                            CoroutineScope(Dispatchers.Default).launch {
-                                val imageContent =
-                                    jpegViewModel.jpegMCContainer.value?.imageContent!!
+                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                            previewByteArrayList,
+                            ContentType.Image,
+                            ContentAttribute.burst
+                        )
+//
+//                        val allBytes = ImageToolModule().bitmapToByteArray(mainBitmap, previewByteArrayList[0])
+//                        val newPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+//                        newPicture.waitForByteArrayInitialized()
 
-                                // main Picture의 byteArray를 bitmap 제작
-                                val mainPicture = imageContent.mainPicture
+//                        bitmapList.add(0, mainBitmap)
 
-                                val bitmapList = imageContent.getBitmapList()
+//                        imageContent.mainPicture = newPicture
+//                        imageContent.setMainBitmap(mainBitmap)
 
-                                val mainBitmap = RewindModule().autoBestFaceChange(bitmapList)
+                        //jpegViewModel.jpegMCContainer.value!!.save()
 
-                                val allBytes = ImageToolModule().bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
-                                imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
-                                imageContent.mainPicture.waitForByteArrayInitialized()
+                        CoroutineScope(Dispatchers.Default).launch {
+                            // RewindFragment로 이동
+                            withContext(Dispatchers.Main) {
+                                findNavController().navigate(R.id.action_cameraFragment_to_rewindFragment)
                             }
-
-                                Log.v("checkk","!!!!!!!!!!")
-                            jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                            mediaPlayer.start()
-                            break
                         }
                     }
-                } // end of CoroutineScope …
+                }
             }
         }
 
@@ -380,21 +338,6 @@ class CameraFragment : Fragment() {
     suspend fun takePicture(i : Int) : Int {
         return suspendCoroutine { continuation ->
 
-//            Log.v("CameraX Speed Test", "[$i] takePicture 입장 ####")
-//            val preview = Preview.Builder()
-//                .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
-//                .build()
-//                .also {
-//                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-//                }
-//            val imageCapture2 = ImageCapture.Builder().build()
-//            cameraProvider.unbindAll()
-//            // 3-3. use case와 카메라를 생명 주기에 binding
-//            camera = cameraProvider.bindToLifecycle(
-//                this, cameraSelector, preview, imageCapture2
-//            )
-
-
             imageCapture.takePicture(cameraExecutor, object :
                 ImageCapture.OnImageCapturedCallback() {
                 init{
@@ -412,19 +355,32 @@ class CameraFragment : Fragment() {
                     Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
                     image.close()
 
-                    CoroutineScope(Dispatchers.IO).launch{
-                        // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                        if(previewByteArrayList.size == 10){
-                            // 녹음 중단
-                            val savedFile = audioResolver.stopRecording()
-                            if(savedFile != null){
-                                var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                                jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
-                                Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    CoroutineScope(Dispatchers.IO).launch {
+
+                        if (!binding.autoRewindRadio.isChecked) {
+                            // 초점 사진들이 모두 저장 완료 되었을 때
+                            // MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                            if (previewByteArrayList.size == 10) {
+                                // 녹음 중단
+                                val savedFile = audioResolver.stopRecording()
+                                if (savedFile != null) {
+                                    var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                                    jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                                        audioBytes,
+                                        ContentAttribute.basic
+                                    )
+                                    Log.d(
+                                        "AudioModule",
+                                        "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}"
+                                    )
+                                }
+                                jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                                    previewByteArrayList,
+                                    ContentType.Image,
+                                    ContentAttribute.focus
+                                )
+                                jpegViewModel.jpegMCContainer.value!!.save()
                             }
-                            jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                            jpegViewModel.jpegMCContainer.value!!.save()
                         }
                     }
 

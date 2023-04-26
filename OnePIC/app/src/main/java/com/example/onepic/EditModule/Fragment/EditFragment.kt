@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.*
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.databinding.FragmentEditBinding
@@ -36,6 +37,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent.activityType = ActivityType.Viewer
+
 
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
