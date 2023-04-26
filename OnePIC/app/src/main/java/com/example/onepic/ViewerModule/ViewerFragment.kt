@@ -97,8 +97,6 @@ class ViewerFragment : Fragment() {
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
                     binding.audioBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isAudioBtnClicked = false
-
-
                 }
 
                 // 재생 중인 오디오 stop
@@ -138,6 +136,14 @@ class ViewerFragment : Fragment() {
                 it.setBackgroundResource(R.drawable.round_button)
                 isTxtBtnClicked = true
                 textLinear.visibility = View.VISIBLE
+
+                /* 텍스트 메시지 띄우기 */
+                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+                if(textList != null && textList.size !=0){
+                    binding.savedTextView.setText(textList.get(0).data)
+                } else{
+                    binding.savedTextView.setText("")
+                }
 
             }
 
