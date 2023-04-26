@@ -12,5 +12,5 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:navGraph="@navigation/nav" />
+        app:navGraph="@navigation/viewer_editor_nav" />
 </FrameLayout>

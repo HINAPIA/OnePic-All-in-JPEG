@@ -115,7 +115,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     findNavController().navigate(R.id.action_rewindFragment_to_editFragment)
                 }
                 showProgress(binding.progressBar , false)
-
             }
         }
 

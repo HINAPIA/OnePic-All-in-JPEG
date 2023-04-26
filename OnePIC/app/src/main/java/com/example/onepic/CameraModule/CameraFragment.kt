@@ -14,13 +14,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -28,13 +26,15 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.onepic.AudioModule.AudioResolver
+import com.example.onepic.EditModule.RewindModule
+import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
+import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
@@ -176,7 +176,6 @@ class CameraFragment : Fragment() {
 
                         for (i in 1..10) {
 
-
                             CoroutineScope(Dispatchers.IO).launch {
                                 Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
                                 val result = takePicture(i)
@@ -187,7 +186,6 @@ class CameraFragment : Fragment() {
                                 }
                                 Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
                             }
-
 
                         } // end of the for ...
 
@@ -254,8 +252,23 @@ class CameraFragment : Fragment() {
                         if(previewByteArrayList.size == 10){
 
                             // TODO: autoRewind 코드 삽입
+                            CoroutineScope(Dispatchers.Default).launch {
+                                val imageContent =
+                                    jpegViewModel.jpegMCContainer.value?.imageContent!!
 
-                            Log.v("checkk","!!!!!!!!!!")
+                                // main Picture의 byteArray를 bitmap 제작
+                                val mainPicture = imageContent.mainPicture
+
+                                val bitmapList = imageContent.getBitmapList()
+
+                                val mainBitmap = RewindModule().autoBestFaceChange(bitmapList)
+
+                                val allBytes = ImageToolModule().bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+                                imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+                                imageContent.mainPicture.waitForByteArrayInitialized()
+                            }
+
+                                Log.v("checkk","!!!!!!!!!!")
                             jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                             mediaPlayer.start()
                             break

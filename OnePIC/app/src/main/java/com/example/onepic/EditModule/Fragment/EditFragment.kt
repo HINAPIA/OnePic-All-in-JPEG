@@ -21,8 +21,6 @@ import kotlinx.coroutines.withContext
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var binding: FragmentEditBinding
-
-    var activity : MainActivity = MainActivity()
     lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent

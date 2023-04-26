@@ -9,5 +9,30 @@
         android:id="@+id/cameraFragment"
         android:name="com.example.onepic.CameraModule.CameraFragment"
         android:label="fragment_camera"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera" >
+        <action
+            android:id="@+id/action_cameraFragment_to_burstModeEditFragment"
+            app:destination="@id/burstModeEditFragment" />
+        <action
+            android:id="@+id/action_cameraFragment_to_rewindFragment"
+            app:destination="@id/rewindFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/burstModeEditFragment"
+        android:name="com.example.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:label="fragment_burst_mode_edit"
+        tools:layout="@layout/fragment_burst_mode_edit" >
+        <action
+            android:id="@+id/action_burstModeEditFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rewindFragment"
+        android:name="com.example.onepic.EditModule.Fragment.RewindFragment"
+        android:label="fragment_rewind"
+        tools:layout="@layout/fragment_rewind" >
+        <action
+            android:id="@+id/action_rewindFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
 </navigation>
