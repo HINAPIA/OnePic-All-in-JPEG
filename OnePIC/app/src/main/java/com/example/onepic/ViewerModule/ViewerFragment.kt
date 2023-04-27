@@ -1,5 +1,6 @@
 package com.example.onepic.ViewerModule
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.graphics.Color
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -58,7 +60,9 @@ class ViewerFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         init()
+
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
             currentPosition = null
@@ -78,7 +82,7 @@ class ViewerFragment : Fragment() {
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
         mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-        Log.d("adapter item count = ",""+mainViewPagerAdapter.itemCount)
+
         binding.viewPager2.adapter = mainViewPagerAdapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             @RequiresApi(Build.VERSION_CODES.Q)
@@ -200,6 +204,29 @@ class ViewerFragment : Fragment() {
                 isMagicBtnClicked = false
                 mainViewPagerAdapter.setCheckMagicPicturePlay(false)
             }
+        }
+
+        binding.pullRightView.setOnClickListener {
+            binding.scrollView.visibility = View.VISIBLE
+
+//            val startPosition =  binding.filmCaseImageView.width - binding.scrollView.width
+//            val endPoisition = binding.filmCaseImageView.width
+//            val animator = ObjectAnimator.ofInt(binding.scrollView, "scrollX", startPosition, endPoisition)
+//            animator.duration = 2000 // 애니메이션 지속 시간
+//            animator.start()
+//            it.visibility = View.INVISIBLE
+
+            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용합니다.
+           // val animation = TranslateAnimation(-binding.scrollView.width.toFloat(), 0f, 0f, 0f)
+            val startPosition =  binding.pullRightView.x - binding.scrollView.width
+            val endPosition = binding.pullRightView.x
+
+
+            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+            animation.duration = 300
+            it.visibility = View.INVISIBLE
+            binding.scrollView.startAnimation(animation)
+
         }
 
 
