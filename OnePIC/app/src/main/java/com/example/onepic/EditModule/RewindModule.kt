@@ -23,9 +23,39 @@ class RewindModule() {
 
     private val imageToolModule: ImageToolModule
 
+    private var faceArraylist : ArrayList<ArrayList<Face>?> = arrayListOf()
+
+    private var checkFaceDetection = false
+    private var checkFaceDetectionCall = false
+
     init {
         setFaceDetecter()
         imageToolModule = ImageToolModule()
+    }
+
+    fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
+        checkFaceDetectionCall = true
+
+        val checkFinish = BooleanArray(bitmapList.size)
+        for (i in 0 until bitmapList.size) {
+            checkFinish[i] = false
+            faceArraylist.add(null)
+        }
+
+        for (j in 0 until bitmapList.size) {
+            CoroutineScope(Dispatchers.Default).launch {
+                Log.d("RewindModule", "start = $j")
+                // j 번째 사진 faces 정보 얻기
+                faceArraylist[j] = runFaceContourDetection(bitmapList[j])
+                Log.d("RewindModule", "end = $j")
+                checkFinish[j] = true
+            }
+        }
+
+        while(!checkFinish.all { it }) {
+
+        }
+        checkFaceDetection = true
     }
 
     /**
@@ -44,18 +74,25 @@ class RewindModule() {
         detector = FaceDetection.getClient(highAccuracyOpts)
     }
 
+    fun getFaces(index: Int): ArrayList<Face> {
+        while (faceArraylist.size <= index || faceArraylist[index] == null || !checkFaceDetection) {
+        }
+        //faces = runFaceContourDetection(bitmap)
+        return faceArraylist[index]!!
+    }
+
 
     /**
      * runFaceDetection(bitmap: Bitmap)
      *      - bitmap에서 얼굴 detection을 실행 및
      *        감지된 얼굴에 사각형 그리기
      */
-    suspend fun runFaceDetection(bitmap: Bitmap): Bitmap = suspendCoroutine { bitmapResult ->
+    suspend fun runFaceDetection(bitmap: Bitmap, index: Int): Bitmap = suspendCoroutine { bitmapResult ->
 
         // face Detection
         var faces: ArrayList<Face>
         CoroutineScope(Dispatchers.Default).launch {
-            faces = runFaceContourDetection(bitmap)
+           faces = getFaces(index)
 
             bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
@@ -66,13 +103,13 @@ class RewindModule() {
      *      - bitmap에서 얼굴 detection을 실행 및
      *        감지된 얼굴에 사각형 그리기
      */
-    suspend fun getClickPointBoundingBox(bitmap: Bitmap, point: Point): List<Int>? =
+    suspend fun getClickPointBoundingBox(bitmap: Bitmap, index: Int ,point: Point): List<Int>? =
         suspendCoroutine { bitmapResult ->
 
             // face Detection
             var faces: ArrayList<Face>? = null
             CoroutineScope(Dispatchers.Default).launch {
-                faces = runFaceContourDetection(bitmap)
+                faces = getFaces(index)
                 if (faces == null)
                     bitmapResult.resume(null)
                 else {
@@ -117,10 +154,10 @@ class RewindModule() {
 
             detector.process(image)
                 .addOnSuccessListener { faces ->
-
+                    faceArraylist.add(faces as ArrayList<Face>)
                     Log.d("RewindModule", "success")
                     // 얼굴 검출 성공 시 콜백 함수
-                    continuation.resume(faces as ArrayList<Face>)
+                    continuation.resume(faces)
                 }
                 .addOnFailureListener { e ->
                     // 얼굴 검출 실패 시 콜백 함수
@@ -143,63 +180,75 @@ class RewindModule() {
             val bestFaceIndex: ArrayList<Int?> = ArrayList()
             val bestFace: ArrayList<Face> = ArrayList()
             var resultBitmap = bitmapList[0]
-            val facesResultList: ArrayList<ArrayList<Face>> = arrayListOf()
 
-            val checkFinish = BooleanArray(bitmapList.size)
-            for (i in 0 until bitmapList.size) {
-                checkFinish[i] = false
-            }
+//            val checkFinish = BooleanArray(bitmapList.size)
+//            for (i in 0 until bitmapList.size) {
+//                checkFinish[i] = false
+//            }
+//
+//            for (j in 0 until bitmapList.size) {
+//                CoroutineScope(Dispatchers.Default).launch {
+//                    Log.d("RewindModule", "start = $j")
+//                    // j 번째 사진 faces 정보 얻기
+//                    facesResultList.add(runFaceContourDetection(bitmapList[j]))
+//                    Log.d("RewindModule", "end = $j")
+//                    checkFinish[j] = true
+//                }
+//            }
 
-            for (j in 0 until bitmapList.size) {
-                CoroutineScope(Dispatchers.Default).launch {
-                    Log.d("RewindModule", "start = $j")
-                    // j 번째 사진 faces 정보 얻기
-                    facesResultList.add(runFaceContourDetection(bitmapList[j]))
-                    Log.d("RewindModule", "end = $j")
-                    checkFinish[j] = true
-                }
-            }
+//            while(!checkFinish.all { it }) {
+//
+//            }
 
-            while(!checkFinish.all { it }) {
+            checkFaceDetection = false
+            allFaceDetection(bitmapList)
+
+            while(!checkFaceDetection){
 
             }
 
             CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
-                    val facesResult = facesResultList[j]
+                    val facesResult = faceArraylist[j]
                     if (j == 0) {
                         // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
-                        for (i in 0 until facesResult.size) {
-                            bestFaceIndex.add(0)
-                            bestFace.add(facesResult[i])
+                        if (facesResult != null) {
+                            for (i in 0 until facesResult.size) {
+                                bestFaceIndex.add(0)
+                                bestFace.add(facesResult[i])
+                            }
                         }
-                        basicInformation = facesResult
+                        if (facesResult != null) {
+                            basicInformation = facesResult
+                        }
                     } else {
                         // 그 이후 인덱스일 경우, 각 face을 비교
-                        for (i in 0 until facesResult.size) {
-                            // 비교할 face = checkFace
-                            val checkFace = facesResult[i]
+                        if (facesResult != null) {
+                            for (i in 0 until facesResult.size) {
+                                // 비교할 face = checkFace
+                                val checkFace = facesResult[i]
 
-                            // 현재 face가 비교될 face 배열의 index 값
-                            val index = getBoxComparisonIndex(checkFace, bestFace)
+                                // 현재 face가 비교될 face 배열의 index 값
+                                val index = getBoxComparisonIndex(checkFace, bestFace)
 
-                            if (bestFace.size > index) {
-                                // bestFace 정보 알아내기
-                                val best = bestFace[index]
+                                if (bestFace.size > index) {
+                                    // bestFace 정보 알아 내기
+                                    val best = bestFace[index]
 
-                                if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
-                                    best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
-                                ) {
-                                    if (best.smilingProbability!! < checkFace.smilingProbability!!) {
+                                    if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
+                                        best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
+                                    ) {
+                                        if (best.smilingProbability!! < checkFace.smilingProbability!!) {
+                                            bestFace[index] = checkFace
+                                            bestFaceIndex[index] = j
+                                        }
+                                    }
+                                    if (checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
+                                        && best.smilingProbability!! < checkFace.smilingProbability!!
+                                    ) {
                                         bestFace[index] = checkFace
                                         bestFaceIndex[index] = j
                                     }
-                                }
-                                if (checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
-                                    && best.smilingProbability!! < checkFace.smilingProbability!!
-                                ) {
-                                    bestFace[index] = checkFace
-                                    bestFaceIndex[index] = j
                                 }
                             }
                         }

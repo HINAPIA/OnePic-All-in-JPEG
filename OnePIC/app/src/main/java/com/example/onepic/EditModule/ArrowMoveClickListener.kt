@@ -1,13 +1,10 @@
 package com.example.onepic.EditModule
 
 import android.annotation.SuppressLint
-import android.graphics.Point
 import android.graphics.PointF
 import android.os.Handler
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.max
 
 class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, maxView: View, view: View) : View.OnTouchListener {
     private var handler = Handler()
@@ -40,8 +37,6 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
 
     }
 
-
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action) {
@@ -68,8 +63,8 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
             MotionEvent.ACTION_MOVE -> {
                 println("point(${v.translationX}, ${v.translationY}) - x($minX, $maxX) y($minY, $maxY)  ")
 
-                val dx = event.rawX - prevX
-                val dy = event.rawY - prevY
+                var dx = event.rawX - prevX
+                var dy = event.rawY - prevY
 
                 var moveX = v.translationX + dx // 버튼의 위치 변경
                 var moveY = v.translationY + dy
@@ -88,6 +83,17 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                 v.translationY = moveY
 
                 println("D point (${dx}, ${dy})")
+
+                if(dx>0)
+                    dx = 5f
+                else if(dx<0)
+                    dx = -5f
+
+                if(dy>0)
+                    dy = 5f
+                else if(dy<0)
+                    dy = -5f
+
                 myFunction(dx.toInt(), dy.toInt())
                 return true
             }

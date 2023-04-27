@@ -2,6 +2,7 @@ package com.example.onepic
 
 import android.content.res.Resources
 import android.graphics.*
+import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
@@ -10,6 +11,7 @@ import com.google.mlkit.vision.face.Face
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -67,31 +69,6 @@ class ImageToolModule {
 //            .get()
 //        return bitmap
 //    }
-
-    fun ByteArrayListToBitmapList(bytearrayList: ArrayList<ByteArray>): ArrayList<Bitmap> {
-        val bitmapList = arrayListOf<Bitmap>()
-        val checkFinish = BooleanArray(bytearrayList.size)
-
-        val exBitmap = ImageToolModule().byteArrayToBitmap(bytearrayList[0])
-
-        for (i in 0 until bytearrayList.size) {
-            checkFinish[i] = false
-            bitmapList.add(exBitmap)
-        }
-
-        for (i in 0 until bytearrayList.size) {
-            CoroutineScope(Dispatchers.Default).launch {
-                val bitmap = ImageToolModule().byteArrayToBitmap(bytearrayList[i])
-                bitmapList[i] = bitmap
-                checkFinish[i] = true
-            }
-        }
-        while (!checkFinish.all { it }) {
-            // Wait for all tasks to finish
-        }
-
-        return bitmapList
-    }
 
     fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
         val inputStream: InputStream = ByteArrayInputStream(byteArray)
@@ -272,6 +249,15 @@ class ImageToolModule {
         // -> boundinBox.left <= x <= boundingBox.right && boundingBox.top <= y <= boundingBox.bottom
         return point.x >= rect.left && point.x <= rect.right &&
                 point.y >= rect.top && point.y <= rect.bottom
+    }
+
+    fun showView(view: View, isShow: Boolean){
+        CoroutineScope(Dispatchers.Default).launch {
+            withContext(Dispatchers.Main) {
+                if (isShow) view.visibility = View.VISIBLE
+                else view.visibility = View.GONE
+            }
+        }
     }
 
 }

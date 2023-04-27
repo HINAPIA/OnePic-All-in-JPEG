@@ -15,17 +15,17 @@
 
         <ImageButton
             android:id="@+id/rewindCloseBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="24dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent_color"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/close_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline8"
+            app:layout_constraintStart_toStartOf="@+id/guideline6"
+            app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/main_color" />
 
 
@@ -39,26 +39,69 @@
             android:textColor="@color/point_color"
             android:textSize="18dp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/rewindSaveBtn"
             app:layout_constraintStart_toEndOf="@+id/rewindCloseBtn"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
         <ImageButton
             android:id="@+id/rewindSaveBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="24dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent_color"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/check_icon"
             android:textAlignment="textEnd"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline7"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/main_color" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="60dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="60dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -98,7 +141,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="0.6"
         android:orientation="horizontal">
 
         <ImageButton
@@ -106,9 +150,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="-5dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="-5dp"
             android:backgroundTint="@color/transparent_color"
             android:scaleType="centerInside"
             android:src="@drawable/reset_icon"
@@ -117,7 +159,7 @@
         <Button
             android:id="@+id/autoRewindBtn"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:backgroundTint="@color/rewind_button_color"
             android:includeFontPadding="false"
@@ -130,9 +172,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="-5dp"
             android:layout_marginEnd="32dp"
-            android:layout_marginBottom="-5dp"
             android:backgroundTint="@color/transparent_color"
             android:scaleType="fitCenter"
             android:src="@drawable/compare_icon"
@@ -141,10 +181,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/faceListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.5"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
 
         <HorizontalScrollView
             android:layout_width="0dp"
@@ -161,22 +203,26 @@
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/arrowBar"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:visibility="visible">
 
             <ImageButton
                 android:id="@+id/maxArrowBtn"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:background="@color/transparent_color"
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
                 app:srcCompat="@drawable/circle_icon"
                 app:tint="#CE858585" />
 
@@ -187,11 +233,39 @@
                 android:background="@color/transparent_color"
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/maxArrowBtn"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/maxArrowBtn"
                 app:srcCompat="@drawable/circle_icon"
                 app:tint="#A1A1A1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="20dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="20dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="20dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="20dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

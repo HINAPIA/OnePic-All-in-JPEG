@@ -8,8 +8,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
 import com.example.onepic.databinding.FragmentBurstModeEditBinding
@@ -29,6 +32,7 @@ class BurstModeEditFragment : Fragment() {
     private lateinit var mainBitmap: Bitmap
     private var bitmapList: ArrayList<Bitmap> = arrayListOf()
 
+    private lateinit var imageToolModule: ImageToolModule
 
     private var isAdd : Boolean = false
 
@@ -40,6 +44,7 @@ class BurstModeEditFragment : Fragment() {
         binding = FragmentBurstModeEditBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageToolModule = ImageToolModule()
 
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
@@ -69,6 +74,28 @@ class BurstModeEditFragment : Fragment() {
 
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
                 binding.candidateLayout.addView(candidateLayout)
+            }
+        }
+        binding.burstSaveBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Default).launch {
+                imageToolModule.showView(binding.progressBar , true)
+
+//                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+//                imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes) )
+//                imageContent.mainPicture.waitForByteArrayInitialized()
+
+                if(imageContent.activityType == ActivityType.Camera) {
+//                    val mainPicture = imageContent.mainPicture
+//                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+//                    imageContent.insertPicture(0, mainPicture)
+
+                    jpegViewModel.jpegMCContainer.value?.save()
+                }
+
+                withContext(Dispatchers.Main){
+                    findNavController().navigate(R.id.action_burstModeEditFragment_to_cameraFragment)
+                }
+                imageToolModule.showView(binding.progressBar , false)
             }
         }
         return binding.root

@@ -10,7 +10,6 @@ import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
@@ -91,11 +90,12 @@ class MagicPictureFragment : RewindFragment() {
             CoroutineScope(Dispatchers.Default).launch {
                 // rewind 가능한 연속 사진 속성의 picture list 얻음
                 bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+                rewindModule.allFaceDetection(bitmapList)
             }
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-            showProgress(binding.progressBar , true)
+            imageToolModule.showView(binding.progressBar , true)
 
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
@@ -125,7 +125,7 @@ class MagicPictureFragment : RewindFragment() {
                     findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
                 }
 
-                showProgress(binding.progressBar, false)
+                imageToolModule.showView(binding.progressBar, false)
             }
         }
 
@@ -151,7 +151,7 @@ class MagicPictureFragment : RewindFragment() {
         // 이미지 뷰 클릭 시
         binding.magicMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
-                showProgress(binding.progressBar , true)
+                imageToolModule.showView(binding.progressBar , true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
@@ -168,7 +168,7 @@ class MagicPictureFragment : RewindFragment() {
                     withContext(Dispatchers.Main) {
                         cropImgAndView(boundingBox)
                     }
-                    showProgress(binding.progressBar , false)
+                    imageToolModule.showView(binding.progressBar , false)
 
                 }
             }
@@ -188,7 +188,7 @@ class MagicPictureFragment : RewindFragment() {
 
     override fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
-            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap)
+            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap, 0)
 
             // imageView 변환
             withContext(Dispatchers.Main) {

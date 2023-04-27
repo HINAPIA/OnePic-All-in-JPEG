@@ -13,8 +13,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
+import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -41,7 +41,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected lateinit var mainPicture: Picture
     private lateinit var originalMainBitmap: Bitmap
     protected lateinit var mainBitmap: Bitmap
+
     private var preMainBitmap: Bitmap? = null
+    protected var newImage: Bitmap? = null
 
     protected var changeFaceStartX = 0
     protected var changeFaceStartY = 0
@@ -54,8 +56,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected lateinit var imageContent : ImageContent
     lateinit var fragment :Fragment
 
-    var newImage: Bitmap? = null
-
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -65,10 +65,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 뷰 바인딩 설정
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
+
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
+
+        imageToolModule.showView(binding.progressBar, true)
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
@@ -82,34 +85,55 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
         CoroutineScope(Dispatchers.Default).launch {
-
             mainBitmap = imageContent.getMainBitmap()
             originalMainBitmap = mainBitmap
             if(imageContent.activityType == ActivityType.Viewer) {
-                showProgress(binding.progressBar , true)
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
-
             }
         }
         CoroutineScope(Dispatchers.Default).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-            bitmapList = imageContent.getBitmapList(ContentAttribute.burst)
+
+            var startTime = System.currentTimeMillis()
+
+            bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+
+            var endTime = System.currentTimeMillis()
+            var elapsedTime = endTime - startTime
+            Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
+
+            //CoroutineScope(Dispatchers.Default).launch {
+                startTime = System.currentTimeMillis()
+
+                rewindModule.allFaceDetection(bitmapList)
+
+                endTime = System.currentTimeMillis()
+                elapsedTime = endTime - startTime
+                Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
+            //}
+
             if(imageContent.activityType == ActivityType.Camera){
-                showProgress(binding.progressBar , true)
+                startTime = System.currentTimeMillis()
+
                 mainBitmap =rewindModule.autoBestFaceChange(bitmapList)
+
+                endTime = System.currentTimeMillis()
+                elapsedTime = endTime - startTime
+                Log.d("ElapsedTime", "autorewind Time: $elapsedTime ms")
 
                 withContext(Dispatchers.Main) {
                     binding.rewindMainView.setImageBitmap(mainBitmap)
                 }
-                showProgress(binding.progressBar , false)
+                imageToolModule.showView(binding.progressBar , false)
+
             }
         }
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.Default).launch {
-                showProgress(binding.progressBar , true)
+                imageToolModule.showView(binding.progressBar , true)
 
                 if(preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
@@ -131,7 +155,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 withContext(Dispatchers.Main){
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
-                showProgress(binding.progressBar , false)
+                imageToolModule.showView(binding.progressBar , false)
             }
         }
 
@@ -141,6 +165,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
 
         binding.autoRewindBtn.setOnClickListener {
+            imageToolModule.showView(binding.progressBar, true)
+            imageToolModule.showView(binding.arrowBar, false)
+            binding.candidateLayout.removeAllViews()
+
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
@@ -148,14 +176,16 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     withContext(Dispatchers.Main) {
                         binding.rewindMainView.setImageBitmap(mainBitmap)
                     }
+                    newImage = null
+                    imageToolModule.showView(binding.progressBar, false)
                 }
             }
         }
 
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
-            if (event!!.action == MotionEvent.ACTION_DOWN) {
-                showProgress(binding.progressBar , true)
+            if (event!!.action == MotionEvent.ACTION_UP) {
+                imageToolModule.showView(binding.progressBar , true)
 
                 if(preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
@@ -170,26 +200,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 CoroutineScope(Dispatchers.Default).launch {
                     // Click 좌표가 포함된 Bounding Box 얻음
-                    var startTime = System.currentTimeMillis()
-
                     val boundingBox = getBoundingBox(touchPoint)
 
-                    var endTime = System.currentTimeMillis()
-                    var elapsedTime = endTime - startTime
-                    Log.d("ElapsedTime", "getBoundingBox Time: $elapsedTime ms")
-
-                    startTime = System.currentTimeMillis()
-
-                    // Bounding Box로 이미지를 Crop한 후 보여줌
-                    withContext(Dispatchers.Main) {
-                        cropImgAndView(boundingBox)
+                    if(boundingBox.size > 0) {
+                        // Bounding Box로 이미지를 Crop한 후 보여줌
+                        withContext(Dispatchers.Main) {
+                            cropImgAndView(boundingBox)
+                        }
                     }
-
-                    showProgress(binding.progressBar , false)
-
-                    endTime = System.currentTimeMillis()
-                    elapsedTime = endTime - startTime
-                    Log.d("ElapsedTime", "cropImgAndView Time: $elapsedTime ms")
                 }
             }
             return@setOnTouchListener true
@@ -199,17 +217,28 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.imageResetBtn.setOnClickListener {
             binding.rewindMainView.setImageBitmap(originalMainBitmap)
             mainBitmap = originalMainBitmap
+            newImage = null
+            // faceDetection 하고 결과가 표시된 사진을 받아 imageView에 띄우기
+            setMainImageBoundingBox()
         }
 
         // compare 버튼 클릭시
         binding.imageCompareBtn.setOnTouchListener { view, event ->
-            if (event!!.action == MotionEvent.ACTION_DOWN) {
-                binding.rewindMainView.setImageBitmap(originalMainBitmap)
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    binding.rewindMainView.setImageBitmap(originalMainBitmap)
+                    return@setOnTouchListener true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if(newImage != null)
+                        binding.rewindMainView.setImageBitmap(preMainBitmap)
+                    else
+                        binding.rewindMainView.setImageBitmap(mainBitmap)
+                    return@setOnTouchListener true
+                }
+                else -> return@setOnTouchListener false
             }
-            else if(event.action == MotionEvent.ACTION_UP){
-                binding.rewindMainView.setImageBitmap(mainBitmap)
-            }
-            return@setOnTouchListener true
         }
 
         return binding.root
@@ -220,18 +249,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         view.post {
             val arrowListener = ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
             binding.circleArrowBtn.setOnTouchListener(arrowListener)
-//            binding.circleArrowBtn.setOnLongClickListener(arrowListener)
         }
     }
 
-    fun showProgress(progress: ProgressBar, isShow: Boolean){
-        CoroutineScope(Dispatchers.Default).launch {
-            withContext(Dispatchers.Main) {
-                if (isShow) progress.visibility = View.VISIBLE
-                else progress.visibility = View.GONE
-            }
-        }
-    }
+
 
     /**
      * setMainImageBoundingBox()
@@ -239,10 +260,16 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      *        감지된 얼굴의 사각형 표시된 사진으로 imageView 변환
      */
     open fun setMainImageBoundingBox() {
+
+        //showView(binding.faceListView, false)
+        imageToolModule.showView(binding.arrowBar, false)
+        if(!binding.candidateLayout.isEmpty())
+            binding.candidateLayout.removeAllViews()
+
         CoroutineScope(Dispatchers.Default).launch {
             val startTime = System.currentTimeMillis()
 
-            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap)
+            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap, 0)
 
             val endTime = System.currentTimeMillis()
 
@@ -253,7 +280,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             withContext(Dispatchers.Main) {
                 binding.rewindMainView.setImageBitmap(faceResultBitmap)
             }
-            showProgress(binding.progressBar , false)
+            imageToolModule.showView(binding.progressBar , false)
         }
     }
 
@@ -274,12 +301,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         CoroutineScope(Dispatchers.Default).launch {
 
             if (bitmapList.size == 0) {
+                imageToolModule.showView(binding.progressBar, false)
                 return@launch
             }
 
             var startTime = System.currentTimeMillis()
             val basicRect =
-                rewindModule.getClickPointBoundingBox(bitmapList[0], touchPoint)
+                rewindModule.getClickPointBoundingBox(bitmapList[0], 0, touchPoint)
 
             var endTime = System.currentTimeMillis()
             var elapsedTime = endTime - startTime
@@ -292,6 +320,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
                 // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
+
                 checkFinish.fill(true) // 배열의 모든 요소를 true로 설정
 
                 endTime = System.currentTimeMillis()
@@ -317,7 +346,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                         // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
                         val rect =
-                            rewindModule.getClickPointBoundingBox(bitmapList[i], touchPoint)
+                            rewindModule.getClickPointBoundingBox(bitmapList[i], i, touchPoint)
 
                         if (rect != null) {
                             val arrayBounding = arrayListOf(
@@ -352,6 +381,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         cropBitmapList.removeAll(cropBitmapList)
 
         if (bitmapList.size == 0) {
+            imageToolModule.showView(binding.progressBar , false)
             return
         }
 
@@ -391,11 +421,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 preMainBitmap = imageToolModule.overlayBitmap(mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY)
 
                 binding.rewindMainView.setImageBitmap(preMainBitmap)
+                imageToolModule.showView(binding.arrowBar, true)
             }
 
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
             binding.candidateLayout.addView(candidateLayout)
         }
+        imageToolModule.showView(binding.progressBar , false)
+        imageToolModule.showView(binding.arrowBar, false)
     }
 
 
