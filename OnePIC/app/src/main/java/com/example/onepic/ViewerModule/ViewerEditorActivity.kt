@@ -16,8 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import com.example.onepic.CameraModule.CameraEditorActivity
 
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.PictureModule.MCContainer
@@ -32,67 +34,34 @@ import com.example.onepic.databinding.ActivityViewerEditorBinding
 class ViewerEditorActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityViewerEditorBinding
-    private var loadResolver : LoadResolver = LoadResolver()
-    private val viewerFragment = ViewerFragment()
-
     private lateinit var jpegViewModelFactory: JpegViewModelFactory
-    private lateinit var jpegViewModels: JpegViewModel
-
+    lateinit var jpegViewModels: JpegViewModel
+    private lateinit var appPermissionObserver: AppPermissionObserver // permission check observer
+    companion object {
+        var PERMMISION_CHECK = false // Permission check 를 한 적이 있는지
+        var LAUNCH_ACTIVITY = true
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityViewerEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        LAUNCH_ACTIVITY = true
 
+        /* ViewModel 생성 및 설정 */
         jpegViewModelFactory = JpegViewModelFactory(this)
         jpegViewModels = ViewModelProvider(this, jpegViewModelFactory).get(JpegViewModel::class.java)
 
         var MCContainer : MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
 
-        // 권한 요청
-        requestStoragePermission()
+        /* 권한 요청 - Register the AppPermissionObserver */
+        appPermissionObserver = AppPermissionObserver(this)
+        lifecycle.addObserver(appPermissionObserver)
 
-        jpegViewModels.imageUriLiveData.observe(this){
-            var size = jpegViewModels.imageUriLiveData.value?.size
-            Log.d("[ViewerEditorActivity] imageUriLIst size : ",""+size)
-            val uriList = mutableListOf<Uri>()
-
-            val navController = findNavController(R.id.framelayout)
-
-            if (size == 0){
-                // TODO: 갤러리에 사진이 아무것도 없을 때 -> Empty Fragment 만들기
-                Log.d("[ViewerEditorActivity]","갤러리에 사진이 아무것도 없을 때 처리해야함")
-                // NavController 객체를 사용하여 네비게이션 작업 수행
-                navController.navigate(R.id.galleryFragment)
-            }
-        }
-    }
-    private fun requestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                // 권한이 이미 허용됨
-                getAllPhotos() // 갤러리에서 photo 가져오기
-            } else {
-                // 권한 요청
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.addCategory("android.intent.category.DEFAULT")
-                intent.data = Uri.parse("package:" + applicationContext.packageName)
-                startActivityForResult(intent, 2296)
-            }
-        } else {
-            // Android 10 이하 버전에서는 WRITE_EXTERNAL_STORAGE 권한만 요청하면 됨
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 이미 허용됨
-                getAllPhotos() // 갤러리 이미지 uri 가져오기
-            } else {
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-            }
-        }
     }
 
-    override fun onRequestPermissionsResult(
+
+    override fun onRequestPermissionsResult( // 권한 요청 처리
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
@@ -101,26 +70,33 @@ class ViewerEditorActivity : AppCompatActivity() {
         when (requestCode) {
             1 -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // 권한이 허용되었을 때의 처리
-                    Log.d("[ViewerEditorActivity] 권한 요청 결과: ", "허용됨")
+                    // TODO: 권한이 허용되었을 때의 처리
                     getAllPhotos() // 갤러리 이미지 uri 가져오기
+
                 } else {
-                    // 권한이 거부되었을 때의 처리
+                    // TODO: 권한이 거부되었을 때의 처리
                     Log.d("[ViewerEditorActivity] 권한 요청 결과: ", "거부됨")
+                    val intent = Intent(getApplicationContext(), CameraEditorActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags (Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent)
                 }
                 return
             }
         }
     }
 
-    private fun getAllPhotos(){ // 이미지는 glider 써서 불러와야함
+    private fun getAllPhotos(){ // 사진 경로(File Path) 가져오기
         val cursor = contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             null,
             null,
             null,
             MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
+
         val uriList = mutableListOf<String>()
+
         if(cursor!=null){
             while(cursor.moveToNext()){
                 // 사진 경로 FilePath 가져오기
@@ -129,7 +105,13 @@ class ViewerEditorActivity : AppCompatActivity() {
             }
             cursor.close()
             jpegViewModels.updateImageUriData(uriList)
-
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Remove the AppPermissionObserver
+        lifecycle.removeObserver(appPermissionObserver)
+    }
+
 }

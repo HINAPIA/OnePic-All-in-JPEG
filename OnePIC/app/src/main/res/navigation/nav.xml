@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@id/viewerFragment">
+    app:startDestination="@id/permissionFragment2">
 
     <fragment
         android:id="@+id/editFragment"
@@ -81,5 +81,13 @@
         <action
             android:id="@+id/action_addFragment_to_editFragment"
             app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/permissionFragment2"
+        android:name="com.example.onepic.ViewerModule.PermissionFragment"
+        android:label="PermissionFragment" >
+        <action
+            android:id="@+id/action_permissionFragment2_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
     </fragment>
 </navigation>

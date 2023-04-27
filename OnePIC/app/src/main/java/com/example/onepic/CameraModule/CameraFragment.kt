@@ -192,6 +192,7 @@ class CameraFragment : Fragment() {
         }
 
         binding.galleryButton.setOnClickListener{
+
             val intent =
                 Intent(activity, ViewerEditorActivity::class.java) //fragment라서 activity intent와는 다른 방식
 

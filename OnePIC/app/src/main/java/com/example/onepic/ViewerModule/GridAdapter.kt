@@ -42,7 +42,6 @@ class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
 
     override fun getView(p: Int, convertView: View?, parent: ViewGroup?): View {
 
-        if (items.size != 0){
             Log.d("gallery fragment", "갤러리가 비지 않아따")
             val imageView = ImageView(context)
             val display = context.getResources().getDisplayMetrics()
@@ -57,16 +56,6 @@ class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
 
             Glide.with(context).load(getUriFromPath(items[p])).into(imageView)
             return imageView
-        }
-        else {
-
-            //TODO: gallery에 아무런 사진도 없을 때, empty view 생성해서 보여주기
-            // 사진이 있다면, 그대로 grid view 보여주면 될 듯
-            Log.d("gallery fragment", "갤러리가 비었음")
-            val view = LayoutInflater.from(context).inflate(R.layout.gallery_empty, parent, false)
-            return view
-        }
-
     }
 
     /** FilePath String 을 Uri로 변환 */
