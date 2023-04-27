@@ -35,6 +35,7 @@ class RewindModule() {
 
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
         checkFaceDetectionCall = true
+        checkFaceDetection = false
 
         val checkFinish = BooleanArray(bitmapList.size)
         for (i in 0 until bitmapList.size) {
@@ -204,9 +205,6 @@ class RewindModule() {
 //            while(!checkFinish.all { it }) {
 //
 //            }
-
-            checkFaceDetection = false
-            allFaceDetection(bitmapList)
 
             while(!checkFaceDetection){
 
