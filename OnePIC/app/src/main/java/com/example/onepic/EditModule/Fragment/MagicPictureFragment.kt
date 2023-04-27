@@ -89,7 +89,7 @@ class MagicPictureFragment : RewindFragment() {
             }
             CoroutineScope(Dispatchers.Default).launch {
                 // rewind 가능한 연속 사진 속성의 picture list 얻음
-                bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+                bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
                 rewindModule.allFaceDetection(bitmapList)
             }
         }
@@ -209,7 +209,7 @@ class MagicPictureFragment : RewindFragment() {
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
-            bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+            bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
         }
 
         for (i in 0 until boundingBox.size) {
@@ -291,7 +291,7 @@ class MagicPictureFragment : RewindFragment() {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
-                bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+                bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
             }
 
             var basicIndex = 0

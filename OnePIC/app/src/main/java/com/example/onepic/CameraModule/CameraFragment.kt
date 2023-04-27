@@ -226,7 +226,7 @@ class CameraFragment : Fragment() {
                             jpegViewModel.jpegMCContainer.value!!.setImageContent(
                                 previewByteArrayList,
                                 ContentType.Image,
-                                ContentAttribute.focus
+                                ContentAttribute.burst
                             )
 
                             CoroutineScope(Dispatchers.Default).launch {
@@ -293,7 +293,7 @@ class CameraFragment : Fragment() {
                         jpegViewModel.jpegMCContainer.value!!.setImageContent(
                             previewByteArrayList,
                             ContentType.Image,
-                            ContentAttribute.focus
+                            ContentAttribute.burst
                         )
 
 

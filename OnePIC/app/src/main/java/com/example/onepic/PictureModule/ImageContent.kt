@@ -28,6 +28,9 @@ class ImageContent {
     private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
+
+    private var checkGetBitmapList = false
+
     fun init() {
 
         pictureList.clear()
@@ -73,17 +76,19 @@ class ImageContent {
         }
 
         if(attributeBitmapList.size == 0) {
-            if(bitmapList.size == 0)
-                getBitmapList()
+            while(!checkGetBitmapList) {
+
+            }
 
             for(i in 0 until pictureList.size){
-                if(pictureList[i].contentAttribute == attribute)
+                if(pictureList[i].contentAttribute != attribute)
                     attributeBitmapList.add(bitmapList[i])
             }
         }
 
         return attributeBitmapList
     }
+
 
     fun getBitmapList() : ArrayList<Bitmap> {
         if(bitmapList.size == 0){
@@ -108,6 +113,7 @@ class ImageContent {
             }
         }
 
+        checkGetBitmapList = true
         return bitmapList
     }
 
@@ -137,7 +143,7 @@ class ImageContent {
         var picture = Picture(ContentAttribute.basic, frameBytes)
         picture.waitForByteArrayInitialized()
         insertPicture(picture)
-        mainPicture = pictureList.get(0)
+        mainPicture = pictureList[0]
     }
     fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         for(i in 0..byteArrayList.size-1){
