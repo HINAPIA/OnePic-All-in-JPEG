@@ -32,7 +32,7 @@
         android:label="rewindFragment"
         tools:layout="@layout/fragment_rewind">
         <action
-            android:id="@+id/action_rewindFragment_to_editFragment"
+            android:id="@+id/action_fregemnt_to_editFragment"
             app:destination="@id/editFragment" />
     </fragment>
     <fragment

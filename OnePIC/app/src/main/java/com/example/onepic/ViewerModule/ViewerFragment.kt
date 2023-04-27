@@ -141,6 +141,14 @@ class ViewerFragment : Fragment() {
                 isTxtBtnClicked = true
                 textLinear.visibility = View.VISIBLE
 
+                /* 텍스트 메시지 띄우기 */
+                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+                if(textList != null && textList.size !=0){
+                    binding.savedTextView.setText(textList.get(0).data)
+                } else{
+                    binding.savedTextView.setText("")
+                }
+
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행

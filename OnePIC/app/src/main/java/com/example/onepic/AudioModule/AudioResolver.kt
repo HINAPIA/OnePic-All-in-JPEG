@@ -2,20 +2,18 @@ package com.example.onepic.AudioModule
 
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.onepic.PictureModule.Contents.Audio
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -25,18 +23,18 @@ import java.util.*
 class AudioResolver(val context : Context) {
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
-    private var savedFile: File?  = null
+    var savedFile: File?  = null
    // private var inputStream : ByteArrayInputStream? = null
-    val mediaPlayer = MediaPlayer()
+   var mediaPlayer = MediaPlayer()
     
-    fun startRecording() : File? {
+    fun startRecording(fileName: String) : File? {
+        var recordTime = 0
         if(isRecording){
             return null
         }
         isRecording = true
         Log.d("AudioModule", "녹음 start")
-       
-        savedFile = getOutputMediaFilePath()
+        savedFile = getOutputMediaFilePath(fileName)
 
         // 녹음 시작
         mediaRecorder = MediaRecorder().apply {
@@ -54,7 +52,11 @@ class AudioResolver(val context : Context) {
             } catch (e: Exception) {
                 Log.e(TAG, "startRecording: ${e.message}")
             }
+
+
         }
+
+
         return savedFile
 
     }
@@ -84,12 +86,12 @@ class AudioResolver(val context : Context) {
         return audioBytes
     }
 
-    private fun getOutputMediaFilePath(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    fun getOutputMediaFilePath(fileName : String): File {
+        //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val mediaDir = "audio"
 
-        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/create.${"aac"}")
+        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/$fileName.${"aac"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
@@ -108,19 +110,21 @@ class AudioResolver(val context : Context) {
         return file
     }
 
-    fun saveByteArrToAacFile(byteArr: ByteArray) {
-        savedFile = getOutputMediaFilePath2()
+    /** byteArray로 나타낸 오디오 데이터를 파일로 저장하는 함수**/
+    fun saveByteArrToAacFile(byteArr: ByteArray, fileName: String) : File{
+        savedFile = getOutputMediaFilePath(fileName)
         val outputStream = FileOutputStream(savedFile)
-        Log.d("AudioModule", "파싱 후 저장 완료")
+        Log.d("AudioModule", "${fileName}에 오디오 저장 완료")
         outputStream.write(byteArr)
         outputStream.flush()
         outputStream.close()
+        return savedFile as File
     }
 
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun audioPlay(audio : Audio){
-
+    fun audioPlay(_audio : Audio){
+        var audio = _audio
         mediaPlayer.reset()
         var byteData = audio._audioByteArray
         if (byteData == null || byteData.isEmpty()) {
@@ -147,14 +151,38 @@ class AudioResolver(val context : Context) {
                      e.printStackTrace()
                  }
              }
-
          }
+    }
 
+
+    fun tempAudioPlay(tempSavedFile : File){
+        mediaPlayer.reset()
+        CoroutineScope(Dispatchers.IO).launch {
+            // MediaPlayer 인스턴스를 생성하고 오디오 데이터를 설정
+            mediaPlayer.apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+
+                try {
+                    setDataSource(tempSavedFile!!.path)
+                    prepare()
+                    // MediaPlayer를 시작하여 오디오를 재생한다.
+                    //start()
+                } catch (e: IOException) {
+                    // IOException을 처리하는 코드를 추가한다.
+                    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     fun audioStop(){
         mediaPlayer.stop()
         mediaPlayer.reset()
     }
+
 
 }

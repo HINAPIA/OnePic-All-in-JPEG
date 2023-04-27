@@ -1,8 +1,14 @@
 package com.example.onepic.PictureModule
 
+import android.graphics.Bitmap
 import android.util.Log
+import com.example.onepic.ImageToolModule
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -13,9 +19,18 @@ class ImageContent {
     var markerHashMap: HashMap<Int?, String?> = jpegConstant.nameHashMap
     var pictureList : ArrayList<Picture> = arrayListOf()
     var pictureCount = 0
-    lateinit var jpegMetaData : ByteArray
 
+    lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture
+
+    private var mainBitmap: Bitmap? = null
+    private var bitmapList: ArrayList<Bitmap> = arrayListOf()
+    private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var bitmapListAttribute : ContentAttribute? = null
+    var activityType: ActivityType? = null
+
+    private var checkGetBitmapList = false
+
     fun init() {
 
         pictureList.clear()
@@ -48,6 +63,77 @@ class ImageContent {
 
     }
 
+    /**
+     * getBitmapList()
+     *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
+     *          있다면 bitmapList 전달
+     */
+    // bitmapList getter
+    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap> {
+        if(bitmapListAttribute == null || bitmapListAttribute != attribute) {
+            attributeBitmapList.clear()
+            bitmapListAttribute = attribute
+        }
+
+        if(attributeBitmapList.size == 0) {
+            while(!checkGetBitmapList) {
+
+            }
+
+            for(i in 0 until pictureList.size){
+                if(pictureList[i].contentAttribute != attribute)
+                    attributeBitmapList.add(bitmapList[i])
+            }
+        }
+
+        return attributeBitmapList
+    }
+
+
+    fun getBitmapList() : ArrayList<Bitmap> {
+        if(bitmapList.size == 0){
+            val checkFinish = BooleanArray(pictureList.size)
+
+            val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
+
+            for (i in 0 until pictureList.size) {
+                checkFinish[i] = false
+                bitmapList.add(exBitmap)
+            }
+
+            for (i in 0 until pictureList.size) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
+                    bitmapList[i] = bitmap
+                    checkFinish[i] = true
+                }
+            }
+            while (!checkFinish.all { it }) {
+                // Wait for all tasks to finish
+            }
+        }
+
+        checkGetBitmapList = true
+        return bitmapList
+    }
+
+    fun setBitmapList(bitmapList: ArrayList<Bitmap>, bitmapListAttribute : ContentAttribute) {
+        this.bitmapList = bitmapList
+        this.bitmapListAttribute = bitmapListAttribute
+    }
+
+
+    fun getMainBitmap() : Bitmap {
+        if(mainBitmap == null){
+            mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+        }
+        return mainBitmap!!
+    }
+
+    fun setMainBitmap(bitmap: Bitmap) {
+        this.mainBitmap = mainBitmap
+    }
+
     // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
     fun setBasicContent(sourceByteArray: ByteArray){
         init()
@@ -57,7 +143,7 @@ class ImageContent {
         var picture = Picture(ContentAttribute.basic, frameBytes)
         picture.waitForByteArrayInitialized()
         insertPicture(picture)
-        mainPicture = pictureList.get(0)
+        mainPicture = pictureList[0]
     }
     fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         for(i in 0..byteArrayList.size-1){
@@ -90,16 +176,20 @@ class ImageContent {
         // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
         if(picture.contentAttribute != ContentAttribute.edited && picture.contentAttribute != ContentAttribute.magic){
             while (JFIF_startOffset < jpegMetaData.size - 1) {
+                // JFIF 찾기
                 if (jpegMetaData[JFIF_startOffset] == 0xFF.toByte() && jpegMetaData[JFIF_startOffset + 1] == 0xE0.toByte()) {
                     findCount++
-                    if(findCount == 2)
+                    Log.d("test_test", "getJpegBytes() JFIF(APP0) find - ${JFIF_startOffset}")
+                    if(findCount == 2) {
                         break
+                    }
                 }
                 JFIF_startOffset++
             }
-            // 2번의 JFIF를 찾음
+            // 2번의 JFIF를 찾음 ->  main 사진은 수정된 사진이고 현재 picture는 Bitmap관련 byte를 떼서 사용해야 함
             if (JFIF_startOffset != jpegMetaData.size - 1) {
-                // 2번 째 JFIF 전까지 이용
+                // 2번 째 JFIF 전까지 떼어서 이용
+                Log.d("test_test", "getJpegBytes() : main 사진은 수정된 사진이고 현재 picture는 일반 사진")
                 val buffer: ByteBuffer = ByteBuffer.allocate(JFIF_startOffset + picture.size+2)
                 buffer.put(jpegMetaData.copyOfRange(0, JFIF_startOffset))
                 buffer.put(picture._pictureByteArray)
@@ -108,9 +198,8 @@ class ImageContent {
                 return buffer.array()
             }
         }
-        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData이용
-
-        Log.d("test_test", "2개의 JFIF를 찾지 못함")
+        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData 이용
+        Log.d("test_test", "getJpegBytes() : 현재 picutre는 수정된 사진이거나 main이 수정된 사진 아님")
         val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
         buffer.put(jpegMetaData)
         buffer.put(picture._pictureByteArray)
@@ -133,12 +222,12 @@ class ImageContent {
 
         // app1 위치와 datalength 찾기
         while (app1StartPos < jpegBytes.size - 1) {
-            // APP1 마커가 있는 경우
+            // APP1 (-1,-31) 마커가 있는 경우
             if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
                 app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
                             ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
                 findApp1 = true
-                Log.d("MCcontainer","extract metadata : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
+                Log.d("MCcontainer","extract metadata : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}")
                 break
             }
             app1StartPos++
@@ -146,15 +235,20 @@ class ImageContent {
 
         // SOF 시작 offset 찾기
         while (pos < jpegBytes.size - 1) {
+
+            // SOF(ffCO)
             if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
                 if(findApp1){
                     Log.d("MCcontainer","extract metadata : SOF find - ${pos}")
                     // 썸네일의 sof가 아닐 때
                     if(pos >= app1StartPos + app1DataLength + 2){
-                        Log.d("MCcontainer","extract metadata : 진짜 SOF find - ${pos}")
+                        Log.d("MCcontainer","extract metadata : 썸네일이 아닌 SOF find - ${pos}")
                         isFindStartMarker = true
                         break
                     }
+                    // App1이 존재하지 않아서 썸네일이 없다면 첫 번째 찾은 sof마커의 위치에서 break
+                } else{
+                    break
                 }
             }
             pos++
@@ -218,7 +312,7 @@ class ImageContent {
                 app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
                         ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
                 findApp1 = true
-                Log.d("MCcontainer","extract Frame : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
+                Log.d("MCcontainer","extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}")
                 break
             }
             app1StartPos++

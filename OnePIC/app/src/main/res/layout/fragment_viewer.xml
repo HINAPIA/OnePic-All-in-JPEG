@@ -76,12 +76,29 @@
 <!--                android:layout_height="30dp"-->
 <!--                android:layout_weight="1" />-->
 
+            <EditText
+                android:id="@+id/savedTextView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+
+                android:layout_weight="1"
+                android:background="@drawable/edittext_rounded_corner_rectangle"
+                android:gravity="center"
+                android:inputType="textMultiLine"
+                android:paddingLeft="30dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="45dp"
+                android:paddingRight="30dp"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/textViewPager2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="15dp"
-                android:paddingBottom="20dp" />
+                android:paddingBottom="20dp"
+                android:visibility="gone" />
 
 <!--            <ImageButton-->
 <!--                android:id="@+id/button3"-->

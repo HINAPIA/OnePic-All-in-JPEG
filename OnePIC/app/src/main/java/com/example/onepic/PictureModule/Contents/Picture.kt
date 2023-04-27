@@ -2,7 +2,6 @@ package com.example.onepic.PictureModule.Contents
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.onepic.PictureModule.Contents.ContentAttribute
 
 class Picture(val contentAttribute: ContentAttribute,
               var pictureByteArray: ByteArray? = null) {
