@@ -68,20 +68,16 @@ class MCContainer(_activity: Activity) {
     /*Edit modules에서 호출하는 함수 끝 */
 
 
-    // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채운다
+    // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
     fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute){
-        imageContent.init()
         imageContent.setContent(byteArrayList, contentAttribute)
-        var testString : ArrayList<String> = arrayListOf("안녕하세요", "2071231 김유진")
-        textContent.setContent(ContentAttribute.basic, testString)
-        //save()
     }
 
     fun setAudioContent(audioBytes : ByteArray, contentAttribute: ContentAttribute){
         audioContent.setContent(audioBytes, contentAttribute)
     }
-    // Text Content를 초기화. 뷰어에서 텍스트를 추가 후 Container에게 넣기
 
+    // Text Content를 초기화
     fun setTextConent(contentAttribute: ContentAttribute, textList : ArrayList<String>){
         textContent.setContent(contentAttribute, textList)
     }

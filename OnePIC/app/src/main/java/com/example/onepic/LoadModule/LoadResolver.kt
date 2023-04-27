@@ -49,16 +49,16 @@ class LoadResolver() {
                 try{
                     // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
-                    Log.d("test_test", "일반 JPEG 생성")
+                    Log.d("MC Container", "일반 JPEG 생성")
                     MCContainer.setBasicJepg(sourceByteArray)
                 }catch (e : IOException){
-                    Log.e("MC Container", "Basic JPEG Parsing 불가")
+                    Log.e("Load_Module", "Basic JPEG Parsing 불가")
                 }
 
             }
             else {
                 try{
-                    Log.d("test_test", "MC JPEG 생성")
+                    Log.d("Load_Module", "MC JPEG 생성")
                     // var header : Header = Header()
                     var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
 
@@ -109,11 +109,11 @@ class LoadResolver() {
                         Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
                         var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
                         MCContainer.audioContent.setContent(audio)
-                        MCContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!)
+                        MCContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!,"viewer_record")
                         // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
                     }
                 }catch (e : IOException){
-                    Log.e("MC Container", "MC JPEG Parsing 불가")
+                    Log.e("Load_Module", "MC JPEG Parsing 불가")
                 }
 
             }
@@ -176,7 +176,7 @@ class LoadResolver() {
                 picture.waitForByteArrayInitialized()
             }
             pictureList.add(picture)
-            Log.d("test_test", "picutureList size : ${pictureList.size}")
+            Log.d("Load_Module", "picutureList size : ${pictureList.size}")
         }
         return@withContext pictureList
     }
@@ -204,7 +204,7 @@ class LoadResolver() {
                 }
                 startIndex += size*2
             }
-            Log.d("Load Module", "${charArray.contentToString().toString()}")
+            Log.d("Load_Module", "${charArray.contentToString().toString()}")
             var string : String = String(charArray)
             var text = Text(string, ContentAttribute.fromCode(attribute))
             textList.add(text)
