@@ -65,7 +65,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 뷰 바인딩 설정
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
-
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
@@ -97,7 +96,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             var startTime = System.currentTimeMillis()
 
-            bitmapList = imageContent.getBitmapList(ContentAttribute.focus)
+            bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
             var endTime = System.currentTimeMillis()
             var elapsedTime = endTime - startTime

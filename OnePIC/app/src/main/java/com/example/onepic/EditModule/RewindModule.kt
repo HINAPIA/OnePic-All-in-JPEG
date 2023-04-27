@@ -75,8 +75,13 @@ class RewindModule() {
     }
 
     fun getFaces(index: Int): ArrayList<Face> {
-        while (faceArraylist.size <= index || faceArraylist[index] == null || !checkFaceDetection) {
+
+        while (!checkFaceDetection) {
+            if (faceArraylist.size > index && faceArraylist[index] != null) {
+                break
+            }
         }
+
         //faces = runFaceContourDetection(bitmap)
         return faceArraylist[index]!!
     }
