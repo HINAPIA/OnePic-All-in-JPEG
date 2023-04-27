@@ -170,16 +170,20 @@ class ImageContent {
         // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
         if(picture.contentAttribute != ContentAttribute.edited && picture.contentAttribute != ContentAttribute.magic){
             while (JFIF_startOffset < jpegMetaData.size - 1) {
+                // JFIF 찾기
                 if (jpegMetaData[JFIF_startOffset] == 0xFF.toByte() && jpegMetaData[JFIF_startOffset + 1] == 0xE0.toByte()) {
                     findCount++
-                    if(findCount == 2)
+                    Log.d("test_test", "getJpegBytes() JFIF(APP0) find - ${JFIF_startOffset}")
+                    if(findCount == 2) {
                         break
+                    }
                 }
                 JFIF_startOffset++
             }
-            // 2번의 JFIF를 찾음
+            // 2번의 JFIF를 찾음 ->  main 사진은 수정된 사진이고 현재 picture는 Bitmap관련 byte를 떼서 사용해야 함
             if (JFIF_startOffset != jpegMetaData.size - 1) {
-                // 2번 째 JFIF 전까지 이용
+                // 2번 째 JFIF 전까지 떼어서 이용
+                Log.d("test_test", "getJpegBytes() : main 사진은 수정된 사진이고 현재 picture는 일반 사진")
                 val buffer: ByteBuffer = ByteBuffer.allocate(JFIF_startOffset + picture.size+2)
                 buffer.put(jpegMetaData.copyOfRange(0, JFIF_startOffset))
                 buffer.put(picture._pictureByteArray)
@@ -188,9 +192,8 @@ class ImageContent {
                 return buffer.array()
             }
         }
-        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData이용
-
-        Log.d("test_test", "2개의 JFIF를 찾지 못함")
+        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData 이용
+        Log.d("test_test", "getJpegBytes() : 현재 picutre는 수정된 사진이거나 main이 수정된 사진 아님")
         val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
         buffer.put(jpegMetaData)
         buffer.put(picture._pictureByteArray)
@@ -213,12 +216,12 @@ class ImageContent {
 
         // app1 위치와 datalength 찾기
         while (app1StartPos < jpegBytes.size - 1) {
-            // APP1 마커가 있는 경우
+            // APP1 (-1,-31) 마커가 있는 경우
             if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
                 app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
                             ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
                 findApp1 = true
-                Log.d("MCcontainer","extract metadata : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
+                Log.d("MCcontainer","extract metadata : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}")
                 break
             }
             app1StartPos++
@@ -226,15 +229,20 @@ class ImageContent {
 
         // SOF 시작 offset 찾기
         while (pos < jpegBytes.size - 1) {
+
+            // SOF(ffCO)
             if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
                 if(findApp1){
                     Log.d("MCcontainer","extract metadata : SOF find - ${pos}")
                     // 썸네일의 sof가 아닐 때
                     if(pos >= app1StartPos + app1DataLength + 2){
-                        Log.d("MCcontainer","extract metadata : 진짜 SOF find - ${pos}")
+                        Log.d("MCcontainer","extract metadata : 썸네일이 아닌 SOF find - ${pos}")
                         isFindStartMarker = true
                         break
                     }
+                    // App1이 존재하지 않아서 썸네일이 없다면 첫 번째 찾은 sof마커의 위치에서 break
+                } else{
+                    break
                 }
             }
             pos++
@@ -298,7 +306,7 @@ class ImageContent {
                 app1DataLength = ((jpegBytes[app1StartPos+2].toInt() and 0xFF) shl 8) or
                         ((jpegBytes[app1StartPos+3].toInt() and 0xFF) shl 0)
                 findApp1 = true
-                Log.d("MCcontainer","extract Frame : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}")
+                Log.d("MCcontainer","extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}")
                 break
             }
             app1StartPos++

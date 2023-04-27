@@ -72,8 +72,10 @@ class BurstModeEditFragment : Fragment() {
                 // 자른 사진 이미지뷰에 붙이기
                 cropImageView.setImageBitmap(bitmapList[i])
 
-                // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                binding.candidateLayout.addView(candidateLayout)
+                withContext(Dispatchers.Main) {
+                    // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                    binding.candidateLayout.addView(candidateLayout)
+                }
             }
         }
         binding.burstSaveBtn.setOnClickListener {

@@ -160,35 +160,7 @@
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="130dp"
-        android:visibility="gone">
-
-        <Button
-            android:id="@+id/audioResetBtn"
-            android:layout_width="84dp"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/background_color"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:text="Reset"
-            android:textAllCaps="false"
-            android:textSize="12sp"
-            app:guidelineUseRtl="false"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
-            app:strokeColor="#FFFFFF"
-            app:tint="@color/main_color" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:max="20"
-            android:progressDrawable="@drawable/seekbar"
-            android:thumb="@drawable/seekbar_seekbar1_thumb"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2" />
+        android:visibility="visible">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/horizontal_centerline1"
@@ -200,11 +172,11 @@
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/horizontal_centerline2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="#FFB8B8"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.73" />
+            app:layout_constraintGuide_begin="95dp" />
 
         <ImageView
             android:id="@+id/recordingImageView"
@@ -226,15 +198,61 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/recordingImageView" />
 
-        <TextView
-            android:id="@+id/playingTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00 : 00"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@+id/seekBar"
-            app:layout_constraintTop_toTopOf="@+id/seekBar" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:max="20"
+                android:progressDrawable="@drawable/seekbar"
+                android:thumb="@drawable/seekbar_seekbar1_thumb"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/playingTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00 : 00"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/seekBar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.526" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="확인"
+                android:textColor="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/seekBar"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/audioResetBtn"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="13dp"
+            android:backgroundTint="@color/transparent_color"
+            android:scaleType="centerInside"
+            android:src="@drawable/reset_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
+            app:tint="@color/main_color"
+            tools:ignore="MissingConstraints" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
