@@ -296,6 +296,7 @@ class CameraFragment : Fragment() {
                             ContentAttribute.burst
                         )
 
+                        imageContent.getBitmapList()
 
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동

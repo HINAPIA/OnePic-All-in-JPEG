@@ -112,7 +112,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
             //}
 
-            if(imageContent.activityType == ActivityType.Camera){
+            if(imageContent.activityType == ActivityType.Camera) {
                 startTime = System.currentTimeMillis()
 
                 mainBitmap =rewindModule.autoBestFaceChange(bitmapList)
