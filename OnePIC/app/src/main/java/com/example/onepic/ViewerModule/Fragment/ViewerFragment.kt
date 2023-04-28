@@ -251,7 +251,7 @@ class ViewerFragment : Fragment() {
             var jop = async {
                 loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
             jop.await()
-
+            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
         }
     }
 
@@ -281,12 +281,15 @@ class ViewerFragment : Fragment() {
 
                         scrollImageView.setOnClickListener{ // scrollview 이미지를 main으로 띄우기
                             mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                            jpegViewModel.setselectedSubImage(picture)
                         }
 
                         binding.linear.addView(scollItemLayout)
 
                     }
                 } // end of for..
+                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
+                Log.d("초기 선택된 이미지: ",""+pictureList[0])
             }
         }
     }

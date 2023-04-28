@@ -2,6 +2,7 @@ package com.example.onepic
 
 import android.content.Context
 import android.database.ContentObserver
+import com.example.onepic.PictureModule.Contents.Picture
 import android.os.Looper
 
 import android.provider.MediaStore
@@ -19,8 +20,24 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     private var imageUriList = mutableListOf<String>() // 임시 데이터(원본이 사라져도)
     private val _imageUriLiveData = MutableLiveData<List<String>>() // 내부처리 데이터
-    val imageUriLiveData: LiveData<List<String>> get() = _imageUriLiveData // client 읽기 전용
+    val imageUriLiveData: LiveData<List<String>> get() = _imageUriLiveData //읽기 전용
 
+    /* TODO: Edit 창에서 Main 바꿀 때 필요한 property
+        - 동기처리 문제 아직 남아있어서, 만약 갤러리(사진)에 변경 있으면 테스트 할 때는 갤러리뷰 한번 갔다가 들어와주세요! */
+
+    var currentImageFilePath:String? = null // 현재 메인 이미지 filePath
+    var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
+    fun setCurrentImageFilePath(position:Int){ // 현재 메인 이미지 filePath 설정
+        if (currentImageFilePath != null) // 초기화
+            currentImageFilePath = null
+        this.currentImageFilePath = imageUriLiveData.value!!.get(position)
+    }
+
+    fun setselectedSubImage(picture:Picture?){ // 선택된 서브 이미지 picture 객체 설정
+        if (selectedSubImage != null) // 초기화
+            selectedSubImage = null
+        this.selectedSubImage = picture
+    }
 
     private val galleryObserver = object : ContentObserver(android.os.Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
@@ -38,8 +55,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             galleryObserver
         )
     }
-
-
 
     fun setContainer(MCContainer: MCContainer) {
         jpegMCContainer.value = MCContainer
