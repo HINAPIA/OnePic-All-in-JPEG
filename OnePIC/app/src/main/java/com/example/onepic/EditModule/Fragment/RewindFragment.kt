@@ -138,8 +138,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     newImage = null
                 }
 
-                //
-                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+                Log.d("ImageTool", "11111")
+                val allBytes =  imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+                Log.d("ImageTool", "222222")
 
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()

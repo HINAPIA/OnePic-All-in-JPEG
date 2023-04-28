@@ -45,9 +45,13 @@ class AddFragment : Fragment() {
 
     // audio
     var isAudioOn : Boolean = false
-    var isRecording : Boolean = false
-    var isRecordingEnd : Boolean = false
+    var isPlayingMode : Boolean = true
+    // 녹음 중
+    var isRecordingMode : Boolean = false
+    // 녹음이 완료 되었을 때
+    var isRecordedMode : Boolean = false
     var isPlaying : Boolean = false
+    var isPlayingEnd : Boolean = false
     var isAbleReset : Boolean = false
     private var isDestroy : Boolean = false
     private  var tempAudioFile : File? = null
@@ -121,7 +125,7 @@ class AddFragment : Fragment() {
             if(!isTextOn){
                 audioResolver.audioStop()
                 if(isAudioOn){
-                    if(isRecording) {
+                    if(isRecordingMode) {
                         /* 녹음 중단 후 저장*/
                         timerUIStop()
                         tempAudioFile = audioStop()
@@ -196,6 +200,7 @@ class AddFragment : Fragment() {
                     binding.textContentLayout.visibility = View.GONE
                 }
                 isAudioOn = true
+
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 binding.contentLayout.visibility = View.VISIBLE
                 if(!isAbleReset){
@@ -217,12 +222,29 @@ class AddFragment : Fragment() {
         }
 
         binding.recordingImageView.setOnClickListener {
-            if(isRecording) {
-                isAbleReset = true
+            if(isPlayingMode){
+
+                /* 녹음 시작 */
+                // UI
+//                binding.seekBar.visibility = View.GONE
+//                binding.playingTextView.visibility = View.GONE
+                binding.playAudioBarLaydout.visibility = View.GONE
+                binding.audioResetBtn.visibility = View.GONE
+                Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
+                timerUIStart()
+
+                // 녹음 시작
+                audioResolver.audioStop()
+                audioResolver.startRecording("edit_record")
+                isPlayingMode = false
+                isRecordingMode = true
+            }
+            else if(isRecordingMode) {
+                isRecordingMode = false
+                isRecordedMode = true
                 /* 녹음 중단 */
                 // UI
-                binding.seekBar.visibility = View.VISIBLE
-                binding.playingTextView.visibility = View.VISIBLE
+                binding.playAudioBarLaydout.visibility = View.VISIBLE
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 timerUIStop()
                 // 녹음 중단
@@ -235,19 +257,11 @@ class AddFragment : Fragment() {
                 if(tempAudioFile!= null)
                     setSeekBar()
             }
-            else{
-                /* 녹음 시작 */
-                // UI
-                binding.seekBar.visibility = View.GONE
-                binding.playingTextView.visibility = View.GONE
-                binding.audioResetBtn.visibility = View.GONE
-                Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
-                timerUIStart()
+            else if(isRecordedMode){
+                isRecordedMode = false
+                isPlayingMode = true
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh_icon))
 
-                // 녹음 시작
-                audioResolver.audioStop()
-                audioResolver.startRecording("edit_record")
-                isRecording = true
             }
         }
         // 오디오 재생 바
@@ -263,8 +277,8 @@ class AddFragment : Fragment() {
                 Log.d("AudioModule", "onStartTrackingTouch 호출")
                 // 플레이
                // if(binding.seekBar.progress >= binding.seekBar.max){
-                if(isRecordingEnd){
-                    isRecordingEnd= false
+                if(isPlayingEnd){
+                    isPlayingEnd= false
                     Log.d("AudioModule", "모두 재생 후 setSeekBar 호출")
                     setSeekBar()
                 }
@@ -331,7 +345,7 @@ class AddFragment : Fragment() {
                     Log.d("AudioModule", "재생 중인 코루틴 중단")
                     Log.d("AudioModule", "====================")
                     isDestroy = true
-                    isRecordingEnd = true
+                    isPlayingEnd = true
                     binding.seekBar.clearFocus()
                     binding.seekBar.progress = binding.seekBar.max
                     coroutineContext.cancelChildren()
@@ -363,13 +377,12 @@ class AddFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch{
             binding.editText.setText("")
         }
-
     }
 
     fun audioStop() : File? {
         // 녹음 중단, 저장
         var savedFile : File?  = audioResolver.stopRecording()
-        isRecording = false
+        isRecordingMode = false
         return savedFile
     }
     fun saveAudioInMCContainer(savedFile : File){
@@ -386,12 +399,10 @@ class AddFragment : Fragment() {
                 var cnt = 0
                 override fun run() {
                     CoroutineScope(Dispatchers.Main).launch {
-
                         var string : String = String.format("%02d:%02d", time/60, time)
                         Log.d("AudioModule", time.toString())
                         binding.playingTextView.setText(string)
                         time -= 1
-
                         if(time <=0){
                             playinAudioUIStop()
                         }
@@ -414,7 +425,7 @@ class AddFragment : Fragment() {
     }
 
     fun timerUIStart(){
-        if(!isRecording){
+        if(!isRecordingMode){
             timerTask = object : TimerTask() {
                 var cnt = 0
                 override fun run() {
@@ -436,7 +447,7 @@ class AddFragment : Fragment() {
     }
 
     fun timerUIStop(){
-        if(isRecording){
+        if(isRecordingMode){
             timerTask.cancel()
             CoroutineScope(Dispatchers.Main).launch {
                 binding.RecordingTextView.setText("")

@@ -17,8 +17,7 @@ enum class ContentAttribute(val code: Int ) {
     burst(2),
     focus(3),
     magic(4),
-    modified(5),
-    edited(6);
+    edited(5);
 
     companion object {
         fun fromCode(code: Int) = values().firstOrNull { it.code == code } ?: none

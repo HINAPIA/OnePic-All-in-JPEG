@@ -197,12 +197,14 @@ class ImageContent {
     }
 
     /**
-     * MetaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
+     * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
      */
     fun getJpegBytes(picture : Picture) : ByteArray{
+        var buffer : ByteBuffer = ByteBuffer.allocate(0)
         var JFIF_startOffset = 0
         var findCount = 0
-        // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
+        var isFindSecondAPP0 : Boolean = false
+        // 비트맵으로 변환된 사진이 아니라면  2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
         if(picture.contentAttribute != ContentAttribute.edited && picture.contentAttribute != ContentAttribute.magic){
             while (JFIF_startOffset < jpegMetaData.size - 1) {
                 // JFIF 찾기
@@ -210,35 +212,49 @@ class ImageContent {
                     findCount++
                     Log.d("test_test", "getJpegBytes() JFIF(APP0) find - ${JFIF_startOffset}")
                     if(findCount == 2) {
+                        isFindSecondAPP0 = true
                         break
                     }
                 }
                 JFIF_startOffset++
             }
-            // 2번의 JFIF를 찾음 ->  main 사진은 수정된 사진이고 현재 picture는 Bitmap관련 byte를 떼서 사용해야 함
-            if (JFIF_startOffset != jpegMetaData.size - 1) {
+            // 2번의 JFIF를 찾음 ->  main 사진은 수정된 사진이고 현재 picture는 Bitmap관련 MteaData를 떼서 사용해야 함
+            if(isFindSecondAPP0){
                 // 2번 째 JFIF 전까지 떼어서 이용
                 Log.d("test_test", "getJpegBytes() : main 사진은 수정된 사진이고 현재 picture는 일반 사진")
-                val buffer: ByteBuffer = ByteBuffer.allocate(JFIF_startOffset + picture.size+2)
+                buffer = ByteBuffer.allocate(JFIF_startOffset + picture.size+2)
                 buffer.put(jpegMetaData.copyOfRange(0, JFIF_startOffset))
                 buffer.put(picture._pictureByteArray)
                 buffer.put("ff".toInt(16).toByte())
                 buffer.put("d9".toInt(16).toByte())
-                return buffer.array()
+            } else {
+                // main 사진은 수정된 사진이 아니므로 MetaData를 수정하지 않는다
+                Log.d("test_test", "getJpegBytes() : 현재 picture는 일반 사진")
+                buffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
+                buffer.put(jpegMetaData)
+                buffer.put(picture._pictureByteArray)
+                buffer.put("ff".toInt(16).toByte())
+                buffer.put("d9".toInt(16).toByte())
             }
         }
-        // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData 이용
-        Log.d("test_test", "getJpegBytes() : 현재 picutre는 수정된 사진이거나 main이 수정된 사진 아님")
-        val buffer: ByteBuffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
-        buffer.put(jpegMetaData)
-        buffer.put(picture._pictureByteArray)
-        buffer.put("ff".toInt(16).toByte())
-        buffer.put("d9".toInt(16).toByte())
+        // picture가 bitmap 변환 작업이 있었던 사진
+        else{
+            // 속성이 modified이거나 JFIF를 2번 못 찾으면 전체 MetaData 이용
+            Log.d("test_test", "getJpegBytes() : 현재 picture는 수정된 사진")
+            buffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
+            buffer.put(jpegMetaData)
+            buffer.put(picture._pictureByteArray)
+            buffer.put("ff".toInt(16).toByte())
+            buffer.put("d9".toInt(16).toByte())
+
+        }
         return buffer.array()
-
     }
-    fun extractJpegMeta(jpegBytes: ByteArray) : ByteArray{
 
+   /**
+    * metaData + Frame로 이루어진 사진에서 metaData 부분만 리턴 하는 함수
+   */
+    fun extractJpegMeta(jpegBytes: ByteArray) : ByteArray{
         var resultByte: ByteArray
         var startIndex = 0
         var isFindStartMarker = false // 시작 마커를 찾았는지 여부
@@ -249,7 +265,7 @@ class ImageContent {
         var app1DataLength = 0
         var findApp1 = false
 
-        // app1 위치와 datalength 찾기
+        //  app1 위치와 datalength 찾기
         while (app1StartPos < jpegBytes.size - 1) {
             // APP1 (-1,-31) 마커가 있는 경우
             if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {

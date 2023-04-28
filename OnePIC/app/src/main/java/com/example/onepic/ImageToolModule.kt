@@ -3,6 +3,7 @@ package com.example.onepic
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
@@ -22,7 +23,7 @@ class ImageToolModule {
      * bitmapToByteArray(bitmap: Bitmap): ByteArray
      *      - bitmap을 byteArray로 변환해서 제공
      */
-    fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
+     fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
 
         var matrix = Matrix()
 
@@ -37,6 +38,9 @@ class ImageToolModule {
 
         val outputStream = ByteArrayOutputStream()
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        Log.d("ImageTool", "bitmapToByteArray 3초 전")
+        Thread.sleep(3000)
+        Log.d("ImageTool", "bitmapToByteArray 3초 후")
         return outputStream.toByteArray()
 
     }
