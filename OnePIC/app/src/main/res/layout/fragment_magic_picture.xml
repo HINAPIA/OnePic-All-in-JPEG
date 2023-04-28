@@ -30,8 +30,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline8"
             app:layout_constraintStart_toStartOf="@+id/guideline6"
             app:layout_constraintTop_toTopOf="@+id/guideline4"
-            app:tint="@color/main_color"
-            android:contentDescription="TODO" />
+            app:tint="@color/main_color" />
 
 
         <TextView
@@ -42,7 +41,7 @@
             android:gravity="center"
             android:text="@string/magicPicture"
             android:textColor="@color/point_color"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/magicSaveBtn"

@@ -7,7 +7,6 @@ import android.graphics.RectF
 import android.util.Log
 import androidx.core.graphics.toRectF
 import com.example.onepic.ImageToolModule
-import com.example.onepic.R
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
 import kotlinx.coroutines.CoroutineScope
@@ -42,14 +41,22 @@ class RewindModule() {
             checkFinish[i] = false
             faceArraylist.add(null)
         }
+        CoroutineScope(Dispatchers.Default).launch {
+            Log.d("RewindModule", "start = $0")
+            // j 번째 사진 faces 정보 얻기
+            faceArraylist[0] = runFaceContourDetection(bitmapList[0])
+            Log.d("RewindModule", "end = $0")
+            checkFinish[0] = true
 
-        for (j in 0 until bitmapList.size) {
-            CoroutineScope(Dispatchers.Default).launch {
-                Log.d("RewindModule", "start = $j")
-                // j 번째 사진 faces 정보 얻기
-                faceArraylist[j] = runFaceContourDetection(bitmapList[j])
-                Log.d("RewindModule", "end = $j")
-                checkFinish[j] = true
+
+            for (j in 1 until bitmapList.size) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    Log.d("RewindModule", "start = $j")
+                    // j 번째 사진 faces 정보 얻기
+                    faceArraylist[j] = runFaceContourDetection(bitmapList[j])
+                    Log.d("RewindModule", "end = $j")
+                    checkFinish[j] = true
+                }
             }
         }
 
@@ -93,14 +100,15 @@ class RewindModule() {
      *      - bitmap에서 얼굴 detection을 실행 및
      *        감지된 얼굴에 사각형 그리기
      */
-    suspend fun runFaceDetection(bitmap: Bitmap, index: Int): Bitmap = suspendCoroutine { bitmapResult ->
+    suspend fun runFaceDetection(bitmap: Bitmap, index: Int): ArrayList<Face> = suspendCoroutine { bitmapResult ->
 
         // face Detection
         var faces: ArrayList<Face>
         CoroutineScope(Dispatchers.Default).launch {
            faces = getFaces(index)
 
-            bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
+            bitmapResult.resume(faces)
+            //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
     }
 
@@ -205,6 +213,8 @@ class RewindModule() {
 //            while(!checkFinish.all { it }) {
 //
 //            }
+
+           // allFaceDetection(bitmapList)
 
             while(!checkFaceDetection){
 

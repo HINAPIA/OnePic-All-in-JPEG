@@ -188,11 +188,13 @@ class MagicPictureFragment : RewindFragment() {
 
     override fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
-            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap, 0)
+            val faceResult = rewindModule.runFaceDetection(mainBitmap, 0)
+
+            val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
 
             // imageView 변환
             withContext(Dispatchers.Main) {
-                binding.magicMainView.setImageBitmap(faceResultBitmap)
+                binding.magicMainView.setImageBitmap(resultBitmap)
             }
         }
     }

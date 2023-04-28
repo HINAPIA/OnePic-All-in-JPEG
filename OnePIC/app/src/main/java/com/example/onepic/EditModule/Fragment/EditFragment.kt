@@ -16,8 +16,6 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.*
 import com.example.onepic.PictureModule.Contents.ActivityType
-import com.example.onepic.AudioModule.AudioResolver
-
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
@@ -54,7 +52,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.activityType = ActivityType.Viewer
 
-
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
@@ -64,6 +61,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .into(binding.mainImageView)
             }
         }
+
+        if(imageContent.checkAttribute(ContentAttribute.burst)){
+            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+        }
+        else {
+            binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+            if(!imageContent.checkAttribute(ContentAttribute.focus)) {
+                binding.rewindBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+                binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+            }
+
+        }
+
         CoroutineScope(Dispatchers.Default).launch{
              imageContent.getMainBitmap()
         }

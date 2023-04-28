@@ -13,7 +13,9 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 
-// 하나 이상의 Picture(이미지)를 담는 컨테이너
+/**
+ * 하나 이상의 Picture(이미지)를 담는 컨테이너
+ */
 class ImageContent {
     var jpegConstant : JpegConstant = JpegConstant()
     var markerHashMap: HashMap<Int?, String?> = jpegConstant.nameHashMap
@@ -28,16 +30,22 @@ class ImageContent {
     private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
-
     private var checkGetBitmapList = false
 
     fun init() {
-
         pictureList.clear()
         pictureCount = 0
+        bitmapList.clear()
+        attributeBitmapList.clear()
+        bitmapListAttribute = null
+        activityType = null
+        checkGetBitmapList = false
         //jpegMetaData = ByteArray(0)
     }
-    // ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
+
+    /**
+     * ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
+     */
     fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         init()
         // 메타 데이터 분리
@@ -53,7 +61,10 @@ class ImageContent {
             }
         }
     }
-    // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 ImageContent를 생성
+    /**
+     *    ImageContent 리셋 후 초기화 - 파일을 parsing할 때 ImageContent를 생성
+     */
+
     fun setContent(_pictureList : ArrayList<Picture>){
         init()
         // frame만 있는 pictureList
@@ -64,9 +75,21 @@ class ImageContent {
     }
 
     /**
-     * getBitmapList()
-     *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
-     *          있다면 bitmapList 전달
+     *  checkAttribute(attribute: ContentAttribute): Boolean
+     *      해당 attribute가 포함된 pictureContainer인지 확인
+     *      포함 유무를 리턴
+     */
+    fun checkAttribute(attribute: ContentAttribute): Boolean {
+        for(i in 0 until pictureList.size){
+            if(pictureList[i].contentAttribute == attribute)
+                return true
+        }
+        return false
+    }
+
+    /**
+     * getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>
+     *      - picture의 attrubuteType이 인자로 전달된 attribute가 아닌 것만 list로 제작 후 전달
      */
     // bitmapList getter
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap> {
@@ -76,24 +99,29 @@ class ImageContent {
         }
 
         if(attributeBitmapList.size == 0) {
-            while(!checkGetBitmapList) {
-
-            }
+            while(!checkGetBitmapList) { }
 
             for(i in 0 until pictureList.size){
                 if(pictureList[i].contentAttribute != attribute)
                     attributeBitmapList.add(bitmapList[i])
             }
         }
-
         return attributeBitmapList
     }
 
-
+    /**
+     * getBitmapList() : ArrayList<Bitmap>
+     *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
+     *          있다면 bitmapList 전달
+     */
     fun getBitmapList() : ArrayList<Bitmap> {
         if(bitmapList.size == 0){
             val checkFinish = BooleanArray(pictureList.size)
 
+            Log.d("pitureList", "!!! size= ${pictureList.size}")
+            while (pictureList.size == 0) {
+                Log.d("pitureList", "size= ${pictureList.size}")
+            }
             val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
 
             for (i in 0 until pictureList.size) {
@@ -117,12 +145,10 @@ class ImageContent {
         return bitmapList
     }
 
-    fun setBitmapList(bitmapList: ArrayList<Bitmap>, bitmapListAttribute : ContentAttribute) {
-        this.bitmapList = bitmapList
-        this.bitmapListAttribute = bitmapListAttribute
-    }
-
-
+    /**
+     * getMainBitmap() : Bitmap
+     *      - mainBitmap 전달
+     */
     fun getMainBitmap() : Bitmap {
         if(mainBitmap == null){
             mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
@@ -130,11 +156,9 @@ class ImageContent {
         return mainBitmap!!
     }
 
-    fun setMainBitmap(bitmap: Bitmap) {
-        this.mainBitmap = mainBitmap
-    }
-
-    // ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
+    /**
+     ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
+     */
     fun setBasicContent(sourceByteArray: ByteArray){
         init()
         jpegMetaData = extractJpegMeta(sourceByteArray)
@@ -152,7 +176,10 @@ class ImageContent {
             insertPicture(picture)
         }
     }
-    // PictureList에 Picture를 삽입
+
+    /**
+     *  PictureList에 Picture를 삽입
+     */
     fun insertPicture(picture : Picture){
         pictureList.add(picture)
         pictureCount = pictureCount + 1
@@ -162,7 +189,9 @@ class ImageContent {
         pictureCount = pictureCount + 1
     }
 
-    // PictureList의 index번째 요소를 찾아 반환
+    /**
+     * PictureList의 index번째 요소를 찾아 반환
+     */
     fun getPictureAtIndex(index : Int): Picture? {
         return pictureList.get(index) ?: null
     }

@@ -1,5 +1,6 @@
 package com.example.onepic
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
 import android.view.View
@@ -34,7 +35,7 @@ class ImageToolModule {
         val newBitmap =
             Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
-        var outputStream = ByteArrayOutputStream()
+        val outputStream = ByteArrayOutputStream()
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         return outputStream.toByteArray()
 
@@ -53,9 +54,7 @@ class ImageToolModule {
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
         val matrix = bitmapRotation(byteArray , 1)
-
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-
     }
 
 //    fun byteArrayToBitmap(context: Context, byteArray: ByteArray): Bitmap {
@@ -193,9 +192,9 @@ class ImageToolModule {
      *                              List<DetectionResult>인 경우는 객체 분석 결과를 그림 )
      */
     fun drawDetectionResult(
+        context: Context,
         bitmap: Bitmap,
-        detectionResults: ArrayList<Face>,
-        customColor: Int
+        detectionResults: ArrayList<Face>
     ): Bitmap {
         val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(outputBitmap)
@@ -204,12 +203,12 @@ class ImageToolModule {
 
         detectionResults.forEach {
             // draw bounding box
-            pen.color = Color.parseColor("#C1BAF2")
-            //pen.color = customColor
-            pen.strokeWidth = floatToDp(6F).toFloat()
+            pen.color = context.resources.getColor(R.color.point_color)
+            pen.strokeWidth = floatToDp(9F).toFloat()
             pen.style = Paint.Style.STROKE
             val box = it.boundingBox.toRectF()
-            canvas.drawRoundRect(box, floatToDp(10F).toFloat(), floatToDp(10F).toFloat(), pen)
+            canvas.drawArc(box, -30f, 70f, false, pen)
+            canvas.drawArc(box, 143f, 70f, false, pen)
 
         }
         return outputBitmap

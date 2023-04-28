@@ -121,9 +121,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 elapsedTime = endTime - startTime
                 Log.d("ElapsedTime", "autorewind Time: $elapsedTime ms")
 
-                withContext(Dispatchers.Main) {
-                    binding.rewindMainView.setImageBitmap(mainBitmap)
-                }
+                setMainImageBoundingBox()
+
                 imageToolModule.showView(binding.progressBar , false)
 
             }
@@ -141,6 +140,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 //
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+
                 imageContent.mainPicture = Picture(ContentAttribute.edited,imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
@@ -150,6 +150,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     imageContent.insertPicture(0, mainPicture)
 
                     jpegViewModel.jpegMCContainer.value?.save()
+                    //Thread.sleep(10000)
                 }
 
                 withContext(Dispatchers.Main){
@@ -264,22 +265,30 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         //showView(binding.faceListView, false)
         imageToolModule.showView(binding.arrowBar, false)
-        if(!binding.candidateLayout.isEmpty())
-            binding.candidateLayout.removeAllViews()
+        if(!binding.candidateLayout.isEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
+                    binding.candidateLayout.removeAllViews()
+                }
+            }
+        }
+
 
         CoroutineScope(Dispatchers.Default).launch {
             val startTime = System.currentTimeMillis()
 
-            val faceResultBitmap = rewindModule.runFaceDetection(mainBitmap, 0)
+            val faceResult = rewindModule.runFaceDetection(mainBitmap, 0)
 
             val endTime = System.currentTimeMillis()
 
             val elapsedTime = endTime - startTime
             Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
 
+            val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+
             // imageView 변환
             withContext(Dispatchers.Main) {
-                binding.rewindMainView.setImageBitmap(faceResultBitmap)
+                binding.rewindMainView.setImageBitmap(resultBitmap)
             }
             imageToolModule.showView(binding.progressBar , false)
         }
@@ -313,7 +322,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             var endTime = System.currentTimeMillis()
             var elapsedTime = endTime - startTime
             Log.d("ElapsedTime", "[1] basicRect Time: $elapsedTime ms")
-
 
             if (basicRect == null) {
                 startTime = System.currentTimeMillis()
@@ -431,7 +439,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         imageToolModule.showView(binding.progressBar , false)
         imageToolModule.showView(binding.arrowBar, false)
     }
-
 
     private fun moveCropFace(moveX:Int, moveY:Int) {
         if (newImage != null) {
