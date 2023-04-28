@@ -1,4 +1,4 @@
-package com.example.onepic.ViewerModule
+package com.example.onepic.ViewerModule.Adapter
 
 import android.annotation.SuppressLint
 import android.content.ContentUris

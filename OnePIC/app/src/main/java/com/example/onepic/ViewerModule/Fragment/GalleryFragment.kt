@@ -1,25 +1,17 @@
-package com.example.onepic.ViewerModule
+package com.example.onepic.ViewerModule.Fragment
 
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.onepic.CameraModule.CameraEditorActivity
 import com.example.onepic.JpegViewModel
+import com.example.onepic.ViewerModule.Adapter.GridAdapter
 import com.example.onepic.databinding.FragmentGalleryBinding
 
 
@@ -27,7 +19,7 @@ class GalleryFragment : Fragment() {
 
     private lateinit var binding: FragmentGalleryBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
-    private lateinit var gridAdapter:GridAdapter
+    private lateinit var gridAdapter: GridAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

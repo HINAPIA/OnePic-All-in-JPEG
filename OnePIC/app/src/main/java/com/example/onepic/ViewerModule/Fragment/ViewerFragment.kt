@@ -1,6 +1,5 @@
-package com.example.onepic.ViewerModule
+package com.example.onepic.ViewerModule.Fragment
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.graphics.Color
@@ -18,7 +17,6 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
@@ -26,6 +24,7 @@ import com.bumptech.glide.Glide
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
+import com.example.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.example.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -38,7 +37,7 @@ class ViewerFragment : Fragment() {
     private lateinit var binding: FragmentViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
-    private lateinit var mainViewPagerAdapter:ViewPagerAdapter
+    private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null
 
