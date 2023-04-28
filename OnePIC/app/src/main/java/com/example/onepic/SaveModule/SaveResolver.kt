@@ -18,6 +18,7 @@ import com.example.onepic.PictureModule.MCContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.*
 
 
@@ -138,48 +139,50 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     //Android Q (Android 10, API 29 이상에서는 이 메서드를 통해서 이미지를 저장한다.)
     @RequiresApi(Build.VERSION_CODES.Q)
     fun saveImageOnAboveAndroidQ(byteArray: ByteArray) {
-        Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 111")
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 111")
 
-        val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-        /*
-        * ContentValues() 객체 생성.
-        * ContentValues는 ContentResolver가 처리할 수 있는 값을 저장해둘 목적으로 사용된다.
-        * */
+            val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+            /*
+            * ContentValues() 객체 생성.
+            * ContentValues는 ContentResolver가 처리할 수 있는 값을 저장해둘 목적으로 사용된다.
+            * */
 
-        val values = ContentValues()
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
 
-        // 이미지를 저장할 uri를 미리 설정해놓는다.
-        val uri: Uri? =
-            mainActivity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            // 이미지를 저장할 uri를 미리 설정해놓는다.
+            val uri: Uri? =
+                mainActivity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
 
-        Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 2222")
+            Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 2222")
 
-        try {
-            val outputStream: OutputStream? = uri?.let {
-                mainActivity.getContentResolver().openOutputStream(
-                    it
-                )
-            }
-            if (outputStream != null) {
-                outputStream.write(byteArray)
-                outputStream.close()
-                CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(mainActivity, "Image saved successfully", Toast.LENGTH_SHORT).show()
+            try {
+                val outputStream: OutputStream? = uri?.let {
+                    mainActivity.getContentResolver().openOutputStream(
+                        it
+                    )
+                }
+                if (outputStream != null) {
+                    outputStream.write(byteArray)
+                    outputStream.close()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(mainActivity, "Image saved successfully", Toast.LENGTH_SHORT).show()
+                    }
+
                 }
 
+            } catch(e: FileNotFoundException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-
-        } catch(e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
+
     }
 
     private fun saveImageOnUnderAndroidQ(byteArray: ByteArray) {

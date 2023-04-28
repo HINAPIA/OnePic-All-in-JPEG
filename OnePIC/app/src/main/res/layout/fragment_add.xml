@@ -160,7 +160,7 @@
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="130dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/horizontal_centerline1"
@@ -199,6 +199,7 @@
             app:layout_constraintTop_toBottomOf="@+id/recordingImageView" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/playAudioBarLaydout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -230,15 +231,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.526" />
 
-            <TextView
-                android:id="@+id/textView7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="확인"
-                android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/seekBar"
-                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView

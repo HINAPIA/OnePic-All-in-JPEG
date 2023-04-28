@@ -52,13 +52,8 @@ class AudioResolver(val context : Context) {
             } catch (e: Exception) {
                 Log.e(TAG, "startRecording: ${e.message}")
             }
-
-
         }
-
-
         return savedFile
-
     }
 
     fun stopRecording() : File?{
@@ -121,7 +116,6 @@ class AudioResolver(val context : Context) {
         return savedFile as File
     }
 
-
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(_audio : Audio){
         var audio = _audio
@@ -139,7 +133,6 @@ class AudioResolver(val context : Context) {
                      AudioAttributes.Builder()
                          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                          .build())
-
             try {
                  setDataSource(savedFile!!.path)
                  prepare()
