@@ -49,7 +49,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewerFragment"
-        android:name="com.example.onepic.ViewerModule.ViewerFragment"
+        android:name="com.example.onepic.ViewerModule.Fragment.ViewerFragment"
         android:label="ViewerFragment"
         tools:layout="@layout/fragment_viewer" >
         <action
@@ -61,7 +61,7 @@
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"
-        android:name="com.example.onepic.ViewerModule.GalleryFragment"
+        android:name="com.example.onepic.ViewerModule.Fragment.GalleryFragment"
         android:label="GalleryFragment" >
         <action
             android:id="@+id/action_galleryFragment_to_viewerFragment"
@@ -87,7 +87,7 @@
     </fragment>
     <fragment
         android:id="@+id/permissionFragment2"
-        android:name="com.example.onepic.ViewerModule.PermissionFragment"
+        android:name="com.example.onepic.ViewerModule.Fragment.PermissionFragment"
         android:label="PermissionFragment" >
         <action
             android:id="@+id/action_permissionFragment2_to_galleryFragment"

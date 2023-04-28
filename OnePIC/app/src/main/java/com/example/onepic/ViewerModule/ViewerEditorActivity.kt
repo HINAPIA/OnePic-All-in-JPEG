@@ -39,7 +39,7 @@ class ViewerEditorActivity : AppCompatActivity() {
     private lateinit var appPermissionObserver: AppPermissionObserver // permission check observer
     companion object {
         var PERMMISION_CHECK = false // Permission check 를 한 적이 있는지
-        var LAUNCH_ACTIVITY = true
+        var LAUNCH_ACTIVITY = true // Activity가 Launch 되었는가(Lanch된 직후인가)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

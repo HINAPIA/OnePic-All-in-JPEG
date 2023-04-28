@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -93,6 +94,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         CoroutineScope(Dispatchers.Default).launch{
             imageContent.getBitmapList()
         }
+
+        /* TODO: ViewrFragment to EditorFragment - currentImageFilePath와 selectedImageFilePath 확인 */
+        // ViewerFragment에서 스크롤뷰 이미지 중 아무것도 선택하지 않은 상태에서 edit 누르면 picturelist의 맨 앞 객체(메인)이 선택된 것으로 했음
+        Log.d("currentImageFilePath: ",""+jpegViewModel.currentImageFilePath)
+        Log.d("selectedImageFilePath: ",""+jpegViewModel.selectedSubImage)
+
         return binding.root
     }
 

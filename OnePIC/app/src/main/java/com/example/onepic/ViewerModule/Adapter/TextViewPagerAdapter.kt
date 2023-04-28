@@ -1,4 +1,4 @@
-package com.example.onepic.ViewerModule
+package com.example.onepic.ViewerModule.Adapter
 
 import android.content.Context
 import android.view.LayoutInflater

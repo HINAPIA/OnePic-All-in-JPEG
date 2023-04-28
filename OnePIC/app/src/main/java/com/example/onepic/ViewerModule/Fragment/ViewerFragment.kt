@@ -1,4 +1,4 @@
-package com.example.onepic.ViewerModule
+package com.example.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide
 import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
 import com.example.onepic.R
+import com.example.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.example.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -36,7 +37,7 @@ class ViewerFragment : Fragment() {
     private lateinit var binding: FragmentViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
-    private lateinit var mainViewPagerAdapter:ViewPagerAdapter
+    private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null
 
@@ -250,7 +251,7 @@ class ViewerFragment : Fragment() {
             var jop = async {
                 loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
             jop.await()
-
+            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
         }
     }
 
@@ -280,12 +281,15 @@ class ViewerFragment : Fragment() {
 
                         scrollImageView.setOnClickListener{ // scrollview 이미지를 main으로 띄우기
                             mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                            jpegViewModel.setselectedSubImage(picture)
                         }
 
                         binding.linear.addView(scollItemLayout)
 
                     }
                 } // end of for..
+                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
+                Log.d("초기 선택된 이미지: ",""+pictureList[0])
             }
         }
     }
