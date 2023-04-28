@@ -298,6 +298,8 @@ class CameraFragment : Fragment() {
 
                         imageContent.getBitmapList()
 
+                        jpegViewModel.jpegMCContainer.value?.save()
+
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
                             withContext(Dispatchers.Main) {

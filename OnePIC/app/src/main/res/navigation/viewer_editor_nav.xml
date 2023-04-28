@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_editFragment_to_addFragment"
             app:destination="@id/addFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_burstModeEditFragment"
+            app:destination="@id/burstModeEditFragment2" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -89,5 +92,14 @@
         <action
             android:id="@+id/action_permissionFragment2_to_galleryFragment"
             app:destination="@id/galleryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/burstModeEditFragment2"
+        android:name="com.example.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:label="fragment_burst_mode_edit"
+        tools:layout="@layout/fragment_burst_mode_edit" >
+        <action
+            android:id="@+id/action_burstModeEditFragment_to_Fragment"
+            app:destination="@id/editFragment" />
     </fragment>
 </navigation>

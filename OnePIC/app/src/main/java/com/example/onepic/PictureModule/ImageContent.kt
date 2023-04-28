@@ -31,6 +31,7 @@ class ImageContent {
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
+    private var checkPictureList = false
 
     fun init() {
         pictureList.clear()
@@ -40,6 +41,7 @@ class ImageContent {
         bitmapListAttribute = null
         activityType = null
         checkGetBitmapList = false
+        checkPictureList = false
         //jpegMetaData = ByteArray(0)
     }
 
@@ -49,29 +51,31 @@ class ImageContent {
     fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         init()
         // 메타 데이터 분리
-        jpegMetaData = extractJpegMeta(byteArrayList.get(0))
+        jpegMetaData = extractJpegMeta(byteArrayList[0])
         for(i in 0..byteArrayList.size-1){
             // frame 분리
-            var frameBytes : ByteArray = extractFrame(byteArrayList.get(i))
+            var frameBytes : ByteArray = extractFrame(byteArrayList[i])
             // Picture 객체 생성
             var picture = Picture( contentAttribute, frameBytes)
             insertPicture(picture)
             if(i == 0){
                 mainPicture = picture
             }
+            picture.waitForByteArrayInitialized()
         }
+        checkPictureList = true
     }
+
     /**
      *    ImageContent 리셋 후 초기화 - 파일을 parsing할 때 ImageContent를 생성
      */
-
     fun setContent(_pictureList : ArrayList<Picture>){
         init()
         // frame만 있는 pictureList
         pictureList = _pictureList
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
-
+        checkPictureList = true
     }
 
     /**
@@ -99,7 +103,7 @@ class ImageContent {
         }
 
         if(attributeBitmapList.size == 0) {
-            while(!checkGetBitmapList) { }
+            while(!checkGetBitmapList || !checkPictureList) { }
 
             for(i in 0 until pictureList.size){
                 if(pictureList[i].contentAttribute != attribute)
@@ -118,9 +122,7 @@ class ImageContent {
         if(bitmapList.size == 0){
             val checkFinish = BooleanArray(pictureList.size)
 
-            Log.d("pitureList", "!!! size= ${pictureList.size}")
-            while (pictureList.size == 0) {
-                Log.d("pitureList", "size= ${pictureList.size}")
+            while (!checkPictureList) {
             }
             val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
 
@@ -150,8 +152,15 @@ class ImageContent {
      *      - mainBitmap 전달
      */
     fun getMainBitmap() : Bitmap {
-        if(mainBitmap == null){
-            mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+        while(!checkPictureList) { }
+        var checkMain = false
+        CoroutineScope(Dispatchers.Default).launch {
+            if (mainBitmap == null) {
+                mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+            }
+        }
+        while(!checkMain){
+
         }
         return mainBitmap!!
     }

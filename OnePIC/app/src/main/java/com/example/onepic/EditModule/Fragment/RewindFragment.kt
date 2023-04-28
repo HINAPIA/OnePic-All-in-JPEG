@@ -188,27 +188,27 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
-                imageToolModule.showView(binding.progressBar , true)
+                imageToolModule.showView(binding.progressBar, true)
 
-                if(preMainBitmap != null) {
+                if (preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
                     newImage = null
                 }
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(
-                    PointF(event.x, event.y),
-                    view as ImageView
-                )
+                val touchPoint = ImageToolModule().getBitmapClickPoint(PointF(event.x, event.y), view as ImageView)
                 println("------- click point:$touchPoint")
 
-                CoroutineScope(Dispatchers.Default).launch {
-                    // Click 좌표가 포함된 Bounding Box 얻음
-                    val boundingBox = getBoundingBox(touchPoint)
+                if (touchPoint != null) {
 
-                    if(boundingBox.size > 0) {
-                        // Bounding Box로 이미지를 Crop한 후 보여줌
-                        withContext(Dispatchers.Main) {
-                            cropImgAndView(boundingBox)
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // Click 좌표가 포함된 Bounding Box 얻음
+                        val boundingBox = getBoundingBox(touchPoint)
+
+                        if (boundingBox.size > 0) {
+                            // Bounding Box로 이미지를 Crop한 후 보여줌
+                            withContext(Dispatchers.Main) {
+                                cropImgAndView(boundingBox)
+                            }
                         }
                     }
                 }

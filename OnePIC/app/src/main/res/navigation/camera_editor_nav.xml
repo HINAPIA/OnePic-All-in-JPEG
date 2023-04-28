@@ -23,7 +23,7 @@
         android:label="fragment_burst_mode_edit"
         tools:layout="@layout/fragment_burst_mode_edit" >
         <action
-            android:id="@+id/action_burstModeEditFragment_to_cameraFragment"
+            android:id="@+id/action_burstModeEditFragment_to_Fragment"
             app:destination="@id/cameraFragment" />
     </fragment>
     <fragment

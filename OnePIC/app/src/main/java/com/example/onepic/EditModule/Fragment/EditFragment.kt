@@ -37,6 +37,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     private var isAdd : Boolean = false
 
+    private var checkFocus = true
+    private var checkRewind = true
+    private var checkMagic = true
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -63,15 +67,24 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
 
         if(imageContent.checkAttribute(ContentAttribute.burst)){
-            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//            binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
+//            checkFocus = false
         }
         else {
             binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+            binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
+            checkMagic = false
+
             if(!imageContent.checkAttribute(ContentAttribute.focus)) {
                 binding.rewindBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-                binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-            }
+                binding.rewindBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.rewind_deactivation_icon_resize, 0, 0)
+                checkRewind = false
 
+//                binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//                binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
+//                checkFocus = false
+            }
         }
 
         CoroutineScope(Dispatchers.Default).launch{
@@ -86,18 +99,21 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.focusBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
+        }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            // 일반 사진이면 안 넘어가도록
-            if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic)){
+            // focus 가능한지 확인
+            if(checkRewind){
                 // RewindFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
             }
         }
         // Masic
         binding.magicBtn.setOnClickListener {
-            // 일반 사진이면 안 넘어가도록
-            if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic)) {
+            // magic 가능한지 확인
+            if(checkMagic) {
                 // MagicPictureFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
             }

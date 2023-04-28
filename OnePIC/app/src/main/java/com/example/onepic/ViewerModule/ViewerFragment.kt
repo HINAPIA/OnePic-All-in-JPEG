@@ -1,6 +1,5 @@
 package com.example.onepic.ViewerModule
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.graphics.Color
@@ -18,7 +17,6 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
