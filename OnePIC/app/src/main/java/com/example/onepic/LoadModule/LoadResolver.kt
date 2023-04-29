@@ -162,10 +162,10 @@ class LoadResolver() {
                 val jpegBytes = sourceByteArray.copyOfRange( offset,  offset + size - 1)
                 // Jpeg Meta 데이터 떼기
                 var jpegMetaData = MCContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
-                     offset + size -1))
+                     offset + size -1), ContentAttribute.fromCode(attribute))
                 MCContainer.setJpegMetaBytes(jpegMetaData)
                 val frame =async {
-                    MCContainer.imageContent.extractFrame(jpegBytes)
+                    MCContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
                 }
                 picture = Picture(offset, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
