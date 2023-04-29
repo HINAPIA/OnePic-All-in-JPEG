@@ -98,6 +98,9 @@ class MCContainer(_activity: Activity) {
         saveResolver.save()
     }
 
+    fun overwiteSave(fileName : String){
+        saveResolver.overwriteSave(fileName)
+    }
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(){
         var audio = audioContent.audio

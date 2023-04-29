@@ -2,6 +2,7 @@ package com.example.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -123,15 +124,30 @@ class BurstModeEditFragment : Fragment() {
                 imageToolModule.showView(binding.progressBar , true)
 
                 // TODO: main 변경 후 save
+                // 1. main으로 지정된 picture를 picturelist에서 삭제
+                var result = imageContent.removePicture(mainPicture)
+                if(result){
+                    Log.d("burst", "main으로 지정된 객체 삭제 완료")
+                    // 2. main 사진을 첫번 째로 삽입
+                    imageContent.insertPicture(0, mainPicture)
+                    imageContent.mainPicture = mainPicture
+                }
 
                 if(imageContent.activityType == ActivityType.Camera) {
-                    jpegViewModel.jpegMCContainer.value?.save()
+                    withContext(Dispatchers.Main){
+                        Log.d("burst", "바로 편집에서 save() 호출 전")
+                        jpegViewModel.jpegMCContainer.value?.save()
+                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
+                    }
+                }
+                else{
+                    withContext(Dispatchers.Main){
+                        Log.d("burst", "바로 편집에서navigate호출 전")
+                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
+                    }
+                    imageToolModule.showView(binding.progressBar , false)
                 }
 
-                withContext(Dispatchers.Main){
-                    findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
-                }
-                imageToolModule.showView(binding.progressBar , false)
             }
         }
         binding.burstCloseBtn.setOnClickListener {

@@ -31,7 +31,7 @@ class ImageContent {
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
-    private var checkPictureList = false
+    var checkPictureList = false
 
     fun init() {
         pictureList.clear()
@@ -51,18 +51,17 @@ class ImageContent {
     fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         init()
         // 메타 데이터 분리
-
         jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
         for(i in 0..byteArrayList.size-1){
             // frame 분리
             var frameBytes : ByteArray = extractFrame(byteArrayList.get(i),contentAttribute)
             // Picture 객체 생성
-            var picture = Picture( contentAttribute, frameBytes)
+            var picture = Picture(contentAttribute, frameBytes)
+            picture.waitForByteArrayInitialized()
             insertPicture(picture)
             if(i == 0){
                 mainPicture = picture
             }
-            picture.waitForByteArrayInitialized()
         }
         checkPictureList = true
     }
@@ -78,7 +77,6 @@ class ImageContent {
         mainPicture = pictureList.get(0)
         checkPictureList = true
 
-        // TODO (여기가 호출되면 list가 만들어진거임. 변수 만들기)
 
     }
 
@@ -198,6 +196,11 @@ class ImageContent {
         pictureCount = pictureCount + 1
     }
 
+    fun removePicture(picture: Picture) : Boolean{
+        var retuslt = pictureList.remove(picture)
+        pictureCount = pictureCount -1
+        return retuslt
+    }
     /**
      * PictureList의 index번째 요소를 찾아 반환
      */

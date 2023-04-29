@@ -132,7 +132,7 @@
                 android:drawableTop="@drawable/focus_icon_resize"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:text="@string/focus"
+                android:text="@string/main_change"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 

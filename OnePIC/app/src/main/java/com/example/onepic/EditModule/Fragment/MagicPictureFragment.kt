@@ -100,7 +100,7 @@ class MagicPictureFragment : RewindFragment() {
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
-                imageContent.mainPicture = Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes) )
+                imageContent.mainPicture = Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 // EmbeddedData 추가
