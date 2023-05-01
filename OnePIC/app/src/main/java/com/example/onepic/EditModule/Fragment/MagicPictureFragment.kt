@@ -7,7 +7,6 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
@@ -23,8 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 class MagicPictureFragment : RewindFragment() {
@@ -63,7 +60,9 @@ class MagicPictureFragment : RewindFragment() {
 
         // magic 가능한 연속 사진 속성의 picture list 얻음
         pictureList =
-            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.focus)
+            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
+
+        //pictureList = imageContent.pictureList
 
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
@@ -75,26 +74,21 @@ class MagicPictureFragment : RewindFragment() {
         }
         CoroutineScope(Dispatchers.Default).launch {
             CoroutineScope(Dispatchers.Default).launch {
-                val startTime = System.currentTimeMillis()
+                val newMainBitmap = imageContent.getMainBitmap()
+                if (newMainBitmap != null) {
+                    mainBitmap = newMainBitmap
 
-                mainBitmap = imageContent.getMainBitmap()
-
-                val endTime = System.currentTimeMillis()
-
-                val elapsedTime = endTime - startTime
-
-                Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
-                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                setMainImageBoundingBox()
-            }
-            CoroutineScope(Dispatchers.Default).launch {
-                // rewind 가능한 연속 사진 속성의 picture list 얻음
-                val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-                if(newBitmapList != null) {
-                    bitmapList = newBitmapList
-                    rewindModule.allFaceDetection(bitmapList)
+                    // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                    setMainImageBoundingBox()
                 }
-
+                CoroutineScope(Dispatchers.Default).launch {
+                    // rewind 가능한 연속 사진 속성의 picture list 얻음
+                    val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+                    if (newBitmapList != null) {
+                        bitmapList = newBitmapList
+                        rewindModule.allFaceDetection(bitmapList)
+                    }
+                }
             }
         }
         // save btn 클릭 시
@@ -297,76 +291,6 @@ class MagicPictureFragment : RewindFragment() {
             handler.postDelayed(runnable, magicPlaySpeed)
         }
     }
-
-    private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
-        suspendCoroutine { result ->
-            val overlayImg: ArrayList<Bitmap> = arrayListOf()
-            // rewind 가능한 연속 사진 속성의 picture list 얻음
-            pictureList = imageContent.pictureList
-            if (bitmapList.size == 0) {
-                val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-                if(newBitmapList != null) {
-                    bitmapList = newBitmapList
-                    rewindModule.allFaceDetection(bitmapList)
-                }
-            }
-
-            var basicIndex = 0
-            var checkEmbedded = false
-            for (i in 0 until pictureList.size) {
-                if (pictureList[basicIndex].embeddedData?.size!! > 0) {
-                    checkEmbedded = true
-                    break
-                }
-                basicIndex++
-            }
-
-            if (checkEmbedded) {
-                changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
-                changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
-
-                val checkFinish = BooleanArray(pictureList.size - basicIndex)
-                for (i in basicIndex until pictureList.size) {
-                    checkFinish[i - basicIndex] = false
-                    pictureList[i].embeddedData?.let { boundingBox.add(it) }
-                }
-
-                for (i in basicIndex until pictureList.size) {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
-                        checkFinish[i - basicIndex] = true
-                    }
-                }
-
-                while (!checkFinish.all { it }) {
-                    // Wait for all tasks to finish
-                }
-            }
-            result.resume(overlayImg)
-        }
-
-    private fun createOverlayImg(ovelapBitmap: ArrayList<Bitmap> , rect: ArrayList<Int>, index: Int) {
-
-        // 감지된 모든 boundingBox 출력
-        println("=======================================================")
-
-        // bitmap를 자르기
-        val cropImage = imageToolModule.cropBitmap(
-            bitmapList[index],
-            Rect(rect[0], rect[1], rect[2], rect[3])
-        )
-
-        val newImage = imageToolModule.circleCropBitmap(cropImage)
-        ovelapBitmap.add(
-            imageToolModule.overlayBitmap(
-                mainBitmap,
-                newImage,
-                changeFaceStartX,
-                changeFaceStartY
-            )
-        )
-    }
-
 
     private fun moveCropFace(moveX:Int, moveY:Int) {
         if(checkMagicPicturePlay) {

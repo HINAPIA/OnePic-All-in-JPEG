@@ -84,7 +84,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
         CoroutineScope(Dispatchers.Default).launch {
-            mainBitmap = imageContent.getMainBitmap()
+            val newMainBitmap = imageContent.getMainBitmap()
+            if(newMainBitmap != null) {
+                mainBitmap = newMainBitmap
+            }
             originalMainBitmap = mainBitmap
             if(imageContent.activityType == ActivityType.Viewer) {
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
@@ -281,10 +284,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
 
         CoroutineScope(Dispatchers.Default).launch {
-
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
             val faceResult = rewindModule.runFaceDetection(0)
 
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
             val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
 

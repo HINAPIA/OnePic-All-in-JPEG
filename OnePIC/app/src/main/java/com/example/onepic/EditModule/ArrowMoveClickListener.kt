@@ -85,14 +85,14 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                 println("D point (${dx}, ${dy})")
 
                 if(dx>0)
-                    dx = 5f
+                    dx = 3f
                 else if(dx<0)
-                    dx = -5f
+                    dx = -3f
 
                 if(dy>0)
-                    dy = 5f
+                    dy = 3f
                 else if(dy<0)
-                    dy = -5f
+                    dy = -3f
 
                 myFunction(dx.toInt(), dy.toInt())
                 return true

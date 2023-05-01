@@ -37,6 +37,8 @@ class BurstModeEditFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private var mainIndex = 0
 
+    private lateinit var mainSubView: View
+
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -89,24 +91,23 @@ class BurstModeEditFragment : Fragment() {
                     }
 
                     if (mainIndex == i) {
-                        imageToolModule.showView(
-                            subLayout.findViewById(R.id.checkMainIcon),
-                            true
-                        )
+                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
                     }
 
                     cropImageView.setOnClickListener {
                         mainPicture = pictureList[i]
+                        imageToolModule.showView(mainSubView, false)
                         CoroutineScope(Dispatchers.Main).launch {
                             // 메인 이미지 설정
                             withContext(Dispatchers.Main) {
                                 Glide.with(binding.burstMainView)
                                     .load(imageContent.getJpegBytes(mainPicture))
                                     .into(binding.burstMainView)
-
-
                             }
                         }
+                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
                         //binding.burstMainView.setImageBitmap(mainBitmap)
                     }
 

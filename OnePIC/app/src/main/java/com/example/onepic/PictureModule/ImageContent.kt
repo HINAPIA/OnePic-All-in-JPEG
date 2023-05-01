@@ -32,7 +32,9 @@ class ImageContent {
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
     var checkPictureList = false
-    var checkTransformBitmap = false
+    private var checkTransformBitmap = false
+    private var checkTransformAttributeBitmap = false
+    private var checkTransformMain = false
 
     fun init() {
         Log.d("burst", "==================")
@@ -40,6 +42,8 @@ class ImageContent {
         checkGetBitmapList = false
         checkPictureList = false
         checkTransformBitmap = false
+        checkTransformAttributeBitmap = false
+        checkTransformMain = false
 
         pictureList.clear()
         pictureCount = 0
@@ -103,7 +107,7 @@ class ImageContent {
      */
     // bitmapList getter
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
-        checkTransformBitmap = true
+        checkTransformAttributeBitmap = true
 
         if(bitmapListAttribute == null || bitmapListAttribute != attribute) {
             attributeBitmapList.clear()
@@ -111,18 +115,18 @@ class ImageContent {
         }
         if(attributeBitmapList.size == 0) {
             while(!checkGetBitmapList || !checkPictureList) {
-                if(!checkTransformBitmap)
+                if(!checkTransformAttributeBitmap)
                     return null
             }
 
             for(i in 0 until pictureList.size){
-                if(!checkTransformBitmap)
+                if(!checkTransformAttributeBitmap)
                     return null
                 if(pictureList[i].contentAttribute != attribute)
                     attributeBitmapList.add(bitmapList[i])
             }
         }
-        checkTransformBitmap = false
+        checkTransformAttributeBitmap = false
         return attributeBitmapList
     }
 
@@ -179,15 +183,20 @@ class ImageContent {
      * getMainBitmap() : Bitmap
      *      - mainBitmap 전달
      */
-    fun getMainBitmap() : Bitmap {
-        while (!checkPictureList) {
+    fun getMainBitmap() : Bitmap? {
+
+        checkTransformMain = true
+
+        while (!checkTransformBitmap) {
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
+            if(!checkTransformMain)
+                return null
         }
 
         Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
         mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
         Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
-        return mainBitmap!!
+        return mainBitmap
     }
 
     /**
