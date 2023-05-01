@@ -241,6 +241,7 @@ class CameraFragment : Fragment() {
                         // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                         if (previewByteArrayList.size == burstSize) {
+                            mediaPlayer.start()
                             // 녹음 중단
                             val savedFile = audioResolver.stopRecording()
                             if (savedFile != null) {
@@ -720,31 +721,11 @@ class CameraFragment : Fragment() {
      */
     private fun takeObjectFocusMode(index: Int) {
         if(index >= detectedList.size){
-            mediaPlayer.start()
-//            CoroutineScope(Dispatchers.IO).launch{
-//                // 초점 사진들이 모두 저장 완료 되었을 때
-////                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-//                Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
-//                if(previewByteArrayList.size != 0){
-//                    // 녹음 중단
-//                    val savedFile = audioResolver.stopRecording()
-//                    if(savedFile != null){
-//                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-//                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
-//                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-//                    }
-//                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-//                    jpegViewModel.jpegMCContainer.value!!.save()
-//                }
-//            }
             CoroutineScope(Dispatchers.IO).launch {
+                while (previewByteArrayList.size < detectedList.size) { }
 
-                while (previewByteArrayList.size < detectedList.size) {
-
-                }
-                // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                 if (previewByteArrayList.size == detectedList.size) {
+                    mediaPlayer.start()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
                     if (savedFile != null) {
@@ -759,10 +740,16 @@ class CameraFragment : Fragment() {
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(
                         previewByteArrayList,
                         ContentType.Image,
-                        ContentAttribute.burst
+                        ContentAttribute.focus
                     )
 
-                    jpegViewModel.jpegMCContainer.value!!.save()
+//                    jpegViewModel.jpegMCContainer.value!!.save()
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                        }
+                    }
 
                 }
             }
@@ -862,11 +849,16 @@ class CameraFragment : Fragment() {
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(
                         previewByteArrayList,
                         ContentType.Image,
-                        ContentAttribute.burst
+                        ContentAttribute.focus
                     )
 
-                    jpegViewModel.jpegMCContainer.value!!.save()
-
+//                    jpegViewModel.jpegMCContainer.value!!.save()
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                        }
+                    }
                 }
             }
             return
