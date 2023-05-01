@@ -34,6 +34,8 @@ class ImageContent {
     var checkPictureList = false
 
     fun init() {
+        Log.d("burst", "==================")
+        Log.d("burst", "imageContnet 초기화")
         pictureList.clear()
         pictureCount = 0
         bitmapList.clear()
@@ -120,17 +122,19 @@ class ImageContent {
      *          있다면 bitmapList 전달
      */
     fun getBitmapList() : ArrayList<Bitmap> {
+        Log.d("burst", "getBitmapList 호출")
         if(bitmapList.size == 0){
-            val checkFinish = BooleanArray(pictureList.size)
-
             while (!checkPictureList) {
             }
+            var pictureListSize= pictureList.size
+            Log.d("burst", "pictureListSize : ${pictureListSize}")
+            val checkFinish = BooleanArray(pictureListSize)
             val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
-            for (i in 0 until pictureList.size) {
+            for (i in 0 until pictureListSize) {
                 checkFinish[i] = false
                 bitmapList.add(exBitmap)
             }
-            for (i in 0 until pictureList.size) {
+            for (i in 0 until pictureListSize) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
                     bitmapList[i] = bitmap
@@ -140,6 +144,7 @@ class ImageContent {
             while (!checkFinish.all { it }) {
                 // Wait for all tasks to finish
             }
+            Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
         }
         checkGetBitmapList = true
         return bitmapList
