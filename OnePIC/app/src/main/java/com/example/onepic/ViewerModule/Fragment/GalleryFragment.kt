@@ -39,6 +39,9 @@ class GalleryFragment : Fragment() {
         binding.gridView.numColumns = 3 // 갤러리 이미지 3개씩 보이기
         binding.gridView.adapter = gridAdapter
 
+        ViewerFragment.currentFilePath = ""
+
+
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 
             if (jpegViewModel.imageUriLiveData.value!!.size == 0){ // 갤러리에 이미지가 아무것도 없을 때

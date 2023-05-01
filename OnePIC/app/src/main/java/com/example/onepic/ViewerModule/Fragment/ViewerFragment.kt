@@ -74,10 +74,11 @@ class ViewerFragment : Fragment() {
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 
-            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
-
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
             mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+
+
+            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
 
             if (position != null){ // 사진이 갤러리에 존재하면
                 binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
@@ -86,6 +87,8 @@ class ViewerFragment : Fragment() {
                 // TODO: 보고있는 사진이 삭제된 경우
 
             }
+
+
         }
     }
 
@@ -116,7 +119,7 @@ class ViewerFragment : Fragment() {
                 binding.pullRightView.visibility = View.VISIBLE
                 binding.scrollView.visibility = View.GONE
 
-                
+
                 // 텍스트 버튼 초기화
                 if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
                     binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
