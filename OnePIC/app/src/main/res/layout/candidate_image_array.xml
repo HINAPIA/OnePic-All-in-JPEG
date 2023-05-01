@@ -10,19 +10,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@+id/checkMainIcon" />
-
-    <ImageView
-        android:id="@+id/checkMainIcon"
-        android:layout_width="100dp"
-        android:layout_height="20dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/cropImageView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/crown"
-        app:tint="@color/point_color" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

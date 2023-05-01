@@ -72,12 +72,12 @@ class BurstModeEditFragment : Fragment() {
             for(i in 0 until pictureList.size) {
                 CoroutineScope(Dispatchers.Main).launch {
                     // 넣고자 하는 layout 불러오기
-                    val candidateLayout =
-                        layoutInflater.inflate(R.layout.candidate_image_array, null)
+                    val subLayout =
+                        layoutInflater.inflate(R.layout.sub_image_array, null)
 
                     // 위 불러온 layout에서 변경을 할 view가져오기
                     val cropImageView: ImageView =
-                        candidateLayout.findViewById(R.id.cropImageView)
+                        subLayout.findViewById(R.id.cropImageView)
 
                     // 자른 사진 이미지뷰에 붙이기
                     //cropImageView.setImageBitmap(bitmapList[i])
@@ -89,7 +89,7 @@ class BurstModeEditFragment : Fragment() {
 
                     if (mainIndex == i) {
                         imageToolModule.showView(
-                            candidateLayout.findViewById(R.id.checkMainIcon),
+                            subLayout.findViewById(R.id.checkMainIcon),
                             true
                         )
                     }
@@ -102,6 +102,8 @@ class BurstModeEditFragment : Fragment() {
                                 Glide.with(binding.burstMainView)
                                     .load(imageContent.getJpegBytes(mainPicture))
                                     .into(binding.burstMainView)
+
+
                             }
                         }
                         //binding.burstMainView.setImageBitmap(mainBitmap)
@@ -109,7 +111,7 @@ class BurstModeEditFragment : Fragment() {
 
                     withContext(Dispatchers.Main) {
                         // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                        binding.candidateLayout.addView(candidateLayout)
+                        binding.candidateLayout.addView(subLayout)
                     }
                     checkFinish[i] = true
 

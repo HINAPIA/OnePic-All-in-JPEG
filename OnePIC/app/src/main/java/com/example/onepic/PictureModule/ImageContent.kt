@@ -57,11 +57,11 @@ class ImageContent {
             var frameBytes : ByteArray = extractFrame(byteArrayList[i])
             // Picture 객체 생성
             var picture = Picture( contentAttribute, frameBytes)
+            picture.waitForByteArrayInitialized()
             insertPicture(picture)
             if(i == 0){
                 mainPicture = picture
             }
-            picture.waitForByteArrayInitialized()
         }
         checkPictureList = true
     }

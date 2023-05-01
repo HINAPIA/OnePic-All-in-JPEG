@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/cropImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@+id/checkMainIcon"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/checkMainIcon"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/cropImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/crown"
+        app:tint="@color/point_color"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/viewerIcon"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/cropImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/crown"
+        app:tint="@color/point_color"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

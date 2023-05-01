@@ -181,7 +181,36 @@ class CameraFragment : Fragment() {
             if(binding.basicRadio.isChecked){
                 if(!(binding.basicToggle.isChecked)){
                     // Single Mode
-                    takePhotoIndex(0, 1)
+                    //takePhotoIndex(0, 1)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = takePicture(0)
+
+                        // 녹음 중단
+                        val savedFile = audioResolver.stopRecording()
+                        if (savedFile != null) {
+                            val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                                audioBytes,
+                                ContentAttribute.basic
+                            )
+                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                        }
+
+                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                            previewByteArrayList,
+                            ContentType.Image,
+                            ContentAttribute.basic
+                        )
+
+                        imageContent.activityType = ActivityType.Camera
+                        CoroutineScope(Dispatchers.Default).launch {
+                            // RewindFragment로 이동
+                            withContext(Dispatchers.Main) {
+                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
+                            }
+                        }
+                    }
+
 //                    previewToByteArray()
                     mediaPlayer.start()
                 }
@@ -229,6 +258,7 @@ class CameraFragment : Fragment() {
                                 ContentAttribute.burst
                             )
 
+                            imageContent.activityType = ActivityType.Camera
                             CoroutineScope(Dispatchers.Default).launch {
                                 // RewindFragment로 이동
                                 withContext(Dispatchers.Main) {
@@ -298,8 +328,9 @@ class CameraFragment : Fragment() {
 
                         imageContent.getBitmapList()
 
-                        jpegViewModel.jpegMCContainer.value?.save()
+                        //jpegViewModel.jpegMCContainer.value?.save()
 
+                        imageContent.activityType = ActivityType.Camera
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
                             withContext(Dispatchers.Main) {

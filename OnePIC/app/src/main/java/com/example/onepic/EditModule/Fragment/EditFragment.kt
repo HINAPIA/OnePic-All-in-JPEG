@@ -107,17 +107,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.focusBtn.setOnClickListener {
+            imageContent.activityType = ActivityType.Viewer
             findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
+            imageContent.activityType = ActivityType.Viewer
             // focus 가능한지 확인
             if(checkRewind){
                 // RewindFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
             }
         }
-        // Masic
+        // Magic
         binding.magicBtn.setOnClickListener {
             // magic 가능한지 확인
             if(checkMagic) {
@@ -171,13 +173,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT)
                         }
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-
-
                     })
                 .show()
-
-
         }
-
     }
 }
