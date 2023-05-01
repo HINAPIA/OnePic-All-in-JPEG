@@ -241,6 +241,7 @@ class CameraFragment : Fragment() {
                         // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                         if (previewByteArrayList.size == burstSize) {
+                            mediaPlayer.start()
                             // 녹음 중단
                             val savedFile = audioResolver.stopRecording()
                             if (savedFile != null) {
@@ -458,7 +459,7 @@ class CameraFragment : Fragment() {
         // Step 2: Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()
             .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
-            .setScoreThreshold(0.3f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .setScoreThreshold(0.2f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
             .build()
         customObjectDetector = ObjectDetector.createFromFileAndOptions(
             activity,
@@ -720,30 +721,38 @@ class CameraFragment : Fragment() {
      */
     private fun takeObjectFocusMode(index: Int) {
         if(index >= detectedList.size){
-            mediaPlayer.start()
-            Log.v("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
-            CoroutineScope(Dispatchers.IO).launch{
-                // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
-                if(previewByteArrayList.size != 0){
+            CoroutineScope(Dispatchers.IO).launch {
+                while (previewByteArrayList.size < detectedList.size) { }
+
+                if (previewByteArrayList.size == detectedList.size) {
+                    mediaPlayer.start()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
-                    if(savedFile != null){
-                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
-                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    if (savedFile != null) {
+                        val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                            audioBytes,
+                            ContentAttribute.basic
+                        )
+                        Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                     }
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                    jpegViewModel.jpegMCContainer.value!!.save()
+                    Log.d("burst", "setImageContent 호출 전")
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                        previewByteArrayList,
+                        ContentType.Image,
+                        ContentAttribute.focus
+                    )
+
+//                    jpegViewModel.jpegMCContainer.value!!.save()
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                        }
+                    }
+
                 }
             }
-
-//            CoroutineScope(Dispatchers.IO).launch{
-//                // 초점 사진들이 모두 저장 완료 되었을 때
-////                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-//                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-//            }
 
             return
         }
@@ -818,13 +827,39 @@ class CameraFragment : Fragment() {
     private fun controlLensFocusDistance(photoCnt: Int) {
         if (photoCnt >= DISTANCE_FOCUS_PHOTO_COUNT){
             mediaPlayer.start()
-            CoroutineScope(Dispatchers.IO).launch{
+            CoroutineScope(Dispatchers.IO).launch {
+
+                while (previewByteArrayList.size < DISTANCE_FOCUS_PHOTO_COUNT) {
+
+                }
                 // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                if(previewByteArrayList.size != 0){
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                }
+                if (previewByteArrayList.size == DISTANCE_FOCUS_PHOTO_COUNT) {
+                    // 녹음 중단
+                    val savedFile = audioResolver.stopRecording()
+                    if (savedFile != null) {
+                        val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                            audioBytes,
+                            ContentAttribute.basic
+                        )
+                        Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    }
+                    Log.d("burst", "setImageContent 호출 전")
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                        previewByteArrayList,
+                        ContentType.Image,
+                        ContentAttribute.focus
+                    )
 
+//                    jpegViewModel.jpegMCContainer.value!!.save()
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                        }
+                    }
+                }
             }
             return
         }
