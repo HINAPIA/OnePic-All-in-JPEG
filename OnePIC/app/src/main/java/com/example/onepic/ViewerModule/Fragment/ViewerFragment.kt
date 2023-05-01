@@ -108,8 +108,15 @@ class ViewerFragment : Fragment() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
+
+                // 필름 스크롤뷰 초기화
+                binding.pullRightView.visibility = View.VISIBLE
+                binding.scrollView.visibility = View.GONE
+
+                
                 // 텍스트 버튼 초기화
                 if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
                     binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
@@ -117,6 +124,7 @@ class ViewerFragment : Fragment() {
                     binding.textLinear.visibility = View.INVISIBLE
                     //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
                 }
+
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
                     binding.audioBtn.background = ColorDrawable(Color.TRANSPARENT)
@@ -227,6 +235,7 @@ class ViewerFragment : Fragment() {
         }
 
         binding.pullRightView.setOnClickListener {
+
             binding.scrollView.visibility = View.VISIBLE
 
 //            val startPosition =  binding.filmCaseImageView.width - binding.scrollView.width
