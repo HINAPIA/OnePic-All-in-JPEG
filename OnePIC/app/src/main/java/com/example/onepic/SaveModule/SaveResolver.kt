@@ -1,6 +1,8 @@
 package com.example.onepic.SaveModule
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,75 +32,14 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         mainActivity = _mainActivity
     }
 
-    fun save(){
-        CoroutineScope(Dispatchers.IO).launch {
-            val byteBuffer = ByteArrayOutputStream()
-
-            //Jpeg Meta
-            var jpegMetaData = MCContainer.imageContent.jpegMetaData
-            //if(firstPicture == null) throw NullPointerException("empty first Picture")
-
-            /* APP1뒤에 APP3를 쓰는 작업*/
-            // APP1 세그먼트의 시작 위치를 찾음
-            var pos = 2
-            var exifDataLength = 0
-            while (pos < jpegMetaData.size - 1) {
-                // APP1 존재
-                if (jpegMetaData[pos] == 0xFF.toByte() && jpegMetaData[pos + 1] == 0xE1.toByte()) {
-                    exifDataLength = ((jpegMetaData[pos+2].toInt() and 0xFF) shl 8) or
-                            ((jpegMetaData[pos+3].toInt() and 0xFF) shl 0)
-                    //SOI + APP1(EXIF) 쓰기
-                    byteBuffer.write(jpegMetaData,0,4 + exifDataLength)
-                    break
-                }
-                pos++
-            }
-            // APP1 미존재
-            if (pos == jpegMetaData.size - 1) {
-                // SOI 쓰기
-                byteBuffer.write(jpegMetaData,0,2)
-                //Log.d("test_test", "APP1 세그먼트를 찾지 못함")
-            }
-
-            //헤더 쓰기
-            //App3 Extension 데이터 생성
-            MCContainer.settingHeaderInfo()
-            var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
-            byteBuffer.write(APP3ExtensionByteArray)
-
-            //나머지 첫번째 사진의 데이터 쓰기
-            byteBuffer.write(jpegMetaData,4 + exifDataLength,jpegMetaData.size-(4 + exifDataLength))
-            // byteBuffer.write(jpegMetaData)
-
-            // Imgaes write
-            for(i in 0.. MCContainer.imageContent.pictureCount -1){
-                var picture = MCContainer.imageContent.getPictureAtIndex(i)
-                byteBuffer.write(/* b = */ picture!!._pictureByteArray)
-                if(i == 0){
-                    //EOI 작성
-                    byteBuffer.write(0xff)
-                    byteBuffer.write(0xd9)
-
-                }
-            }
-            // Text Wirte
-//            for(i in 0.. MCContainer.textContent.textCount-1){
-//                var text = MCContainer.textContent.getTextAtIndex(i)
-//                byteBuffer.write(/* b = */ text!!.textByteArray)
-//            }
-
-            // Audio Write
-            if(MCContainer.audioContent.audio!= null){
-                var audio = MCContainer.audioContent.audio
-                byteBuffer.write(/* b = */ audio!!._audioByteArray)
-            }
-
-            // 순서는 이미지 > 텍스트 > 오디오
-            var resultByteArray = byteBuffer.toByteArray()
+    fun overwriteSave(fileName : String){
+        Log.d("burst", "overwirte save()")
+      //  CoroutineScope(Dispatchers.IO).launch {
+            var resultByteArray = MCContainerToBytes()
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-                saveImageOnAboveAndroidQ(resultByteArray)
+                saveImageOnAboveAndroidQ(resultByteArray, fileName)
                 Log.d("Save Resolver", "save")
             } else {
                 // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
@@ -129,7 +70,51 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 }
             }
 
-        }
+      //  }
+
+    }
+
+
+
+    fun save(){
+//        CoroutineScope(Dispatchers.IO).launch {
+            var resultByteArray = MCContainerToBytes()
+            val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
+                saveImageOnAboveAndroidQ(resultByteArray, fileName)
+                Log.d("Save Resolver", "save")
+            } else {
+                // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
+                val writePermission = mainActivity?.let {
+                    ActivityCompat.checkSelfPermission(
+                        it,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                }
+                if (writePermission == PackageManager.PERMISSION_GRANTED) {
+
+                    saveImageOnUnderAndroidQ(resultByteArray)
+
+                    // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    val requestExternalStorageCode = 1
+
+                    val permissionStorage = arrayOf(
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+
+                    ActivityCompat.requestPermissions(
+                        mainActivity as Activity,
+                        permissionStorage,
+                        requestExternalStorageCode
+                    )
+                }
+            }
+
+      //  }
 
     }
 
@@ -137,27 +122,42 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
     //Android Q (Android 10, API 29 이상에서는 이 메서드를 통해서 이미지를 저장한다.)
+    @SuppressLint("Range", "Recycle")
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun saveImageOnAboveAndroidQ(byteArray: ByteArray) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName : String) {
+//        CoroutineScope(Dispatchers.IO).launch {
+            var uri : Uri
             Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 111")
+            // 기존 파일이 존재하는지 확인합니다.
+            val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+            val selectionArgs = arrayOf(fileName)
+            val cursor = mainActivity.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null,
+                selection,
+                selectionArgs,
+                null
+            )
 
-            val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-            /*
-            * ContentValues() 객체 생성.
-            * ContentValues는 ContentResolver가 처리할 수 있는 값을 저장해둘 목적으로 사용된다.
-            * */
+            // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
+            if (cursor != null && cursor.moveToFirst()) {
+                // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.
+                val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
+                cursor.close()
+                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
+                Log.d("saveResolver", "덮어 쓰기")
+            }
+            // 기존 파일이 존재하지 않는 경우 새로운 파일을 생성
+            else {
+                val values = ContentValues()
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                Log.d("saveResolver", "새 파일에 저장")
+                uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+            }
 
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-
-            // 이미지를 저장할 uri를 미리 설정해놓는다.
-            val uri: Uri? =
-                mainActivity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-
-            Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 2222")
+            Log.d("burst", "${uri}")
 
             try {
                 val outputStream: OutputStream? = uri?.let {
@@ -168,8 +168,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 if (outputStream != null) {
                     outputStream.write(byteArray)
                     outputStream.close()
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(mainActivity, "Image saved successfully", Toast.LENGTH_SHORT).show()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()
                     }
 
                 }
@@ -181,7 +181,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
+       // }
 
     }
 
@@ -217,4 +217,63 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             e.printStackTrace()
         }
     }
+
+    fun MCContainerToBytes() : ByteArray{
+        // 순서는 이미지 > 텍스트 > 오디오
+        val byteBuffer = ByteArrayOutputStream()
+        //Jpeg Meta
+        var jpegMetaData = MCContainer.imageContent.jpegMetaData
+        //if(firstPicture == null) throw NullPointerException("empty first Picture")
+        /* APP1뒤에 APP3를 쓰는 작업*/
+        // APP1 세그먼트의 시작 위치를 찾음
+        var pos = 2
+        var exifDataLength = 0
+        while (pos < jpegMetaData.size - 1) {
+            // APP1 존재
+            if (jpegMetaData[pos] == 0xFF.toByte() && jpegMetaData[pos + 1] == 0xE1.toByte()) {
+                exifDataLength = ((jpegMetaData[pos+2].toInt() and 0xFF) shl 8) or
+                        ((jpegMetaData[pos+3].toInt() and 0xFF) shl 0)
+                //SOI + APP1(EXIF) 쓰기
+                byteBuffer.write(jpegMetaData,0,4 + exifDataLength)
+                break
+            }
+            pos++
+        }
+        // APP1 미존재
+        if (pos == jpegMetaData.size - 1) {
+            // SOI 쓰기
+            byteBuffer.write(jpegMetaData,0,2)
+            //Log.d("test_test", "APP1 세그먼트를 찾지 못함")
+        }
+
+        //헤더 쓰기
+        //App3 Extension 데이터 생성
+        MCContainer.settingHeaderInfo()
+        var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
+        byteBuffer.write(APP3ExtensionByteArray)
+
+        //나머지 첫번째 사진의 데이터 쓰기
+        byteBuffer.write(jpegMetaData,4 + exifDataLength,jpegMetaData.size-(4 + exifDataLength))
+        // byteBuffer.write(jpegMetaData)
+
+        // Imgaes write
+        for(i in 0.. MCContainer.imageContent.pictureCount -1){
+            var picture = MCContainer.imageContent.getPictureAtIndex(i)
+            byteBuffer.write(/* b = */ picture!!._pictureByteArray)
+            if(i == 0){
+                //EOI 작성
+                byteBuffer.write(0xff)
+                byteBuffer.write(0xd9)
+
+            }
+        }
+
+        // Audio Write
+        if(MCContainer.audioContent.audio!= null){
+            var audio = MCContainer.audioContent.audio
+            byteBuffer.write(/* b = */ audio!!._audioByteArray)
+        }
+        return byteBuffer.toByteArray()
+    }
+
 }

@@ -19,11 +19,8 @@ import kotlin.coroutines.suspendCoroutine
 class RewindModule() {
 
     private lateinit var detector: FaceDetector
-
     private val imageToolModule: ImageToolModule
-
     private var faceArraylist : ArrayList<ArrayList<Face>?> = arrayListOf()
-
     private var checkFaceDetection = false
     private var checkFaceDetectionCall = false
 

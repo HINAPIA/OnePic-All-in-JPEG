@@ -93,15 +93,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         CoroutineScope(Dispatchers.Default).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-
             var startTime = System.currentTimeMillis()
-
             bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
             var endTime = System.currentTimeMillis()
             var elapsedTime = endTime - startTime
             Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
-
             //CoroutineScope(Dispatchers.Default).launch {
                 startTime = System.currentTimeMillis()
 
@@ -148,13 +145,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 if(imageContent.activityType == ActivityType.Camera) {
                     val mainPicture = imageContent.mainPicture
                     // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                    imageContent.insertPicture(0, mainPicture)
-
+                    //imageContent.insertPicture(0, mainPicture)
                     jpegViewModel.jpegMCContainer.value?.save()
                     //Thread.sleep(10000)
-                }
 
+                }
                 withContext(Dispatchers.Main){
+                    //jpegViewModel.jpegMCContainer.value?.save()
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
                 imageToolModule.showView(binding.progressBar , false)

@@ -36,7 +36,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
 
-    private var isAdd : Boolean = false
+    companion object{
+        private var isAdd : Boolean = false
+        private var isOnylMainChange : Boolean? = null
+    }
+
 
     private var checkFocus = true
     private var checkRewind = true
@@ -60,6 +64,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
+            while (!imageContent.checkPictureList){}
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
@@ -106,13 +111,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // focus - > mainChage
         binding.focusBtn.setOnClickListener {
             imageContent.activityType = ActivityType.Viewer
+            isAdd = false
+            if(isOnylMainChange == null)
+                isOnylMainChange = true
             findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
             imageContent.activityType = ActivityType.Viewer
+            isOnylMainChange = false
+            isAdd = false
             // focus 가능한지 확인
             if(checkRewind){
                 // RewindFragment로 이동
@@ -121,6 +132,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
         // Magic
         binding.magicBtn.setOnClickListener {
+            isOnylMainChange = false
+            isAdd = false
             // magic 가능한지 확인
             if(checkMagic) {
                 // MagicPictureFragment로 이동
@@ -129,6 +142,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
         // ADD
         binding.addBtn.setOnClickListener {
+            isOnylMainChange = false
             // 일반 사진이면 안 넘어가도록
             isAdd = true
             // MagicPictureFragment로 이동
@@ -144,37 +158,56 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
         }
+        Log.d("burst", isOnylMainChange.toString())
         // Save
         binding.saveBtn.setOnClickListener{
+            Log.d("burst","edit창에서 save click")
             val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                 activity,
                 android.R.style.Theme_DeviceDefault_Light_Dialog
             )
+            if(isOnylMainChange != null && isOnylMainChange == true){
+                // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
 
-            oDialog.setMessage(" 편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-                .setPositiveButton("모두 저장", DialogInterface.OnClickListener { dialog, which ->
-                    if(!isAdd){
-                        val mainPicture = imageContent.mainPicture
-                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                        imageContent.insertPicture(0, mainPicture)
-                    } else isAdd = false
-                    jpegViewModel.jpegMCContainer.value?.save()
+                    var currentFilePath = jpegViewModel.currentImageFilePath
+                    var fileName =currentFilePath!!.substring(currentFilePath!!.lastIndexOf("/")+1);
+                    jpegViewModel.currentImageFilePath
+                    jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                })
-                .setNeutralButton("예",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        try{
-                            var imageContent = jpegViewModel.jpegMCContainer.value?.imageContent
-                            var singlePictureList : ArrayList<Picture> =  ArrayList<Picture>(1)
-                            singlePictureList.add(imageContent!!.mainPicture)
-                            imageContent.setContent(singlePictureList)
-                            jpegViewModel.jpegMCContainer.value?.save()
-                        }catch (e :IOException){
-                            Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT)
-                        }
+
+            }
+            else{
+                oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
+                    .setPositiveButton("모두 저장", DialogInterface.OnClickListener { dialog, which ->
+                        if(!isAdd){
+                            val mainPicture = imageContent.mainPicture
+                            // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+                            imageContent.insertPicture(0, mainPicture)
+                        } else isAdd = false
+                        jpegViewModel.jpegMCContainer.value?.save()
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     })
-                .show()
+                    .setNeutralButton("예",
+                        DialogInterface.OnClickListener { dialog, which ->
+                            try{
+                                var imageContent = jpegViewModel.jpegMCContainer.value?.imageContent
+                                var singlePictureList : ArrayList<Picture> =  ArrayList<Picture>(1)
+                                singlePictureList.add(imageContent!!.mainPicture)
+                                imageContent.setContent(singlePictureList)
+                                jpegViewModel.jpegMCContainer.value?.save()
+                            }catch (e :IOException){
+                                Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT)
+                            }
+                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                        })
+                    .show()
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isAdd = false
+        //isOnylMainChange = null
     }
 }

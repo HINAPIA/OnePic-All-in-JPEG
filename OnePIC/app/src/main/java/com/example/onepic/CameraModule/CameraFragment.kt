@@ -98,7 +98,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 10
+    private val burstSize = 5
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -251,7 +251,7 @@ class CameraFragment : Fragment() {
                                 )
                                 Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                             }
-
+                            Log.d("burst", "setImageContent 호출 전")
                             jpegViewModel.jpegMCContainer.value!!.setImageContent(
                                 previewByteArrayList,
                                 ContentType.Image,
@@ -319,6 +319,7 @@ class CameraFragment : Fragment() {
                             )
                             Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                         }
+
 
                         jpegViewModel.jpegMCContainer.value!!.setImageContent(
                             previewByteArrayList,
@@ -519,13 +520,13 @@ class CameraFragment : Fragment() {
         val imageCapture = imageCapture ?: return
 
         // Create time stamped name and MediaStore entry.
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis())
+        val name = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
             }
         }
 
