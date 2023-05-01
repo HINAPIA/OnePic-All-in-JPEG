@@ -22,6 +22,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     private val _imageUriLiveData = MutableLiveData<List<String>>() // 내부처리 데이터
     val imageUriLiveData: LiveData<List<String>> get() = _imageUriLiveData //읽기 전용
 
+    private lateinit var urlHashMap:HashMap<String, Int>
+
     /* TODO: Edit 창에서 Main 바꿀 때 필요한 property
         - 동기처리 문제 아직 남아있어서, 만약 갤러리(사진)에 변경 있으면 테스트 할 때는 갤러리뷰 한번 갔다가 들어와주세요! */
 
@@ -63,6 +65,10 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     fun updateImageUriData(uriList: MutableList<String>) {
         this.imageUriList = uriList
         _imageUriLiveData.value = imageUriList
+        urlHashMap = HashMap<String,Int>()
+        for (i in 0 until uriList.size) {
+            urlHashMap.put(uriList[i],i)
+        }
     }
 
     fun getAllPhotos(){
@@ -84,4 +90,10 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         }
     }
 
+    fun getFilePathIdx(key:String):Int?{
+        if (urlHashMap.containsKey(key)){
+            return urlHashMap.get(key)
+        }
+        return null
+    }
 }

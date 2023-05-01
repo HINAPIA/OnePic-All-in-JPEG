@@ -20,6 +20,7 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
+import com.example.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

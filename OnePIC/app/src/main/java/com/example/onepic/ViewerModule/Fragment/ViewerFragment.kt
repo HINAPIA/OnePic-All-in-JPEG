@@ -21,8 +21,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
-import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.JpegViewModel
+import com.example.onepic.LoadModule.LoadResolver
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -45,6 +45,10 @@ class ViewerFragment : Fragment() {
     private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
+
+    companion object {
+        var currentFilePath:String = ""
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,11 +73,28 @@ class ViewerFragment : Fragment() {
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
-            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-            // 기존 위치 curr Position을 가지고 있어야 하나..?
-            mainViewPagerAdapter.notifyDataSetChanged()
+
+            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
+
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
+            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+
+            if (position != null){ // 사진이 갤러리에 존재하면
+                binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+            }
+            else {
+                // TODO: 보고있는 사진이 삭제된 경우
+
+            }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        var currentPosition: Int = binding.viewPager2.currentItem
+        currentFilePath = mainViewPagerAdapter.galleryMainimages[currentPosition]
+    }
+
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
     @RequiresApi(Build.VERSION_CODES.M)
