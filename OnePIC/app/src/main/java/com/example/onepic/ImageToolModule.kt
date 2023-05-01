@@ -53,12 +53,22 @@ class ImageToolModule {
 
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
-        //val options = BitmapFactory.Options()
 
-        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        var bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
-        val matrix = bitmapRotation(byteArray , 1)
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        if (bitmap == null) {
+            // bitmap이 null인 경우 예외 처리를 수행합니다.
+            // 예를 들어, 사용자에게 오류 메시지를 표시하거나 기본 이미지를 반환 할 수 있습니다.
+//            while(bitmap==null){
+//                bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+//                Log.d("bitmap while", "while in")
+//            }
+            return bitmap
+        } else {
+            val matrix = bitmapRotation(byteArray , 1)
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        }
+
     }
 
 //    fun byteArrayToBitmap(context: Context, byteArray: ByteArray): Bitmap {
@@ -225,9 +235,11 @@ class ImageToolModule {
      *        clickPoint를 사진 Bitmap에 맞춰 비율 조정을 해서
      *        비율 보정된 새로운 point를 반환
      */
-    fun getBitmapClickPoint(clickPoint: PointF, imageView: ImageView): Point {
+    fun getBitmapClickPoint(clickPoint: PointF, imageView: ImageView): Point? {
 
-        var bitmap: Bitmap = imageView.drawable.toBitmap()
+        if(imageView.drawable != null) return null
+
+        val bitmap: Bitmap = imageView.drawable.toBitmap()
         //bitmap = Bitmap.createScaledBitmap(bitmap, 1080, 810, true)
 
         // imageView width, height 가져오기

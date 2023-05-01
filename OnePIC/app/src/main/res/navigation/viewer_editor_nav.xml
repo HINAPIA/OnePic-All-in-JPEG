@@ -18,13 +18,18 @@
             app:destination="@id/magicPictureFragment" />
         <action
             android:id="@+id/action_editFragment_to_viewerFragment"
-            app:destination="@id/viewerFragment" />
+            app:destination="@id/viewerFragment"
+            app:popUpTo="@id/viewerFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_editFragment_to_playFragment"
             app:destination="@id/playFragment" />
         <action
             android:id="@+id/action_editFragment_to_addFragment"
             app:destination="@id/addFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_burstModeEditFragment"
+            app:destination="@id/burstModeEditFragment2" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -33,7 +38,9 @@
         tools:layout="@layout/fragment_rewind">
         <action
             android:id="@+id/action_fregemnt_to_editFragment"
-            app:destination="@id/editFragment" />
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/magicPictureFragment"
@@ -42,7 +49,9 @@
         tools:layout="@layout/fragment_magic_picture" >
         <action
             android:id="@+id/action_magicPictureFragment_to_editFragment"
-            app:destination="@id/editFragment" />
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/viewerFragment"
@@ -54,7 +63,9 @@
             app:destination="@id/editFragment" />
         <action
             android:id="@+id/action_viewerFragment_to_galleryFragment"
-            app:destination="@id/galleryFragment" />
+            app:destination="@id/galleryFragment"
+            app:popUpTo="@id/galleryFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"
@@ -71,7 +82,9 @@
         tools:layout="@layout/fragment_play" >
         <action
             android:id="@+id/action_playFragment_to_editFragment"
-            app:destination="@id/editFragment" />
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/addFragment"
@@ -80,7 +93,9 @@
         tools:layout="@layout/fragment_add" >
         <action
             android:id="@+id/action_addFragment_to_editFragment"
-            app:destination="@id/editFragment" />
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/permissionFragment2"
@@ -88,6 +103,19 @@
         android:label="PermissionFragment" >
         <action
             android:id="@+id/action_permissionFragment2_to_galleryFragment"
-            app:destination="@id/galleryFragment" />
+            app:destination="@id/galleryFragment"
+            app:popUpTo="@id/galleryFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/burstModeEditFragment2"
+        android:name="com.example.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:label="fragment_burst_mode_edit"
+        tools:layout="@layout/fragment_burst_mode_edit" >
+        <action
+            android:id="@+id/action_burstModeEditFragment_to_Fragment"
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

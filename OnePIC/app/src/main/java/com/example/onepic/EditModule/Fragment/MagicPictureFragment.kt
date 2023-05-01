@@ -100,7 +100,7 @@ class MagicPictureFragment : RewindFragment() {
             CoroutineScope(Dispatchers.Default).launch {
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
-                imageContent.mainPicture = Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes) )
+                imageContent.mainPicture = Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 // EmbeddedData 추가
@@ -151,7 +151,7 @@ class MagicPictureFragment : RewindFragment() {
         // 이미지 뷰 클릭 시
         binding.magicMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_DOWN) {
-                imageToolModule.showView(binding.progressBar , true)
+                imageToolModule.showView(binding.progressBar, true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
@@ -160,16 +160,19 @@ class MagicPictureFragment : RewindFragment() {
                 )
                 println("------- click point:" + touchPoint)
 
-                CoroutineScope(Dispatchers.Default).launch {
-                    // Click 좌표가 포함된 Bounding Box 얻음
-                    boundingBox = getBoundingBox(touchPoint)
+                if (touchPoint != null) {
 
-                    // Bounding Box로 이미지를 Crop한 후 보여줌
-                    withContext(Dispatchers.Main) {
-                        cropImgAndView(boundingBox)
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // Click 좌표가 포함된 Bounding Box 얻음
+                        boundingBox = getBoundingBox(touchPoint)
+
+                        // Bounding Box로 이미지를 Crop한 후 보여줌
+                        withContext(Dispatchers.Main) {
+                            cropImgAndView(boundingBox)
+                        }
+                        imageToolModule.showView(binding.progressBar, false)
+
                     }
-                    imageToolModule.showView(binding.progressBar , false)
-
                 }
             }
             return@setOnTouchListener true

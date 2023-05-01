@@ -93,15 +93,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         CoroutineScope(Dispatchers.Default).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-
             var startTime = System.currentTimeMillis()
-
             bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
             var endTime = System.currentTimeMillis()
             var elapsedTime = endTime - startTime
             Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
-
             //CoroutineScope(Dispatchers.Default).launch {
                 startTime = System.currentTimeMillis()
 
@@ -148,13 +145,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 if(imageContent.activityType == ActivityType.Camera) {
                     val mainPicture = imageContent.mainPicture
                     // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                    imageContent.insertPicture(0, mainPicture)
-
+                    //imageContent.insertPicture(0, mainPicture)
                     jpegViewModel.jpegMCContainer.value?.save()
                     //Thread.sleep(10000)
-                }
 
+                }
                 withContext(Dispatchers.Main){
+                    //jpegViewModel.jpegMCContainer.value?.save()
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
                 imageToolModule.showView(binding.progressBar , false)
@@ -188,27 +185,27 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
-                imageToolModule.showView(binding.progressBar , true)
+                imageToolModule.showView(binding.progressBar, true)
 
-                if(preMainBitmap != null) {
+                if (preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
                     newImage = null
                 }
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(
-                    PointF(event.x, event.y),
-                    view as ImageView
-                )
+                val touchPoint = ImageToolModule().getBitmapClickPoint(PointF(event.x, event.y), view as ImageView)
                 println("------- click point:$touchPoint")
 
-                CoroutineScope(Dispatchers.Default).launch {
-                    // Click 좌표가 포함된 Bounding Box 얻음
-                    val boundingBox = getBoundingBox(touchPoint)
+                if (touchPoint != null) {
 
-                    if(boundingBox.size > 0) {
-                        // Bounding Box로 이미지를 Crop한 후 보여줌
-                        withContext(Dispatchers.Main) {
-                            cropImgAndView(boundingBox)
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // Click 좌표가 포함된 Bounding Box 얻음
+                        val boundingBox = getBoundingBox(touchPoint)
+
+                        if (boundingBox.size > 0) {
+                            // Bounding Box로 이미지를 Crop한 후 보여줌
+                            withContext(Dispatchers.Main) {
+                                cropImgAndView(boundingBox)
+                            }
                         }
                     }
                 }

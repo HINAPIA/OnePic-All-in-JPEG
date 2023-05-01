@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
+        app:defaultNavHost = "true"
         app:navGraph="@navigation/viewer_editor_nav" >
 
     </androidx.fragment.app.FragmentContainerView>

@@ -98,7 +98,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 10
+    private val burstSize = 5
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -181,7 +181,36 @@ class CameraFragment : Fragment() {
             if(binding.basicRadio.isChecked){
                 if(!(binding.basicToggle.isChecked)){
                     // Single Mode
-                    takePhotoIndex(0, 1)
+                    //takePhotoIndex(0, 1)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = takePicture(0)
+
+                        // 녹음 중단
+                        val savedFile = audioResolver.stopRecording()
+                        if (savedFile != null) {
+                            val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                                audioBytes,
+                                ContentAttribute.basic
+                            )
+                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                        }
+
+                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                            previewByteArrayList,
+                            ContentType.Image,
+                            ContentAttribute.basic
+                        )
+
+                        imageContent.activityType = ActivityType.Camera
+                        CoroutineScope(Dispatchers.Default).launch {
+                            // RewindFragment로 이동
+                            withContext(Dispatchers.Main) {
+                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
+                            }
+                        }
+                    }
+
 //                    previewToByteArray()
                     mediaPlayer.start()
                 }
@@ -222,13 +251,14 @@ class CameraFragment : Fragment() {
                                 )
                                 Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                             }
-
+                            Log.d("burst", "setImageContent 호출 전")
                             jpegViewModel.jpegMCContainer.value!!.setImageContent(
                                 previewByteArrayList,
                                 ContentType.Image,
                                 ContentAttribute.burst
                             )
 
+                            imageContent.activityType = ActivityType.Camera
                             CoroutineScope(Dispatchers.Default).launch {
                                 // RewindFragment로 이동
                                 withContext(Dispatchers.Main) {
@@ -290,6 +320,7 @@ class CameraFragment : Fragment() {
                             Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                         }
 
+
                         jpegViewModel.jpegMCContainer.value!!.setImageContent(
                             previewByteArrayList,
                             ContentType.Image,
@@ -298,6 +329,9 @@ class CameraFragment : Fragment() {
 
                         imageContent.getBitmapList()
 
+                        //jpegViewModel.jpegMCContainer.value?.save()
+
+                        imageContent.activityType = ActivityType.Camera
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
                             withContext(Dispatchers.Main) {
@@ -424,7 +458,7 @@ class CameraFragment : Fragment() {
         // Step 2: Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()
             .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
-            .setScoreThreshold(0.3f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .setScoreThreshold(0.2f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
             .build()
         customObjectDetector = ObjectDetector.createFromFileAndOptions(
             activity,
@@ -486,13 +520,13 @@ class CameraFragment : Fragment() {
         val imageCapture = imageCapture ?: return
 
         // Create time stamped name and MediaStore entry.
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis())
+        val name = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
             }
         }
 
@@ -687,29 +721,51 @@ class CameraFragment : Fragment() {
     private fun takeObjectFocusMode(index: Int) {
         if(index >= detectedList.size){
             mediaPlayer.start()
-            Log.v("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
-            CoroutineScope(Dispatchers.IO).launch{
-                // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
-                if(previewByteArrayList.size != 0){
-                    // 녹음 중단
-                    val savedFile = audioResolver.stopRecording()
-                    if(savedFile != null){
-                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
-                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-                    }
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                    jpegViewModel.jpegMCContainer.value!!.save()
-                }
-            }
-
 //            CoroutineScope(Dispatchers.IO).launch{
 //                // 초점 사진들이 모두 저장 완료 되었을 때
 ////                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-//                jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+//                Log.d("MCcontainer", "${previewByteArrayList.size}, ${detectedList.size}")
+//                if(previewByteArrayList.size != 0){
+//                    // 녹음 중단
+//                    val savedFile = audioResolver.stopRecording()
+//                    if(savedFile != null){
+//                        var audioBytes = audioResolver.getByteArrayInFile(savedFile)
+//                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(audioBytes, ContentAttribute.basic)
+//                        Log.d("AudioModule" , "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+//                    }
+//                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+//                    jpegViewModel.jpegMCContainer.value!!.save()
+//                }
 //            }
+            CoroutineScope(Dispatchers.IO).launch {
+
+                while (previewByteArrayList.size < detectedList.size) {
+
+                }
+                // 초점 사진들이 모두 저장 완료 되었을 때
+//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
+                if (previewByteArrayList.size == detectedList.size) {
+                    // 녹음 중단
+                    val savedFile = audioResolver.stopRecording()
+                    if (savedFile != null) {
+                        val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                            audioBytes,
+                            ContentAttribute.basic
+                        )
+                        Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    }
+                    Log.d("burst", "setImageContent 호출 전")
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                        previewByteArrayList,
+                        ContentType.Image,
+                        ContentAttribute.burst
+                    )
+
+                    jpegViewModel.jpegMCContainer.value!!.save()
+
+                }
+            }
 
             return
         }
@@ -784,13 +840,34 @@ class CameraFragment : Fragment() {
     private fun controlLensFocusDistance(photoCnt: Int) {
         if (photoCnt >= DISTANCE_FOCUS_PHOTO_COUNT){
             mediaPlayer.start()
-            CoroutineScope(Dispatchers.IO).launch{
+            CoroutineScope(Dispatchers.IO).launch {
+
+                while (previewByteArrayList.size < DISTANCE_FOCUS_PHOTO_COUNT) {
+
+                }
                 // 초점 사진들이 모두 저장 완료 되었을 때
 //                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                if(previewByteArrayList.size != 0){
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                }
+                if (previewByteArrayList.size == DISTANCE_FOCUS_PHOTO_COUNT) {
+                    // 녹음 중단
+                    val savedFile = audioResolver.stopRecording()
+                    if (savedFile != null) {
+                        val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                            audioBytes,
+                            ContentAttribute.basic
+                        )
+                        Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    }
+                    Log.d("burst", "setImageContent 호출 전")
+                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                        previewByteArrayList,
+                        ContentType.Image,
+                        ContentAttribute.burst
+                    )
 
+                    jpegViewModel.jpegMCContainer.value!!.save()
+
+                }
             }
             return
         }
