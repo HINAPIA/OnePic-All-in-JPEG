@@ -94,12 +94,16 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         CoroutineScope(Dispatchers.Default).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             var startTime = System.currentTimeMillis()
-            bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            if (newBitmapList != null) {
+                bitmapList = newBitmapList
+                //rewindModule.allFaceDetection(bitmapList)
 
-            var endTime = System.currentTimeMillis()
-            var elapsedTime = endTime - startTime
-            Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
-            //CoroutineScope(Dispatchers.Default).launch {
+
+                var endTime = System.currentTimeMillis()
+                var elapsedTime = endTime - startTime
+                Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
+                //CoroutineScope(Dispatchers.Default).launch {
                 startTime = System.currentTimeMillis()
 
                 rewindModule.allFaceDetection(bitmapList)
@@ -107,21 +111,22 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 endTime = System.currentTimeMillis()
                 elapsedTime = endTime - startTime
                 Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
-            //}
+                //}
 
-            if(imageContent.activityType == ActivityType.Camera) {
-                startTime = System.currentTimeMillis()
+                if (imageContent.activityType == ActivityType.Camera) {
+                    startTime = System.currentTimeMillis()
 
-                mainBitmap =rewindModule.autoBestFaceChange(bitmapList)
+                    mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
-                endTime = System.currentTimeMillis()
-                elapsedTime = endTime - startTime
-                Log.d("ElapsedTime", "autorewind Time: $elapsedTime ms")
+                    endTime = System.currentTimeMillis()
+                    elapsedTime = endTime - startTime
+                    Log.d("ElapsedTime", "autorewind Time: $elapsedTime ms")
 
-                setMainImageBoundingBox()
+                    setMainImageBoundingBox()
 
-                imageToolModule.showView(binding.progressBar , false)
+                    imageToolModule.showView(binding.progressBar, false)
 
+                }
             }
         }
         // save btn 클릭 시
@@ -192,7 +197,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     newImage = null
                 }
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(PointF(event.x, event.y), view as ImageView)
+                val touchPoint = ImageToolModule().getBitmapClickPoint(PointF(event.x, event.y), binding.rewindMainView)
                 println("------- click point:$touchPoint")
 
                 if (touchPoint != null) {
@@ -208,6 +213,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                             }
                         }
                     }
+                }
+                else {
+                    imageToolModule.showView(binding.progressBar, false)
+
                 }
             }
             return@setOnTouchListener true
@@ -271,16 +280,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
 
-
         CoroutineScope(Dispatchers.Default).launch {
-            val startTime = System.currentTimeMillis()
 
-            val faceResult = rewindModule.runFaceDetection(mainBitmap, 0)
+            val faceResult = rewindModule.runFaceDetection(0)
 
-            val endTime = System.currentTimeMillis()
-
-            val elapsedTime = endTime - startTime
-            Log.d("ElapsedTime", "Elapsed Time: $elapsedTime ms")
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
 
             val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
 

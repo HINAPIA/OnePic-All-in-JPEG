@@ -237,7 +237,7 @@ class ImageToolModule {
      */
     fun getBitmapClickPoint(clickPoint: PointF, imageView: ImageView): Point? {
 
-        if(imageView.drawable != null) return null
+        if(imageView.drawable == null) return null
 
         val bitmap: Bitmap = imageView.drawable.toBitmap()
         //bitmap = Bitmap.createScaledBitmap(bitmap, 1080, 810, true)

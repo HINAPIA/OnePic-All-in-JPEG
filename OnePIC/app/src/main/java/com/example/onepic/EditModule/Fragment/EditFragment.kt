@@ -64,7 +64,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
-            while (!imageContent.checkPictureList){}
+
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
@@ -113,19 +113,21 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // focus - > mainChage
         binding.focusBtn.setOnClickListener {
-            imageContent.activityType = ActivityType.Viewer
             isAdd = false
             if(isOnylMainChange == null)
                 isOnylMainChange = true
+
+            imageContent.activityType = ActivityType.Viewer
             findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            imageContent.activityType = ActivityType.Viewer
+
             isOnylMainChange = false
             isAdd = false
             // focus 가능한지 확인
             if(checkRewind){
+                imageContent.activityType = ActivityType.Viewer
                 // RewindFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
             }

@@ -32,18 +32,21 @@ class ImageContent {
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
     var checkPictureList = false
+    var checkTransformBitmap = false
 
     fun init() {
         Log.d("burst", "==================")
         Log.d("burst", "imageContnet 초기화")
+        checkGetBitmapList = false
+        checkPictureList = false
+        checkTransformBitmap = false
+
         pictureList.clear()
         pictureCount = 0
         bitmapList.clear()
         attributeBitmapList.clear()
         bitmapListAttribute = null
         activityType = null
-        checkGetBitmapList = false
-        checkPictureList = false
         //jpegMetaData = ByteArray(0)
     }
 
@@ -54,7 +57,7 @@ class ImageContent {
         init()
         // 메타 데이터 분리
         jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
-        for(i in 0..byteArrayList.size-1){
+        for(i in 0..byteArrayList.size-1) {
             // frame 분리
             var frameBytes : ByteArray = extractFrame(byteArrayList.get(i),contentAttribute)
             // Picture 객체 생성
@@ -79,8 +82,6 @@ class ImageContent {
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
         checkPictureList = true
-
-
     }
 
     /**
@@ -101,19 +102,27 @@ class ImageContent {
      *      - picture의 attrubuteType이 인자로 전달된 attribute가 아닌 것만 list로 제작 후 전달
      */
     // bitmapList getter
-    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap> {
+    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
+        checkTransformBitmap = true
+
         if(bitmapListAttribute == null || bitmapListAttribute != attribute) {
             attributeBitmapList.clear()
             bitmapListAttribute = attribute
         }
         if(attributeBitmapList.size == 0) {
-            while(!checkGetBitmapList || !checkPictureList) { }
+            while(!checkGetBitmapList || !checkPictureList) {
+                if(!checkTransformBitmap)
+                    return null
+            }
 
             for(i in 0 until pictureList.size){
+                if(!checkTransformBitmap)
+                    return null
                 if(pictureList[i].contentAttribute != attribute)
                     attributeBitmapList.add(bitmapList[i])
             }
         }
+        checkTransformBitmap = false
         return attributeBitmapList
     }
 
@@ -122,32 +131,47 @@ class ImageContent {
      *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
      *          있다면 bitmapList 전달
      */
-    fun getBitmapList() : ArrayList<Bitmap> {
+    fun getBitmapList() : ArrayList<Bitmap>? {
         Log.d("burst", "getBitmapList 호출")
+
+        checkTransformBitmap = true
+
         if(bitmapList.size == 0){
             while (!checkPictureList) {
+                if(!checkTransformBitmap)
+                    return null
             }
-            var pictureListSize= pictureList.size
-            Log.d("burst", "pictureListSize : ${pictureListSize}")
+            val pictureListSize= pictureList.size
+            Log.d("burst", "pictureListSize : $pictureListSize")
             val checkFinish = BooleanArray(pictureListSize)
+            if(!checkTransformBitmap)
+                return null
             val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
             for (i in 0 until pictureListSize) {
+                if(!checkTransformBitmap)
+                    return null
                 checkFinish[i] = false
                 bitmapList.add(exBitmap)
             }
             for (i in 0 until pictureListSize) {
+                if(!checkTransformBitmap)
+                    return null
                 CoroutineScope(Dispatchers.Default).launch {
                     val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
-                    bitmapList[i] = bitmap
-                    checkFinish[i] = true
+                    if(checkTransformBitmap) {
+                        bitmapList[i] = bitmap
+                        checkFinish[i] = true
+                    }
                 }
             }
             while (!checkFinish.all { it }) {
-                // Wait for all tasks to finish
+                if(!checkTransformBitmap)
+                    return null
             }
             Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
         }
         checkGetBitmapList = true
+        checkTransformBitmap = false
         return bitmapList
     }
 
@@ -156,16 +180,13 @@ class ImageContent {
      *      - mainBitmap 전달
      */
     fun getMainBitmap() : Bitmap {
-        while(!checkPictureList) { }
-        var checkMain = false
-        CoroutineScope(Dispatchers.Default).launch {
-            if (mainBitmap == null) {
-                mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
-            }
+        while (!checkPictureList) {
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
         }
-        while(!checkMain){
 
-        }
+        Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
+        mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+        Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
         return mainBitmap!!
     }
 

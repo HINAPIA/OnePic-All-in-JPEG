@@ -109,7 +109,10 @@ class PlayFragment : Fragment() {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
-                bitmapList = imageContent.getBitmapList()
+                val newBitmapList = imageContent.getBitmapList()
+                if(newBitmapList != null) {
+                    bitmapList = newBitmapList
+                }
             }
 
             var basicIndex = 0

@@ -39,10 +39,10 @@ class RewindModule() {
             faceArraylist.add(null)
         }
         CoroutineScope(Dispatchers.Default).launch {
-            Log.d("RewindModule", "start = $0")
+            Log.d("RewindModule", "start = 0")
             // j 번째 사진 faces 정보 얻기
             faceArraylist[0] = runFaceContourDetection(bitmapList[0])
-            Log.d("RewindModule", "end = $0")
+            Log.d("RewindModule", "end = 0")
             checkFinish[0] = true
 
 
@@ -97,7 +97,7 @@ class RewindModule() {
      *      - bitmap에서 얼굴 detection을 실행 및
      *        감지된 얼굴에 사각형 그리기
      */
-    suspend fun runFaceDetection(bitmap: Bitmap, index: Int): ArrayList<Face> = suspendCoroutine { bitmapResult ->
+    suspend fun runFaceDetection(index: Int): ArrayList<Face> = suspendCoroutine { bitmapResult ->
 
         // face Detection
         var faces: ArrayList<Face>
