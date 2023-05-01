@@ -63,6 +63,7 @@ class CameraFragment : Fragment() {
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
+    private var isShutterClick : Boolean = false
     private lateinit var mediaPlayer : MediaPlayer
 
     // Camera
@@ -73,7 +74,6 @@ class CameraFragment : Fragment() {
     private lateinit var camera2CameraInfo: Camera2CameraInfo
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var cameraSelector: CameraSelector
-    private lateinit var imageAnalysis: ImageAnalysis
     private lateinit var imageCapture: ImageCapture
 
     // TFLite
@@ -174,15 +174,23 @@ class CameraFragment : Fragment() {
          *      - 셔터 버튼 눌렀을 때 Option에 따른 촬영
          */
         binding.shutterButton.setOnClickListener {
-            // previewByteArrayList 초기화
-            previewByteArrayList.clear()
 
-            // Basic Mode
+            previewByteArrayList.clear() // previewByteArrayList 초기화
+
+            isShutterClick = true
+            binding.shutterButton.isEnabled = !isShutterClick
+            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter_block))
+
+            /**
+             * Basic Mode
+             */
             if(binding.basicRadio.isChecked){
+                /**
+                 * Single Mode
+                 */
                 if(!(binding.basicToggle.isChecked)){
-                    // Single Mode
-                    //takePhotoIndex(0, 1)
                     CoroutineScope(Dispatchers.IO).launch {
+                        mediaPlayer.start()
                         val result = takePicture(0)
 
                         // 녹음 중단
@@ -201,6 +209,11 @@ class CameraFragment : Fragment() {
                             ContentType.Image,
                             ContentAttribute.basic
                         )
+                        withContext(Dispatchers.Main) {
+                            isShutterClick = false
+                            binding.shutterButton.isEnabled = !isShutterClick
+                            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                        }
 
                         imageContent.activityType = ActivityType.Camera
                         CoroutineScope(Dispatchers.Default).launch {
@@ -210,36 +223,23 @@ class CameraFragment : Fragment() {
                             }
                         }
                     }
-
-//                    previewToByteArray()
-                    mediaPlayer.start()
                 }
+                /**
+                 * Burst Mode
+                 */
                 else{
-                    // Burst Mode
                     turnOnBurstMode()
-//                    takePhotoIndex(0, 10)
-//                    takeBurstMode(0,10)
 
                     for (i in 1..burstSize) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
                             val result = takePicture(i)
-                            if (result == 1) {
-                                Log.v("CameraX Speed Test", "[$i] 11111111111")
-                            } else {
-                                Log.v("CameraX Speed Test", "[$i] 00000000000")
-                            }
-                            Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
                         }
                     } // end of the for ...
 
                     CoroutineScope(Dispatchers.IO).launch {
 
-                        while (previewByteArrayList.size < burstSize) {
+                        while (previewByteArrayList.size < burstSize) { }
 
-                        }
-                        // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                         if (previewByteArrayList.size == burstSize) {
                             mediaPlayer.start()
                             // 녹음 중단
@@ -259,6 +259,12 @@ class CameraFragment : Fragment() {
                                 ContentAttribute.burst
                             )
 
+                            withContext(Dispatchers.Main) {
+                                isShutterClick = false
+                                binding.shutterButton.isEnabled = !isShutterClick
+                                binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                            }
+
                             imageContent.activityType = ActivityType.Camera
                             CoroutineScope(Dispatchers.Default).launch {
                                 // RewindFragment로 이동
@@ -267,48 +273,40 @@ class CameraFragment : Fragment() {
                                 }
                             }
                         }
-                    }
+                    } // end of Coroutine ...
 
                 } // end of else ...
             }
-
+            /**
+             * Object Focus Mode
+             */
             else if(binding.objectFocusRadio.isChecked){
                 pointArrayList.clear()
                 isFocusSuccess = false
                 startObjectFocusMode()
                 audioResolver.startRecording("camera_record")
             }
-
+            /**
+             * Distance Focus Mode
+             */
             else if(binding.distanceFocusRadio.isChecked){
                 controlLensFocusDistance(0)
             }
-
+            /**
+             * Auto Rewind Mode
+             */
             else if(binding.autoRewindRadio.isChecked){
-                //TODO : Burst Mode 구현 후 경미 rewind랑 유진이 multi-content jpeg 합치기
-                // Burst Mode
-
                 turnOnBurstMode()
 
                 for (i in 1..burstSize) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        Log.v("CameraX Speed Test", "[$i] 1. for문 입장")
                         val result = takePicture(i)
-                        if (result == 1) {
-                            Log.v("CameraX Speed Test", "[$i] 11111111111")
-                        } else {
-                            Log.v("CameraX Speed Test", "[$i] 00000000000")
-                        }
-                        Log.v("CameraX Speed Test", "[$i] 5. for문 끝")
                     }
                 } // end of the for ...
 
                 CoroutineScope(Dispatchers.IO).launch {
+                    while(previewByteArrayList.size < burstSize) { }
 
-                    while(previewByteArrayList.size < burstSize) {
-
-                    }
-                    // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                     if (previewByteArrayList.size == burstSize) {
                         // 녹음 중단
                         val savedFile = audioResolver.stopRecording()
@@ -321,7 +319,6 @@ class CameraFragment : Fragment() {
                             Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                         }
 
-
                         jpegViewModel.jpegMCContainer.value!!.setImageContent(
                             previewByteArrayList,
                             ContentType.Image,
@@ -332,6 +329,12 @@ class CameraFragment : Fragment() {
 
                         //jpegViewModel.jpegMCContainer.value?.save()
 
+                        withContext(Dispatchers.Main) {
+                            isShutterClick = false
+                            binding.shutterButton.isEnabled = !isShutterClick
+                            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                        }
+
                         imageContent.activityType = ActivityType.Camera
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
@@ -340,8 +343,8 @@ class CameraFragment : Fragment() {
                             }
                         }
                     }
-                }
-            }
+                } // end of Coroutine ...
+            } // end of auto rewind ...
         }
 
         binding.galleryButton.setOnClickListener{
@@ -399,49 +402,13 @@ class CameraFragment : Fragment() {
 
             imageCapture.takePicture(cameraExecutor, object :
                 ImageCapture.OnImageCapturedCallback() {
-                init{
-                    Log.v("CameraX Speed Test", "[$i] takePicture 시작 ####")
-                }
-
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    Log.v("CameraX Speed Test", "[$i] 2. onCaptureSuccess 입장")
                     val buffer = image.planes[0].buffer
                     buffer.rewind()
                     val bytes = ByteArray(buffer.capacity())
                     buffer.get(bytes)
-                    Log.v("CameraX Speed Test", "[$i] 3. byteArray로 변환")
                     previewByteArrayList.add(bytes)
-                    Log.v("CameraX Speed Test", "[$i] 4. previewByteArrayList에 저장")
                     image.close()
-
-                    CoroutineScope(Dispatchers.IO).launch {
-
-                        if (!(binding.autoRewindRadio.isChecked || binding.basicRadio.isChecked && binding.basicToggle.isChecked)) {
-                            // 초점 사진들이 모두 저장 완료 되었을 때
-                            // MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
-                            if (previewByteArrayList.size == burstSize) {
-                                // 녹음 중단
-                                val savedFile = audioResolver.stopRecording()
-                                if (savedFile != null) {
-                                    var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                                    jpegViewModel.jpegMCContainer.value!!.setAudioContent(
-                                        audioBytes,
-                                        ContentAttribute.basic
-                                    )
-                                    Log.d(
-                                        "AudioModule",
-                                        "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}"
-                                    )
-                                }
-                                jpegViewModel.jpegMCContainer.value!!.setImageContent(
-                                    previewByteArrayList,
-                                    ContentType.Image,
-                                    ContentAttribute.focus
-                                )
-                                jpegViewModel.jpegMCContainer.value!!.save()
-                            }
-                        }
-                    }
 
                     continuation.resume(1)
                     super.onCaptureSuccess(image)
@@ -507,97 +474,97 @@ class CameraFragment : Fragment() {
                 }.build()
     }
 
-    /**
-     * < TEST >
-     * takePhotoIndex(index : Int, maxIndex : Int)
-     *      - 사진 촬영 시, 저장
-     */
-    private fun takePhotoIndex(index : Int, maxIndex : Int) {
-        if(index >= maxIndex){
+//    /**
+//     * < TEST >
+//     * takePhotoIndex(index : Int, maxIndex : Int)
+//     *      - 사진 촬영 시, 저장
+//     */
+//    private fun takePhotoIndex(index : Int, maxIndex : Int) {
+//        if(index >= maxIndex){
+////            mediaPlayer.start()
+//            return
+//        }
+//        // Get a stable reference of the modifiable image capture use case
+//        val imageCapture = imageCapture ?: return
+//
+//        // Create time stamped name and MediaStore entry.
+//        val name = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+//
+//        val contentValues = ContentValues().apply {
+//            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+//            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+//                put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
+//            }
+//        }
+//
+//        // Create output options object which contains file + metadata
+//        val outputOptions = ImageCapture.OutputFileOptions
+//            .Builder(
+//                activity.contentResolver,
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                contentValues
+//            )
+//            .build()
+//
+//        // Set up image capture listener, which is triggered after photo has
+//        // been taken
+//        imageCapture.takePicture(
+//            outputOptions,
+//            ContextCompat.getMainExecutor(activity),
+//            object : ImageCapture.OnImageSavedCallback {
+//                override fun onError(exc: ImageCaptureException) {
+//                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+//                }
+//
+//                override fun
+//                        onImageSaved(output: ImageCapture.OutputFileResults) {
+//                    val msg = "Photo capture succeeded: ${output.savedUri}"
+//                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+//                    takePhotoIndex(index + 1, maxIndex)
+//                }
+//            }
+//        )
+//    }
+
+//    /**
+//     * burstMode(index : Int, maxIndex : Int)
+//     *      - 연속 촬영 모드
+//     *          재귀로 돌면서 preview를 ByteArray로 변환
+//     *          previewByteArrayList에 저장
+//     */
+//    private fun takeBurstMode(index : Int, maxIndex : Int){
+//        if(index >= maxIndex){
 //            mediaPlayer.start()
-            return
-        }
-        // Get a stable reference of the modifiable image capture use case
-        val imageCapture = imageCapture ?: return
-
-        // Create time stamped name and MediaStore entry.
-        val name = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
-            }
-        }
-
-        // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                activity.contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-            .build()
-
-        // Set up image capture listener, which is triggered after photo has
-        // been taken
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(activity),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                }
-
-                override fun
-                        onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val msg = "Photo capture succeeded: ${output.savedUri}"
-                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
-                    takePhotoIndex(index + 1, maxIndex)
-                }
-            }
-        )
-    }
-
-    /**
-     * burstMode(index : Int, maxIndex : Int)
-     *      - 연속 촬영 모드
-     *          재귀로 돌면서 preview를 ByteArray로 변환
-     *          previewByteArrayList에 저장
-     */
-    private fun takeBurstMode(index : Int, maxIndex : Int){
-        if(index >= maxIndex){
-            mediaPlayer.start()
-            return
-        }
-
-
-        val imageCapture = imageCapture ?: return
-
-        imageCapture.takePicture(cameraExecutor, object :
-            ImageCapture.OnImageCapturedCallback() {
-            override fun onCaptureSuccess(image: ImageProxy) {
-
-                val buffer = image.planes[0].buffer
-                buffer.rewind()
-                val bytes = ByteArray(buffer.capacity())
-                buffer.get(bytes)
-                previewByteArrayList.add(bytes)
-
-                // 다시 호출
-                takeBurstMode(index + 1, maxIndex)
-
-                image.close()
-
-                super.onCaptureSuccess(image)
-            }
-
-            override fun onError(exception: ImageCaptureException) {
-                super.onError(exception)
-            }
-        })
-    }
+//            return
+//        }
+//
+//
+//        val imageCapture = imageCapture ?: return
+//
+//        imageCapture.takePicture(cameraExecutor, object :
+//            ImageCapture.OnImageCapturedCallback() {
+//            override fun onCaptureSuccess(image: ImageProxy) {
+//
+//                val buffer = image.planes[0].buffer
+//                buffer.rewind()
+//                val bytes = ByteArray(buffer.capacity())
+//                buffer.get(bytes)
+//                previewByteArrayList.add(bytes)
+//
+//                // 다시 호출
+//                takeBurstMode(index + 1, maxIndex)
+//
+//                image.close()
+//
+//                super.onCaptureSuccess(image)
+//            }
+//
+//            override fun onError(exception: ImageCaptureException) {
+//                super.onError(exception)
+//            }
+//        })
+//    }
 
     private fun previewToByteArray(){
         val imageCapture = imageCapture
@@ -743,6 +710,12 @@ class CameraFragment : Fragment() {
                         ContentAttribute.focus
                     )
 
+                    withContext(Dispatchers.Main) {
+                        isShutterClick = false
+                        binding.shutterButton.isEnabled = !isShutterClick
+                        binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                    }
+
 //                    jpegViewModel.jpegMCContainer.value!!.save()
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
@@ -750,7 +723,6 @@ class CameraFragment : Fragment() {
                             findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
                         }
                     }
-
                 }
             }
 
@@ -826,15 +798,11 @@ class CameraFragment : Fragment() {
      */
     private fun controlLensFocusDistance(photoCnt: Int) {
         if (photoCnt >= DISTANCE_FOCUS_PHOTO_COUNT){
-            mediaPlayer.start()
             CoroutineScope(Dispatchers.IO).launch {
+                while (previewByteArrayList.size < DISTANCE_FOCUS_PHOTO_COUNT) { }
 
-                while (previewByteArrayList.size < DISTANCE_FOCUS_PHOTO_COUNT) {
-
-                }
-                // 초점 사진들이 모두 저장 완료 되었을 때
-//                MCContainer.setImageContent(previewByteArrayList, ContentType.Image, ContentAttribute.focus)
                 if (previewByteArrayList.size == DISTANCE_FOCUS_PHOTO_COUNT) {
+                    mediaPlayer.start()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
                     if (savedFile != null) {
@@ -851,6 +819,12 @@ class CameraFragment : Fragment() {
                         ContentType.Image,
                         ContentAttribute.focus
                     )
+
+                    withContext(Dispatchers.Main) {
+                        isShutterClick = false
+                        binding.shutterButton.isEnabled = !isShutterClick
+                        binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                    }
 
 //                    jpegViewModel.jpegMCContainer.value!!.save()
                     imageContent.activityType = ActivityType.Camera
@@ -966,20 +940,6 @@ class CameraFragment : Fragment() {
             imageCapture = ImageCapture.Builder()
                 .build()
 
-//            imageCapture = ImageCapture.Builder()
-//                .setTargetResolution(Size(756 , 1008))
-//                .build()
-
-            // ImageAnalysis 설정
-//            imageAnalysis = ImageAnalysis.Builder()
-//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//                .build()
-
-            // 카메라 해상도 설정
-//            imageAnalysis = ImageAnalysis.Builder()
-//                .setTargetResolution(Size(1080, 720))
-//                .build()
-
 
             // 3-2. 카메라 세팅
             // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
@@ -1015,12 +975,6 @@ class CameraFragment : Fragment() {
                 // 연속 사진 촬영 장수에 따른 Step 거리
                 lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
 
-//                Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
-//                    CaptureRequestOptions.Builder()
-//                        .apply {
-//                            setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
-//                        }
-//                        .build()
 
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
