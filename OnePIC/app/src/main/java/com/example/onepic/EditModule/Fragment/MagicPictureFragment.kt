@@ -7,8 +7,11 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.core.view.isEmpty
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
@@ -64,6 +67,8 @@ class MagicPictureFragment : RewindFragment() {
 
         //pictureList = imageContent.pictureList
 
+        imageToolModule.showView(binding.progressBar, true)
+
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
@@ -73,23 +78,20 @@ class MagicPictureFragment : RewindFragment() {
             }
         }
         CoroutineScope(Dispatchers.Default).launch {
-            CoroutineScope(Dispatchers.Default).launch {
-                val newMainBitmap = imageContent.getMainBitmap()
-                if (newMainBitmap != null) {
-                    mainBitmap = newMainBitmap
+            val newMainBitmap = imageContent.getMainBitmap()
+            if (newMainBitmap != null) {
+                mainBitmap = newMainBitmap
 
-                    // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                    setMainImageBoundingBox()
-                }
-                CoroutineScope(Dispatchers.Default).launch {
-                    // rewind 가능한 연속 사진 속성의 picture list 얻음
-                    val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-                    if (newBitmapList != null) {
-                        bitmapList = newBitmapList
-                        rewindModule.allFaceDetection(bitmapList)
-                    }
-                }
+                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
             }
+            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            if (newBitmapList != null) {
+                bitmapList = newBitmapList
+                rewindModule.allFaceDetection(bitmapList)
+            }
+
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
@@ -119,6 +121,7 @@ class MagicPictureFragment : RewindFragment() {
                     }
                 }
 
+                imageContent.checkMagicAttribute = true
                 withContext(Dispatchers.Main){
                     findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
                 }
@@ -188,14 +191,39 @@ class MagicPictureFragment : RewindFragment() {
 
 
     override fun setMainImageBoundingBox() {
+
+        //showView(binding.faceListView, false)
+        if (!binding.magicCandidateLayout.isEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
+                    binding.magicCandidateLayout.removeAllViews()
+                }
+            }
+        }
+
         CoroutineScope(Dispatchers.Default).launch {
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
             val faceResult = rewindModule.runFaceDetection(0)
 
-            val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
-            // imageView 변환
-            withContext(Dispatchers.Main) {
-                binding.magicMainView.setImageBitmap(resultBitmap)
+            if (faceResult.size == 0) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                try {
+                    val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+
+                    // imageView 변환
+                    withContext(Dispatchers.Main) {
+                        binding.magicMainView.setImageBitmap(resultBitmap)
+                    }
+                } catch (e: IllegalStateException) {
+                    // 예외가 발생한 경우 처리할 코드
+                    e.printStackTrace() // 예외 정보 출력
+                }
+                imageToolModule.showView(binding.progressBar, false)
             }
         }
     }

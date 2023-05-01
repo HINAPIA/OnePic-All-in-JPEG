@@ -21,8 +21,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
+import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
 import com.example.onepic.LoadModule.LoadResolver
+import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -57,6 +59,7 @@ class ViewerFragment : Fragment() {
         binding = FragmentViewerBinding.inflate(inflater, container, false)
         Log.d("[ViewerFragment] onCreateView: ","fragment 전환됨")
         currentPosition = arguments?.getInt("currentPosition")
+
         return binding.root
     }
 
@@ -77,7 +80,6 @@ class ViewerFragment : Fragment() {
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
             mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
-
             var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
 
             if (position != null){ // 사진이 갤러리에 존재하면
@@ -87,8 +89,6 @@ class ViewerFragment : Fragment() {
                 // TODO: 보고있는 사진이 삭제된 경우
 
             }
-
-
         }
     }
 
@@ -152,6 +152,7 @@ class ViewerFragment : Fragment() {
         isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
                 setCurrentOtherImage()
+                setMagicPicture()
                 isContainerChanged.value = false
             }
         }
@@ -213,30 +214,6 @@ class ViewerFragment : Fragment() {
             }
         }
 
-        binding.magicBtn.setOnClickListener{
-
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-
-            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
-                /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
-                isMagicBtnClicked = true
-                CoroutineScope(Dispatchers.Default).launch {
-                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(true)
-                }
-            }
-
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-            else { // 클릭 되어 있던 상태
-                /* layout 변경 */
-                it.background = ColorDrawable(Color.TRANSPARENT)
-                isMagicBtnClicked = false
-                mainViewPagerAdapter.setCheckMagicPicturePlay(false)
-            }
-        }
-
         binding.pullRightView.setOnClickListener {
 
             binding.scrollView.visibility = View.VISIBLE
@@ -261,6 +238,7 @@ class ViewerFragment : Fragment() {
 
         }
 
+        setMagicPicture()
 
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -269,6 +247,40 @@ class ViewerFragment : Fragment() {
         binding.backBtn.setOnClickListener{
             Glide.get(requireContext()).clearMemory()
             findNavController().navigate(R.id.action_viewerFragment_to_galleryFragment)
+        }
+    }
+
+    fun setMagicPicture() {
+        val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+
+        if(!imageContent.checkAttribute(ContentAttribute.magic)){
+            ImageToolModule().showView(binding.magicBtn, false)
+        }
+        else {
+            ImageToolModule().showView(binding.magicBtn, true)
+            binding.magicBtn.setOnClickListener {
+
+                // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+                //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+
+                if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
+                    /* layout 변경 */
+                    it.setBackgroundResource(R.drawable.round_button)
+                    isMagicBtnClicked = true
+                    CoroutineScope(Dispatchers.Default).launch {
+                        mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
+                        mainViewPagerAdapter.setCheckMagicPicturePlay(true)
+                    }
+                }
+
+                //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
+                else { // 클릭 되어 있던 상태
+                    /* layout 변경 */
+                    it.background = ColorDrawable(Color.TRANSPARENT)
+                    isMagicBtnClicked = false
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false)
+                }
+            }
         }
     }
 

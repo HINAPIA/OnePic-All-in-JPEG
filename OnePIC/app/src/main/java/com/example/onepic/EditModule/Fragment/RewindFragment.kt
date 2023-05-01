@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
@@ -158,6 +159,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     //Thread.sleep(10000)
 
                 }
+
+                imageContent.checkRewindAttribute = true
                 withContext(Dispatchers.Main){
                     //jpegViewModel.jpegMCContainer.value?.save()
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
@@ -289,11 +292,19 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
-            val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+            if(faceResult.size == 0) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG).show()
+                }
+            }
+            else {
+                val resultBitmap =
+                    imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
 
-            // imageView 변환
-            withContext(Dispatchers.Main) {
-                binding.rewindMainView.setImageBitmap(resultBitmap)
+                // imageView 변환
+                withContext(Dispatchers.Main) {
+                    binding.rewindMainView.setImageBitmap(resultBitmap)
+                }
             }
             imageToolModule.showView(binding.progressBar , false)
         }

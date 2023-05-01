@@ -2,7 +2,6 @@ package com.example.onepic.EditModule.Fragment
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -14,8 +13,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -117,6 +114,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 saveAudioInMCContainer(tempAudioFile!!)
            // }
             audioResolver.audioStop()
+            imageContent.checkAddAttribute = true
             findNavController().navigate(R.id.action_addFragment_to_editFragment)
         }
 

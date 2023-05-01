@@ -180,6 +180,7 @@
             </HorizontalScrollView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/arrowBar"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"

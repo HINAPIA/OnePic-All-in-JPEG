@@ -54,7 +54,7 @@ class ImageToolModule {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
 
-        var bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
         if (bitmap == null) {
             // bitmap이 null인 경우 예외 처리를 수행합니다.
@@ -64,6 +64,7 @@ class ImageToolModule {
 //                Log.d("bitmap while", "while in")
 //            }
             return bitmap
+
         } else {
             val matrix = bitmapRotation(byteArray , 1)
             return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)

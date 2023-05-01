@@ -83,28 +83,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.05" />
+            app:layout_constraintGuide_percent="0.02" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.95" />
+            app:layout_constraintGuide_percent="0.98" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.14" />
+            app:layout_constraintGuide_percent="0.11" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.86" />
+            app:layout_constraintGuide_percent="0.89" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -176,12 +176,12 @@
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/rewind_button_color"
                 android:includeFontPadding="false"
-                android:text="@string/auto_rewind_option"
+                android:text="@string/auto_option"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guideline22"
-                app:layout_constraintStart_toEndOf="@+id/imageResetBtn"
+                app:layout_constraintStart_toStartOf="@+id/guideline20"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton

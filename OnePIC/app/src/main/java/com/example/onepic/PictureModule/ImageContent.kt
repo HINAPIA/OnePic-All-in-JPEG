@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.nio.ByteBuffer
 
 
@@ -31,19 +32,28 @@ class ImageContent {
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
-    var checkPictureList = false
-    private var checkTransformBitmap = false
-    private var checkTransformAttributeBitmap = false
-    private var checkTransformMain = false
+    private var checkPictureList = false
+    private var checkMain = false
+//    private var checkTransformBitmap = false
+//    private var checkTransformAttributeBitmap = false
+//    private var checkTransformMain = false
+
+    var checkMagicAttribute = false
+    var checkRewindAttribute = false
+    var checkAddAttribute = false
+    var checkMainChangeAttribute = false
 
     fun init() {
         Log.d("burst", "==================")
         Log.d("burst", "imageContnet 초기화")
         checkGetBitmapList = false
         checkPictureList = false
-        checkTransformBitmap = false
-        checkTransformAttributeBitmap = false
-        checkTransformMain = false
+        checkMain = false
+//        checkTransformBitmap = false
+//        checkTransformAttributeBitmap = false
+//        checkTransformMain = false
+
+        setCheckAttribute()
 
         pictureList.clear()
         pictureCount = 0
@@ -52,6 +62,14 @@ class ImageContent {
         bitmapListAttribute = null
         activityType = null
         //jpegMetaData = ByteArray(0)
+    }
+
+    fun setCheckAttribute() {
+        checkMagicAttribute = false
+        checkRewindAttribute = false
+        checkAddAttribute = false
+        checkMainChangeAttribute = false
+
     }
 
     /**
@@ -71,6 +89,7 @@ class ImageContent {
             insertPicture(picture)
             if(i == 0){
                 mainPicture = picture
+                checkMain = true
             }
         }
         checkPictureList = true
@@ -86,6 +105,7 @@ class ImageContent {
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
         checkPictureList = true
+        checkMain = true
     }
 
     /**
@@ -107,27 +127,32 @@ class ImageContent {
      */
     // bitmapList getter
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
-        checkTransformAttributeBitmap = true
-
-        if(bitmapListAttribute == null || bitmapListAttribute != attribute) {
-            attributeBitmapList.clear()
-            bitmapListAttribute = attribute
-        }
-        if(attributeBitmapList.size == 0) {
-            while(!checkGetBitmapList || !checkPictureList) {
-                if(!checkTransformAttributeBitmap)
-                    return null
+//        checkTransformAttributeBitmap = true
+        try {
+            if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
+                attributeBitmapList.clear()
+                bitmapListAttribute = attribute
             }
+            if (attributeBitmapList.size == 0) {
+                while (!checkGetBitmapList || !checkPictureList) {
+//                if(!checkTransformAttributeBitmap)
+//                    return null
+                }
 
-            for(i in 0 until pictureList.size){
-                if(!checkTransformAttributeBitmap)
-                    return null
-                if(pictureList[i].contentAttribute != attribute)
-                    attributeBitmapList.add(bitmapList[i])
+                for (i in 0 until pictureList.size) {
+//                if(!checkTransformAttributeBitmap)
+//                    return null
+                    if (pictureList[i].contentAttribute != attribute)
+                        attributeBitmapList.add(bitmapList[i])
+                }
             }
+//        checkTransformAttributeBitmap = false
+            return attributeBitmapList
+        }catch (e: IOException) {
+            // 예외가 발생한 경우 처리할 코드
+            e.printStackTrace() // 예외 정보 출력
+            return null
         }
-        checkTransformAttributeBitmap = false
-        return attributeBitmapList
     }
 
     /**
@@ -138,45 +163,53 @@ class ImageContent {
     fun getBitmapList() : ArrayList<Bitmap>? {
         Log.d("burst", "getBitmapList 호출")
 
-        checkTransformBitmap = true
+//        checkTransformBitmap = true
 
-        if(bitmapList.size == 0){
-            while (!checkPictureList) {
-                if(!checkTransformBitmap)
-                    return null
-            }
-            val pictureListSize= pictureList.size
-            Log.d("burst", "pictureListSize : $pictureListSize")
-            val checkFinish = BooleanArray(pictureListSize)
-            if(!checkTransformBitmap)
-                return null
-            val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
-            for (i in 0 until pictureListSize) {
-                if(!checkTransformBitmap)
-                    return null
-                checkFinish[i] = false
-                bitmapList.add(exBitmap)
-            }
-            for (i in 0 until pictureListSize) {
-                if(!checkTransformBitmap)
-                    return null
-                CoroutineScope(Dispatchers.Default).launch {
-                    val bitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
-                    if(checkTransformBitmap) {
+        try {
+
+            if (bitmapList.size == 0) {
+                while (!checkPictureList) {
+//                if(!checkTransformBitmap)
+//                    return null
+                }
+                val pictureListSize = pictureList.size
+                Log.d("burst", "pictureListSize : $pictureListSize")
+                val checkFinish = BooleanArray(pictureListSize)
+//            if(!checkTransformBitmap)
+//                return null
+                val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
+                for (i in 0 until pictureListSize) {
+//                if(!checkTransformBitmap)
+//                    return null
+                    checkFinish[i] = false
+                    bitmapList.add(exBitmap)
+                }
+                for (i in 0 until pictureListSize) {
+//                if(!checkTransformBitmap)
+//                    return null
+                    CoroutineScope(Dispatchers.Default).launch {
+                        val bitmap =
+                            ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
+//                    if(checkTransformBitmap) {
                         bitmapList[i] = bitmap
                         checkFinish[i] = true
+//                    }
                     }
                 }
+                while (!checkFinish.all { it }) {
+//                if(!checkTransformBitmap)
+//                    return null
+                }
+                Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
             }
-            while (!checkFinish.all { it }) {
-                if(!checkTransformBitmap)
-                    return null
-            }
-            Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
+            checkGetBitmapList = true
+//        checkTransformBitmap = false
+            return bitmapList
+        }catch (e: IOException) {
+            // 예외가 발생한 경우 처리할 코드
+            e.printStackTrace() // 예외 정보 출력
+            return null
         }
-        checkGetBitmapList = true
-        checkTransformBitmap = false
-        return bitmapList
     }
 
     /**
@@ -185,18 +218,20 @@ class ImageContent {
      */
     fun getMainBitmap() : Bitmap? {
 
-        checkTransformMain = true
+        try {
+            while (!checkMain) {
+                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
+            }
 
-        while (!checkTransformBitmap) {
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
-            if(!checkTransformMain)
-                return null
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
+            mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
+            return mainBitmap
+        } catch (e: IOException) {
+            // 예외가 발생한 경우 처리할 코드
+            e.printStackTrace() // 예외 정보 출력
+            return null
         }
-
-        Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
-        mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
-        Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
-        return mainBitmap
     }
 
     /**

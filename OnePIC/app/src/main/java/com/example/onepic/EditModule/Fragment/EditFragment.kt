@@ -122,7 +122,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-
             isOnylMainChange = false
             isAdd = false
             // focus 가능한지 확인
@@ -163,20 +162,33 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         Log.d("burst", isOnylMainChange.toString())
         // Save
         binding.saveBtn.setOnClickListener{
+
+            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+
             Log.d("burst","edit창에서 save click")
             val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                 activity,
                 android.R.style.Theme_DeviceDefault_Light_Dialog
             )
-            if(isOnylMainChange != null && isOnylMainChange == true){
+            if(imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
+                    !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
                 // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
+                val currentFilePath = jpegViewModel.currentImageFilePath
+                val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+                jpegViewModel.currentImageFilePath
+                jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
-                    var currentFilePath = jpegViewModel.currentImageFilePath
-                    var fileName =currentFilePath!!.substring(currentFilePath!!.lastIndexOf("/")+1);
-                    jpegViewModel.currentImageFilePath
-                    jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-
+            }
+            else if(imageContent.checkMagicAttribute) {
+                // magic으로 변경했을 경우 모든 파일 저장
+                if(!isAdd){
+                    val mainPicture = imageContent.mainPicture
+                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+                    imageContent.insertPicture(0, mainPicture)
+                } else isAdd = false
+                jpegViewModel.jpegMCContainer.value?.save()
+                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
             }
             else{
                 oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
@@ -192,18 +204,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .setNeutralButton("예",
                         DialogInterface.OnClickListener { dialog, which ->
                             try{
-                                var imageContent = jpegViewModel.jpegMCContainer.value?.imageContent
-                                var singlePictureList : ArrayList<Picture> =  ArrayList<Picture>(1)
-                                singlePictureList.add(imageContent!!.mainPicture)
-                                imageContent.setContent(singlePictureList)
+                                val newImageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+                                val singlePictureList : ArrayList<Picture> =  ArrayList<Picture>(1)
+                                singlePictureList.add(newImageContent.mainPicture)
+                                newImageContent.setContent(singlePictureList)
                                 jpegViewModel.jpegMCContainer.value?.save()
                             }catch (e :IOException){
-                                Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT)
+                                Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT).show()
                             }
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         })
                     .show()
             }
+            imageContent.setCheckAttribute()
         }
     }
 
