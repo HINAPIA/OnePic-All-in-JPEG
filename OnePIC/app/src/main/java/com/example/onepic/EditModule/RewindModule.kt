@@ -9,14 +9,16 @@ import androidx.core.graphics.toRectF
 import com.example.onepic.ImageToolModule
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class RewindModule() {
 
-    private lateinit var modelCoroutine: Job
+//    private lateinit var modelCoroutine: Job
     private lateinit var detector: FaceDetector
     private val imageToolModule: ImageToolModule
     private var faceArraylist : ArrayList<ArrayList<Face>?> = arrayListOf()
@@ -32,11 +34,11 @@ class RewindModule() {
         return checkFaceDetection
     }
 
-    fun deleteModelCoroutine() {
-        if(modelCoroutine != null){
-            modelCoroutine.cancel()
-        }
-    }
+//    fun deleteModelCoroutine() {
+//        if(modelCoroutine != null){
+//            modelCoroutine.cancel()
+//        }
+//    }
 
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
         checkFaceDetectionCall = true
@@ -49,7 +51,7 @@ class RewindModule() {
             checkFinish[i] = false
             faceArraylist.add(null)
         }
-        modelCoroutine = CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             Log.d("RewindModule", "start = 0")
             // j 번째 사진 faces 정보 얻기
             faceArraylist[0] = runFaceContourDetection(bitmapList[0])
@@ -57,7 +59,7 @@ class RewindModule() {
             checkFinish[0] = true
 
             for (j in 1 until bitmapList.size) {
-                withContext(Dispatchers.IO) {
+                CoroutineScope(Dispatchers.IO).launch {
                     Log.d("RewindModule", "start = $j")
                     // j 번째 사진 faces 정보 얻기
                     faceArraylist[j] = runFaceContourDetection(bitmapList[j])

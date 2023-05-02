@@ -167,7 +167,6 @@ class ImageContent {
 //        checkTransformBitmap = true
 
         try {
-
             if (bitmapList.size == 0) {
                 while (!checkPictureList) {
 //                if(!checkTransformBitmap)

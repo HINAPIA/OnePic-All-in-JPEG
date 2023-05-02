@@ -164,15 +164,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // Save
         binding.saveBtn.setOnClickListener{
 
+            imageTool.showView(binding.progressBar2 , true)
             imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
             val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                 activity,
                 android.R.style.Theme_DeviceDefault_Light_Dialog
             )
-
-            if(imageContent.checkMainChangeAttribute) {
-
-            }
 
             if(imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
@@ -183,16 +180,18 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 jpegViewModel.currentImageFilePath
                 jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                 Thread.sleep(2000)
-                imageTool.showView(binding.progressBar2 , false)
+//                imageTool.showView(binding.progressBar2 , false)
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
             }
             else if(imageContent.checkMagicAttribute) {
+                imageContent.mainPicture.contentAttribute = ContentAttribute.magic
+
                 imageTool.showView(binding.progressBar2 , true)
                 // magic으로 변경했을 경우 모든 파일 저장
                 jpegViewModel.jpegMCContainer.value?.save()
                 Thread.sleep(3000)
-                imageTool.showView(binding.progressBar2 , false)
+//                imageTool.showView(binding.progressBar2 , false)
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
             }
             else{
@@ -206,7 +205,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         }
                         jpegViewModel.jpegMCContainer.value?.save()
                         Thread.sleep(2000)
-                        imageTool.showView(binding.progressBar2 , false)
+//                        imageTool.showView(binding.progressBar2 , false)
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     })
                     .setNeutralButton("예",
@@ -225,7 +224,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT).show()
                             }
                             Thread.sleep(1000)
-                            imageTool.showView(binding.progressBar2 , false)
+//                            imageTool.showView(binding.progressBar2 , false)
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         })
                     .show()

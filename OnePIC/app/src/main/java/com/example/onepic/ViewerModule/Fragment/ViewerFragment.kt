@@ -152,7 +152,6 @@ class ViewerFragment : Fragment() {
         isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
                 setCurrentOtherImage()
-                setMagicPicture()
                 isContainerChanged.value = false
             }
         }
@@ -254,10 +253,12 @@ class ViewerFragment : Fragment() {
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         if(!imageContent.checkAttribute(ContentAttribute.magic)){
+            Log.d("magic 유무", "NO!!!!!!!!!!!")
             ImageToolModule().showView(binding.magicBtn, false)
         }
         else {
             ImageToolModule().showView(binding.magicBtn, true)
+            Log.d("magic 유무", "YES!!!!!!!!!!!")
             binding.magicBtn.setOnClickListener {
 
                 // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경

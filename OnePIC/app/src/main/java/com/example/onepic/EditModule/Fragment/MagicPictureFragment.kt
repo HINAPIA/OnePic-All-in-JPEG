@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.example.onepic.EditModule.ArrowMoveClickListener
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ImageToolModule
+import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.R
@@ -53,21 +54,92 @@ class MagicPictureFragment : RewindFragment() {
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
+//        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+//
+//        imageToolModule = ImageToolModule()
+//        rewindModule = RewindModule()
+//
+//        // main Picture의 byteArray를 bitmap 제작
+//        mainPicture = imageContent.mainPicture
+//
+//        // magic 가능한 연속 사진 속성의 picture list 얻음
+//        pictureList =
+//            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
+//
+//        //pictureList = imageContent.pictureList
+//
+//        imageToolModule.showView(binding.progressBar, true)
+//
+//        // 메인 이미지 임시 설정
+//        CoroutineScope(Dispatchers.Main).launch {
+//            withContext(Dispatchers.Main) {
+//                Glide.with(binding.magicMainView)
+//                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+//                    .into(binding.magicMainView)
+//            }
+//        }
+//        CoroutineScope(Dispatchers.Main).launch {
+//            val newMainBitmap = imageContent.getMainBitmap()
+//            if (newMainBitmap != null) {
+//                mainBitmap = newMainBitmap
+//
+//                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+//                setMainImageBoundingBox()
+//            }
+//            // rewind 가능한 연속 사진 속성의 picture list 얻음
+//            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+//            if (newBitmapList != null) {
+//                bitmapList = newBitmapList
+//                rewindModule.allFaceDetection(bitmapList)
+//            }
+//
+//        }
+//        // save btn 클릭 시
+//        binding.magicSaveBtn.setOnClickListener {
+
+//            CoroutineScope(Dispatchers.Default).launch {
+//                imageToolModule.showView(binding.progressBar , true)
+//                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+//
+//                imageContent.mainPicture =
+//                    Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
+//                imageContent.mainPicture.waitForByteArrayInitialized()
+//
+//                // EmbeddedData 추가
+//                val indices = intArrayOf(5, 6, 7, 8) // 추출할 배열의 인덱스
+//
+//                if (boundingBox.size > 0) {
+//                    val mainBoundingBox: ArrayList<Int> =
+//                        boundingBox[0].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
+//
+//                    mainBoundingBox.add(changeFaceStartX)
+//                    mainBoundingBox.add(changeFaceStartY)
+//
+//                    pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
+//
+//                    for (i in 1 until boundingBox.size) {
+//                        pictureList[boundingBox[i][0]].insertEmbeddedData(
+//                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+//                    }
+//                }
+//
+//                imageContent.checkMagicAttribute = true
+//                withContext(Dispatchers.Main) {
+//                    findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
+//                }
+//
+//                imageToolModule.showView(binding.progressBar, false)
+//            }
+//        }
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
+        imageToolModule.showView(binding.progressBar, true)
+
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-
-        // magic 가능한 연속 사진 속성의 picture list 얻음
-        pictureList =
-            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
-
-        //pictureList = imageContent.pictureList
-
-        imageToolModule.showView(binding.progressBar, true)
 
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Main).launch {
@@ -77,26 +149,40 @@ class MagicPictureFragment : RewindFragment() {
                     .into(binding.magicMainView)
             }
         }
+
         CoroutineScope(Dispatchers.Main).launch {
             val newMainBitmap = imageContent.getMainBitmap()
             if (newMainBitmap != null) {
                 mainBitmap = newMainBitmap
-
+            }
+            if (imageContent.activityType == ActivityType.Viewer) {
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
             }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
+            var startTime = System.currentTimeMillis()
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
             if (newBitmapList != null) {
                 bitmapList = newBitmapList
-                rewindModule.allFaceDetection(bitmapList)
-            }
 
+                var endTime = System.currentTimeMillis()
+                var elapsedTime = endTime - startTime
+                Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
+                //CoroutineScope(Dispatchers.Default).launch {
+                startTime = System.currentTimeMillis()
+
+                rewindModule.allFaceDetection(bitmapList)
+
+                endTime = System.currentTimeMillis()
+                elapsedTime = endTime - startTime
+                Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
+                //}
+            }
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-
-
 
             CoroutineScope(Dispatchers.Default).launch {
                 imageToolModule.showView(binding.progressBar , true)
@@ -138,20 +224,7 @@ class MagicPictureFragment : RewindFragment() {
             findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
         }
 
-        // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
-        binding.magicPlayBtn.setOnClickListener {
-            if (!checkMagicPicturePlay) {
-                magicPictureRun(cropBitmapList)
-                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
-                checkMagicPicturePlay = true
-            } else {
-                handler.removeCallbacksAndMessages(null)
-                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
-                checkMagicPicturePlay = false
-            }
-        }
-
-        // 메인 view 클릭 시
+        // 이미지 뷰 클릭 시
         binding.magicMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
                 imageToolModule.showView(binding.progressBar, true)
@@ -166,9 +239,9 @@ class MagicPictureFragment : RewindFragment() {
                 if (touchPoint != null) {
 
                     CoroutineScope(Dispatchers.Default).launch {
-
-                        while(!rewindModule.getCheckFaceDetection()) { }
                         // Click 좌표가 포함된 Bounding Box 얻음
+                        while (!rewindModule.getCheckFaceDetection()) {
+                        }
                         val boundingBox = getBoundingBox(touchPoint)
 
                         if (boundingBox.size > 0) {
@@ -185,6 +258,20 @@ class MagicPictureFragment : RewindFragment() {
             }
             return@setOnTouchListener true
         }
+
+        // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
+        binding.magicPlayBtn.setOnClickListener {
+            if (!checkMagicPicturePlay) {
+                magicPictureRun(cropBitmapList)
+                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
+                checkMagicPicturePlay = true
+            } else {
+                handler.removeCallbacksAndMessages(null)
+                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+                checkMagicPicturePlay = false
+            }
+        }
+
         return binding.root
     }
 
@@ -246,7 +333,7 @@ class MagicPictureFragment : RewindFragment() {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.magicCandidateLayout.removeAllViews()
-        cropBitmapList.removeAll(cropBitmapList)
+        cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
             imageToolModule.showView(binding.progressBar , false)

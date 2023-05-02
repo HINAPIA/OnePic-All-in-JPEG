@@ -143,24 +143,26 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     newImage = null
                 }
 
-
                 val allBytes =  imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
-
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 if (imageContent.activityType == ActivityType.Camera) {
-                    val mainPicture = imageContent.mainPicture
                     jpegViewModel.jpegMCContainer.value?.save()
                     Thread.sleep(2000)
+                    withContext(Dispatchers.Main) {
+                        //jpegViewModel.jpegMCContainer.value?.save()
+                        findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+                    }
                 }
-
-                imageContent.checkRewindAttribute = true
-                withContext(Dispatchers.Main) {
-                    //jpegViewModel.jpegMCContainer.value?.save()
-                    findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+                else {
+                    withContext(Dispatchers.Main) {
+                        //jpegViewModel.jpegMCContainer.value?.save()
+                        imageContent.checkRewindAttribute = true
+                        findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+                    }
                 }
                 imageToolModule.showView(binding.progressBar, false)
             }
@@ -168,7 +170,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // close btn 클릭 시
         binding.rewindCloseBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+            try {
+                findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+            }catch (e: IllegalStateException) {
+                println(e.message)
+            }
         }
 
         // autoRewind 클릭시
@@ -406,7 +412,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.candidateLayout.removeAllViews()
-        cropBitmapList.removeAll(cropBitmapList)
+        cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
             imageToolModule.showView(binding.progressBar , false)
@@ -425,8 +431,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
-            // 크롭이미지 배열에 값 추가
-            cropBitmapList.add(cropImage)
 
             try {
                 // 넣고자 하는 layout 불러오기
@@ -447,6 +451,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                         Rect(rect[5], rect[6], rect[7], rect[8])
                     )
                     newImage = imageToolModule.circleCropBitmap(newImage!!)
+
+                    // 크롭이미지 배열에 값 추가
+                    cropBitmapList.add(newImage!!)
+
                     preMainBitmap = imageToolModule.overlayBitmap(
                         mainBitmap,
                         newImage!!,
@@ -496,12 +504,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        rewindModule.deleteModelCoroutine()
-    }
-    override fun onStop() {
-        super.onStop()
-        rewindModule.deleteModelCoroutine()
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        rewindModule.deleteModelCoroutine()
+//    }
+//    override fun onStop() {
+//        super.onStop()
+//        rewindModule.deleteModelCoroutine()
+//    }
 }

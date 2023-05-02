@@ -3,8 +3,9 @@ package com.example.onepic.PictureModule.Contents
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 
-class Picture(val contentAttribute: ContentAttribute,
-              var pictureByteArray: ByteArray? = null) {
+class Picture(
+    var contentAttribute: ContentAttribute,
+    var pictureByteArray: ByteArray? = null) {
     var _pictureByteArray: ByteArray? = null
     var size: Int = pictureByteArray?.size ?: 0
     var embeddedSize = 0
