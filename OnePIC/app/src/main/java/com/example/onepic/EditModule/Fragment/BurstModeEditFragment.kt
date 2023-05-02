@@ -67,6 +67,10 @@ class BurstModeEditFragment : Fragment() {
 
 
         CoroutineScope(Dispatchers.Default).launch{
+            mainPicture = imageContent.mainPicture
+            pictureList = imageContent.pictureList
+            Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
+
             val checkFinish = BooleanArray(pictureList.size)
             for (i in 0 until pictureList.size) {
                 checkFinish[i] = false
@@ -85,6 +89,7 @@ class BurstModeEditFragment : Fragment() {
                     // 자른 사진 이미지뷰에 붙이기
                     //cropImageView.setImageBitmap(bitmapList[i])
                     withContext(Dispatchers.Main) {
+                        Log.d("error 잡기", "$i 번째 이미지 띄우기")
                         Glide.with(cropImageView)
                             .load(imageContent.getJpegBytes(pictureList[i]))
                             .into(cropImageView)
@@ -124,7 +129,9 @@ class BurstModeEditFragment : Fragment() {
         }
         binding.burstSaveBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
-                imageToolModule.showView(binding.progressBar, true)
+
+                mainPicture = imageContent.mainPicture
+                imageToolModule.showView(binding.progressBar , true)
 
                 // TODO: main 변경 후 save
                 // 1. main으로 지정된 picture를 picturelist에서 삭제
@@ -136,9 +143,22 @@ class BurstModeEditFragment : Fragment() {
                     imageContent.mainPicture = mainPicture
                 }
 
-                if (imageContent.activityType == ActivityType.Camera) {
-                    Log.d("burst", "바로 편집에서 save() 호출 전")
-                    jpegViewModel.jpegMCContainer.value?.save()
+
+                if(imageContent.activityType == ActivityType.Camera) {
+                    withContext(Dispatchers.Main){
+                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                        jpegViewModel.jpegMCContainer.value?.save()
+                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
+                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
+                    }
+                }
+                else{
+                    withContext(Dispatchers.Main){
+                        Log.d("error 잡기", "바로 편집에서 navigate호출 전")
+                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
+                    }
+                    imageToolModule.showView(binding.progressBar , false)
+
                 }
 
 //                        Log.d("burst", "바로 편집에서navigate호출 전")

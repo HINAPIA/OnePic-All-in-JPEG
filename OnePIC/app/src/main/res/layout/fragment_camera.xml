@@ -29,7 +29,25 @@
         android:background="@color/preview_color"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline2"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
-        app:scaleType="fitCenter" />
+        app:layout_constraintVertical_bias="1.0"
+        app:scaleType="fitCenter"
+        tools:layout_editor_absoluteX="0dp" >
+
+    </androidx.camera.view.PreviewView>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_weight="2"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/candidateLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
 
 <!--    <androidx.appcompat.widget.AppCompatButton-->
 <!--        android:id="@+id/shutter_button"-->
@@ -53,12 +71,13 @@
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline3" />
 
     <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline3"
-        tools:layout_editor_absoluteX="1dp"
-        android:scrollbars="none">
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2"
+        tools:layout_editor_absoluteX="1dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -79,11 +98,11 @@
                     android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
                     android:checked="true"
+                    android:gravity="center"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="5dp"
-                    android:gravity="center"
-                    android:textColor="@drawable/radio_text_selector"
-                    android:text="@string/basic_option"/>
+                    android:text="@string/basic_option"
+                    android:textColor="@drawable/radio_text_selector" />
 
                 <RadioButton
                     android:id="@+id/object_focus_radio"
@@ -92,11 +111,11 @@
                     android:layout_marginHorizontal="8dp"
                     android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
+                    android:gravity="center"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="5dp"
-                    android:gravity="center"
-                    android:textColor="@drawable/radio_text_selector"
-                    android:text="@string/object_focus_option"/>
+                    android:text="@string/object_focus_option"
+                    android:textColor="@drawable/radio_text_selector" />
 
                 <RadioButton
                     android:id="@+id/distance_focus_radio"
@@ -105,11 +124,11 @@
                     android:layout_marginHorizontal="8dp"
                     android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
+                    android:gravity="center"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="5dp"
-                    android:gravity="center"
-                    android:textColor="@drawable/radio_text_selector"
-                    android:text="@string/distance_focus_option"/>
+                    android:text="@string/distance_focus_option"
+                    android:textColor="@drawable/radio_text_selector" />
 
                 <RadioButton
                     android:id="@+id/auto_rewind_radio"
@@ -118,11 +137,11 @@
                     android:layout_marginHorizontal="8dp"
                     android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
+                    android:gravity="center"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="5dp"
-                    android:gravity="center"
-                    android:textColor="@drawable/radio_text_selector"
-                    android:text="@string/auto_rewind_option"/>
+                    android:text="@string/auto_rewind_option"
+                    android:textColor="@drawable/radio_text_selector" />
 
             </RadioGroup>
         </LinearLayout>

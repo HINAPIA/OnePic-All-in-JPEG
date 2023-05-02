@@ -58,13 +58,17 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
 
+
+
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.activityType = ActivityType.Viewer
+        while (!imageContent!!.checkPictureList) {}
 
         CoroutineScope(Dispatchers.Default).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
 
+            //while (!imageContent.checkPictureList){}
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))

@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.onepic.AudioModule.AudioResolver
 import com.example.onepic.EditModule.RewindModule
 import com.example.onepic.ImageToolModule
@@ -98,7 +100,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 5
+    private val burstSize = 15
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -114,6 +116,7 @@ class CameraFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -253,11 +256,6 @@ class CameraFragment : Fragment() {
                                 Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                             }
                             Log.d("burst", "setImageContent 호출 전")
-                            jpegViewModel.jpegMCContainer.value!!.setImageContent(
-                                previewByteArrayList,
-                                ContentType.Image,
-                                ContentAttribute.burst
-                            )
 
                             withContext(Dispatchers.Main) {
                                 isShutterClick = false
@@ -272,6 +270,25 @@ class CameraFragment : Fragment() {
                                     findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
                                 }
                             }
+
+                           // CoroutineScope(Dispatchers.Default).launch {
+
+                                // RewindFragment로 이동
+                                withContext(Dispatchers.Main) {
+
+                                    var jop = async {
+                                            jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                                            previewByteArrayList,
+                                            ContentType.Image,
+                                            ContentAttribute.burst
+                                        )
+                                    }
+                                    jop.await()
+                                    Log.d("error 잡기", "넘어가기 전")
+                                    imageContent.activityType = ActivityType.Camera
+                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                                }
+                           // }
                         }
                     } // end of Coroutine ...
 
