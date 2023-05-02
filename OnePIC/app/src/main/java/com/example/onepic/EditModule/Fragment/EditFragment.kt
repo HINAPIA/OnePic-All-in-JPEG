@@ -204,8 +204,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             imageContent.insertPicture(0, mainPicture)
                         }
                         jpegViewModel.jpegMCContainer.value?.save()
-                        Thread.sleep(2000)
-//                        imageTool.showView(binding.progressBar2 , false)
+
+                        Thread.sleep(3000)
+                        imageTool.showView(binding.progressBar2 , false)
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     })
                     .setNeutralButton("예",

@@ -118,7 +118,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 if (imageContent.activityType == ActivityType.Camera) {
                     startTime = System.currentTimeMillis()
-
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
                     endTime = System.currentTimeMillis()
@@ -134,7 +133,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
-
             CoroutineScope(Dispatchers.Default).launch {
                 imageToolModule.showView(binding.progressBar, true)
 
@@ -150,9 +148,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 if (imageContent.activityType == ActivityType.Camera) {
-                    jpegViewModel.jpegMCContainer.value?.save()
-                    Thread.sleep(2000)
                     withContext(Dispatchers.Main) {
+                        jpegViewModel.jpegMCContainer.value?.save()
+                        Thread.sleep(2000)
                         //jpegViewModel.jpegMCContainer.value?.save()
                         findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                     }

@@ -369,6 +369,7 @@ class ImageContent {
         var app1DataLength = 0
         var findApp1 = false
         var SOFList : ArrayList<Int> = arrayListOf()
+        var JFIFList : ArrayList<Int> = arrayListOf()
 
         // 사진의 속성이 edited, magic이면 2번째 JFIF가 나오기 전까지를 메타데이터로
         if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
@@ -377,17 +378,20 @@ class ImageContent {
             // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
             while (JFIF_startOffset < jpegBytes.size - 1) {
                 if (jpegBytes[JFIF_startOffset] == 0xFF.toByte() && jpegBytes[JFIF_startOffset + 1] == 0xE0.toByte()) {
-                    findCount++
+                    isFindStartMarker = true
+                    //findCount++
+                    JFIFList.add(JFIF_startOffset)
                     Log.d("MCcontainer", "extract metadata :  JIFI찾음 - ${JFIF_startOffset}")
-                    if (findCount == 2) {
-                        pos = JFIF_startOffset
-                        isFindStartMarker = true
-                        Log.d("MCcontainer", "extract metadata : 2번째 JIFI찾음 (Bitmap 메타 데이터 전까지) - ${pos}}")
-                        break
-                    }
+//                    if (findCount == 2) {
+//                        pos = JFIF_startOffset
+//                        Log.d("MCcontainer", "extract metadata : 2번째 JIFI찾음 (Bitmap 메타 데이터 전까지) - ${pos}}")
+//                        break
+     //               }
                 }
                 JFIF_startOffset++
             }
+            if(isFindStartMarker)
+                pos = JFIFList[JFIFList.size -1]
         }
 
         // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때 - sof가 나오기 전까지를 메타 데이터로
@@ -410,16 +414,16 @@ class ImageContent {
                     // TODO(sof 배열 만들기)
                     SOFList.add(pos)
                     if (findApp1) {
-                        Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
+                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
                         // 썸네일의 sof가 아닐 때
                         if (pos >= app1StartPos + app1DataLength + 2) {
-                            Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
+                            Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
                             isFindStartMarker = true
                             //startIndex = pos
                             //break
                         }
                     } else {
-                        Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
+                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
                         isFindStartMarker = true
                         //startIndex = pos
                         //break
@@ -513,6 +517,7 @@ class ImageContent {
             var findApp1 = false
 
             var SOFList : ArrayList<Int> = arrayListOf()
+            var JFIFList : ArrayList<Int> = arrayListOf()
             Log.d("MCcontainer", "=============================")
 
             // 2번째 JFIF가 나오기 전까지가 메타데이터
@@ -522,17 +527,23 @@ class ImageContent {
                 // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
                 while (JFIF_startOffset < jpegBytes.size - 1) {
                     if (jpegBytes[JFIF_startOffset] == 0xFF.toByte() && jpegBytes[JFIF_startOffset + 1] == 0xE0.toByte()) {
+                        isFindStartMarker = true
+                        JFIFList.add(JFIF_startOffset)
                         findCount++
                         if (findCount == 2) {
                             startIndex = JFIF_startOffset
-                            isFindStartMarker = true
                             Log.d("MCcontainer", "extract Frame : 2번째 JIFI찾음 - ${startIndex}}")
                             break
                         }
                     }
                     JFIF_startOffset++
                 }
-            } else {
+                if(isFindStartMarker){
+                    startIndex = JFIFList[JFIFList.size-1]
+                }
+            }
+            // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때 - sof가 나온 후부터  Frame 영역으로
+            if (!isFindStartMarker) {
                 // app1 위치와 datalength 찾기
                 while (app1StartPos < jpegBytes.size - 1) {
                     // APP1 마커가 있는 경우
@@ -542,7 +553,7 @@ class ImageContent {
                         findApp1 = true
                         Log.d(
                             "MCcontainer",
-                            "extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}, end =${app1StartPos+app1DataLength}"
+                            "extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}, end =${app1StartPos + app1DataLength}"
                         )
                         break
                     }
@@ -593,8 +604,6 @@ class ImageContent {
                 pos--
             }
             if (!isFindStartMarker || !isFindEndMarker) {
-                //println("startIndex :${startIndex}")
-                //println("endIndex :${endIndex}")
                 Log.d("이미지", "Error: 찾는 마커가 존재하지 않음")
                 //println("Error: 찾는 마커가 존재하지 않음")
                 return ByteArray(0)
