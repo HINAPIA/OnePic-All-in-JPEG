@@ -15,10 +15,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -957,8 +954,20 @@ class CameraFragment : Fragment() {
                 }
 
             imageCapture = ImageCapture.Builder()
+                .setTargetRotation(Surface.ROTATION_0)
                 .build()
 
+            val orientationEventListener = object : OrientationEventListener(context) {
+                override fun onOrientationChanged(orientation: Int) {
+                    when (orientation) {
+                        0 -> imageCapture.setTargetRotation(Surface.ROTATION_0)
+                        90 -> imageCapture.setTargetRotation(Surface.ROTATION_270)
+                        180 -> imageCapture.setTargetRotation(Surface.ROTATION_180)
+                        270 -> imageCapture.setTargetRotation(Surface.ROTATION_90)
+                    }
+                }
+            }
+            orientationEventListener.enable()
 
             // 3-2. 카메라 세팅
             // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
