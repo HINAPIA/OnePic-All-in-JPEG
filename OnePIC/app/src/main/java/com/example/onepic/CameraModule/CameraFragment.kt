@@ -43,6 +43,7 @@ import com.example.onepic.R
 import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
 import kotlinx.coroutines.*
+import kotlinx.coroutines.selects.select
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 import java.lang.reflect.InvocationTargetException
@@ -65,11 +66,12 @@ class CameraFragment : Fragment() {
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
+    private var selectedRadioIndex : Int = 0
     private var isShutterClick : Boolean = false
+    private var isToggleChecked : Boolean = false
     private lateinit var mediaPlayer : MediaPlayer
 
     // Camera
-    private lateinit var analyzer: ImageAnalysis.Analyzer
     private lateinit var camera: Camera
     private lateinit var cameraController: CameraControl
     private lateinit var cameraExecutor: ExecutorService
@@ -106,14 +108,6 @@ class CameraFragment : Fragment() {
         super.onAttach(context)
         activity = context as CameraEditorActivity
         audioResolver = AudioResolver(activity)
-        // 카메라 권한 확인 후 카메라 시작하기
-        if(allPermissionsGranted()){
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -138,39 +132,46 @@ class CameraFragment : Fragment() {
         // Initialize the detector object
         setDetecter()
 
-//        // 카메라 권한 확인 후 카메라 시작하기
-//        if(allPermissionsGranted()){
-//            startCamera()
-//        } else {
-//            ActivityCompat.requestPermissions(
-//                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-//            )
+//        /**
+//         * radioGroup.setOnCheckedChangeListener
+//         *      1. Basic 버튼 눌렸을 때, Single Mode나 Burst Mode 선택 버튼이 나타나게 하기
+//         *      2. Basic 버튼 안 누르면 사라지게 하기
+//         *      3. Option에 따른 카메라 설정
+//         */
+//        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+//            when (checkedId){
+//                binding.basicRadio.id -> {
+//                    selectedRadioIndex = 0
+//                    binding.basicToggle.visibility = View.VISIBLE
+//                    turnOnAEMode()
+//                }
+//
+//                binding.objectFocusRadio.id -> {
+//                    selectedRadioIndex = 1
+//                    binding.basicToggle.visibility = View.INVISIBLE
+//                    turnOnAEMode()
+//                }
+//
+//                binding.distanceFocusRadio.id -> {
+//                    selectedRadioIndex = 2
+//                    binding.basicToggle.visibility = View.INVISIBLE
+//                    turnOffAFMode(0F)
+//                }
+//
+//                binding.autoRewindRadio.id -> {
+//                    selectedRadioIndex = 3
+//                    binding.basicToggle.visibility = View.INVISIBLE
+//                    turnOnAEMode()
+//                }
+//            }
 //        }
-
-        /**
-         * radioGroup.setOnCheckedChangeListener
-         *      1. Basic 버튼 눌렸을 때, Single Mode나 Burst Mode 선택 버튼이 나타나게 하기
-         *      2. Basic 버튼 안 누르면 사라지게 하기
-         *      3. Option에 따른 카메라 설정
-         */
-        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            when (checkedId){
-                binding.basicRadio.id -> {
-                    binding.basicToggle.visibility = View.VISIBLE
-                    turnOnAEMode()
-                }
-
-                binding.distanceFocusRadio.id -> {
-                    binding.basicToggle.visibility = View.INVISIBLE
-                    turnOffAFMode(0F)
-                }
-
-                else -> {
-                    binding.basicToggle.visibility = View.INVISIBLE
-                    turnOnAEMode()
-                }
-            }
-        }
+//
+//        /**
+//         * ToggleButton 눌렸을 떄
+//         */
+//        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
+//            isToggleChecked = isChecked
+//        }
 
         /**
          * shutterButton.setOnClickListener{ }
@@ -406,6 +407,111 @@ class CameraFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // 카메라 권한 확인 후 카메라 시작하기
+        if(allPermissionsGranted()){
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
+
+        // SharedPreferences 객체를 가져옵니다.
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
+
+        // 저장된 값을 가져옵니다.
+        val selectedRadioIndexShare = sharedPref?.getInt("selectedRadioIndex", 0)
+
+        // 가져온 값을 사용합니다.
+        if (selectedRadioIndexShare != null && selectedRadioIndexShare >= 0) {
+            // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
+            when (selectedRadioIndexShare) {
+                0 -> binding.basicRadio.isChecked = true
+                1 -> {
+                    binding.objectFocusRadio.isChecked = true
+                    binding.basicToggle.visibility = View.INVISIBLE
+                }
+                2 -> {
+                    binding.distanceFocusRadio.isChecked = true
+                    binding.basicToggle.visibility = View.INVISIBLE
+                }
+                3 -> {
+                    binding.autoRewindRadio.isChecked = true
+                    binding.basicToggle.visibility = View.INVISIBLE
+                }
+            }
+        }
+
+        val isToggleCheckedShare = sharedPref?.getBoolean("isToggleChecked", false)
+        if(isToggleCheckedShare != null){
+            when(isToggleCheckedShare){
+                false -> binding.basicToggle.isChecked = false
+                true -> binding.basicToggle.isChecked = true
+            }
+        }
+
+
+        /**
+         * radioGroup.setOnCheckedChangeListener
+         *      1. Basic 버튼 눌렸을 때, Single Mode나 Burst Mode 선택 버튼이 나타나게 하기
+         *      2. Basic 버튼 안 누르면 사라지게 하기
+         *      3. Option에 따른 카메라 설정
+         */
+        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId){
+                binding.basicRadio.id -> {
+                    selectedRadioIndex = 0
+                    binding.basicToggle.visibility = View.VISIBLE
+                    turnOnAEMode()
+                }
+
+                binding.objectFocusRadio.id -> {
+                    selectedRadioIndex = 1
+                    binding.basicToggle.visibility = View.INVISIBLE
+                    turnOnAEMode()
+                }
+
+                binding.distanceFocusRadio.id -> {
+                    selectedRadioIndex = 2
+                    binding.basicToggle.visibility = View.INVISIBLE
+                    turnOffAFMode(0F)
+                }
+
+                binding.autoRewindRadio.id -> {
+                    selectedRadioIndex = 3
+                    binding.basicToggle.visibility = View.INVISIBLE
+                    turnOnAEMode()
+                }
+            }
+        }
+
+        /**
+         * ToggleButton 눌렸을 떄
+         */
+        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
+            isToggleChecked = isChecked
+        }
+    }
+
+    // A 프래그먼트의 onPause() 메서드에서 호출됩니다.
+    override fun onPause() {
+        super.onPause()
+
+        // SharedPreferences 객체를 가져옵니다.
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
+
+        // SharedPreferences.Editor를 사용하여 상태 값을 저장합니다.
+        with (sharedPref?.edit()) {
+            this?.putInt("selectedRadioIndex", selectedRadioIndex)
+            this?.putBoolean("isToggleChecked", isToggleChecked)
+            this?.apply()
+        }
+    }
+
+
     suspend fun takePicture(i : Int) : Int {
         return suspendCoroutine { continuation ->
 
@@ -472,108 +578,12 @@ class CameraFragment : Fragment() {
         Camera2CameraControl.from(camera.cameraControl).captureRequestOptions =
             CaptureRequestOptions.Builder()
                 .apply {
-//                    setCaptureRequestOption(
-//                        CaptureRequest.CONTROL_CAPTURE_INTENT,
-//                        CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
-//                    )
                     setCaptureRequestOption(
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
                         CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE
                     )
                 }.build()
     }
-
-//    /**
-//     * < TEST >
-//     * takePhotoIndex(index : Int, maxIndex : Int)
-//     *      - 사진 촬영 시, 저장
-//     */
-//    private fun takePhotoIndex(index : Int, maxIndex : Int) {
-//        if(index >= maxIndex){
-////            mediaPlayer.start()
-//            return
-//        }
-//        // Get a stable reference of the modifiable image capture use case
-//        val imageCapture = imageCapture ?: return
-//
-//        // Create time stamped name and MediaStore entry.
-//        val name = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-//
-//        val contentValues = ContentValues().apply {
-//            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-//            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-//                put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
-//            }
-//        }
-//
-//        // Create output options object which contains file + metadata
-//        val outputOptions = ImageCapture.OutputFileOptions
-//            .Builder(
-//                activity.contentResolver,
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                contentValues
-//            )
-//            .build()
-//
-//        // Set up image capture listener, which is triggered after photo has
-//        // been taken
-//        imageCapture.takePicture(
-//            outputOptions,
-//            ContextCompat.getMainExecutor(activity),
-//            object : ImageCapture.OnImageSavedCallback {
-//                override fun onError(exc: ImageCaptureException) {
-//                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-//                }
-//
-//                override fun
-//                        onImageSaved(output: ImageCapture.OutputFileResults) {
-//                    val msg = "Photo capture succeeded: ${output.savedUri}"
-//                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
-//                    takePhotoIndex(index + 1, maxIndex)
-//                }
-//            }
-//        )
-//    }
-
-//    /**
-//     * burstMode(index : Int, maxIndex : Int)
-//     *      - 연속 촬영 모드
-//     *          재귀로 돌면서 preview를 ByteArray로 변환
-//     *          previewByteArrayList에 저장
-//     */
-//    private fun takeBurstMode(index : Int, maxIndex : Int){
-//        if(index >= maxIndex){
-//            mediaPlayer.start()
-//            return
-//        }
-//
-//
-//        val imageCapture = imageCapture ?: return
-//
-//        imageCapture.takePicture(cameraExecutor, object :
-//            ImageCapture.OnImageCapturedCallback() {
-//            override fun onCaptureSuccess(image: ImageProxy) {
-//
-//                val buffer = image.planes[0].buffer
-//                buffer.rewind()
-//                val bytes = ByteArray(buffer.capacity())
-//                buffer.get(bytes)
-//                previewByteArrayList.add(bytes)
-//
-//                // 다시 호출
-//                takeBurstMode(index + 1, maxIndex)
-//
-//                image.close()
-//
-//                super.onCaptureSuccess(image)
-//            }
-//
-//            override fun onError(exception: ImageCaptureException) {
-//                super.onError(exception)
-//            }
-//        })
-//    }
 
     private fun previewToByteArray(){
         val imageCapture = imageCapture
@@ -932,7 +942,7 @@ class CameraFragment : Fragment() {
 
             // 2. CameraProvider 사용 가능 여부 확인
             // 생명주기에 binding 할 수 있는 ProcessCameraProvider 객체 가져옴
-            cameraProvider = cameraProviderFuture.get()
+            val cameraProvider = cameraProviderFuture.get()
 
             // 3. 카메라를 선택하고 use case를 같이 생명주기에 binding
 
@@ -1014,10 +1024,9 @@ class CameraFragment : Fragment() {
             mutableListOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO
-            ).apply {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                }
-            }.toTypedArray()
+            ).toTypedArray()
+
+        private val REQUEST_CAMERA_PERMISSION_CODE = 1001
+        private val REQUEST_RECORD_AUDIO_PERMISSION_CODE = 1002
     }
 }

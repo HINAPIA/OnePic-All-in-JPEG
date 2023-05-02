@@ -1,7 +1,11 @@
 package com.example.onepic.CameraModule
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.onepic.JpegViewModel
 import com.example.onepic.JpegViewModelFactory
@@ -27,5 +31,6 @@ class CameraEditorActivity : AppCompatActivity() {
 
         var MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
+
     }
 }
