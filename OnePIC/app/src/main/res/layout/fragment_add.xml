@@ -62,7 +62,7 @@
         android:id="@+id/textContentLayout"
         android:layout_width="match_parent"
         android:layout_height="130dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/horizontal_centerline"
@@ -101,24 +101,25 @@
                 android:background="@drawable/edittext_rounded_corner_rectangle"
                 android:gravity="center"
                 android:inputType="textMultiLine"
-                android:paddingLeft="30dp"
-                android:paddingTop="5dp"
+                android:paddingLeft="40dp"
+                android:paddingTop="15dp"
                 android:paddingEnd="45dp"
-                android:paddingRight="30dp"
+                android:paddingRight="40dp"
+                android:paddingBottom="35dp"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/check_button"
-                android:layout_width="88dp"
-                android:layout_height="38dp"
+                android:layout_width="80dp"
+                android:layout_height="43dp"
                 android:layout_alignBottom="@+id/edit_text"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="236dp"
+                android:layout_marginStart="244dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginBottom="1dp"
+                android:layout_marginBottom="-2dp"
                 android:background="@drawable/check_selector"
                 android:paddingLeft="0dp"
                 android:paddingTop="0dp"
@@ -128,7 +129,7 @@
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:iconPadding="1dp" />
 
         </RelativeLayout>

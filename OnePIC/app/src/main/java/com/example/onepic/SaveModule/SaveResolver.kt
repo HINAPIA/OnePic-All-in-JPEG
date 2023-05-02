@@ -168,11 +168,30 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 if (outputStream != null) {
                     outputStream.write(byteArray)
                     outputStream.close()
-                    CoroutineScope(Dispatchers.Main).launch {
-                        Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()
-                    }
+
+
 
                 }
+
+                // 파일이 완전히 저장되었는지 확인합니다.
+                val contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                val selectionClause = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+                val selectionArgs = arrayOf(fileName)
+                val queryUri = contentUri.buildUpon().appendQueryParameter("limit", "1").build()
+                mainActivity.contentResolver.query(queryUri, null, selectionClause, selectionArgs, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val isPending = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING))
+                        if (isPending == 0) {
+                            Log.d("error 잡기", "파일 저장 완료")
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Log.d("error 잡기", "파일 저장 중")
+                        }
+                    }
+                }
+
 
             } catch(e: FileNotFoundException) {
                 e.printStackTrace()

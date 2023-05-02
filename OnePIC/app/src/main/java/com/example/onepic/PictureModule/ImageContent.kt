@@ -6,9 +6,7 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -25,14 +23,13 @@ class ImageContent {
 
     lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture
-
     private var mainBitmap: Bitmap? = null
     private var bitmapList: ArrayList<Bitmap> = arrayListOf()
     private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
-    private var checkPictureList = false
+    var checkPictureList = false
     private var checkMain = false
 //    private var checkTransformBitmap = false
 //    private var checkTransformAttributeBitmap = false
@@ -75,24 +72,28 @@ class ImageContent {
     /**
      * ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
      */
-    fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
-        init()
-        // 메타 데이터 분리
-        jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
-        for(i in 0..byteArrayList.size-1) {
-            // frame 분리
-            var frameBytes : ByteArray = extractFrame(byteArrayList.get(i),contentAttribute)
-            // Picture 객체 생성
-            var picture = Picture( contentAttribute, frameBytes)
-
-            picture.waitForByteArrayInitialized()
-            insertPicture(picture)
-            if(i == 0){
-                mainPicture = picture
-                checkMain = true
+    suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
+            init()
+            // 메타 데이터 분리
+            jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
+            for(i in 0..byteArrayList.size-1){
+                // frame 분리
+                var frameBytes = async {
+                    extractFrame(byteArrayList.get(i),contentAttribute)
+                }
+                // Picture 객체 생성
+                var picture = Picture(contentAttribute, frameBytes.await())
+                picture.waitForByteArrayInitialized()
+                insertPicture(picture)
+                Log.d("error 잡기", "setImage contnet picture[$i] 완성")
+                if(i == 0){
+                    mainPicture = picture
+                    checkMain = true
+                }
             }
-        }
-        checkPictureList = true
+            Log.d("error 잡기", "setImage contnet 완성 size =${pictureList.size}")
+            checkPictureList = true
+            return@withContext true
     }
 
     /**
@@ -270,6 +271,7 @@ class ImageContent {
     fun insertPicture(index : Int, picture : Picture){
         pictureList.add(index, picture)
         pictureCount = pictureCount + 1
+        Log.d("error 잡기", "insertPicture pictureCount= ${pictureCount} ")
     }
 
     fun removePicture(picture: Picture) : Boolean{
@@ -288,6 +290,8 @@ class ImageContent {
      * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
      */
     fun getJpegBytes(picture : Picture) : ByteArray{
+        Log.d("error 잡기", "getJpegBytes : 호출")
+        while(!checkPictureList) { }
         var buffer : ByteBuffer = ByteBuffer.allocate(0)
         // main 사진은 수정된 사진이 아니므로 MetaData를 수정하지 않는다
         buffer = ByteBuffer.allocate(jpegMetaData.size + picture.size+2)
@@ -365,6 +369,7 @@ class ImageContent {
         var app1StartPos = 0
         var app1DataLength = 0
         var findApp1 = false
+        var SOFList : ArrayList<Int> = arrayListOf()
 
         // 사진의 속성이 edited, magic이면 2번째 JFIF가 나오기 전까지를 메타데이터로
         if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
@@ -400,27 +405,52 @@ class ImageContent {
                 }
                 app1StartPos++
             }
-
-            // frame시작하는 SOF offset 찾기
+            // SOF 시작 offset 찾기
             while (pos < jpegBytes.size - 1) {
                 if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
-                    //  APP1에는 썸네일의 SOF가 존재하여 APP1 밖에 있는 sof를 찾아야 한다
-                    if (findApp1){
+                    // TODO(sof 배열 만들기)
+                    SOFList.add(pos)
+                    if (findApp1) {
+                        Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                         // 썸네일의 sof가 아닐 때
                         if (pos >= app1StartPos + app1DataLength + 2) {
-                            Log.d("MCcontainer", "extract metadata : 썸네일이 아닌 SOF find - ${pos}")
+                            Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                             isFindStartMarker = true
-                            break
+                            //startIndex = pos
+                            //break
                         }
                     } else {
-                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
+                        Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                         isFindStartMarker = true
-                        break
+                        //startIndex = pos
+                        //break
                     }
-                    // App1이 존재하지 않아서 썸네일이 없다면 첫 번째 찾은 sof마커의 위치에서 break
                 }
                 pos++
             }
+            pos = SOFList[SOFList.size - 1]
+            Log.d("MCcontainer", "sof list size : ${SOFList.size}")
+
+//            // frame시작하는 SOF offset 찾기
+//            while (pos < jpegBytes.size - 1) {
+//                if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
+//                    //  APP1에는 썸네일의 SOF가 존재하여 APP1 밖에 있는 sof를 찾아야 한다
+//                    if (findApp1){
+//                        // 썸네일의 sof가 아닐 때
+//                        if (pos >= app1StartPos + app1DataLength + 2) {
+//                            Log.d("MCcontainer", "extract metadata : 썸네일이 아닌 SOF find - ${pos}")
+//                            isFindStartMarker = true
+//                            break
+//                        }
+//                    } else {
+//                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
+//                        isFindStartMarker = true
+//                        break
+//                    }
+//                    // App1이 존재하지 않아서 썸네일이 없다면 첫 번째 찾은 sof마커의 위치에서 break
+//                }
+//                pos++
+//            }
         }
         if (!isFindStartMarker) {
             println("startIndex :${startIndex}")
@@ -483,6 +513,9 @@ class ImageContent {
             var app1DataLength = 0
             var findApp1 = false
 
+            var SOFList : ArrayList<Int> = arrayListOf()
+            Log.d("MCcontainer", "=============================")
+
             // 2번째 JFIF가 나오기 전까지가 메타데이터
             if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
                 var JFIF_startOffset = 0
@@ -510,7 +543,7 @@ class ImageContent {
                         findApp1 = true
                         Log.d(
                             "MCcontainer",
-                            "extract Frame : APP1 find - pos :${app1DataLength}, length : ${app1DataLength}"
+                            "extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}, end =${app1StartPos+app1DataLength}"
                         )
                         break
                     }
@@ -520,24 +553,28 @@ class ImageContent {
                 // SOF 시작 offset 찾기
                 while (pos < jpegBytes.size - 1) {
                     if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
+                        // TODO(sof 배열 만들기)
+                        SOFList.add(pos)
                         if (findApp1) {
                             Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                             // 썸네일의 sof가 아닐 때
                             if (pos >= app1StartPos + app1DataLength + 2) {
-                                Log.d("MCcontainer", "extract Frame : 진짜 SOF find - ${pos}")
+                                Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                                 isFindStartMarker = true
-                                startIndex = pos
-                                break
+                                //startIndex = pos
+                                //break
                             }
                         } else {
                             Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
                             isFindStartMarker = true
-                            startIndex = pos
-                            break
+                            //startIndex = pos
+                            //break
                         }
                     }
                     pos++
                 }
+                startIndex = SOFList[SOFList.size - 1]
+                Log.d("MCcontainer", "sof list size : ${SOFList.size}")
             }
 
             if (!isFindStartMarker) {

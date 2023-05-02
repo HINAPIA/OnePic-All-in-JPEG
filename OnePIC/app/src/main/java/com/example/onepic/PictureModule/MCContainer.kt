@@ -9,6 +9,7 @@ import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.ContentType
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.SaveModule.SaveResolver
+import kotlinx.coroutines.*
 
 
 class MCContainer(_activity: Activity) {
@@ -41,6 +42,8 @@ class MCContainer(_activity: Activity) {
     /*Edit modules에서 호출하는 함수*/
     //해당 그룹에 존재하는 picture 모두를 list로 제공
     fun getPictureList() : ArrayList<Picture>{
+        while (!imageContent.checkPictureList) {
+        }
         return imageContent.pictureList
     }
     // 해당 그룹에 존재하는 picture 중 해당 attribute 속성인 것들만 list로 제공
@@ -69,8 +72,12 @@ class MCContainer(_activity: Activity) {
 
 
     // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
-    fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute){
-        imageContent.setContent(byteArrayList, contentAttribute)
+    suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute) : Boolean= withContext(Dispatchers.Default){
+
+        var jop = async { imageContent.setContent(byteArrayList, contentAttribute) }
+        jop.await()
+        return@withContext true
+
     }
 
     fun setAudioContent(audioBytes : ByteArray, contentAttribute: ContentAttribute){
