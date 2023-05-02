@@ -205,7 +205,7 @@ class ImageContent {
             checkGetBitmapList = true
 //        checkTransformBitmap = false
             return bitmapList
-        }catch (e: IOException) {
+        }catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드
             e.printStackTrace() // 예외 정보 출력
             return null
@@ -218,20 +218,25 @@ class ImageContent {
      */
     fun getMainBitmap() : Bitmap? {
 
-        try {
-            while (!checkMain) {
-                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
-            }
+        return try {
+//            while (!checkMain) {
+//                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
+//            }
 
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
-            mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
-            return mainBitmap
+             if(mainBitmap == null){
+                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
+                mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
+                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
+            }
+            mainBitmap
         } catch (e: IOException) {
             // 예외가 발생한 경우 처리할 코드
             e.printStackTrace() // 예외 정보 출력
-            return null
+            null
         }
+    }
+    fun resetMainBitmap() {
+        mainBitmap = null
     }
 
     /**

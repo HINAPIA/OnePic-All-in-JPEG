@@ -27,6 +27,7 @@ class GalleryFragment : Fragment() {
     ): View {
 
         binding = FragmentGalleryBinding.inflate(inflater, container, false)
+
         gridAdapter = GridAdapter(this, requireContext())
         gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
         return binding.root

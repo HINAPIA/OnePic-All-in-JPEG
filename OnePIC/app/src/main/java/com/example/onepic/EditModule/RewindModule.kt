@@ -9,15 +9,14 @@ import androidx.core.graphics.toRectF
 import com.example.onepic.ImageToolModule
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class RewindModule() {
 
+    private lateinit var modelCoroutine: Job
     private lateinit var detector: FaceDetector
     private val imageToolModule: ImageToolModule
     private var faceArraylist : ArrayList<ArrayList<Face>?> = arrayListOf()
@@ -29,25 +28,36 @@ class RewindModule() {
         imageToolModule = ImageToolModule()
     }
 
+    fun getCheckFaceDetection(): Boolean {
+        return checkFaceDetection
+    }
+
+    fun deleteModelCoroutine() {
+        if(modelCoroutine != null){
+            modelCoroutine.cancel()
+        }
+    }
+
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
         checkFaceDetectionCall = true
         checkFaceDetection = false
+
+        faceArraylist.clear()
 
         val checkFinish = BooleanArray(bitmapList.size)
         for (i in 0 until bitmapList.size) {
             checkFinish[i] = false
             faceArraylist.add(null)
         }
-        CoroutineScope(Dispatchers.Default).launch {
+        modelCoroutine = CoroutineScope(Dispatchers.IO).launch {
             Log.d("RewindModule", "start = 0")
             // j 번째 사진 faces 정보 얻기
             faceArraylist[0] = runFaceContourDetection(bitmapList[0])
             Log.d("RewindModule", "end = 0")
             checkFinish[0] = true
 
-
             for (j in 1 until bitmapList.size) {
-                CoroutineScope(Dispatchers.Default).launch {
+                withContext(Dispatchers.IO) {
                     Log.d("RewindModule", "start = $j")
                     // j 번째 사진 faces 정보 얻기
                     faceArraylist[j] = runFaceContourDetection(bitmapList[j])
@@ -68,7 +78,6 @@ class RewindModule() {
      *      - face Detection을 하기 위해 필요한 분석기 옵션 설정
      */
     private fun setFaceDetecter() {
-
         //High-accuracy landmark detection and face classification
         val highAccuracyOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -80,7 +89,6 @@ class RewindModule() {
     }
 
     fun getFaces(index: Int): ArrayList<Face> {
-
         while (!checkFaceDetection) {
             if (faceArraylist.size > index && faceArraylist[index] != null) {
                 break
@@ -119,39 +127,38 @@ class RewindModule() {
 
             // face Detection
             var faces: ArrayList<Face>? = null
-            CoroutineScope(Dispatchers.Default).launch {
-                faces = getFaces(index)
-                if (faces == null)
-                    bitmapResult.resume(null)
-                else {
-                    var checkResume = false
-                    for (i in 0 until faces!!.size) {
-                        val face = faces!![i]
-                        if (imageToolModule.checkPointInRect(point, face.boundingBox)) {
-                            checkResume = true
 
-                            val landmarks = face.allLandmarks
+            faces = getFaces(index)
+            if (faces == null)
+                bitmapResult.resume(null)
+            else {
+                var checkResume = false
+                for (i in 0 until faces.size) {
+                    val face = faces[i]
+                    if (imageToolModule.checkPointInRect(point, face.boundingBox)) {
+                        checkResume = true
 
-                            val addStartY =
-                                ((landmarks[0].position.y - landmarks[3].position.y) / 2).toInt()
-                            val addEndY =
-                                ((landmarks[0].position.y - landmarks[5].position.y) / 2).toInt()
+                        val landmarks = face.allLandmarks
 
-                            val boundingBox = listOf<Int>(
-                                face.boundingBox.left, // left: 진짜 얼굴이 인지된 left 값
-                                face.boundingBox.top, // top
-                                face.boundingBox.right, // right
-                                face.boundingBox.bottom, // bottom
-                                landmarks[2].position.x.toInt(), // cropLeft: 실질적으로 이미지에 덮붙이기 위해 자를 left 값
-                                landmarks[3].position.y.toInt() - addStartY, // cropTop
-                                landmarks[7].position.x.toInt(), // cropRight
-                                landmarks[0].position.y.toInt() + addEndY  // cropBottom
-                            )
-                            bitmapResult.resume(boundingBox)
-                        }
+                        val addStartY =
+                            ((landmarks[0].position.y - landmarks[3].position.y) / 2).toInt()
+                        val addEndY =
+                            ((landmarks[0].position.y - landmarks[5].position.y) / 2).toInt()
+
+                        val boundingBox = listOf<Int>(
+                            face.boundingBox.left, // left: 진짜 얼굴이 인지된 left 값
+                            face.boundingBox.top, // top
+                            face.boundingBox.right, // right
+                            face.boundingBox.bottom, // bottom
+                            landmarks[2].position.x.toInt(), // cropLeft: 실질적으로 이미지에 덮붙이기 위해 자를 left 값
+                            landmarks[3].position.y.toInt() - addStartY, // cropTop
+                            landmarks[7].position.x.toInt(), // cropRight
+                            landmarks[0].position.y.toInt() + addEndY  // cropBottom
+                        )
+                        bitmapResult.resume(boundingBox)
                     }
-                    if (!checkResume) bitmapResult.resume(null)
                 }
+                if (!checkResume) bitmapResult.resume(null)
             }
         }
 
@@ -159,16 +166,16 @@ class RewindModule() {
      * runFaceContourDetection(bitmap: Bitmap): ArrayList<Face>
      *     - face detection을 실행하고 결과를 return
      */
-    suspend fun runFaceContourDetection(bitmap: Bitmap): ArrayList<Face> =
+    private suspend fun runFaceContourDetection(bitmap: Bitmap): ArrayList<Face> =
         suspendCoroutine { continuation ->
             val image = InputImage.fromBitmap(bitmap, 0)
 
             detector.process(image)
                 .addOnSuccessListener { faces ->
-                    faceArraylist.add(faces as ArrayList<Face>)
+                    //faceArraylist.add(faces as ArrayList<Face>)
                     Log.d("RewindModule", "success")
                     // 얼굴 검출 성공 시 콜백 함수
-                    continuation.resume(faces)
+                    continuation.resume(faces as ArrayList<Face>)
                 }
                 .addOnFailureListener { e ->
                     // 얼굴 검출 실패 시 콜백 함수
@@ -192,24 +199,6 @@ class RewindModule() {
             val bestFace: ArrayList<Face> = ArrayList()
             var resultBitmap = bitmapList[0]
 
-//            val checkFinish = BooleanArray(bitmapList.size)
-//            for (i in 0 until bitmapList.size) {
-//                checkFinish[i] = false
-//            }
-//
-//            for (j in 0 until bitmapList.size) {
-//                CoroutineScope(Dispatchers.Default).launch {
-//                    Log.d("RewindModule", "start = $j")
-//                    // j 번째 사진 faces 정보 얻기
-//                    facesResultList.add(runFaceContourDetection(bitmapList[j]))
-//                    Log.d("RewindModule", "end = $j")
-//                    checkFinish[j] = true
-//                }
-//            }
-
-//            while(!checkFinish.all { it }) {
-//
-//            }
 
            // allFaceDetection(bitmapList)
 
@@ -217,7 +206,7 @@ class RewindModule() {
 
             }
 
-            CoroutineScope(Dispatchers.Default).launch {
+//            CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
                     val facesResult = faceArraylist[j]
                     if (j == 0) {
@@ -262,7 +251,7 @@ class RewindModule() {
                                 }
                             }
                         }
-                    }
+//                    }
                 }
                 Log.d("RewindModule", bestFaceIndex.toString())
 

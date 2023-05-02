@@ -111,7 +111,7 @@ class ViewerFragment : Fragment() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-
+                setMagicPicture()
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
 
@@ -313,25 +313,29 @@ class ViewerFragment : Fragment() {
                 for (picture in pictureList){
                     val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
                     // 넣고자 하는 layout 불러오기
-                    val scollItemLayout = layoutInflater.inflate(R.layout.scroll_item_layout, null)
+                   try {
+                       val scollItemLayout =
+                           layoutInflater.inflate(R.layout.scroll_item_layout, null)
 
-                    // 위 불러온 layout에서 변경을 할 view가져오기
-                    val scrollImageView: ImageView = scollItemLayout.findViewById(R.id.scrollImageView)
+                       // 위 불러온 layout에서 변경을 할 view가져오기
+                       val scrollImageView: ImageView =
+                           scollItemLayout.findViewById(R.id.scrollImageView)
 
-                    CoroutineScope(Dispatchers.Main).launch {
-                        // 이미지 바인딩
-                        Glide.with(scrollImageView)
-                            .load(pictureByteArr)
-                            .into(scrollImageView)
+                       CoroutineScope(Dispatchers.Main).launch {
+                           // 이미지 바인딩
+                           Glide.with(scrollImageView)
+                               .load(pictureByteArr)
+                               .into(scrollImageView)
 
-                        scrollImageView.setOnClickListener{ // scrollview 이미지를 main으로 띄우기
-                            mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-                            jpegViewModel.setselectedSubImage(picture)
-                        }
-
-                        binding.linear.addView(scollItemLayout)
-
-                    }
+                           scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                               mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                               jpegViewModel.setselectedSubImage(picture)
+                           }
+                           binding.linear.addView(scollItemLayout)
+                       }
+                   } catch (e: IllegalStateException) {
+                       println(e.message)
+                   }
                 } // end of for..
                 jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
                 Log.d("초기 선택된 이미지: ",""+pictureList[0])

@@ -55,7 +55,7 @@ class BurstModeEditFragment : Fragment() {
         mainPicture = imageContent.mainPicture
         pictureList = imageContent.pictureList
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
             withContext(Dispatchers.Main) {
@@ -123,6 +123,8 @@ class BurstModeEditFragment : Fragment() {
             imageToolModule.showView(binding.progressBar, false)
         }
         binding.burstSaveBtn.setOnClickListener {
+            imageContent.resetMainBitmap()
+
             CoroutineScope(Dispatchers.Default).launch {
                 imageToolModule.showView(binding.progressBar, true)
 

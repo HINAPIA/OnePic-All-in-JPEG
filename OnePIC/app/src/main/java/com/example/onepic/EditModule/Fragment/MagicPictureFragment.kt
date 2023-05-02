@@ -41,7 +41,7 @@ class MagicPictureFragment : RewindFragment() {
 
     var pictureList: ArrayList<Picture> = arrayListOf()
 
-    private lateinit var context : Context
+    private lateinit var context: Context
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -70,14 +70,14 @@ class MagicPictureFragment : RewindFragment() {
         imageToolModule.showView(binding.progressBar, true)
 
         // 메인 이미지 임시 설정
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Main) {
                 Glide.with(binding.magicMainView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
                     .into(binding.magicMainView)
             }
         }
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             val newMainBitmap = imageContent.getMainBitmap()
             if (newMainBitmap != null) {
                 mainBitmap = newMainBitmap
@@ -95,18 +95,22 @@ class MagicPictureFragment : RewindFragment() {
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-            imageToolModule.showView(binding.progressBar , true)
+            imageToolModule.showView(binding.progressBar, true)
 
-            CoroutineScope(Dispatchers.Default).launch {
-                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+            CoroutineScope(Dispatchers.IO).launch {
+                val allBytes = imageToolModule.bitmapToByteArray(
+                    mainBitmap,
+                    imageContent.getJpegBytes(mainPicture)
+                )
 
-                imageContent.mainPicture = Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
+                imageContent.mainPicture =
+                    Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 // EmbeddedData 추가
-                val indices = intArrayOf(5,6,7,8) // 추출할 배열의 인덱스
+                val indices = intArrayOf(5, 6, 7, 8) // 추출할 배열의 인덱스
 
-                if(boundingBox.size > 0) {
+                if (boundingBox.size > 0) {
                     val mainBoundingBox: ArrayList<Int> =
                         boundingBox[0].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
 
@@ -122,7 +126,7 @@ class MagicPictureFragment : RewindFragment() {
                 }
 
                 imageContent.checkMagicAttribute = true
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
                 }
 
@@ -137,48 +141,51 @@ class MagicPictureFragment : RewindFragment() {
 
         // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
         binding.magicPlayBtn.setOnClickListener {
-            if(!checkMagicPicturePlay) {
+            if (!checkMagicPicturePlay) {
                 magicPictureRun(cropBitmapList)
                 binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
                 checkMagicPicturePlay = true
-            }
-            else {
+            } else {
                 handler.removeCallbacksAndMessages(null)
                 binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
                 checkMagicPicturePlay = false
             }
         }
 
-        // 이미지 뷰 클릭 시
+        // 메인 view 클릭 시
         binding.magicMainView.setOnTouchListener { view, event ->
-            if (event!!.action == MotionEvent.ACTION_DOWN) {
+            if (event!!.action == MotionEvent.ACTION_UP) {
                 imageToolModule.showView(binding.progressBar, true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
-                    view as ImageView
+                    binding.magicMainView
                 )
-                println("------- click point:" + touchPoint)
+                println("------- click point:$touchPoint")
 
                 if (touchPoint != null) {
 
                     CoroutineScope(Dispatchers.Default).launch {
+
+                        while(!rewindModule.getCheckFaceDetection()) { }
                         // Click 좌표가 포함된 Bounding Box 얻음
-                        boundingBox = getBoundingBox(touchPoint)
+                        val boundingBox = getBoundingBox(touchPoint)
 
-                        // Bounding Box로 이미지를 Crop한 후 보여줌
-                        withContext(Dispatchers.Main) {
-                            cropImgAndView(boundingBox)
+                        if (boundingBox.size > 0) {
+                            // Bounding Box로 이미지를 Crop한 후 보여줌
+                            withContext(Dispatchers.Main) {
+                                cropImgAndView(boundingBox)
+                            }
                         }
-                        imageToolModule.showView(binding.progressBar, false)
-
                     }
+                } else {
+                    imageToolModule.showView(binding.progressBar, false)
+
                 }
             }
             return@setOnTouchListener true
         }
-
         return binding.root
     }
 
@@ -188,7 +195,6 @@ class MagicPictureFragment : RewindFragment() {
             binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
         }
     }
-
 
     override fun setMainImageBoundingBox() {
 
@@ -209,7 +215,12 @@ class MagicPictureFragment : RewindFragment() {
 
             if (faceResult.size == 0) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG).show()
+                    try {
+                        Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG)
+                            .show()
+                    } catch (e: IllegalStateException) {
+                        println(e.message)
+                    }
                 }
             } else {
                 try {
@@ -233,18 +244,14 @@ class MagicPictureFragment : RewindFragment() {
      *         - 이미지를 자르고 화면에 띄어줌
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
-
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.magicCandidateLayout.removeAllViews()
-        cropBitmapList.clear()
+        cropBitmapList.removeAll(cropBitmapList)
 
         if (bitmapList.size == 0) {
-            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-            if(newBitmapList != null) {
-                bitmapList = newBitmapList
-                rewindModule.allFaceDetection(bitmapList)
-            }
+            imageToolModule.showView(binding.progressBar , false)
+            return
         }
 
         for (i in 0 until boundingBox.size) {
@@ -256,31 +263,51 @@ class MagicPictureFragment : RewindFragment() {
             // bitmap를 자르기
             val cropImage = imageToolModule.cropBitmap(
                 bitmapList[rect[0]],
+                //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
-
-            val ovelapImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]],
-                Rect(rect[5], rect[6], rect[7], rect[8])
-            )
             // 크롭이미지 배열에 값 추가
-            cropBitmapList.add(ovelapImage)
+            cropBitmapList.add(cropImage)
 
-            // 넣고자 하는 layout 불러오기
-            val candidateLayout = layoutInflater.inflate(R.layout.candidate_image_array, null)
+            try {
+                // 넣고자 하는 layout 불러오기
+                val candidateLayout = layoutInflater.inflate(R.layout.candidate_image_array, null)
 
-            // 위 불러온 layout에서 변경을 할 view가져오기
-            val cropImageView: ImageView =
-                candidateLayout.findViewById(R.id.cropImageView)
+                // 위 불러온 layout에서 변경을 할 view가져오기
+                val cropImageView: ImageView =
+                    candidateLayout.findViewById(R.id.cropImageView)
 
-            // 자른 사진 이미지뷰에 붙이기
-            cropImageView.setImageBitmap(cropImage)
+                // 자른 사진 이미지뷰에 붙이기
+                cropImageView.setImageBitmap(cropImage)
 
-            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-            binding.magicCandidateLayout.addView(candidateLayout)
+                // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
+                cropImageView.setOnClickListener {
+                    newImage = imageToolModule.cropBitmap(
+                        bitmapList[rect[0]],
+                        //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
+                        Rect(rect[5], rect[6], rect[7], rect[8])
+                    )
+                    newImage = imageToolModule.circleCropBitmap(newImage!!)
+                    mainBitmap = imageToolModule.overlayBitmap(
+                        mainBitmap,
+                        newImage!!,
+                        changeFaceStartX,
+                        changeFaceStartY
+                    )
+
+                    binding.magicMainView.setImageBitmap(mainBitmap)
+//                imageToolModule.showView(binding.arrowBar, true)
+                }
+
+                // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                binding.magicCandidateLayout.addView(candidateLayout)
+            } catch (e: IllegalStateException) {
+                println(e.message)
+            }
         }
+        imageToolModule.showView(binding.progressBar , false)
+//        imageToolModule.showView(binding.arrowBar, false)
     }
-
     private fun magicPictureRun(cropBitmapList: ArrayList<Bitmap>) {
         ovelapBitmap.clear()
         CoroutineScope(Dispatchers.Main).launch {
@@ -288,10 +315,7 @@ class MagicPictureFragment : RewindFragment() {
                 newImage = imageToolModule.circleCropBitmap(cropBitmapList[i])
                 ovelapBitmap.add(
                     imageToolModule.overlayBitmap(
-                        mainBitmap,
-                        newImage!!,
-                        changeFaceStartX,
-                        changeFaceStartY
+                        mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY
                     )
                 )
             }
@@ -333,10 +357,7 @@ class MagicPictureFragment : RewindFragment() {
             changeFaceStartY += moveY
 
             ovelapBitmap[0] = imageToolModule.overlayBitmap(
-                mainBitmap,
-                newImage!!,
-                changeFaceStartX,
-                changeFaceStartY
+                mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY
             )
 
             binding.magicMainView.setImageBitmap(ovelapBitmap[0])

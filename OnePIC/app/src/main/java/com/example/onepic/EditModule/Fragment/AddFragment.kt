@@ -88,8 +88,9 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         imageToolModule = ImageToolModule()
         textInit()
         // main Picture의 byteArray를 bitmap 제작
-        mainPicture = imageContent.mainPicture
-        var mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+//        mainPicture = imageContent.mainPicture
+//        var mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        val mainBitmap = imageContent.getMainBitmap()
 
         // imageView 변환
         binding.addMainView.setImageBitmap(mainBitmap)

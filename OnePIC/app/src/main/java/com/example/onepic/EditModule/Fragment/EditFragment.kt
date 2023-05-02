@@ -61,10 +61,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.activityType = ActivityType.Viewer
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
-
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
@@ -170,6 +169,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 activity,
                 android.R.style.Theme_DeviceDefault_Light_Dialog
             )
+
+            if(imageContent.checkMainChangeAttribute) {
+
+            }
+
             if(imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
                 // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
