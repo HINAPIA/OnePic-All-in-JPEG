@@ -131,15 +131,13 @@ class BurstModeEditFragment : Fragment() {
             imageContent.resetMainBitmap()
 
             CoroutineScope(Dispatchers.Default).launch {
-
-                mainPicture = imageContent.mainPicture
                 imageToolModule.showView(binding.progressBar , true)
 
-                // TODO: main 변경 후 save
                 // 1. main으로 지정된 picture를 picturelist에서 삭제
                 var result = imageContent.removePicture(mainPicture)
+                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
                 if (result) {
-                    Log.d("burst", "main으로 지정된 객체 삭제 완료")
+                    Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
                     // 2. main 사진을 첫번 째로 삽입
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture
@@ -151,26 +149,21 @@ class BurstModeEditFragment : Fragment() {
                         Log.d("error 잡기", "바로 편집에서 save() 호출 전")
                         jpegViewModel.jpegMCContainer.value?.save()
                         Log.d("error 잡기", "바로 편집에서 save() 호출후")
+                        imageContent.checkMainChangeAttribute = true
+                        Thread.sleep(2000)
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
                 }
                 else{
                     withContext(Dispatchers.Main){
                         Log.d("error 잡기", "바로 편집에서 navigate호출 전")
+                        imageContent.checkMainChangeAttribute = true
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
                     imageToolModule.showView(binding.progressBar , false)
 
                 }
 
-//                        Log.d("burst", "바로 편집에서navigate호출 전")
-                imageContent.checkMainChangeAttribute = true
-                CoroutineScope(Dispatchers.Default).launch {
-                    withContext(Dispatchers.Main) {
-                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
-                        imageToolModule.showView(binding.progressBar, false)
-                    }
-                }
             }
         }
         binding.burstCloseBtn.setOnClickListener {

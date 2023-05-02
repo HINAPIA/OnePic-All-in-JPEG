@@ -70,7 +70,14 @@ class MCContainer(_activity: Activity) {
 
     /*Edit modules에서 호출하는 함수 끝 */
 
+    fun overwiteSave(fileName : String) {
+       saveResolver.overwriteSave(fileName)
 
+    }
+    //Container의 데이터를 파일로 저장
+     fun save()  {
+        saveResolver.save()
+    }
     // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
     suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute) : Boolean= withContext(Dispatchers.Default){
 
@@ -100,14 +107,9 @@ class MCContainer(_activity: Activity) {
     fun convertHeaderToBinaryData() : ByteArray{
         return header.convertBinaryData()
     }
-    //Container의 데이터를 파일로 저장
-    fun save(){
-        saveResolver.save()
-    }
 
-    fun overwiteSave(fileName : String){
-        saveResolver.overwriteSave(fileName)
-    }
+
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(){
         var audio = audioContent.audio

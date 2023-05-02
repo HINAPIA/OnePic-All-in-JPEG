@@ -143,12 +143,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     newImage = null
                 }
 
-                Log.d("ImageTool", "11111")
-                val allBytes = imageToolModule.bitmapToByteArray(
-                    mainBitmap,
-                    imageContent.getJpegBytes(mainPicture)
-                )
-                Log.d("ImageTool", "222222")
+
+                val allBytes =  imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
@@ -156,11 +153,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 if (imageContent.activityType == ActivityType.Camera) {
                     val mainPicture = imageContent.mainPicture
-                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                    //imageContent.insertPicture(0, mainPicture)
                     jpegViewModel.jpegMCContainer.value?.save()
-                    //Thread.sleep(10000)
-
+                    Thread.sleep(2000)
                 }
 
                 imageContent.checkRewindAttribute = true

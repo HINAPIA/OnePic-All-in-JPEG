@@ -95,13 +95,12 @@ class MagicPictureFragment : RewindFragment() {
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-            imageToolModule.showView(binding.progressBar, true)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val allBytes = imageToolModule.bitmapToByteArray(
-                    mainBitmap,
-                    imageContent.getJpegBytes(mainPicture)
-                )
+
+
+            CoroutineScope(Dispatchers.Default).launch {
+                imageToolModule.showView(binding.progressBar , true)
+                val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))

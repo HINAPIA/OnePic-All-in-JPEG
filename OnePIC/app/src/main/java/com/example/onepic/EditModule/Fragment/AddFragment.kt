@@ -379,10 +379,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 playinAudioUIStart(mediaPlayer.duration)
                 while (true) {
                     if (mediaPlayer != null) {
-                        ///Log.d("AudioModule", "while")
-                        if( isDestroy) {
+                        if(isDestroy) {
                             isDestroy = false
-                            //binding.seekBar.progress = 0
                             break
                         }
                         val currentPosition: Int = mediaPlayer.currentPosition

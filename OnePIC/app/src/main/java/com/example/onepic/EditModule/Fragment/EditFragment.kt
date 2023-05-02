@@ -35,6 +35,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
+    private var imageTool = ImageToolModule()
 
     companion object{
         private var isAdd : Boolean = false
@@ -46,6 +47,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var checkRewind = true
     private var checkMagic = true
 
+    private var isSaved = false
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -57,9 +59,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     ): View {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
-
-
-
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.activityType = ActivityType.Viewer
         while (!imageContent!!.checkPictureList) {}
@@ -162,13 +161,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
         }
-        Log.d("burst", isOnylMainChange.toString())
         // Save
         binding.saveBtn.setOnClickListener{
 
             imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-
-            Log.d("burst","edit창에서 save click")
             val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                 activity,
                 android.R.style.Theme_DeviceDefault_Light_Dialog
@@ -180,46 +176,56 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
             if(imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
+                imageTool.showView(binding.progressBar2 , true)
                 // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageFilePath
                 val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                 jpegViewModel.currentImageFilePath
                 jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+                Thread.sleep(2000)
+                imageTool.showView(binding.progressBar2 , false)
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
             }
             else if(imageContent.checkMagicAttribute) {
+                imageTool.showView(binding.progressBar2 , true)
                 // magic으로 변경했을 경우 모든 파일 저장
-                if(!isAdd){
-                    val mainPicture = imageContent.mainPicture
-                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                    imageContent.insertPicture(0, mainPicture)
-                } else isAdd = false
                 jpegViewModel.jpegMCContainer.value?.save()
+                Thread.sleep(3000)
+                imageTool.showView(binding.progressBar2 , false)
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
             }
             else{
                 oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
                     .setPositiveButton("모두 저장", DialogInterface.OnClickListener { dialog, which ->
-                        if(!isAdd){
+                        imageTool.showView(binding.progressBar2 , true)
+                        if(imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute){
                             val mainPicture = imageContent.mainPicture
                             // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                             imageContent.insertPicture(0, mainPicture)
-                        } else isAdd = false
+                        }
                         jpegViewModel.jpegMCContainer.value?.save()
+                        Thread.sleep(2000)
+                        imageTool.showView(binding.progressBar2 , false)
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     })
                     .setNeutralButton("예",
                         DialogInterface.OnClickListener { dialog, which ->
                             try{
+                                imageTool.showView(binding.progressBar2 , true)
                                 val newImageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
                                 val singlePictureList : ArrayList<Picture> =  ArrayList<Picture>(1)
                                 singlePictureList.add(newImageContent.mainPicture)
                                 newImageContent.setContent(singlePictureList)
+
+                                Log.d("save error", "1")
                                 jpegViewModel.jpegMCContainer.value?.save()
+
                             }catch (e :IOException){
                                 Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT).show()
                             }
+                            Thread.sleep(1000)
+                            imageTool.showView(binding.progressBar2 , false)
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         })
                     .show()

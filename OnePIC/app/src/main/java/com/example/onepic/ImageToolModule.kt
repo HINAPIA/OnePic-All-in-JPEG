@@ -38,9 +38,7 @@ class ImageToolModule {
 
         val outputStream = ByteArrayOutputStream()
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        Log.d("ImageTool", "bitmapToByteArray 3초 전")
-        Thread.sleep(3000)
-        Log.d("ImageTool", "bitmapToByteArray 3초 후")
+        Thread.sleep(1000)
         return outputStream.toByteArray()
 
     }

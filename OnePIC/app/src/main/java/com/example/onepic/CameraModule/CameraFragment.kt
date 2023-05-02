@@ -100,7 +100,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 15
+    private val burstSize = 5
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -267,17 +267,8 @@ class CameraFragment : Fragment() {
                             CoroutineScope(Dispatchers.Default).launch {
                                 // RewindFragment로 이동
                                 withContext(Dispatchers.Main) {
-                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-                                }
-                            }
-
-                           // CoroutineScope(Dispatchers.Default).launch {
-
-                                // RewindFragment로 이동
-                                withContext(Dispatchers.Main) {
-
                                     var jop = async {
-                                            jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
                                             previewByteArrayList,
                                             ContentType.Image,
                                             ContentAttribute.burst
@@ -288,7 +279,8 @@ class CameraFragment : Fragment() {
                                     imageContent.activityType = ActivityType.Camera
                                     findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
                                 }
-                           // }
+                            }
+
                         }
                     } // end of Coroutine ...
 
