@@ -223,18 +223,20 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-
             <ImageView
                 android:id="@+id/pullRightView"
-                android:layout_width="90dp"
+                android:layout_width="60dp"
                 android:layout_height="90dp"
+                android:scaleType="centerCrop"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="51dp"
+                android:layout_marginLeft="68dp"
                 app:srcCompat="@drawable/poll_right" />
 
             <ImageView
                 android:id="@+id/filmCaseImageView"
-                android:layout_width="80dp"
+                android:layout_width="65dp"
+                android:scaleType="fitXY"
+                android:layout_marginLeft="10dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 app:srcCompat="@drawable/case4" />
