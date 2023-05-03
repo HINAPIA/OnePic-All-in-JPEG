@@ -24,4 +24,9 @@
     <color name="layout_background">#80000000</color>
     <color name="background">#FAF8FF</color>
     <color name="preview_color">#FFFADE</color>
+
+    <color name="dark_purple">#9177D0</color>
+    <color name="middle_gray">#6B6B6B</color>
+    <color name="purple_gray">#B5B2CA</color>
+
 </resources>

@@ -5,12 +5,33 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/white">
+
+<!--    <ImageView-->
+<!--        android:layout_width="30dp"-->
+<!--        android:layout_height="30dp"-->
+<!--        android:src="@drawable/fill_onepic"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline5"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/vertical_centerline"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline4" />-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:fontFamily="@font/abril_fatface"
+        android:textColor="@color/dark_purple"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline5"
+        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+        app:layout_constraintStart_toStartOf="@+id/vertical_centerline"
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline4" />
 
     <ToggleButton
         android:id="@+id/basic_toggle"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_centerInParent="true"
         android:background="@drawable/basic_toggle_selector"
         android:padding="6dp"
@@ -26,7 +47,7 @@
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/preview_color"
+        android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline2"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
         app:layout_constraintVertical_bias="1.0"
@@ -35,19 +56,6 @@
 
     </androidx.camera.view.PreviewView>
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_weight="2"
-        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:id="@+id/candidateLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
 
 <!--    <androidx.appcompat.widget.AppCompatButton-->
 <!--        android:id="@+id/shutter_button"-->
@@ -64,7 +72,7 @@
         android:id="@+id/shutter_button"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:src="@drawable/shutter"
+        android:src="@drawable/camera_shutter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
         app:layout_constraintStart_toEndOf="@id/vertical_centerline"
@@ -86,7 +94,7 @@
 
             <RadioGroup
                 android:id="@+id/radio_group"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -95,11 +103,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
                     android:checked="true"
                     android:gravity="center"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="5dp"
                     android:paddingVertical="5dp"
                     android:text="@string/basic_option"
                     android:textColor="@drawable/radio_text_selector" />
@@ -109,10 +116,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="5dp"
                     android:paddingVertical="5dp"
                     android:text="@string/object_focus_option"
                     android:textColor="@drawable/radio_text_selector" />
@@ -122,10 +128,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="5dp"
                     android:paddingVertical="5dp"
                     android:text="@string/distance_focus_option"
                     android:textColor="@drawable/radio_text_selector" />
@@ -135,10 +140,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/camera_option_radio_selector"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="5dp"
                     android:paddingVertical="5dp"
                     android:text="@string/auto_rewind_option"
                     android:textColor="@drawable/radio_text_selector" />
@@ -149,9 +153,9 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/gallery_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/baseline_image_24"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/gallery_button"
         android:elevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/vertical_centerline6"
@@ -206,35 +210,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1" />
+        app:layout_constraintGuide_percent="0.07" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.81" />
+        app:layout_constraintGuide_percent="0.79" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.88" />
+        app:layout_constraintGuide_percent="0.83" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.02" />
+        app:layout_constraintGuide_percent="0.01" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.08" />
+        app:layout_constraintGuide_percent="0.06" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
