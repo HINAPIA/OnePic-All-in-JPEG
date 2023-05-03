@@ -251,6 +251,8 @@ class ImageContent {
         picture.waitForByteArrayInitialized()
         insertPicture(picture)
         mainPicture = pictureList[0]
+        checkPictureList = true
+        checkMain = true
     }
     fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
         for(i in 0..byteArrayList.size-1){
