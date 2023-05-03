@@ -3,7 +3,6 @@ package com.example.onepic
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
@@ -266,7 +265,7 @@ class ImageToolModule {
     }
 
     fun showView(view: View, isShow: Boolean){
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Main) {
                 if (isShow) view.visibility = View.VISIBLE
                 else view.visibility = View.GONE

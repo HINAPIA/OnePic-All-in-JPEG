@@ -115,6 +115,7 @@ class ImageContent {
      *      포함 유무를 리턴
      */
     fun checkAttribute(attribute: ContentAttribute): Boolean {
+//        while(!checkPictureList){}
         for(i in 0 until pictureList.size){
             if(pictureList[i].contentAttribute == attribute)
                 return true
@@ -188,12 +189,16 @@ class ImageContent {
 //                if(!checkTransformBitmap)
 //                    return null
                     CoroutineScope(Dispatchers.Default).launch {
-                        val bitmap =
-                            ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
+                        try {
+                            val bitmap =
+                                ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
 //                    if(checkTransformBitmap) {
-                        bitmapList[i] = bitmap
-                        checkFinish[i] = true
+                            bitmapList[i] = bitmap
+                            checkFinish[i] = true
 //                    }
+                        } catch (e: IndexOutOfBoundsException) {
+                            println(e.message)
+                        }
                     }
                 }
                 while (!checkFinish.all { it }) {

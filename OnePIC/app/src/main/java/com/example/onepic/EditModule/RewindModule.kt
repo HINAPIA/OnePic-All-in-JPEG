@@ -11,6 +11,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -18,7 +19,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class RewindModule() {
 
-//    private lateinit var modelCoroutine: Job
+    private var modelCoroutine: ArrayList<Job> = arrayListOf()
     private lateinit var detector: FaceDetector
     private val imageToolModule: ImageToolModule
     private var faceArraylist : ArrayList<ArrayList<Face>?> = arrayListOf()
@@ -34,19 +35,24 @@ class RewindModule() {
         return checkFaceDetection
     }
 
-//    fun deleteModelCoroutine() {
-//        if(modelCoroutine != null){
-//            modelCoroutine.cancel()
-//        }
-//    }
+    fun deleteModelCoroutine() {
+        if (modelCoroutine.isNotEmpty()) {
+            for (i in 0 until modelCoroutine.size)
+                modelCoroutine[i].cancel()
+
+            modelCoroutine.clear()
+        }
+    }
 
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
         checkFaceDetectionCall = true
         checkFaceDetection = false
 
         faceArraylist.clear()
+        deleteModelCoroutine()
 
         val checkFinish = BooleanArray(bitmapList.size)
+
         for (i in 0 until bitmapList.size) {
             checkFinish[i] = false
             faceArraylist.add(null)
@@ -59,13 +65,13 @@ class RewindModule() {
             checkFinish[0] = true
 
             for (j in 1 until bitmapList.size) {
-                CoroutineScope(Dispatchers.IO).launch {
+                 modelCoroutine.add(CoroutineScope(Dispatchers.IO).launch {
                     Log.d("RewindModule", "start = $j")
                     // j 번째 사진 faces 정보 얻기
                     faceArraylist[j] = runFaceContourDetection(bitmapList[j])
                     Log.d("RewindModule", "end = $j")
                     checkFinish[j] = true
-                }
+                })
             }
         }
 
@@ -202,7 +208,7 @@ class RewindModule() {
             var resultBitmap = bitmapList[0]
 
 
-           // allFaceDetection(bitmapList)
+            allFaceDetection(bitmapList)
 
             while(!checkFaceDetection){
 

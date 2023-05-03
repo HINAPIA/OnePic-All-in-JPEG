@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,24 +8,37 @@
     android:orientation="vertical"
     tools:context=".EditModule.Fragment.AddFragment">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.08344733" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        app:layout_constraintBottom_toTopOf="@+id/guideline17"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/addCloseBtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="24dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent_color"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/close_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline8"
+            app:layout_constraintStart_toStartOf="@+id/guideline6"
+            app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/main_color" />
+
 
         <TextView
             android:id="@+id/addOption"
@@ -35,257 +48,313 @@
             android:gravity="center"
             android:text="@string/add"
             android:textColor="@color/point_color"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/addSaveBtn"
             app:layout_constraintStart_toEndOf="@+id/addCloseBtn"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
         <ImageButton
             android:id="@+id/addSaveBtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="24dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent_color"
+            android:contentDescription="TODO"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/check_icon"
             android:textAlignment="textEnd"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline7"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/main_color" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/textContentLayout"
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:visibility="visible">
-
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/horizontal_centerline"
+            android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#FFB8B8"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".1" />
+            app:layout_constraintGuide_percent="0.25" />
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/vertical_centerline1"
+            android:id="@+id/guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.75" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent=".1" />
+            app:layout_constraintGuide_percent="0.02" />
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/vertical_centerline2"
+            android:id="@+id/guideline7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent=".9" />
+            app:layout_constraintGuide_percent="0.98" />
 
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="130dp"
-            app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
-            app:layout_constraintStart_toStartOf="@+id/vertical_centerline1"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline">
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.11" />
 
-            <EditText
-                android:id="@+id/edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-
-                android:background="@drawable/edittext_rounded_corner_rectangle"
-                android:gravity="center"
-                android:inputType="textMultiLine"
-                android:paddingLeft="40dp"
-                android:paddingTop="15dp"
-                android:paddingEnd="45dp"
-                android:paddingRight="40dp"
-                android:paddingBottom="35dp"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/check_button"
-                android:layout_width="80dp"
-                android:layout_height="43dp"
-                android:layout_alignBottom="@+id/edit_text"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="244dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="-2dp"
-                android:background="@drawable/check_selector"
-                android:paddingLeft="0dp"
-                android:paddingTop="0dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="0dp"
-                android:text="수정"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:iconPadding="1dp" />
-
-        </RelativeLayout>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.89" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="7">
-
-        <ImageView
-            android:id="@+id/addMainView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="7"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/contentLayout"
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:visibility="gone">
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/horizontal_centerline1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#FFB8B8"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".15" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/horizontal_centerline2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="#FFB8B8"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="95dp" />
-
-        <ImageView
-            android:id="@+id/recordingImageView"
-            android:layout_width="93dp"
-            android:layout_height="68dp"
-            app:layout_constraintBottom_toBottomOf="@+id/horizontal_centerline2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
-            tools:src="@tools:sample/avatars" />
-
-        <TextView
-            android:id="@+id/RecordingTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#FFFFFF"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recordingImageView" />
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline17">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/playAudioBarLaydout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2">
+            android:id="@+id/textContentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:visibility="visible">
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:max="20"
-                android:progressDrawable="@drawable/seekbar"
-                android:thumb="@drawable/seekbar_seekbar1_thumb"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/playingTextView"
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_centerline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00 : 00"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/seekBar"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.526" />
+                android:background="#FFB8B8"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/vertical_centerline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/vertical_centerline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".9" />
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="130dp"
+                app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+                app:layout_constraintStart_toStartOf="@+id/vertical_centerline1"
+                app:layout_constraintTop_toTopOf="@+id/horizontal_centerline">
+
+                <EditText
+                    android:id="@+id/edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+
+                    android:background="@drawable/edittext_rounded_corner_rectangle"
+                    android:gravity="center"
+                    android:inputType="textMultiLine"
+                    android:paddingLeft="40dp"
+                    android:paddingTop="15dp"
+                    android:paddingEnd="45dp"
+                    android:paddingRight="40dp"
+                    android:paddingBottom="35dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/check_button"
+                    android:layout_width="80dp"
+                    android:layout_height="43dp"
+                    android:layout_alignBottom="@+id/edit_text"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="244dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="-2dp"
+                    android:background="@drawable/check_selector"
+                    android:paddingLeft="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingRight="0dp"
+                    android:paddingBottom="0dp"
+                    android:text="수정"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    app:iconPadding="1dp" />
+
+            </RelativeLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ImageView
-            android:id="@+id/audioResetBtn"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="13dp"
-            android:backgroundTint="@color/transparent_color"
-            android:scaleType="centerInside"
-            android:src="@drawable/reset_icon"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
-            app:tint="@color/main_color"
-            tools:ignore="MissingConstraints" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/addMainView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5">
 
-        <Button
-            android:id="@+id/audioAddBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="@color/transparent_color"
-            android:drawableBottom="@drawable/audio_add_icon_resize"
-            android:text="Audio"
-            android:textAllCaps="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/textAddBtn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/main_color" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/textAddBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="32dp"
-            android:backgroundTint="@color/transparent_color"
-            android:drawableBottom="@drawable/text_add_icon_resize"
-            android:text="Text"
-            android:textAllCaps="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/audioAddBtn"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.478"
-            app:tint="@color/main_color" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5">
 
-</LinearLayout>
+            <Button
+                android:id="@+id/audioAddBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/transparent_color"
+                android:drawableBottom="@drawable/audio_add_icon_resize"
+                android:text="Audio"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textAddBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/main_color" />
+
+            <Button
+                android:id="@+id/textAddBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="@color/transparent_color"
+                android:drawableBottom="@drawable/text_add_icon_resize"
+                android:text="Text"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/audioAddBtn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.478"
+                app:tint="@color/main_color" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:visibility="gone">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_centerline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFB8B8"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".15" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_centerline2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="#FFB8B8"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="95dp" />
+
+            <ImageView
+                android:id="@+id/recordingImageView"
+                android:layout_width="93dp"
+                android:layout_height="68dp"
+                app:layout_constraintBottom_toBottomOf="@+id/horizontal_centerline2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/RecordingTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#FFFFFF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recordingImageView" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/playAudioBarLaydout"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2">
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:max="20"
+                    android:progressDrawable="@drawable/seekbar"
+                    android:thumb="@drawable/seekbar_seekbar1_thumb"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/playingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00 : 00"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/seekBar"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.526" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/audioResetBtn"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="13dp"
+                android:backgroundTint="@color/transparent_color"
+                android:scaleType="centerInside"
+                android:src="@drawable/reset_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
+                app:tint="@color/main_color"
+                tools:ignore="MissingConstraints" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
