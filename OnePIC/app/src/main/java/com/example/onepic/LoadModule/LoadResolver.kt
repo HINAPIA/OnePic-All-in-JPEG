@@ -49,16 +49,16 @@ class LoadResolver() {
                 try{
                     // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
-                    Log.d("MC Container", "일반 JPEG 생성")
+                    Log.d("MCContainer", "일반 JPEG 생성")
                     MCContainer.setBasicJepg(sourceByteArray)
                 }catch (e : IOException){
-                    Log.e("Load_Module", "Basic JPEG Parsing 불가")
+                    Log.e("MCcontainer", "Basic JPEG Parsing 불가")
                 }
 
             }
             else {
                 try{
-                    Log.d("Load_Module", "MC JPEG 생성")
+                    Log.d("MCcontainer", "MC JPEG 생성")
                     // var header : Header = Header()
                     var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
 
@@ -113,7 +113,7 @@ class LoadResolver() {
                         // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
                     }
                 }catch (e : IOException){
-                    Log.e("Load_Module", "MC JPEG Parsing 불가")
+                    Log.e("MCcontainer", "MC JPEG Parsing 불가")
                 }
 
             }
