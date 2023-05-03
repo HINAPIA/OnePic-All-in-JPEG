@@ -214,7 +214,7 @@ class RewindModule() {
 
             }
 
-//            CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
                     val facesResult = faceArraylist[j]
                     if (j == 0) {
@@ -259,7 +259,7 @@ class RewindModule() {
                                 }
                             }
                         }
-//                    }
+                    }
                 }
                 Log.d("RewindModule", bestFaceIndex.toString())
 

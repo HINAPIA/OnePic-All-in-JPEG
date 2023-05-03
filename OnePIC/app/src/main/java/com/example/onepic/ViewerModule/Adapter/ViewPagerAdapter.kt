@@ -187,7 +187,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                  }
                  basicIndex++
              }
-
+             Log.d("checkEmbedded", "!!!!!!!! $basicIndex")
+             Log.d("!!!!!","!!!!!!pictureList ${pictureList[basicIndex].embeddedData}")
              if (checkEmbedded) {
                  changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
                  changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
