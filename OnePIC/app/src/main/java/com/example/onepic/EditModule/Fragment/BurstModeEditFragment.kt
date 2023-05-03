@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide
 import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
 import com.example.onepic.PictureModule.Contents.ActivityType
-import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
@@ -141,26 +140,26 @@ class BurstModeEditFragment : Fragment() {
                     Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
                     // 2. main 사진을 첫번 째로 삽입
 
-                    if(imageContent.checkAttribute(ContentAttribute.magic)) {
-                        val preMain = imageContent.pictureList[0].embeddedData
-
-                        if (preMain != null && preMain.size == 6) {
-
-                            val newMain = mainPicture.embeddedData
-                            newMain?.add(preMain[4])
-                            newMain?.add(preMain[5])
-                            Log.d("!!!!!","!!!!!!newMain $newMain")
-                            if (newMain != null) {
-                                imageContent.mainPicture.insertEmbeddedData(newMain)
-                            }
-
-                            preMain.removeAt(5)
-                            preMain.removeAt(4)
-                            Log.d("!!!!!","!!!!!!preMain $preMain")
-                            imageContent.pictureList[0].insertEmbeddedData(preMain)
-
-                        }
-                    }
+//                    if(imageContent.checkAttribute(ContentAttribute.magic)) {
+//                        val preMain = imageContent.pictureList[0].embeddedData
+//
+//                        if (preMain != null && preMain.size == 6) {
+//
+//                            val newMain = mainPicture.embeddedData
+//                            newMain?.add(preMain[4])
+//                            newMain?.add(preMain[5])
+//                            Log.d("!!!!!","!!!!!!newMain $newMain")
+//                            if (newMain != null) {
+//                                imageContent.mainPicture.insertEmbeddedData(newMain)
+//                            }
+//
+//                            preMain.removeAt(5)
+//                            preMain.removeAt(4)
+//                            Log.d("!!!!!","!!!!!!preMain $preMain")
+//                            imageContent.pictureList[0].insertEmbeddedData(preMain)
+//
+//                        }
+//                    }
 
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture

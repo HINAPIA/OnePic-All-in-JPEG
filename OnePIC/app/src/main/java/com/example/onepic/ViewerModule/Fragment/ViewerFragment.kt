@@ -319,11 +319,15 @@ class ViewerFragment : Fragment() {
                     mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
                 }
             }
-        isFinished.observe(requireActivity()){ value ->
-            if (value == true){
-                ImageToolModule().showView(binding.progressBar, false)
-                isContainerChanged.value = false
+        try {
+            isFinished.observe(requireActivity()) { value ->
+                if (value == true) {
+                    ImageToolModule().showView(binding.progressBar, false)
+                    isContainerChanged.value = false
+                }
             }
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
         }
 //        }
     }

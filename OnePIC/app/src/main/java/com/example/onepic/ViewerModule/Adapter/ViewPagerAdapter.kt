@@ -187,8 +187,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                  }
                  basicIndex++
              }
-             Log.d("checkEmbedded", "!!!!!!!! $basicIndex")
-             Log.d("!!!!!","!!!!!!pictureList ${pictureList[basicIndex].embeddedData}")
+//             Log.d("checkEmbedded", "!!!!!!!! $basicIndex")
+//             Log.d("!!!!!","!!!!!!pictureList ${pictureList[basicIndex].embeddedData}")
              if (checkEmbedded) {
                  changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
                  changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
@@ -220,15 +220,17 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         println("=======================================================")
 
         // bitmap를 자르기
-        val cropImage = imageToolModule.cropBitmap(
-            bitmapList[index],
-            Rect(rect[0], rect[1], rect[2], rect[3])
-        )
+        if(rect.size >= 4) {
+            val cropImage = imageToolModule.cropBitmap(
+                bitmapList[index],
+                Rect(rect[0], rect[1], rect[2], rect[3])
+            )
 
-        val newImage = imageToolModule.circleCropBitmap(cropImage)
-        ovelapBitmap.add(
-            imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
-        )
+            val newImage = imageToolModule.circleCropBitmap(cropImage)
+            ovelapBitmap.add(
+                imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
+            )
+        }
     }
 
     private fun setBitmapPicture() {

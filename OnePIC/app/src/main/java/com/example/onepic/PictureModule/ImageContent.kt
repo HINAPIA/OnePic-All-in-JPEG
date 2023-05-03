@@ -231,18 +231,14 @@ class ImageContent {
      */
     fun getMainBitmap() : Bitmap? {
 
+        Log.d("magic", "getMainBitmap")
         return try {
-//            while (!checkMain) {
-//                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
-//            }
-
-             if(mainBitmap == null){
-                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
+            if (mainBitmap == null) {
                 mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
-                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
+                Log.d("magic", " return main Bitmap")
             }
             mainBitmap
-        } catch (e: IOException) {
+        }catch (e: IOException) {
             // 예외가 발생한 경우 처리할 코드
             e.printStackTrace() // 예외 정보 출력
             null
