@@ -41,7 +41,7 @@
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/edit_icon"
+            android:src="@drawable/icon_edit"
             android:textAlignment="textEnd"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.82" />
+            app:layout_constraintGuide_percent="0.84" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -211,6 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="71dp"
+                android:layout_marginRight="10dp"
                 android:visibility="invisible">
 
                 <LinearLayout

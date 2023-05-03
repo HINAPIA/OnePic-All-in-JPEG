@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 
@@ -47,8 +48,9 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var loadResolver : LoadResolver = LoadResolver()
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
+
     private var isContainerChanged = MutableLiveData<Boolean>()
-    private var currentPosition:Int? = null
+    private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
     private var isMainChanged:Boolean? = null
 
     /* text, audio, magic 선택 여부 */
@@ -65,8 +67,8 @@ class ViewerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentViewerBinding.inflate(inflater, container, false)
-        Log.d("[ViewerFragment] onCreateView: ","fragment 전환됨")
-        currentPosition = arguments?.getInt("currentPosition")
+
+        currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
 
         return binding.root
     }
@@ -101,17 +103,11 @@ class ViewerFragment : Fragment() {
         }
     }
 
-    override fun onResume(){
-        super.onResume()
-        mainViewPagerAdapter.notifyDataSetChanged()
-    }
-
     override fun onStop() {
         super.onStop()
         var currentPosition: Int = binding.viewPager2.currentItem
         currentFilePath = mainViewPagerAdapter.galleryMainimages[currentPosition]
     }
-
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
     @RequiresApi(Build.VERSION_CODES.M)
@@ -245,20 +241,13 @@ class ViewerFragment : Fragment() {
 
         binding.pullRightView.setOnClickListener {
 
+            setCurrentOtherImage()
+
             binding.scrollView.visibility = View.VISIBLE
 
-            setCurrentOtherImage()
-//            val startPosition =  binding.filmCaseImageView.width - binding.scrollView.width
-//            val endPoisition = binding.filmCaseImageView.width
-//            val animator = ObjectAnimator.ofInt(binding.scrollView, "scrollX", startPosition, endPoisition)
-//            animator.duration = 2000 // 애니메이션 지속 시간
-//            animator.start()
-//            it.visibility = View.INVISIBLE
-
-            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용합니다.
-           // val animation = TranslateAnimation(-binding.scrollView.width.toFloat(), 0f, 0f, 0f)
+            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
             val startPosition =  binding.pullRightView.x - binding.scrollView.width
-            val endPosition = binding.pullRightView.x
+            val endPosition = binding.scrollView.x //binding.pullRightView.x
 
 
             val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
@@ -266,6 +255,17 @@ class ViewerFragment : Fragment() {
             it.visibility = View.INVISIBLE
             binding.scrollView.startAnimation(animation)
 
+            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
+            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    if (binding.scrollView.x == endPosition) {
+                        binding.scrollView.clearAnimation()
+                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
+                        return false
+                    }
+                    return true
+                }
+            })
         }
 
         setMagicPicture()
