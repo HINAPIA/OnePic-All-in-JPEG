@@ -18,12 +18,10 @@
 
         <ImageButton
             android:id="@+id/backBtn"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="-10dp"
             android:background="@color/transparent_color"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
             android:scaleType="fitCenter"
             android:src="@drawable/back_icon"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
@@ -35,11 +33,9 @@
 
         <ImageButton
             android:id="@+id/editBtn"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:background="@color/transparent_color"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
             android:scaleType="fitCenter"
             android:src="@drawable/icon_edit"
             android:textAlignment="textEnd"
@@ -243,20 +239,21 @@
 
             <ImageView
                 android:id="@+id/pullRightView"
-                android:layout_width="60dp"
-                android:layout_height="90dp"
-                android:scaleType="centerCrop"
+                android:layout_width="55dp"
+                android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="68dp"
+                android:layout_marginTop="3dp"
+                android:scaleType="centerCrop"
                 app:srcCompat="@drawable/poll_right" />
 
             <ImageView
                 android:id="@+id/filmCaseImageView"
                 android:layout_width="65dp"
-                android:scaleType="fitXY"
-                android:layout_marginLeft="10dp"
-                android:layout_height="wrap_content"
+                android:layout_height="110dp"
                 android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/case4" />
         </FrameLayout>
     </LinearLayout>
