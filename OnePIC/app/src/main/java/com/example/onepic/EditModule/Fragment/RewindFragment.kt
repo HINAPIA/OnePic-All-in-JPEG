@@ -134,6 +134,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
+
                 imageToolModule.showView(binding.progressBar, true)
 
                 if (preMainBitmap != null) {
@@ -502,12 +503,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        rewindModule.deleteModelCoroutine()
-//    }
-//    override fun onStop() {
-//        super.onStop()
-//        rewindModule.deleteModelCoroutine()
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+        rewindModule.deleteModelCoroutine()
+    }
+    override fun onStop() {
+        super.onStop()
+        rewindModule.deleteModelCoroutine()
+    }
 }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
@@ -21,10 +22,10 @@ import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
-import com.example.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -48,7 +49,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     private var changeFaceStartY = 0
 
     private var pictureList: ArrayList<Picture> = arrayListOf()
-    private val bitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var bitmapList: ArrayList<Bitmap> = arrayListOf()
 
     private lateinit var mainPicture: Picture
     private lateinit var mainBitmap: Bitmap
@@ -82,7 +83,10 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         imageToolModule = ImageToolModule()
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
-        mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+        val newMainBitmap = imageContent.getMainBitmap()
+        if(newMainBitmap != null) {
+            mainBitmap = newMainBitmap
+        }
     }
 
     fun setExternalImage(byteArray: ByteArray){
@@ -94,16 +98,18 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         galleryMainimages = uriList
     }
 
-    fun setCheckMagicPicturePlay(value:Boolean){
+    fun setCheckMagicPicturePlay(value:Boolean, isFinished: MutableLiveData<Boolean>){
 
         if(!value) {
             handler.removeCallbacksAndMessages(null)
             checkMagicPicturePlay = false
             viewHolder.magicPictureStop()
+
            // viewHolder.externalImageView.visibility = View.INVISIBLE
         }
         else {
             CoroutineScope(Dispatchers.Default).launch {
+                Log.d("view magic","size: ${overlayImg.size}")
                 if (overlayImg.size <= 0) {
                     overlayImg = magicPictureProcessing()
                 }
@@ -112,7 +118,11 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                 CoroutineScope(Dispatchers.Main).launch {
                     notifyDataSetChanged()
                 }
+                withContext(Dispatchers.Main) {
+                    isFinished.value = true
+                }
             }
+
         }
     }
 
@@ -149,13 +159,23 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     /* ---------------------------------------------------------- Magic Picture ----------------------------------------------- */
      /** ViewHolder 정의 = Main Image UI */
 
+     fun resetMagicPictureList() {
+         overlayImg.clear()
+         bitmapList.clear()
+         boundingBox.clear()
+         Log.d("view magic","reset after: ${overlayImg.size}")
+     }
+
      private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
          suspendCoroutine { result ->
-             val overlayImg: ArrayList<Bitmap> = arrayListOf()
+//             val overlayImg: ArrayList<Bitmap> = arrayListOf()
              // rewind 가능한 연속 사진 속성의 picture list 얻음
              pictureList = imageContent.pictureList
              if (bitmapList.size == 0) {
-                 setBitmapPicture()
+                 val newBitmapList = imageContent.getBitmapList()
+                 if(newBitmapList!=null) {
+                     bitmapList = newBitmapList
+                 }
              }
 
              var basicIndex = 0
@@ -206,12 +226,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
         val newImage = imageToolModule.circleCropBitmap(cropImage)
         ovelapBitmap.add(
-            imageToolModule.overlayBitmap(
-                mainBitmap,
-                newImage,
-                changeFaceStartX,
-                changeFaceStartY
-            )
+            imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
         )
     }
 

@@ -3,15 +3,12 @@ package com.example.onepic.ViewerModule.Fragment
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,19 +16,16 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
-
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.example.onepic.ImageToolModule
 import com.example.onepic.JpegViewModel
 import com.example.onepic.LoadModule.LoadResolver
-import com.example.onepic.PictureModule.Contents.ContentAttribute
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.example.onepic.databinding.FragmentViewerBinding
@@ -39,7 +33,6 @@ import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import android.content.Context as Context1
 
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
@@ -58,8 +51,11 @@ class ViewerFragment : Fragment() {
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
 
+
+
     companion object {
         var currentFilePath:String = ""
+        var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
     }
 
     override fun onCreateView(
@@ -121,7 +117,10 @@ class ViewerFragment : Fragment() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                setMagicPicture()
+                CoroutineScope(Dispatchers.Default).launch {
+//                    setMagicPicture()
+                }
+
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
 
@@ -151,7 +150,7 @@ class ViewerFragment : Fragment() {
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
                     binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false)
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
 
                 }
                 setCurrentMCContainer(position)
@@ -268,7 +267,7 @@ class ViewerFragment : Fragment() {
             })
         }
 
-        setMagicPicture()
+//        setMagicPicture()
 
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -282,12 +281,16 @@ class ViewerFragment : Fragment() {
 
     fun setMagicPicture() {
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent.resetMainBitmap()
+        mainViewPagerAdapter.resetMagicPictureList()
 
-        if(!imageContent.checkAttribute(ContentAttribute.magic)){
-            Log.d("magic 유무", "NO!!!!!!!!!!!")
-            ImageToolModule().showView(binding.magicBtn, false)
-        }
-        else {
+//        while(!imageContent.checkPictureList){}
+
+//        if(!imageContent.checkAttribute(ContentAttribute.magic)){
+//            Log.d("magic 유무", "NO!!!!!!!!!!!")
+//            ImageToolModule().showView(binding.magicBtn, false)
+//        }
+//        else {
             ImageToolModule().showView(binding.magicBtn, true)
             Log.d("magic 유무", "YES!!!!!!!!!!!")
             binding.magicBtn.setOnClickListener {
@@ -296,12 +299,15 @@ class ViewerFragment : Fragment() {
                 //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
 
                 if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
+
+                    ImageToolModule().showView(binding.progressBar, true)
+
                     /* layout 변경 */
                     it.setBackgroundResource(R.drawable.round_button)
                     isMagicBtnClicked = true
                     CoroutineScope(Dispatchers.Default).launch {
                         mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
-                        mainViewPagerAdapter.setCheckMagicPicturePlay(true)
+                        mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
                     }
                 }
 
@@ -310,10 +316,16 @@ class ViewerFragment : Fragment() {
                     /* layout 변경 */
                     it.background = ColorDrawable(Color.TRANSPARENT)
                     isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false)
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
                 }
             }
+        isFinished.observe(requireActivity()){ value ->
+            if (value == true){
+                ImageToolModule().showView(binding.progressBar, false)
+                isContainerChanged.value = false
+            }
         }
+//        }
     }
 
 

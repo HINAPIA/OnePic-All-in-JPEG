@@ -40,15 +40,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var imageContent : ImageContent
     private var imageTool = ImageToolModule()
 
-    companion object{
-        private var isAdd : Boolean = false
-        private var isOnylMainChange : Boolean? = null
-    }
-
-
     private var checkFocus = true
     private var checkRewind = true
     private var checkMagic = true
+    private var checkAdd = true
 
     private var isSaved = false
     override fun onAttach(context: Context) {
@@ -116,19 +111,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // focus - > mainChage
+        // focus - > mainChange
         binding.focusBtn.setOnClickListener {
-            isAdd = false
-            if(isOnylMainChange == null)
-                isOnylMainChange = true
-
-            imageContent.activityType = ActivityType.Viewer
-            findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
+            if(checkFocus) {
+                imageContent.activityType = ActivityType.Viewer
+                findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
+            }
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            isOnylMainChange = false
-            isAdd = false
             // focus 가능한지 확인
             if(checkRewind){
                 imageContent.activityType = ActivityType.Viewer
@@ -138,36 +129,32 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
         // Magic
         binding.magicBtn.setOnClickListener {
-            isOnylMainChange = false
-            isAdd = false
             // magic 가능한지 확인
             if(checkMagic) {
                 // MagicPictureFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
             }
         }
+
         // ADD
         binding.addBtn.setOnClickListener {
-            isOnylMainChange = false
             // 일반 사진이면 안 넘어가도록
-            isAdd = true
-            // MagicPictureFragment로 이동
-            findNavController().navigate(R.id.action_editFragment_to_addFragment)
-
-           // if(!(imageContent.mainPicture.contentAttribute == ContentAttribute.basic))
-
-            //findNavController().navigate(R.id.action_editFragment_to_addFragment)
+            if(checkAdd) {
+                // MagicPictureFragment로 이동
+                findNavController().navigate(R.id.action_editFragment_to_addFragment)
+            }
         }
 
         // Viewer
         binding.backBtn.setOnClickListener {
             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-
         }
+
         // Save
         binding.saveBtn.setOnClickListener{
 
             imageTool.showView(binding.progressBar2 , true)
+
             imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
             val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                 activity,
@@ -175,14 +162,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             )
 
             if(imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                    !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
-                imageTool.showView(binding.progressBar2 , true)
+                !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
+
                 // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageFilePath
-                val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+                val fileName =
+                    currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                 jpegViewModel.currentImageFilePath
                 jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                Thread.sleep(2000)
 
                 //imageTool.showView(binding.progressBar2 , false)
 
@@ -193,20 +180,31 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //                    .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                    .signature(ObjectKey(signature)) // 서명을 이용한 캐시 키 생성
 
-                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-
+                CoroutineScope(Dispatchers.Default).launch {
+                    setButtonDeactivation()
+                    Thread.sleep(2000)
+//                imageTool.showView(binding.progressBar2 , false)
+                    withContext(Dispatchers.Main) {
+                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                    }
+                }
             }
-            else if(imageContent.checkMagicAttribute) {
-                imageContent.mainPicture.contentAttribute = ContentAttribute.magic
+            else if(imageContent.checkMagicAttribute || imageContent.checkAttribute(ContentAttribute.magic)) {
+                imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
 
-                imageTool.showView(binding.progressBar2 , true)
                 // magic으로 변경했을 경우 모든 파일 저장
                 jpegViewModel.jpegMCContainer.value?.save()
-                Thread.sleep(3000)
+                CoroutineScope(Dispatchers.Default).launch {
+                    setButtonDeactivation()
+                    Thread.sleep(3000)
 //                imageTool.showView(binding.progressBar2 , false)
-                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                    withContext(Dispatchers.Main) {
+                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                    }
+                }
             }
             else{
+                imageTool.showView(binding.progressBar2 , false)
                 oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
                     .setPositiveButton("모두 저장", DialogInterface.OnClickListener { dialog, which ->
                         imageTool.showView(binding.progressBar2 , true)
@@ -216,10 +214,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             imageContent.insertPicture(0, mainPicture)
                         }
                         jpegViewModel.jpegMCContainer.value?.save()
-
-                        Thread.sleep(3000)
-                        imageTool.showView(binding.progressBar2 , false)
-                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            setButtonDeactivation()
+                            Thread.sleep(2000)
+                            withContext(Dispatchers.Main) {
+//                        imageTool.showView(binding.progressBar2 , false)
+                                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                            }
+                        }
                     })
                     .setNeutralButton("예",
                         DialogInterface.OnClickListener { dialog, which ->
@@ -236,9 +238,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             }catch (e :IOException){
                                 Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT).show()
                             }
-                            Thread.sleep(1000)
+                            CoroutineScope(Dispatchers.Default).launch {
+                                setButtonDeactivation()
+                                Thread.sleep(1000)
 //                            imageTool.showView(binding.progressBar2 , false)
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                                withContext(Dispatchers.Main) {
+//                        imageTool.showView(binding.progressBar2 , false)
+                                    findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                                }
+                            }
                         })
                     .show()
             }
@@ -246,9 +254,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        isAdd = false
-        //isOnylMainChange = null
+    fun setButtonDeactivation() {
+        checkFocus = false
+        checkRewind = false
+        checkMagic = false
+        checkAdd = false
     }
 }
