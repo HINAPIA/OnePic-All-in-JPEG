@@ -22,7 +22,7 @@
         android:text="@string/app_name"
         android:fontFamily="@font/abril_fatface"
         android:textColor="@color/dark_purple"
-        android:textSize="25dp"
+        android:textSize="20dp"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline5"
         app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
         app:layout_constraintStart_toStartOf="@+id/vertical_centerline"
@@ -80,12 +80,14 @@
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2"
-        tools:layout_editor_absoluteX="1dp">
+        tools:ignore="MissingConstraints">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -106,8 +108,9 @@
                     android:button="@drawable/null_radio_button"
                     android:checked="true"
                     android:gravity="center"
-                    android:paddingHorizontal="5dp"
+                    android:paddingHorizontal="8dp"
                     android:paddingVertical="5dp"
+                    android:stateListAnimator="@null"
                     android:text="@string/basic_option"
                     android:textColor="@drawable/radio_text_selector" />
 
@@ -118,8 +121,9 @@
                     android:layout_marginHorizontal="8dp"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="5dp"
+                    android:paddingHorizontal="8dp"
                     android:paddingVertical="5dp"
+                    android:stateListAnimator="@null"
                     android:text="@string/object_focus_option"
                     android:textColor="@drawable/radio_text_selector" />
 
@@ -130,8 +134,9 @@
                     android:layout_marginHorizontal="8dp"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="5dp"
+                    android:paddingHorizontal="8dp"
                     android:paddingVertical="5dp"
+                    android:stateListAnimator="@null"
                     android:text="@string/distance_focus_option"
                     android:textColor="@drawable/radio_text_selector" />
 
@@ -142,8 +147,9 @@
                     android:layout_marginHorizontal="8dp"
                     android:button="@drawable/null_radio_button"
                     android:gravity="center"
-                    android:paddingHorizontal="5dp"
+                    android:paddingHorizontal="8dp"
                     android:paddingVertical="5dp"
+                    android:stateListAnimator="@null"
                     android:text="@string/auto_rewind_option"
                     android:textColor="@drawable/radio_text_selector" />
 
@@ -164,6 +170,20 @@
         tools:ignore="SpeakableTextPresentCheck"/>
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_centerline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_centerline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".15" />
+
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_centerline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -182,7 +202,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".8" />
+        app:layout_constraintGuide_percent=".85" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_centerline4"
@@ -192,18 +212,18 @@
         app:layout_constraintGuide_percent=".95" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/vertical_centerline5"
+        android:id="@+id/horizontal_centerline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".05" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.01" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/vertical_centerline6"
+        android:id="@+id/horizontal_centerline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".2" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.06" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline1"
@@ -225,20 +245,5 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.83" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/horizontal_centerline4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.01" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/horizontal_centerline5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.06" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

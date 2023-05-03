@@ -1,6 +1,7 @@
 package com.example.onepic.CameraModule
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
@@ -17,6 +18,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -40,6 +42,7 @@ import com.example.onepic.PictureModule.ImageContent
 import com.example.onepic.R
 import com.example.onepic.ViewerModule.ViewerEditorActivity
 import com.example.onepic.databinding.FragmentCameraBinding
+import io.reactivex.rxjava3.internal.schedulers.SchedulerPoolFactory.start
 import kotlinx.coroutines.*
 import kotlinx.coroutines.selects.select
 import org.tensorflow.lite.support.image.TensorImage
@@ -64,10 +67,11 @@ class CameraFragment : Fragment() {
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
-    private var selectedRadioIndex : Int = 0
     private var isShutterClick : Boolean = false
     private var isToggleChecked : Boolean = false
     private lateinit var mediaPlayer : MediaPlayer
+    private lateinit var rotation: ObjectAnimator
+    private var selectedRadioIndex : Int = 0
 
     // Camera
     private lateinit var camera: Camera
@@ -130,6 +134,26 @@ class CameraFragment : Fragment() {
         // Initialize the detector object
         setDetecter()
 
+        binding.shutterButton.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                binding.shutterButton.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                // 뷰의 중심점을 계산합니다.
+                val centerX = binding.shutterButton.width / 2f
+                val centerY = binding.shutterButton.height / 2f
+
+                // 뷰를 회전시키는 애니메이션을 생성합니다.
+                rotation = ObjectAnimator.ofFloat(binding.shutterButton, View.ROTATION, 0f, 360f)
+                rotation.apply {
+                    duration = 1000 // 애니메이션 시간 (밀리초)
+                    interpolator = AccelerateDecelerateInterpolator() // 가속도 감속도 애니메이션 인터폴레이터
+                    repeatCount = ObjectAnimator.INFINITE // 애니메이션 반복 횟수 (INFINITE: 무한반복)
+                    repeatMode = ObjectAnimator.RESTART // 애니메이션 반복 모드 (RESTART: 처음부터 다시 시작)
+
+                }
+            }
+        })
+
         /**
          * shutterButton.setOnClickListener{ }
          *      - 셔터 버튼 눌렀을 때 Option에 따른 촬영
@@ -140,7 +164,8 @@ class CameraFragment : Fragment() {
 
             isShutterClick = true
             binding.shutterButton.isEnabled = !isShutterClick
-            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter_block))
+//            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter_block))
+            rotation.start()
 
             /**
              * Basic Mode
@@ -173,7 +198,7 @@ class CameraFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             isShutterClick = false
                             binding.shutterButton.isEnabled = !isShutterClick
-                            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                            rotation.cancel()
                         }
 
                         imageContent.activityType = ActivityType.Camera
@@ -218,7 +243,7 @@ class CameraFragment : Fragment() {
                             withContext(Dispatchers.Main) {
                                 isShutterClick = false
                                 binding.shutterButton.isEnabled = !isShutterClick
-                                binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                                rotation.cancel()
                             }
 
                             imageContent.activityType = ActivityType.Camera
@@ -299,7 +324,7 @@ class CameraFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             isShutterClick = false
                             binding.shutterButton.isEnabled = !isShutterClick
-                            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                            rotation.cancel()
                         }
 
                         imageContent.activityType = ActivityType.Camera
@@ -716,7 +741,7 @@ class CameraFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         isShutterClick = false
                         binding.shutterButton.isEnabled = !isShutterClick
-                        binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                        rotation.cancel()
                     }
 
 //                    jpegViewModel.jpegMCContainer.value!!.save()
@@ -766,33 +791,6 @@ class CameraFragment : Fragment() {
             }
         }
 
-//        val factory = binding.viewFinder.meteringPointFactory
-//        val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
-//        val action = FocusMeteringAction.Builder(point)
-//            .build()
-//
-//        val result = cameraController?.startFocusAndMetering(action)
-//        result?.addListener({
-//            try {
-//                isFocusSuccess = result.get().isFocusSuccessful
-//            } catch (e: IllegalAccessException) {
-//                Log.e("Error", "IllegalAccessException")
-//            } catch (e: InvocationTargetException) {
-//                Log.e("Error", "InvocationTargetException")
-//            }
-//
-//            if (isFocusSuccess == true) {
-////                takePhoto()
-//                previewToByteArray()
-//                Log.v("list size", "${previewByteArrayList.size}")
-//                takeObjectFocusMode(index + 1)
-//                isFocusSuccess = false
-//            } else {
-//                // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
-//                Log.v("Focus", "false")
-//                takeObjectFocusMode(index)
-//            }
-//        }, ContextCompat.getMainExecutor(activity))
     }
 
 
@@ -826,7 +824,7 @@ class CameraFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         isShutterClick = false
                         binding.shutterButton.isEnabled = !isShutterClick
-                        binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter))
+                        rotation.cancel()
                     }
 
 //                    jpegViewModel.jpegMCContainer.value!!.save()
