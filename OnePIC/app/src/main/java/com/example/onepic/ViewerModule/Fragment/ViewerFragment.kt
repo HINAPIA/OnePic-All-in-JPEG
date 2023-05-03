@@ -2,22 +2,28 @@ package com.example.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
-import android.graphics.Color
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ShapeDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
+
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
@@ -32,6 +38,7 @@ import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+import android.content.Context as Context1
 
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
@@ -42,6 +49,7 @@ class ViewerFragment : Fragment() {
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null
+    private var isMainChanged:Boolean? = null
 
     /* text, audio, magic 선택 여부 */
     private var isTxtBtnClicked = false
@@ -74,6 +82,7 @@ class ViewerFragment : Fragment() {
             currentPosition = null
         }
 
+
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 
@@ -86,10 +95,15 @@ class ViewerFragment : Fragment() {
                 binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
             }
             else {
-                // TODO: 보고있는 사진이 삭제된 경우
+                //TODO: 보고 있는 사진이 삭제된 경우
 
             }
         }
+    }
+
+    override fun onResume(){
+        super.onResume()
+        mainViewPagerAdapter.notifyDataSetChanged()
     }
 
     override fun onStop() {
@@ -151,7 +165,8 @@ class ViewerFragment : Fragment() {
         // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
         isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
-                setCurrentOtherImage()
+                //setCurrentOtherImage()
+                setMagicPicture()
                 isContainerChanged.value = false
             }
         }
@@ -171,6 +186,21 @@ class ViewerFragment : Fragment() {
                 it.setBackgroundResource(R.drawable.round_button)
                 isTxtBtnClicked = true
                 textLinear.visibility = View.VISIBLE
+                // 블러처리할 배경 색상값
+                val blurColor = Color.parseColor("#80000000")
+
+                // 배경 색상값을 포함한 ShapeDrawable 생성
+                val shapeDrawable = ShapeDrawable()
+                shapeDrawable.paint.color = blurColor
+
+                // ColorFilter를 적용하여 블러처리 효과 적용
+                val blurMaskFilter = BlurMaskFilter(10f, BlurMaskFilter.Blur.NORMAL)
+                shapeDrawable.paint.maskFilter = blurMaskFilter
+                shapeDrawable.alpha = 150
+
+                // TextView에 배경 설정
+                binding.savedTextView.background = shapeDrawable
+
 
                 /* 텍스트 메시지 띄우기 */
                 var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
@@ -217,6 +247,7 @@ class ViewerFragment : Fragment() {
 
             binding.scrollView.visibility = View.VISIBLE
 
+            setCurrentOtherImage()
 //            val startPosition =  binding.filmCaseImageView.width - binding.scrollView.width
 //            val endPoisition = binding.filmCaseImageView.width
 //            val animator = ObjectAnimator.ofInt(binding.scrollView, "scrollX", startPosition, endPoisition)
@@ -378,5 +409,4 @@ class ViewerFragment : Fragment() {
         }
         return uri
     }
-
 }

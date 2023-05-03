@@ -124,29 +124,15 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:background="@drawable/layout_background"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:visibility="invisible">
 
-                <!--            <ImageButton-->
-                <!--                android:id="@+id/button2"-->
-                <!--                android:background="@color/transparent_color"-->
-                <!--                android:src="@drawable/left_arrow"-->
-                <!--                app:tint="@color/white"-->
-                <!--                android:layout_width="0dp"-->
-                <!--                android:adjustViewBounds="true"-->
-                <!--                android:scaleType="fitCenter"-->
-                <!--                android:layout_height="30dp"-->
-                <!--                android:layout_weight="1" />-->
-
-                <EditText
+                <TextView
                     android:id="@+id/savedTextView"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
-
                     android:layout_weight="1"
-                    android:background="@drawable/edittext_rounded_corner_rectangle"
                     android:gravity="center"
                     android:inputType="textMultiLine"
                     android:paddingLeft="30dp"
@@ -154,6 +140,7 @@
                     android:paddingEnd="45dp"
                     android:paddingRight="30dp"
                     android:textColor="#FFFFFF"
+                    android:textStyle="bold"
                     android:textSize="16sp" />
 
                 <androidx.viewpager2.widget.ViewPager2
@@ -163,18 +150,6 @@
                     android:paddingTop="15dp"
                     android:paddingBottom="20dp"
                     android:visibility="gone" />
-
-                <!--            <ImageButton-->
-                <!--                android:id="@+id/button3"-->
-                <!--                android:background="@color/transparent_color"-->
-                <!--                android:src="@drawable/right_arrow"-->
-                <!--                app:tint="@color/white"-->
-                <!--                android:layout_width="0dp"-->
-                <!--                android:adjustViewBounds="true"-->
-                <!--                android:scaleType="fitCenter"-->
-                <!--                android:layout_height="30dp"-->
-                <!--                android:layout_weight="1" />-->
-
 
             </LinearLayout>
 

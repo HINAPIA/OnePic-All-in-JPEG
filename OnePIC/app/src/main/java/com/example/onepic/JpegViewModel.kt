@@ -6,6 +6,7 @@ import com.example.onepic.PictureModule.Contents.Picture
 import android.os.Looper
 
 import android.provider.MediaStore
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -45,6 +46,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         override fun onChange(selfChange: Boolean) {
             // 갤러리 변화가 있을 때마다 호출됩니다.
             // 이곳에서 LiveData 값을 변경합니다.
+            Log.d("갤러리 변화가 있을 때","호출 됩니다!!!")
             getAllPhotos()
         }
     }

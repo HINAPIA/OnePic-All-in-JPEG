@@ -3,6 +3,7 @@ package com.example.onepic.EditModule.Fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.signature.ObjectKey
 import com.example.onepic.*
 import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
@@ -27,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
-
+import java.lang.StringBuilder
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var binding: FragmentEditBinding
@@ -180,7 +183,16 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 jpegViewModel.currentImageFilePath
                 jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                 Thread.sleep(2000)
-//                imageTool.showView(binding.progressBar2 , false)
+
+                //imageTool.showView(binding.progressBar2 , false)
+
+//                val signature = "signature-${System.currentTimeMillis()}"
+//
+//                Glide.with(requireContext())
+//                    .load((Uri.parse("content://media/external/images/media/267015")))
+//                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                    .signature(ObjectKey(signature)) // 서명을 이용한 캐시 키 생성
+
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 
             }

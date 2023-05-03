@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.onepic.ImageToolModule
 import com.example.onepic.PictureModule.Contents.Picture
 import com.example.onepic.PictureModule.ImageContent
@@ -33,7 +34,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     lateinit var galleryMainimages:List<String>// gallery에 있는 이미지 리스트
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
     private var checkMagicPicturePlay = false // magic picture 재생 or stop
-
+    private var isMainChanged = false
 
     /* Magic picture 변수 */
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
@@ -67,6 +68,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             holder.magicPictureRun(overlayImg)
         }
         else { // 사용자가 스와이프로 화면 넘길 때
+
             holder.bind(galleryMainimages[position]) // binding
         }
 
@@ -114,6 +116,11 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         }
     }
 
+    fun setIsMainChanged(value:Boolean){
+        isMainChanged = value
+        notifyDataSetChanged()
+    }
+
 /*--------------------------------------------------------------------------------------------------------------*/
 
     /** FilePath String 을 Uri로 변환 */
@@ -135,6 +142,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         else {
             return Uri.parse("Invalid path")
         }
+        Log.d("여기 니가 원하는거 : ", ""+uri)
         return uri
     }
 
@@ -237,6 +245,15 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             imageView.visibility = View.VISIBLE
             externalImageView.visibility = View.GONE
             Glide.with(context).load(getUriFromPath(image)).into(imageView)
+        }
+
+        fun bindUpdateMainImage(image:String){ // Main 이미지가 변경된 경우, 특정 URL에 대한 캐시 강제 업데이트
+            imageView.visibility = View.VISIBLE
+            externalImageView.visibility = View.GONE
+            Glide.with(context)
+                .load(getUriFromPath(image))
+                .signature(ObjectKey(System.currentTimeMillis()))
+                .into(imageView)
         }
 
         /** ByteArray 로 imageView에 띄우기  */
