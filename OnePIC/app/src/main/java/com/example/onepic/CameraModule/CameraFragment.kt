@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.hardware.camera2.*
 import android.media.MediaPlayer
 import android.os.Build
@@ -128,47 +129,6 @@ class CameraFragment : Fragment() {
 
         // Initialize the detector object
         setDetecter()
-
-//        /**
-//         * radioGroup.setOnCheckedChangeListener
-//         *      1. Basic 버튼 눌렸을 때, Single Mode나 Burst Mode 선택 버튼이 나타나게 하기
-//         *      2. Basic 버튼 안 누르면 사라지게 하기
-//         *      3. Option에 따른 카메라 설정
-//         */
-//        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
-//            when (checkedId){
-//                binding.basicRadio.id -> {
-//                    selectedRadioIndex = 0
-//                    binding.basicToggle.visibility = View.VISIBLE
-//                    turnOnAEMode()
-//                }
-//
-//                binding.objectFocusRadio.id -> {
-//                    selectedRadioIndex = 1
-//                    binding.basicToggle.visibility = View.INVISIBLE
-//                    turnOnAEMode()
-//                }
-//
-//                binding.distanceFocusRadio.id -> {
-//                    selectedRadioIndex = 2
-//                    binding.basicToggle.visibility = View.INVISIBLE
-//                    turnOffAFMode(0F)
-//                }
-//
-//                binding.autoRewindRadio.id -> {
-//                    selectedRadioIndex = 3
-//                    binding.basicToggle.visibility = View.INVISIBLE
-//                    turnOnAEMode()
-//                }
-//            }
-//        }
-//
-//        /**
-//         * ToggleButton 눌렸을 떄
-//         */
-//        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
-//            isToggleChecked = isChecked
-//        }
 
         /**
          * shutterButton.setOnClickListener{ }
@@ -426,17 +386,24 @@ class CameraFragment : Fragment() {
         if (selectedRadioIndexShare != null && selectedRadioIndexShare >= 0) {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
             when (selectedRadioIndexShare) {
-                0 -> binding.basicRadio.isChecked = true
+                0 -> {
+                    binding.basicRadio.isChecked = true
+                    binding.basicRadio.setTypeface(null, Typeface.BOLD)
+                    binding.basicToggle.visibility = View.VISIBLE
+                }
                 1 -> {
                     binding.objectFocusRadio.isChecked = true
+                    binding.objectFocusRadio.setTypeface(null, Typeface.BOLD)
                     binding.basicToggle.visibility = View.INVISIBLE
                 }
                 2 -> {
                     binding.distanceFocusRadio.isChecked = true
+                    binding.distanceFocusRadio.setTypeface(null, Typeface.BOLD)
                     binding.basicToggle.visibility = View.INVISIBLE
                 }
                 3 -> {
                     binding.autoRewindRadio.isChecked = true
+                    binding.autoRewindRadio.setTypeface(null, Typeface.BOLD)
                     binding.basicToggle.visibility = View.INVISIBLE
                 }
             }
@@ -463,24 +430,44 @@ class CameraFragment : Fragment() {
                     selectedRadioIndex = 0
                     binding.basicToggle.visibility = View.VISIBLE
                     turnOnAEMode()
+
+                    binding.basicRadio.setTypeface(null, Typeface.BOLD)
+                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
                 }
 
                 binding.objectFocusRadio.id -> {
                     selectedRadioIndex = 1
                     binding.basicToggle.visibility = View.INVISIBLE
                     turnOnAEMode()
+
+                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadio.setTypeface(null, Typeface.BOLD)
+                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
                 }
 
                 binding.distanceFocusRadio.id -> {
                     selectedRadioIndex = 2
                     binding.basicToggle.visibility = View.INVISIBLE
                     turnOffAFMode(0F)
+
+                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadio.setTypeface(null, Typeface.BOLD)
+                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
                 }
 
                 binding.autoRewindRadio.id -> {
                     selectedRadioIndex = 3
                     binding.basicToggle.visibility = View.INVISIBLE
                     turnOnAEMode()
+
+                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadio.setTypeface(null, Typeface.BOLD)
                 }
             }
         }

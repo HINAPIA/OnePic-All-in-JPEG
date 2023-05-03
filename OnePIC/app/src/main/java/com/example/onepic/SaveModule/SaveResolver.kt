@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.example.onepic.PictureModule.MCContainer
+import com.example.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -144,6 +145,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
                 cursor.close()
                 uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
+                ViewerFragment.currentFilePath = uri.toString()
                 Log.d("saveResolver", "덮어 쓰기")
 
                 // Delete the existing file
