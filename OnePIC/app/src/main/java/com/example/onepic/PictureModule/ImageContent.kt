@@ -72,28 +72,29 @@ class ImageContent {
     /**
      * ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
      */
-    suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
-            init()
-            // 메타 데이터 분리
-            jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
-            for(i in 0..byteArrayList.size-1){
-                // frame 분리
-                var frameBytes = async {
-                    extractFrame(byteArrayList.get(i),contentAttribute)
-                }
-                // Picture 객체 생성
-                var picture = Picture(contentAttribute, frameBytes.await())
-                picture.waitForByteArrayInitialized()
-                insertPicture(picture)
-                Log.d("error 잡기", "setImage contnet picture[$i] 완성")
-                if(i == 0){
-                    mainPicture = picture
-                    checkMain = true
-                }
+    suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default) {
+        init()
+        // 메타 데이터 분리
+        jpegMetaData = extractJpegMeta(byteArrayList.get(0), contentAttribute)
+        for (i in 0..byteArrayList.size - 1) {
+            // frame 분리
+            var frameBytes = async {
+                extractFrame(byteArrayList.get(i), contentAttribute)
             }
-            Log.d("error 잡기", "setImage contnet 완성 size =${pictureList.size}")
-            checkPictureList = true
-            return@withContext true
+            // Picture 객체 생성
+            var picture = Picture(contentAttribute, frameBytes.await())
+            picture.waitForByteArrayInitialized()
+            insertPicture(picture)
+            Log.d("error 잡기", "setImage contnet picture[$i] 완성")
+            if (i == 0) {
+                mainPicture = picture
+                checkMain = true
+            }
+        }
+        Log.d("error 잡기", "setImage contnet 완성 size =${pictureList.size}")
+        checkPictureList = true
+
+        return@withContext true
     }
 
     /**
@@ -162,11 +163,12 @@ class ImageContent {
      *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
      *          있다면 bitmapList 전달
      */
-    fun getBitmapList() : ArrayList<Bitmap>? {
+    @Synchronized
+    fun  getBitmapList() : ArrayList<Bitmap>? {
+        Log.d("burst", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         Log.d("burst", "getBitmapList 호출")
 
 //        checkTransformBitmap = true
-
         try {
             if (bitmapList.size == 0) {
                 while (!checkPictureList) {
@@ -185,11 +187,13 @@ class ImageContent {
                     checkFinish[i] = false
                     bitmapList.add(exBitmap)
                 }
+                Log.d("burst", "==============================")
                 for (i in 0 until pictureListSize) {
 //                if(!checkTransformBitmap)
 //                    return null
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
+                            Log.d("burst", "coroutine in pictureListSize : $pictureListSize")
                             val bitmap =
                                 ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
 //                    if(checkTransformBitmap) {
@@ -197,7 +201,9 @@ class ImageContent {
                             checkFinish[i] = true
 //                    }
                         } catch (e: IndexOutOfBoundsException) {
-                            println(e.message)
+                            e.printStackTrace() // 예외 정보 출력
+                            Log.d("burst", "error : $pictureListSize")
+                            bitmapList.clear()
                         }
                     }
                 }
@@ -213,6 +219,8 @@ class ImageContent {
         }catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드
             e.printStackTrace() // 예외 정보 출력
+            Log.d("burst", "error ")
+            bitmapList.clear()
             return null
         }
     }

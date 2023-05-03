@@ -20,12 +20,10 @@
 
         <ImageButton
             android:id="@+id/backBtn"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="-10dp"
             android:background="@color/transparent_color"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
             android:scaleType="fitCenter"
             android:src="@drawable/back_icon"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
@@ -37,8 +35,8 @@
 
         <ImageButton
             android:id="@+id/saveBtn"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@color/transparent_color"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
@@ -91,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.82" />
+            app:layout_constraintGuide_percent="0.88" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
