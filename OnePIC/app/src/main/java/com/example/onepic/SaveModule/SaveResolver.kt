@@ -138,7 +138,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 selectionArgs,
                 null
             )
-
             // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
             if (cursor != null && cursor.moveToFirst()) {
                 // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.
@@ -146,16 +145,20 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 cursor.close()
                 uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
                 Log.d("saveResolver", "덮어 쓰기")
+
+                // Delete the existing file
+                val contentResolver = mainActivity.contentResolver
+                contentResolver.delete(uri, null, null)
             }
             // 기존 파일이 존재하지 않는 경우 새로운 파일을 생성
-            else {
+            //else {
                 val values = ContentValues()
                 values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
                 values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 Log.d("saveResolver", "새 파일에 저장")
                 uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
-            }
+           // }
 
             Log.d("burst", "${uri}")
 
@@ -168,9 +171,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 if (outputStream != null) {
                     outputStream.write(byteArray)
                     outputStream.close()
-
-
-
                 }
 
                 // 파일이 완전히 저장되었는지 확인합니다.
