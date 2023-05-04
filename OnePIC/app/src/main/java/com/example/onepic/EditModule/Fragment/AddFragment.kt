@@ -190,16 +190,16 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         /* Audio Add */
 
         // audio reset btn 클릭 시
-        binding.audioResetBtn.setOnClickListener {
-            Log.d("AudioModule", "reset btn click")
-            if(isAbleReset){
-                Log.d("AudioModule", "reset in btn click")
-                tempAudioFile =  audioResolver.getOutputMediaFilePath("original")
-                audioWithContent.cancel()
-                setSeekBar()
-
-            }
-        }
+//        binding.audioResetBtn.setOnClickListener {
+//            Log.d("AudioModule", "reset btn click")
+//            if(isAbleReset){
+//                Log.d("AudioModule", "reset in btn click")
+//                tempAudioFile =  audioResolver.getOutputMediaFilePath("original")
+//                audioWithContent.cancel()
+//                setSeekBar()
+//
+//            }
+//        }
         // audio btn 클릭 시
         binding.audioAddBtn.setOnClickListener {
             if(!isAudioOn){
@@ -211,11 +211,11 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 binding.contentLayout.visibility = View.VISIBLE
-                if(!isAbleReset){
-                    binding.audioResetBtn.visibility = View.GONE
-                } else{
-                    binding.audioResetBtn.visibility = View.VISIBLE
-                }
+//                if(!isAbleReset){
+//                    binding.audioResetBtn.visibility = View.GONE
+//                } else{
+//                    binding.audioResetBtn.visibility = View.VISIBLE
+//                }
 
                 //binding.seekBar.visibility = View.VISIBLE
                 // 재생 바
@@ -232,11 +232,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         binding.recordingImageView.setOnClickListener {
             if(isPlayingMode){
                 /* 녹음 시작 */
-                // UI
-//                binding.seekBar.visibility = View.GONE
-//                binding.playingTextView.visibility = View.GONE
                 binding.playAudioBarLaydout.visibility = View.GONE
-                binding.audioResetBtn.visibility = View.GONE
+                //binding.audioResetBtn.visibility = View.GONE
                 Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
                 timerUIStart()
 
@@ -281,8 +278,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         audioResolver.mediaPlayer.seekTo(0)
                         return
                     }
-                  if(mediaPlayer.isPlaying)
-                      audioResolver.mediaPlayer.seekTo(progress) // 재생위치를 바꿔준다(움직인 곳에서의 음악재생)
+                    else{
+                        if(mediaPlayer.isPlaying)
+                            audioResolver.mediaPlayer.seekTo(progress) // 재생위치를 바꿔준다(움직인 곳에서의 음악재생)
+                    }
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -290,15 +289,11 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                     audioResolver.mediaPlayer.seekTo(0)
                     return
                 }
-                Log.d("AudioModule", "onStartTrackingTouch 호출")
                 // 플레이
-               // if(binding.seekBar.progress >= binding.seekBar.max){
                 if(isPlayingEnd){
                     isPlayingEnd= false
-                    Log.d("AudioModule", "모두 재생 후 setSeekBar 호출")
                     setSeekBar()
                 }
-                //}
             }
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
@@ -325,6 +320,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     }
     override fun onStop() {
         super.onStop()
+
         if (mediaPlayer != null) {
             isDestroy = true
             mediaPlayer.stop()

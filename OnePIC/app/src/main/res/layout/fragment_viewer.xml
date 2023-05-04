@@ -240,12 +240,19 @@
             <ImageView
                 android:id="@+id/pullRightView"
                 android:layout_width="55dp"
-                android:layout_height="80dp"
+                android:layout_height="90dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="68dp"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="5dp"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/poll_right" />
+
+            <View
+                android:background="@color/white"
+                android:layout_gravity="center_vertical"
+                android:id="@+id/view"
+                android:layout_width="20dp"
+                android:layout_height="match_parent" />
 
             <ImageView
                 android:id="@+id/filmCaseImageView"
@@ -254,7 +261,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/case4" />
+                app:srcCompat="@drawable/case5" />
+
         </FrameLayout>
     </LinearLayout>
 

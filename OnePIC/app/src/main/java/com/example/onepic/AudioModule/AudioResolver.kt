@@ -28,7 +28,6 @@ class AudioResolver(val context : Context) {
    var mediaPlayer = MediaPlayer()
     
     fun startRecording(fileName: String) : File? {
-        var recordTime = 0
         if(isRecording){
             return null
         }
@@ -40,6 +39,7 @@ class AudioResolver(val context : Context) {
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+
             // 해당 파일에 write
             setOutputFile(savedFile!!.path)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -73,6 +73,7 @@ class AudioResolver(val context : Context) {
     fun savedFileDelete(){
         savedFile?.delete()
     }
+
     fun getByteArrayInFile(audioFile : File) : ByteArray{
         var audioBytes : ByteArray = audioFile.readBytes()
         while (!(audioBytes != null)) {
@@ -93,17 +94,6 @@ class AudioResolver(val context : Context) {
         return file
     }
 
-    private fun getOutputMediaFilePath2(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
-        val mediaDir = "audio"
-
-        val file = File("${mediaStorageDir?.absolutePath}/$mediaDir/playing.${"aac"}")
-        if (!file.parentFile.exists()) {
-            file.parentFile.mkdirs()
-        }
-        return file
-    }
 
     /** byteArray로 나타낸 오디오 데이터를 파일로 저장하는 함수**/
     fun saveByteArrToAacFile(byteArr: ByteArray, fileName: String) : File{
@@ -147,7 +137,6 @@ class AudioResolver(val context : Context) {
          }
     }
 
-
     fun tempAudioPlay(tempSavedFile : File){
         mediaPlayer.reset()
         CoroutineScope(Dispatchers.IO).launch {
@@ -157,7 +146,6 @@ class AudioResolver(val context : Context) {
                     AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build())
-
                 try {
                     setDataSource(tempSavedFile!!.path)
                     prepare()

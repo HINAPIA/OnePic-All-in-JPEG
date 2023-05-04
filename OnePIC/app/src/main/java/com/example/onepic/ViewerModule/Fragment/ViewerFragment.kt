@@ -245,26 +245,25 @@ class ViewerFragment : Fragment() {
             binding.scrollView.visibility = View.VISIBLE
 
             // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-            val startPosition =  binding.pullRightView.x - binding.scrollView.width
-            val endPosition = binding.scrollView.x //binding.pullRightView.x
-
+            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
 
             val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
-            animation.duration = 300
+            animation.duration = 600
             it.visibility = View.INVISIBLE
             binding.scrollView.startAnimation(animation)
 
-            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
-            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    if (binding.scrollView.x == endPosition) {
-                        binding.scrollView.clearAnimation()
-                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
-                        return false
-                    }
-                    return true
-                }
-            })
+//            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
+//            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+//                override fun onPreDraw(): Boolean {
+//                    if (binding.scrollView.x == endPosition) {
+//                        binding.scrollView.clearAnimation()
+//                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
+//                        return false
+//                    }
+//                    return true
+//                }
+//            })
         }
 
 //        setMagicPicture()
