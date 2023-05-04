@@ -59,14 +59,9 @@ class MagicPictureFragment : RewindFragment() {
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
-        // main Picture의 byteArray를 bitmap 제작
-        mainPicture = imageContent.mainPicture
-
         // magic 가능한 연속 사진 속성의 picture list 얻음
         pictureList =
             jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
-
-        pictureList = imageContent.pictureList
 
         imageToolModule.showView(binding.progressBar, true)
 
@@ -110,6 +105,7 @@ class MagicPictureFragment : RewindFragment() {
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
+                imageContent.setMainBitmap(mainBitmap)
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 // EmbeddedData 추가

@@ -192,9 +192,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 jpegViewModel.jpegMCContainer.value?.save()
                 CoroutineScope(Dispatchers.Default).launch {
                     setButtonDeactivation()
-                    Thread.sleep(3000)
-//                imageTool.showView(binding.progressBar2 , false)
+                    Thread.sleep(2000)
                     withContext(Dispatchers.Main) {
+//                        imageTool.showView(binding.progressBar2 , false)
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     }
                 }

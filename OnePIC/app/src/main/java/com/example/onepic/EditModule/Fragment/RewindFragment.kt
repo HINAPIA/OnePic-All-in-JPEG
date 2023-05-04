@@ -148,6 +148,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
+                imageContent.setMainBitmap(mainBitmap)
                 if (imageContent.activityType == ActivityType.Camera) {
                     withContext(Dispatchers.Main) {
                         jpegViewModel.jpegMCContainer.value?.save()
@@ -184,7 +185,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    //rewindModule.allFaceDetection(bitmapList)
+                    rewindModule.allFaceDetection(bitmapList)
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
                     withContext(Dispatchers.Main) {

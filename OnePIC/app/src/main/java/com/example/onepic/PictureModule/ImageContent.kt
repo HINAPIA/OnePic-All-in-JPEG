@@ -178,19 +178,16 @@ class ImageContent {
                 val pictureListSize = pictureList.size
                 Log.d("burst", "pictureListSize : $pictureListSize")
                 val checkFinish = BooleanArray(pictureListSize)
-//            if(!checkTransformBitmap)
-//                return null
+
                 val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
                 for (i in 0 until pictureListSize) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                     checkFinish[i] = false
                     bitmapList.add(exBitmap)
                 }
                 Log.d("burst", "==============================")
                 for (i in 0 until pictureListSize) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
                             Log.d("burst", "coroutine in pictureListSize : $pictureListSize")
@@ -208,8 +205,7 @@ class ImageContent {
                     }
                 }
                 while (!checkFinish.all { it }) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                 }
                 Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
             }
@@ -246,6 +242,10 @@ class ImageContent {
     }
     fun resetMainBitmap() {
         mainBitmap = null
+    }
+
+    fun setMainBitmap(bitmap: Bitmap) {
+        mainBitmap = bitmap
     }
 
     /**

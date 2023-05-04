@@ -212,7 +212,7 @@ class RewindModule() {
             var resultBitmap = bitmapList[0]
 
 
-            allFaceDetection(bitmapList)
+            //allFaceDetection(bitmapList)
 
             while(!checkFaceDetection){
 

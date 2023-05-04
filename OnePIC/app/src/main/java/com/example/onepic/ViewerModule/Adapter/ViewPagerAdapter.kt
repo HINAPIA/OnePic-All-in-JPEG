@@ -219,8 +219,10 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
 
+
+
         // bitmap를 자르기
-        if(rect.size >= 4) {
+        if(rect.size >= 4 && bitmapList.size > index) {
             val cropImage = imageToolModule.cropBitmap(
                 bitmapList[index],
                 Rect(rect[0], rect[1], rect[2], rect[3])

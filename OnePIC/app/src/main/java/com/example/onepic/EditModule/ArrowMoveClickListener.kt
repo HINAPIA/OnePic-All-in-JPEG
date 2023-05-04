@@ -47,10 +47,10 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                         prevX = event.rawX
                         prevY = event.rawY
 
-                        handler.postDelayed(this, 50) // 100ms 간격으로 실행됩니다.
+                        handler.postDelayed(this, 100) // 100ms 간격으로 실행됩니다.
                     }
                 }
-                handler.postDelayed(runnable!!, 50)
+                handler.postDelayed(runnable!!, 100)
                 return true
             }
             MotionEvent.ACTION_UP -> {
@@ -83,16 +83,17 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                 v.translationY = moveY
 
                 println("D point (${dx}, ${dy})")
+//                myFunction(moveX.toInt(), moveY.toInt())
 
                 if(dx>0)
-                    dx = 3f
+                    dx = 4f
                 else if(dx<0)
-                    dx = -3f
+                    dx = -4f
 
                 if(dy>0)
-                    dy = 3f
+                    dy = 4f
                 else if(dy<0)
-                    dy = -3f
+                    dy = -4f
 
                 myFunction(dx.toInt(), dy.toInt())
                 return true
@@ -100,5 +101,4 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
             else -> return false
         }
     }
-
 }
