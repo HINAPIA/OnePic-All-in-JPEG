@@ -19,6 +19,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -134,6 +136,9 @@ class CameraFragment : Fragment() {
         // Initialize the detector object
         setDetecter()
 
+        /**
+         * Shutter 버튼 눌렸을 때 360도 애니메이션 적용
+         */
         binding.shutterButton.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 binding.shutterButton.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -153,6 +158,8 @@ class CameraFragment : Fragment() {
                 }
             }
         })
+
+
 
         /**
          * shutterButton.setOnClickListener{ }
@@ -500,9 +507,71 @@ class CameraFragment : Fragment() {
         /**
          * ToggleButton 눌렸을 떄
          */
+
+        // AlphaAnimation 객체를 미리 생성합니다.
+        val fadeOutAnimation = AlphaAnimation(1f, 0f).apply {
+            duration = 500 // 0.5초 동안 서서히 사라지게 합니다.
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                    // 애니메이션이 시작될 때 호출됩니다.
+                }
+                override fun onAnimationEnd(animation: Animation?) {
+                    // 애니메이션이 종료될 때 호출됩니다.
+                    if(isToggleChecked) {
+                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
+                        binding.burstToast.visibility = View.GONE
+                    } else{
+                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
+                        binding.singleToast.visibility = View.GONE
+                    }
+                }
+                override fun onAnimationRepeat(animation: Animation?) {
+                    // 애니메이션이 반복될 때 호출됩니다.
+                }
+            })
+        }
+        val fadeInAnimation = AlphaAnimation(0f, 1f).apply {
+            duration = 500 // 0.5초 동안 서서히 나타나게 합니다.
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                    // 애니메이션이 시작될 때 호출됩니다.
+                }
+                override fun onAnimationEnd(animation: Animation?) {
+                    Log.v("basicToggle", "fadeInAnimation : onAnimationEnd()")
+                    // 애니메이션이 종료될 때 호출됩니다.
+                    if(isToggleChecked) {
+                        binding.burstToast.postDelayed({
+                            // 1초 후에 textView1을 서서히 사라지게 합니다.
+                            binding.burstToast.startAnimation(fadeOutAnimation)
+                        }, 1000)
+                    } else {
+                        binding.singleToast.postDelayed({
+                            // 1초 후에 textView1을 서서히 사라지게 합니다.
+                            binding.singleToast.startAnimation(fadeOutAnimation)
+                        }, 1000)
+                    }
+                }
+                override fun onAnimationRepeat(animation: Animation?) {
+                    // 애니메이션이 반복될 때 호출됩니다.
+                }
+            })
+        }
+
         binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
             isToggleChecked = isChecked
+            if (isChecked) {
+                binding.burstToast.clearAnimation()
+                binding.singleToast.clearAnimation()
+                binding.burstToast.visibility = View.VISIBLE
+                binding.burstToast.startAnimation(fadeInAnimation)
+            } else {
+                binding.singleToast.clearAnimation()
+                binding.burstToast.clearAnimation()
+                binding.singleToast.visibility = View.VISIBLE
+                binding.singleToast.startAnimation(fadeInAnimation)
+            }
         }
+
     }
 
     // A 프래그먼트의 onPause() 메서드에서 호출됩니다.
@@ -518,6 +587,22 @@ class CameraFragment : Fragment() {
             this?.putBoolean("isToggleChecked", isToggleChecked)
             this?.apply()
         }
+    }
+
+    private fun showTextViewWithFadeInAnimation(view: View) {
+        Log.v("basicToggle", "showTextViewWithFadeInAnimation View : ${view}")
+        view.visibility = View.VISIBLE
+        val fadeInAnimation = AlphaAnimation(0f, 1f)
+        fadeInAnimation.duration = 500
+        view.startAnimation(fadeInAnimation)
+    }
+
+    private fun showTextViewWithFadeOutAnimation(view: View) {
+        Log.v("basicToggle", "showTextViewWithFadeOutAnimation View : ${view}")
+        val fadeOutAnimation = AlphaAnimation(1f, 0f)
+        fadeOutAnimation.duration = 500
+        view.startAnimation(fadeOutAnimation)
+        view.visibility = View.GONE
     }
 
 

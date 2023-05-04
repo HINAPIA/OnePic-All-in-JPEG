@@ -7,15 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-<!--    <ImageView-->
-<!--        android:layout_width="30dp"-->
-<!--        android:layout_height="30dp"-->
-<!--        android:src="@drawable/fill_onepic"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline5"-->
-<!--        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/vertical_centerline"-->
-<!--        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline4" />-->
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,6 +47,31 @@
 
     </androidx.camera.view.PreviewView>
 
+    <TextView
+        android:id="@+id/singleToast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Single"
+        android:textColor="@color/white"
+        android:background="@drawable/single_toast_custom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline7"
+        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+        app:layout_constraintStart_toStartOf="@+id/vertical_centerline"
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline6" />
+
+    <TextView
+        android:id="@+id/burstToast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Burst"
+        android:textColor="@color/white"
+        android:background="@drawable/burst_toast_custom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/horizontal_centerline7"
+        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+        app:layout_constraintStart_toStartOf="@+id/vertical_centerline"
+        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline6" />
 
 <!--    <androidx.appcompat.widget.AppCompatButton-->
 <!--        android:id="@+id/shutter_button"-->
@@ -231,6 +247,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.07" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontal_centerline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.09" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontal_centerline7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.14" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_centerline2"
