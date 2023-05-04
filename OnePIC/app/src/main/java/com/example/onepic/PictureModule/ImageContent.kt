@@ -72,28 +72,27 @@ class ImageContent {
     /**
      * ImageContent 리셋 후 초기화 - 카메라 찍을 때 호출되는 함수
      */
-    suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default) {
+    suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
         init()
         // 메타 데이터 분리
-        jpegMetaData = extractJpegMeta(byteArrayList.get(0), contentAttribute)
-        for (i in 0..byteArrayList.size - 1) {
+        jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
+        for(i in 0..byteArrayList.size-1){
             // frame 분리
             var frameBytes = async {
-                extractFrame(byteArrayList.get(i), contentAttribute)
+                extractFrame(byteArrayList.get(i),contentAttribute)
             }
             // Picture 객체 생성
             var picture = Picture(contentAttribute, frameBytes.await())
             picture.waitForByteArrayInitialized()
             insertPicture(picture)
-            Log.d("error 잡기", "setImage contnet picture[$i] 완성")
-            if (i == 0) {
+            Log.d("AiJPEG", "setImageContnet: picture[$i] 완성")
+            if(i == 0){
                 mainPicture = picture
                 checkMain = true
             }
         }
-        Log.d("error 잡기", "setImage contnet 완성 size =${pictureList.size}")
+        Log.d("AiJPEG", "setImageContnet: 완성 size =${pictureList.size}")
         checkPictureList = true
-
         return@withContext true
     }
 
@@ -178,19 +177,16 @@ class ImageContent {
                 val pictureListSize = pictureList.size
                 Log.d("burst", "pictureListSize : $pictureListSize")
                 val checkFinish = BooleanArray(pictureListSize)
-//            if(!checkTransformBitmap)
-//                return null
+
                 val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
                 for (i in 0 until pictureListSize) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                     checkFinish[i] = false
                     bitmapList.add(exBitmap)
                 }
                 Log.d("burst", "==============================")
                 for (i in 0 until pictureListSize) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
                             Log.d("burst", "coroutine in pictureListSize : $pictureListSize")
@@ -208,10 +204,9 @@ class ImageContent {
                     }
                 }
                 while (!checkFinish.all { it }) {
-//                if(!checkTransformBitmap)
-//                    return null
+
                 }
-                Log.d("burst", "작업 끝난 pictureListSize : ${pictureList.size}")
+
             }
             checkGetBitmapList = true
 //        checkTransformBitmap = false
@@ -236,7 +231,7 @@ class ImageContent {
 //                Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while in")
 //            }
 
-             if(mainBitmap == null){
+            if(mainBitmap == null){
                 Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! while out")
                 mainBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(mainPicture))
                 Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! return main Bitmap")
@@ -252,8 +247,12 @@ class ImageContent {
         mainBitmap = null
     }
 
+    fun setMainBitmap(bitmap: Bitmap) {
+        mainBitmap = bitmap
+    }
+
     /**
-     ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
+    ImageContent 리셋 후 초기화 - 파일을 parsing할 때 일반 JPEG 생성
      */
     fun setBasicContent(sourceByteArray: ByteArray){
         init()
@@ -304,7 +303,7 @@ class ImageContent {
      * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
      */
     fun getJpegBytes(picture : Picture) : ByteArray{
-        Log.d("error 잡기", "getJpegBytes : 호출")
+        Log.d("AiJPEG", "getJpegBytes : 호출")
         while(!checkPictureList) { }
         var buffer : ByteBuffer = ByteBuffer.allocate(0)
         // main 사진은 수정된 사진이 아니므로 MetaData를 수정하지 않는다
@@ -316,9 +315,205 @@ class ImageContent {
         return buffer.array()
     }
 
+
+
     /**
-     * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
+     * metaData + Frame로 이루어진 사진에서 metaData 부분만 리턴 하는 함수
      */
+    fun extractJpegMeta(jpegBytes: ByteArray, attribute: ContentAttribute) : ByteArray {
+        Log.d("AiJPEG", "extractJpegMeta =============================")
+        var isFindStartMarker = false // 시작 마커를 찾았는지 여부
+        var metaDataEndPos = 0
+        var SOFList : ArrayList<Int> = arrayListOf()
+        var APP0MarkerList : ArrayList<Int> = arrayListOf() //JFIF
+
+        // 사진의 속성이 edited, magic이면 2번째 JFIF가 나오기 전까지를 메타데이터로
+        if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
+            APP0MarkerList = findAPP0Makers(jpegBytes)
+            if(APP0MarkerList.size >0){
+                isFindStartMarker = true
+                metaDataEndPos = APP0MarkerList[APP0MarkerList.size -1]
+            }
+        }
+
+        // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때
+        if(!isFindStartMarker) {
+            // 마지막 SOF가 나오기 전 까지 메타 데이터로
+            SOFList =findSOFMarkers(jpegBytes)
+            if(SOFList.size >0){
+                metaDataEndPos = SOFList[SOFList.size -1]
+            }
+            else {
+                Log.d("AiJPEG", "extract metadata : SOF가 존재하지 않음")
+                return ByteArray(0)
+            }
+        }
+
+        // Ai JPEG Format 인지 체크
+        val (APP3StartIndx, APP3DataLength) = findMCFormat(jpegBytes)
+
+        // write
+        var resultByte: ByteArray
+        val byteBuffer = ByteArrayOutputStream()
+        //  Ai JPEG Format 일 때
+        if (APP3StartIndx > 0) {
+            //  APP3 (Ai jpeg) 영역을 제외하고 metadata write
+            Log.d("AiJPEG", "extract metadata : MC 포맷이여서 APP3 메타 데이터 뺴고 저장")
+            byteBuffer.write(jpegBytes, 0, APP3StartIndx)
+            byteBuffer.write(
+                jpegBytes,
+                APP3StartIndx + APP3DataLength + 2,
+                metaDataEndPos - (APP3StartIndx + APP3DataLength + 2)
+            )
+            resultByte = byteBuffer.toByteArray()
+        } else {
+            Log.d("AiJPEG", "extract metadata : 일반 JEPG처럼 저장 pos : ${metaDataEndPos}")
+            // SOF 전까지 추출
+            resultByte = jpegBytes.copyOfRange(0, metaDataEndPos)
+        }
+
+
+        return resultByte
+    }
+
+    fun extractSOI(jpegBytes: ByteArray): ByteArray {
+        return jpegBytes.copyOfRange(2, jpegBytes.size)
+    }
+
+    // 한 파일에서 SOF~EOI 부분의 바이너리 데이터를 찾아 ByteArray에 담아 리턴
+    fun extractFrame(jpegBytes: ByteArray, attribute: ContentAttribute): ByteArray {
+
+        var pos = 0
+        var startIndex = 0
+        var endIndex = jpegBytes.size
+
+        var isFindStartMarker = false // 시작 마커를 찾았는지 여부
+        var isFindEndMarker = false // 종료 마커를 찾았는지 여부
+
+
+        var SOFList : ArrayList<Int> = arrayListOf()
+        var APP0MarkerList : ArrayList<Int> = arrayListOf()
+
+
+        // 2번째 JFIF가 나오기 전까지가 메타데이터
+        if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
+            APP0MarkerList = findAPP0Makers(jpegBytes)
+
+            if (APP0MarkerList.size > 0) {
+                isFindStartMarker = true
+                startIndex = APP0MarkerList[APP0MarkerList.size - 1]
+                Log.d("AiJPEG", "extract frame : JFIF 찾음 ${startIndex}")
+            }
+        }
+        // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때
+        if(!isFindStartMarker) {
+            // 마지막 SOF가 나오기 전 까지 메타 데이터로
+            SOFList =findSOFMarkers(jpegBytes)
+            if(SOFList.size >0){
+                isFindStartMarker = true
+                startIndex = SOFList[SOFList.size -1]
+                Log.d("AiJPEG", "extract frame : SOF 찾음 ${startIndex}")
+            }
+            else {
+                Log.d("AiJPEG", "extract frame : SOF가 존재하지 않음")
+                return ByteArray(0)
+            }
+        }
+
+
+        // EOI 시작 offset 찾기
+        pos = jpegBytes.size - 2
+        while (pos > 0) {
+            if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xD9.toByte()) {
+                endIndex = pos
+                isFindEndMarker = true
+                break
+            }
+            pos--
+        }
+
+        if (!isFindStartMarker || !isFindEndMarker) {
+            Log.d("AiJPEG", "Error: 찾는 마커가 존재하지 않음")
+            return ByteArray(0)
+        }
+
+        var resultByte: ByteArray
+        // 추출
+        resultByte = jpegBytes.copyOfRange(startIndex, endIndex)
+        return resultByte
+
+    }
+
+    fun findAPP0Makers (jpegBytes: ByteArray) : ArrayList<Int> {
+        var JFIF_startOffset = 0
+        var JFIFList : ArrayList<Int> = arrayListOf()
+        // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
+        while (JFIF_startOffset < jpegBytes.size - 1) {
+            if (jpegBytes[JFIF_startOffset] == 0xFF.toByte() && jpegBytes[JFIF_startOffset + 1] == 0xE0.toByte()) {
+                //isFindStartMarker = true
+                //findCount++
+                JFIFList.add(JFIF_startOffset)
+                Log.d("AiJPEG", "extract metadata :  JIFI찾음 - ${JFIF_startOffset}")
+            }
+            JFIF_startOffset++
+        }
+        return JFIFList
+    }
+
+    fun findSOFMarkers (jpegBytes: ByteArray) : ArrayList<Int> {
+        var SOFStartInex = 0
+        var SOFList : ArrayList<Int> = arrayListOf()
+        // SOF 시작 offset 찾기
+        while (SOFStartInex < jpegBytes.size/2 - 1) {
+            if (jpegBytes[SOFStartInex] == 0xFF.toByte() && jpegBytes[SOFStartInex + 1] == 0xC0.toByte()) {
+                SOFList.add(SOFStartInex)
+            }
+            SOFStartInex++
+        }
+        return SOFList
+//                if (findApp1) {
+//                    Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
+//                    // 썸네일의 sof가 아닐 때
+//                    if (pos >= app1StartPos + app1DataLength + 2) {
+//                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
+//                        //startIndex = pos
+//                        //break
+//                    }
+//                } else {
+//                    Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
+//                    //break
+//                }
+
+
+    }
+
+
+    fun findMCFormat(jpegBytes: ByteArray) : Pair<Int,Int>{
+        var app3StartIndex = 0
+        var app3DataLength = 0
+        // MC Format인지 확인 - MC Format일 경우 APP3 데이터 빼고 set
+        while (app3StartIndex < jpegBytes.size/2 - 1) {
+            // APP3 마커가 있는 경우
+            if (jpegBytes[app3StartIndex] == 0xFF.toByte() && jpegBytes[app3StartIndex + 1] == 0xE3.toByte()) {
+                //MC Format인지 확인
+                if (jpegBytes[app3StartIndex + 6] == 0x4D.toByte() && jpegBytes[app3StartIndex + 7] == 0x43.toByte()
+                    && jpegBytes[app3StartIndex + 8] == 0x46.toByte()
+                ) {
+                    app3DataLength = ((jpegBytes[app3StartIndex + 2].toInt() and 0xFF) shl 8) or
+                            ((jpegBytes[app3StartIndex + 3].toInt() and 0xFF) shl 0)
+                    break
+                }
+            }
+            app3StartIndex++
+        }
+        if(app3StartIndex == jpegBytes.size/2 - 1) app3StartIndex = 0
+        return Pair(app3StartIndex, app3DataLength)
+    }
+}
+
+/**
+ * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JEPG파일의 Bytes를 리턴하는 함수
+ */
 //    fun getJpegBytes(picture : Picture) : ByteArray{
 //        var buffer : ByteBuffer = ByteBuffer.allocate(0)
 //        var JFIF_startOffset = 0
@@ -369,264 +564,3 @@ class ImageContent {
 //        }
 //        return buffer.array()
 //    }
-
-    /**
-     * metaData + Frame로 이루어진 사진에서 metaData 부분만 리턴 하는 함수
-     */
-    fun extractJpegMeta(jpegBytes: ByteArray, attribute: ContentAttribute) : ByteArray {
-        var resultByte: ByteArray
-        var startIndex = 0
-        var isFindStartMarker = false // 시작 마커를 찾았는지 여부
-        var pos = 0
-        var extractPos = 0
-        var app3DataLength = 0
-        var app1StartPos = 0
-        var app1DataLength = 0
-        var findApp1 = false
-        var SOFList : ArrayList<Int> = arrayListOf()
-        var JFIFList : ArrayList<Int> = arrayListOf()
-
-        // 사진의 속성이 edited, magic이면 2번째 JFIF가 나오기 전까지를 메타데이터로
-        if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
-            var JFIF_startOffset = 0
-            var findCount = 0
-            // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
-            while (JFIF_startOffset < jpegBytes.size - 1) {
-                if (jpegBytes[JFIF_startOffset] == 0xFF.toByte() && jpegBytes[JFIF_startOffset + 1] == 0xE0.toByte()) {
-                    isFindStartMarker = true
-                    //findCount++
-                    JFIFList.add(JFIF_startOffset)
-                    Log.d("MCcontainer", "extract metadata :  JIFI찾음 - ${JFIF_startOffset}")
-//                    if (findCount == 2) {
-//                        pos = JFIF_startOffset
-//                        Log.d("MCcontainer", "extract metadata : 2번째 JIFI찾음 (Bitmap 메타 데이터 전까지) - ${pos}}")
-//                        break
-     //               }
-                }
-                JFIF_startOffset++
-            }
-            if(isFindStartMarker)
-                pos = JFIFList[JFIFList.size -1]
-        }
-
-        // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때 - sof가 나오기 전까지를 메타 데이터로
-        // SOF가 나오기 전 까지가 메타 데이터
-        if(!isFindStartMarker) {
-            // app1 위치와 datalength 찾기
-            while (app1StartPos < jpegBytes.size - 1) {
-                // APP1 마커가 있는 경우
-                if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
-                    app1DataLength = ((jpegBytes[app1StartPos + 2].toInt() and 0xFF) shl 8) or
-                            ((jpegBytes[app1StartPos + 3].toInt() and 0xFF) shl 0)
-                    findApp1 = true
-                    break
-                }
-                app1StartPos++
-            }
-            // SOF 시작 offset 찾기
-            while (pos < jpegBytes.size - 1) {
-                if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
-                    // TODO(sof 배열 만들기)
-                    SOFList.add(pos)
-                    if (findApp1) {
-                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
-                        // 썸네일의 sof가 아닐 때
-                        if (pos >= app1StartPos + app1DataLength + 2) {
-                            Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
-                            isFindStartMarker = true
-                            //startIndex = pos
-                            //break
-                        }
-                    } else {
-                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
-                        isFindStartMarker = true
-                        //startIndex = pos
-                        //break
-                    }
-                }
-                pos++
-            }
-            pos = SOFList[SOFList.size - 1]
-            Log.d("MCcontainer", "sof list size : ${SOFList.size}")
-
-//            // frame시작하는 SOF offset 찾기
-//            while (pos < jpegBytes.size - 1) {
-//                if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
-//                    //  APP1에는 썸네일의 SOF가 존재하여 APP1 밖에 있는 sof를 찾아야 한다
-//                    if (findApp1){
-//                        // 썸네일의 sof가 아닐 때
-//                        if (pos >= app1StartPos + app1DataLength + 2) {
-//                            Log.d("MCcontainer", "extract metadata : 썸네일이 아닌 SOF find - ${pos}")
-//                            isFindStartMarker = true
-//                            break
-//                        }
-//                    } else {
-//                        Log.d("MCcontainer", "extract metadata : SOF find - ${pos}")
-//                        isFindStartMarker = true
-//                        break
-//                    }
-//                    // App1이 존재하지 않아서 썸네일이 없다면 첫 번째 찾은 sof마커의 위치에서 break
-//                }
-//                pos++
-//            }
-        }
-        if (!isFindStartMarker) {
-            println("startIndex :${startIndex}")
-            Log.d("MCcontainer", "extract metadata : SOF가 존재하지 않음")
-            return ByteArray(0)
-        }
-        //end of SOF find
-
-        // MC Format인지 확인 - MC Format일 경우 APP3 데이터 빼고 set
-        while (extractPos < jpegBytes.size - 1) {
-            // APP3 마커가 있는 경우
-            if (jpegBytes[extractPos] == 0xFF.toByte() && jpegBytes[extractPos + 1] == 0xE3.toByte()) {
-                //MC Format인지 확인
-                if (jpegBytes[extractPos + 6] == 0x4D.toByte() && jpegBytes[extractPos + 7] == 0x43.toByte()
-                        && jpegBytes[extractPos + 8] == 0x46.toByte()
-                ) {
-                    app3DataLength = ((jpegBytes[extractPos + 2].toInt() and 0xFF) shl 8) or
-                                ((jpegBytes[extractPos + 3].toInt() and 0xFF) shl 0)
-                    ///Log.d("MCcontainer", "extract metadata : MC 포맷")
-                    break
-                }
-            }
-            extractPos++
-        }
-
-        // write
-        val byteBuffer = ByteArrayOutputStream()
-        // APP3 (MC Container) 영역을 제외하고 metadata write
-        if (extractPos < jpegBytes.size - 1) {
-            Log.d("MCcontainer", "extract metadata : MC 포맷이여서 APP3 메타 데이터 뺴고 저장")
-            byteBuffer.write(jpegBytes, 0, extractPos)
-            byteBuffer.write(
-                jpegBytes,
-                extractPos + app3DataLength + 2,
-                pos - (extractPos + app3DataLength + 2)
-            )
-            resultByte = byteBuffer.toByteArray()
-        } else {
-            Log.d("MCcontainer", "extract metadata : 일반 JEPG처럼 저장 pos : ${pos}")
-            // SOF 전까지 추출
-            resultByte = jpegBytes.copyOfRange(0, pos)
-        }
-
-        return resultByte
-    }
-
-        fun extractSOI(jpegBytes: ByteArray): ByteArray {
-            return jpegBytes.copyOfRange(2, jpegBytes.size)
-        }
-
-        // 한 파일에서 SOF~EOI 부분의 바이너리 데이터를 찾아 ByteArray에 담아 리턴
-        fun extractFrame(jpegBytes: ByteArray, attribute: ContentAttribute): ByteArray {
-            var resultByte: ByteArray
-            var startIndex = 0
-            var endIndex = jpegBytes.size
-            var isFindStartMarker = false // 시작 마커를 찾았는지 여부
-            var isFindEndMarker = false // 종료 마커를 찾았는지 여부
-            var pos = 0
-            var app1StartPos = 0
-            var app1DataLength = 0
-            var findApp1 = false
-
-            var SOFList : ArrayList<Int> = arrayListOf()
-            var JFIFList : ArrayList<Int> = arrayListOf()
-            Log.d("MCcontainer", "=============================")
-
-            // 2번째 JFIF가 나오기 전까지가 메타데이터
-            if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {
-                var JFIF_startOffset = 0
-                var findCount = 0
-                // 속성이 modified, magicPicture 가 아니면 2번째 JFIF(비트맵의 추가된 메타데이터)가 나오기 전까지 떼서 이용
-                while (JFIF_startOffset < jpegBytes.size - 1) {
-                    if (jpegBytes[JFIF_startOffset] == 0xFF.toByte() && jpegBytes[JFIF_startOffset + 1] == 0xE0.toByte()) {
-                        isFindStartMarker = true
-                        JFIFList.add(JFIF_startOffset)
-                        findCount++
-                        if (findCount == 2) {
-                            startIndex = JFIF_startOffset
-                            Log.d("MCcontainer", "extract Frame : 2번째 JIFI찾음 - ${startIndex}}")
-                            break
-                        }
-                    }
-                    JFIF_startOffset++
-                }
-                if(isFindStartMarker){
-                    startIndex = JFIFList[JFIFList.size-1]
-                }
-            }
-            // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때 - sof가 나온 후부터  Frame 영역으로
-            if (!isFindStartMarker) {
-                // app1 위치와 datalength 찾기
-                while (app1StartPos < jpegBytes.size - 1) {
-                    // APP1 마커가 있는 경우
-                    if (jpegBytes[app1StartPos] == 0xFF.toByte() && jpegBytes[app1StartPos + 1] == 0xE1.toByte()) {
-                        app1DataLength = ((jpegBytes[app1StartPos + 2].toInt() and 0xFF) shl 8) or
-                                ((jpegBytes[app1StartPos + 3].toInt() and 0xFF) shl 0)
-                        findApp1 = true
-                        Log.d(
-                            "MCcontainer",
-                            "extract Frame : APP1 find - pos :${app1StartPos}, length : ${app1DataLength}, end =${app1StartPos + app1DataLength}"
-                        )
-                        break
-                    }
-                    app1StartPos++
-                }
-
-                // SOF 시작 offset 찾기
-                while (pos < jpegBytes.size - 1) {
-                    if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xC0.toByte()) {
-                        // TODO(sof 배열 만들기)
-                        SOFList.add(pos)
-                        if (findApp1) {
-                            Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
-                            // 썸네일의 sof가 아닐 때
-                            if (pos >= app1StartPos + app1DataLength + 2) {
-                                Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
-                                isFindStartMarker = true
-                                //startIndex = pos
-                                //break
-                            }
-                        } else {
-                            Log.d("MCcontainer", "extract Frame : SOF find - ${pos}")
-                            isFindStartMarker = true
-                            //startIndex = pos
-                            //break
-                        }
-                    }
-                    pos++
-                }
-                startIndex = SOFList[SOFList.size - 1]
-                Log.d("MCcontainer", "sof list size : ${SOFList.size}")
-            }
-
-            if (!isFindStartMarker) {
-                println("startIndex :${startIndex}")
-                Log.d("MCcontainer", "extract Frame : SOF가 존재하지 않음")
-                return ByteArray(0)
-            }
-
-            pos = jpegBytes.size - 2
-            // EOI 시작 offset 찾기
-            while (pos > 0) {
-                if (jpegBytes[pos] == 0xFF.toByte() && jpegBytes[pos + 1] == 0xD9.toByte()) {
-                    endIndex = pos
-                    isFindEndMarker = true
-                    break
-                }
-                pos--
-            }
-            if (!isFindStartMarker || !isFindEndMarker) {
-                Log.d("이미지", "Error: 찾는 마커가 존재하지 않음")
-                //println("Error: 찾는 마커가 존재하지 않음")
-                return ByteArray(0)
-            }
-            // 추출
-            resultByte = jpegBytes.copyOfRange(startIndex, endIndex)
-            return resultByte
-
-        }
-
-}

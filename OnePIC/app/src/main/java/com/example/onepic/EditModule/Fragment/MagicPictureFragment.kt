@@ -59,14 +59,9 @@ class MagicPictureFragment : RewindFragment() {
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
-        // main Picture의 byteArray를 bitmap 제작
-        mainPicture = imageContent.mainPicture
-
         // magic 가능한 연속 사진 속성의 picture list 얻음
         pictureList =
             jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
-
-        pictureList = imageContent.pictureList
 
         imageToolModule.showView(binding.progressBar, true)
 
@@ -82,7 +77,7 @@ class MagicPictureFragment : RewindFragment() {
             }
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val newMainBitmap = imageContent.getMainBitmap()
             if (newMainBitmap != null) {
                 mainBitmap = newMainBitmap
@@ -91,37 +86,26 @@ class MagicPictureFragment : RewindFragment() {
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
             }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
+
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-            var startTime = System.currentTimeMillis()
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
             if (newBitmapList != null) {
                 bitmapList = newBitmapList
 
-                var endTime = System.currentTimeMillis()
-                var elapsedTime = endTime - startTime
-                Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
-                //CoroutineScope(Dispatchers.Default).launch {
-                startTime = System.currentTimeMillis()
-
                 rewindModule.allFaceDetection(bitmapList)
 
-                endTime = System.currentTimeMillis()
-                elapsedTime = endTime - startTime
-                Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
-                //}
             }
         }
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
 
-            CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 imageToolModule.showView(binding.progressBar , true)
                 val allBytes = imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.magic, imageContent.extractSOI(allBytes))
+                imageContent.setMainBitmap(mainBitmap)
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 // EmbeddedData 추가
@@ -137,8 +121,16 @@ class MagicPictureFragment : RewindFragment() {
                     pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
 
                     for (i in 1 until boundingBox.size) {
-                        pictureList[boundingBox[i][0]].insertEmbeddedData(
-                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+//                        pictureList[boundingBox[i][0]].insertEmbeddedData(
+//                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
+
+                        val addBoundingBox: ArrayList<Int> =
+                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
+
+                        addBoundingBox.add(changeFaceStartX)
+                        addBoundingBox.add(changeFaceStartY)
+
+                        pictureList[boundingBox[i][0]].insertEmbeddedData(addBoundingBox)
                     }
                 }
 
@@ -170,15 +162,18 @@ class MagicPictureFragment : RewindFragment() {
                     PointF(event.x, event.y),
                     binding.magicMainView
                 )
-                println("------- click point:$touchPoint")
+                Log.d("magic", "click point:$touchPoint")
 
                 if (touchPoint != null) {
 
-                    CoroutineScope(Dispatchers.Default).launch {
+                    CoroutineScope(Dispatchers.IO).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
                         while (!rewindModule.getCheckFaceDetection()) {
                         }
+                        Log.d("magic", "getCheckFaceDetection")
+
                         boundingBox = getBoundingBox(touchPoint)
+                        Log.d("magic", "end getCheckFaceDetection")
 
                         if (boundingBox.size > 0) {
                             // Bounding Box로 이미지를 Crop한 후 보여줌
@@ -230,15 +225,15 @@ class MagicPictureFragment : RewindFragment() {
         }
 
         CoroutineScope(Dispatchers.Default).launch {
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
+            Log.d("magic", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
             val faceResult = rewindModule.runFaceDetection(0)
 
-            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
+            Log.d("magic", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
             if (faceResult.size == 0) {
                 withContext(Dispatchers.Main) {
                     try {
-                        Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG)
+                        Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                             .show()
                     } catch (e: IllegalStateException) {
                         println(e.message)
@@ -247,6 +242,8 @@ class MagicPictureFragment : RewindFragment() {
             } else {
                 try {
                     val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+
+                    Log.d("magic", "!!!!!!!!!!!!!!!!!!! end drawDetectionResult")
 
                     // imageView 변환
                     withContext(Dispatchers.Main) {

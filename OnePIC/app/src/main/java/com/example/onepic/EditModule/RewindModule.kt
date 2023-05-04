@@ -97,12 +97,14 @@ class RewindModule() {
     }
 
     fun getFaces(index: Int): ArrayList<Face> {
+        Log.d("magic", "getFaces $index")
         while (!checkFaceDetection) {
+
             if (faceArraylist.size > index && faceArraylist[index] != null) {
                 break
             }
         }
-
+        Log.d("magic", "ok getFaces $index")
         //faces = runFaceContourDetection(bitmap)
         return faceArraylist[index]!!
     }
@@ -118,8 +120,9 @@ class RewindModule() {
         // face Detection
         var faces: ArrayList<Face>
         CoroutineScope(Dispatchers.Default).launch {
+            Log.d("magic", "runFaceDetection !!!!!!!!!")
            faces = getFaces(index)
-
+            Log.d("magic", "end runFaceDetection !!!!!!!!!")
             bitmapResult.resume(faces)
             //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
@@ -134,10 +137,10 @@ class RewindModule() {
         suspendCoroutine { bitmapResult ->
 
             // face Detection
-            var faces: ArrayList<Face>? = null
 
-            faces = getFaces(index)
-            if (faces == null)
+            val faces: ArrayList<Face> = getFaces(index)
+            Log.d("magic", "getClickPointBoundingBox getFaces $faces")
+            if (faces.isEmpty())
                 bitmapResult.resume(null)
             else {
                 var checkResume = false
@@ -163,6 +166,7 @@ class RewindModule() {
                             landmarks[7].position.x.toInt(), // cropRight
                             landmarks[0].position.y.toInt() + addEndY  // cropBottom
                         )
+                        Log.d("magic", "getClickPointBoundingBox boundingBox resume")
                         bitmapResult.resume(boundingBox)
                     }
                 }
@@ -208,13 +212,13 @@ class RewindModule() {
             var resultBitmap = bitmapList[0]
 
 
-            allFaceDetection(bitmapList)
+            //allFaceDetection(bitmapList)
 
             while(!checkFaceDetection){
 
             }
 
-//            CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.Default).launch {
                 for (j in 0 until bitmapList.size) {
                     val facesResult = faceArraylist[j]
                     if (j == 0) {
@@ -259,7 +263,7 @@ class RewindModule() {
                                 }
                             }
                         }
-//                    }
+                    }
                 }
                 Log.d("RewindModule", bestFaceIndex.toString())
 

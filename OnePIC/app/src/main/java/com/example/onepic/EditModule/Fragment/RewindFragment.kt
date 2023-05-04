@@ -148,6 +148,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
+                imageContent.setMainBitmap(mainBitmap)
                 if (imageContent.activityType == ActivityType.Camera) {
                     withContext(Dispatchers.Main) {
                         jpegViewModel.jpegMCContainer.value?.save()
@@ -184,7 +185,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    //rewindModule.allFaceDetection(bitmapList)
+                    rewindModule.allFaceDetection(bitmapList)
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
                     withContext(Dispatchers.Main) {
@@ -238,6 +239,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.imageResetBtn.setOnClickListener {
             binding.rewindMainView.setImageBitmap(originalMainBitmap)
             mainBitmap = originalMainBitmap
+            preMainBitmap = null
             newImage = null
             // faceDetection 하고 결과가 표시된 사진을 받아 imageView에 띄우기
             setMainImageBoundingBox()
@@ -301,7 +303,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             if (faceResult.size == 0) {
                 withContext(Dispatchers.Main) {
                     try {
-                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_LONG)
+                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                         .show()
                     } catch (e: IllegalStateException) {
                         println(e.message)
@@ -338,8 +340,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             checkFinish[i] = false
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
-
+        CoroutineScope(Dispatchers.IO).launch {
             if (bitmapList.size == 0) {
                 imageToolModule.showView(binding.progressBar, false)
                 return@launch
@@ -347,7 +348,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             val basicRect =
                 rewindModule.getClickPointBoundingBox(bitmapList[0], 0, touchPoint)
-
 
             if (basicRect == null) {
                 withContext(Dispatchers.Main) {
@@ -363,10 +363,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 setMainImageBoundingBox()
 
                 checkFinish.fill(true) // 배열의 모든 요소를 true로 설정
-
-
             } else {
-
                 // 메인 사진일 경우 나중에 다른 사진을 겹칠 위치 지정
                 changeFaceStartX = basicRect[4]
                 changeFaceStartY = basicRect[5]
@@ -392,8 +389,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                                 rect[4], rect[5], rect[6], rect[7]
                             )
                             boundingBox.add(arrayBounding)
-                            checkFinish[i] = true
                         }
+                        checkFinish[i] = true
                     }
                 }
             }

@@ -3,7 +3,6 @@ package com.example.onepic.EditModule.Fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -16,8 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.signature.ObjectKey
 import com.example.onepic.*
 import com.example.onepic.PictureModule.Contents.ActivityType
 import com.example.onepic.PictureModule.Contents.ContentAttribute
@@ -30,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.lang.StringBuilder
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var binding: FragmentEditBinding
@@ -189,16 +185,16 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     }
                 }
             }
-            else if(imageContent.checkMagicAttribute || imageContent.checkAttribute(ContentAttribute.magic)) {
+            else if(imageContent.checkMagicAttribute ) {
                 imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
 
                 // magic으로 변경했을 경우 모든 파일 저장
                 jpegViewModel.jpegMCContainer.value?.save()
                 CoroutineScope(Dispatchers.Default).launch {
                     setButtonDeactivation()
-                    Thread.sleep(3000)
-//                imageTool.showView(binding.progressBar2 , false)
+                    Thread.sleep(2000)
                     withContext(Dispatchers.Main) {
+//                        imageTool.showView(binding.progressBar2 , false)
                         findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                     }
                 }
