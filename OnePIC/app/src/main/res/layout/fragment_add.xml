@@ -129,7 +129,7 @@
             android:id="@+id/textContentLayout"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/horizontal_centerline"
@@ -225,49 +225,10 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1.5">
-
-            <Button
-                android:id="@+id/audioAddBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="@color/transparent_color"
-                android:drawableBottom="@drawable/audio_add_icon_resize"
-                android:text="Audio"
-                android:textAllCaps="false"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/textAddBtn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/main_color" />
-
-            <Button
-                android:id="@+id/textAddBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="32dp"
-                android:backgroundTint="@color/transparent_color"
-                android:drawableBottom="@drawable/text_add_icon_resize"
-                android:text="Text"
-                android:textAllCaps="false"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/audioAddBtn"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.478"
-                app:tint="@color/main_color" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/horizontal_centerline1"
@@ -353,6 +314,45 @@
                 app:tint="@color/main_color"
                 tools:ignore="MissingConstraints" />
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5">
+
+            <Button
+                android:id="@+id/audioAddBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/transparent_color"
+                android:drawableBottom="@drawable/audio_add_icon_resize"
+                android:text="Audio"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textAddBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/main_color" />
+
+            <Button
+                android:id="@+id/textAddBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="@color/transparent_color"
+                android:drawableBottom="@drawable/text_add_icon_resize"
+                android:text="Text"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/audioAddBtn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.478"
+                app:tint="@color/main_color" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

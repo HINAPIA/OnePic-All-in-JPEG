@@ -159,8 +159,8 @@
 
             <ImageButton
                 android:id="@+id/imageResetBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="centerInside"
                 android:src="@drawable/reset_icon"
@@ -173,7 +173,7 @@
             <Button
                 android:id="@+id/autoRewindBtn"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="50dp"
                 android:backgroundTint="@color/rewind_button_color"
                 android:includeFontPadding="false"
                 android:text="@string/auto_option"
@@ -186,8 +186,8 @@
 
             <ImageButton
                 android:id="@+id/imageCompareBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="fitCenter"
                 android:src="@drawable/compare_icon"
@@ -291,28 +291,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.25" />
+                    app:layout_constraintGuide_begin="24dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.75" />
+                    app:layout_constraintGuide_end="24dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.25" />
+                    app:layout_constraintGuide_begin="24dp" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.75" />
+                    app:layout_constraintGuide_end="25dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>

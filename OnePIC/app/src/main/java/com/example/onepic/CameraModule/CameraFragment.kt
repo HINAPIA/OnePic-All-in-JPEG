@@ -215,7 +215,7 @@ class CameraFragment : Fragment() {
                  */
                 else{
                     turnOnBurstMode()
-
+                    audioResolver.startRecording("camera_record")
                     for (i in 1..burstSize) {
                         CoroutineScope(Dispatchers.IO).launch {
                             val result = takePicture(i)
@@ -282,13 +282,16 @@ class CameraFragment : Fragment() {
              * Distance Focus Mode
              */
             else if(binding.distanceFocusRadio.isChecked){
+                audioResolver.startRecording("camera_record")
                 controlLensFocusDistance(0)
+
             }
             /**
              * Auto Rewind Mode
              */
             else if(binding.autoRewindRadio.isChecked){
                 turnOnBurstMode()
+                audioResolver.startRecording("camera_record")
 
                 for (i in 1..burstSize) {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -298,7 +301,6 @@ class CameraFragment : Fragment() {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     while(previewByteArrayList.size < burstSize) { }
-
                     if (previewByteArrayList.size == burstSize) {
                         // 녹음 중단
                         val savedFile = audioResolver.stopRecording()
