@@ -190,16 +190,16 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         /* Audio Add */
 
         // audio reset btn 클릭 시
-        binding.audioResetBtn.setOnClickListener {
-            Log.d("AudioModule", "reset btn click")
-            if(isAbleReset){
-                Log.d("AudioModule", "reset in btn click")
-                tempAudioFile =  audioResolver.getOutputMediaFilePath("original")
-                audioWithContent.cancel()
-                setSeekBar()
-
-            }
-        }
+//        binding.audioResetBtn.setOnClickListener {
+//            Log.d("AudioModule", "reset btn click")
+//            if(isAbleReset){
+//                Log.d("AudioModule", "reset in btn click")
+//                tempAudioFile =  audioResolver.getOutputMediaFilePath("original")
+//                audioWithContent.cancel()
+//                setSeekBar()
+//
+//            }
+//        }
         // audio btn 클릭 시
         binding.audioAddBtn.setOnClickListener {
             if(!isAudioOn){
@@ -211,11 +211,11 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 binding.contentLayout.visibility = View.VISIBLE
-                if(!isAbleReset){
-                    binding.audioResetBtn.visibility = View.GONE
-                } else{
-                    binding.audioResetBtn.visibility = View.VISIBLE
-                }
+//                if(!isAbleReset){
+//                    binding.audioResetBtn.visibility = View.GONE
+//                } else{
+//                    binding.audioResetBtn.visibility = View.VISIBLE
+//                }
 
                 //binding.seekBar.visibility = View.VISIBLE
                 // 재생 바
@@ -233,7 +233,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             if(isPlayingMode){
                 /* 녹음 시작 */
                 binding.playAudioBarLaydout.visibility = View.GONE
-                binding.audioResetBtn.visibility = View.GONE
+                //binding.audioResetBtn.visibility = View.GONE
                 Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
                 timerUIStart()
 

@@ -129,7 +129,7 @@
             android:id="@+id/textContentLayout"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/horizontal_centerline"
@@ -172,7 +172,7 @@
                     android:paddingTop="15dp"
                     android:paddingEnd="45dp"
                     android:paddingRight="40dp"
-                    android:paddingBottom="35dp"
+                    android:paddingBottom="15dp"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
 
@@ -228,7 +228,7 @@
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/horizontal_centerline1"
@@ -300,19 +300,6 @@
                     app:layout_constraintVertical_bias="0.526" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <ImageView
-                android:id="@+id/audioResetBtn"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="13dp"
-                android:backgroundTint="@color/transparent_color"
-                android:scaleType="centerInside"
-                android:src="@drawable/reset_icon"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
-                app:tint="@color/main_color"
-                tools:ignore="MissingConstraints" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

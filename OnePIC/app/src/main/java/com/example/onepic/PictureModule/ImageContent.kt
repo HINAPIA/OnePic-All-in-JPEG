@@ -372,6 +372,7 @@ class ImageContent {
             resultByte = jpegBytes.copyOfRange(0, metaDataEndPos)
         }
 
+
         return resultByte
     }
 
