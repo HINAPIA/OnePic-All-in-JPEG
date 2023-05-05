@@ -13,7 +13,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
@@ -162,6 +161,7 @@ class ViewerFragment : Fragment() {
             if (value == true){
                 //setCurrentOtherImage()
                 setMagicPicture()
+                isFinished.value = true
                 isContainerChanged.value = false
             }
         }

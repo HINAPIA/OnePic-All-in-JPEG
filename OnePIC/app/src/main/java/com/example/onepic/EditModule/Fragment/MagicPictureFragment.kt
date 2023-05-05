@@ -59,6 +59,9 @@ class MagicPictureFragment : RewindFragment() {
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
+        while(!imageContent.checkMain) {
+
+        }
         // magic 가능한 연속 사진 속성의 picture list 얻음
         pictureList =
             jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)

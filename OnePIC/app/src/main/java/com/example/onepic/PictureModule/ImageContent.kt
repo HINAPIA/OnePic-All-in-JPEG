@@ -30,7 +30,7 @@ class ImageContent {
     var activityType: ActivityType? = null
     private var checkGetBitmapList = false
     var checkPictureList = false
-    private var checkMain = false
+    var checkMain = false
 //    private var checkTransformBitmap = false
 //    private var checkTransformAttributeBitmap = false
 //    private var checkTransformMain = false
