@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/cameraFragment"
-        android:name="com.example.onepic.CameraModule.CameraFragment"
+        android:name="com.goldenratio.onepic.CameraModule.CameraFragment"
         android:label="fragment_camera"
         tools:layout="@layout/fragment_camera" >
         <action
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/burstModeEditFragment"
-        android:name="com.example.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.BurstModeEditFragment"
         android:label="fragment_burst_mode_edit"
         tools:layout="@layout/fragment_burst_mode_edit" >
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
-        android:name="com.example.onepic.EditModule.Fragment.RewindFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.RewindFragment"
         android:label="fragment_rewind"
         tools:layout="@layout/fragment_rewind" >
         <action
@@ -47,7 +47,7 @@
     </fragment>
     <fragment
         android:id="@+id/basicModeEditFragment"
-        android:name="com.example.onepic.EditModule.Fragment.BasicModeEditFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.BasicModeEditFragment"
         android:label="fragment_basic_mode_edit"
         tools:layout="@layout/fragment_basic_mode_edit" >
         <action

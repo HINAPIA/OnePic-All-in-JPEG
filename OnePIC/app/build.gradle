@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.onepic'
+    namespace 'com.goldenratio.onepic'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.onepic"
+        applicationId "com.goldenratio.onepic"
         minSdk 21
         targetSdk 33
         versionCode 1

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/editFragment"
-        android:name="com.example.onepic.EditModule.Fragment.EditFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.EditFragment"
         android:label="EditFragment"
         tools:layout="@layout/fragment_edit">
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
-        android:name="com.example.onepic.EditModule.Fragment.RewindFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.RewindFragment"
         android:label="rewindFragment"
         tools:layout="@layout/fragment_rewind">
         <action
@@ -44,7 +44,7 @@
     </fragment>
     <fragment
         android:id="@+id/magicPictureFragment"
-        android:name="com.example.onepic.EditModule.Fragment.MagicPictureFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.MagicPictureFragment"
         android:label="fragment_magic_picture"
         tools:layout="@layout/fragment_magic_picture" >
         <action
@@ -55,7 +55,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewerFragment"
-        android:name="com.example.onepic.ViewerModule.Fragment.ViewerFragment"
+        android:name="com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment"
         android:label="ViewerFragment"
         tools:layout="@layout/fragment_viewer" >
         <action
@@ -69,7 +69,7 @@
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"
-        android:name="com.example.onepic.ViewerModule.Fragment.GalleryFragment"
+        android:name="com.goldenratio.onepic.ViewerModule.Fragment.GalleryFragment"
         android:label="GalleryFragment" >
         <action
             android:id="@+id/action_galleryFragment_to_viewerFragment"
@@ -77,7 +77,7 @@
     </fragment>
     <fragment
         android:id="@+id/playFragment"
-        android:name="com.example.onepic.EditModule.Fragment.PlayFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.PlayFragment"
         android:label="fragment_play"
         tools:layout="@layout/fragment_play" >
         <action
@@ -88,7 +88,7 @@
     </fragment>
     <fragment
         android:id="@+id/addFragment"
-        android:name="com.example.onepic.EditModule.Fragment.AddFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.AddFragment"
         android:label="fragment_add"
         tools:layout="@layout/fragment_add" >
         <action
@@ -99,7 +99,7 @@
     </fragment>
     <fragment
         android:id="@+id/permissionFragment2"
-        android:name="com.example.onepic.ViewerModule.Fragment.PermissionFragment"
+        android:name="com.goldenratio.onepic.ViewerModule.Fragment.PermissionFragment"
         android:label="PermissionFragment" >
         <action
             android:id="@+id/action_permissionFragment2_to_galleryFragment"
@@ -109,7 +109,7 @@
     </fragment>
     <fragment
         android:id="@+id/burstModeEditFragment2"
-        android:name="com.example.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.BurstModeEditFragment"
         android:label="fragment_burst_mode_edit"
         tools:layout="@layout/fragment_burst_mode_edit" >
         <action
