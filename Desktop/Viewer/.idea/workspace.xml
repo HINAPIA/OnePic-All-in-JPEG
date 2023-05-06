@@ -10,10 +10,62 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/copyright/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/description.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/libraries/Maven__org_glassfish_javax_json_1_0_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../META-INF/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/tornadofx_maven_project_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/description.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_glassfish_javax_json_1_0_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/META-INF/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/artifacts/tornadofx_maven_project_jar/tornadofx-maven-project.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/MyApp.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/Styles.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/META-INF/tornadofx-maven-project.kotlin_module" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/app/MyApp.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/app/MyAppKt.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/app/Styles$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/app/Styles$Companion.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/app/Styles.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$special$$inlined$inject$default$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$special$$inlined$inject$default$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$special$$inlined$inject$default$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tornadofx-maven-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tornadofx-maven-project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/BurstModeEditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/BurstModeEditFragment.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../PARSING_20230413_010314.aac" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

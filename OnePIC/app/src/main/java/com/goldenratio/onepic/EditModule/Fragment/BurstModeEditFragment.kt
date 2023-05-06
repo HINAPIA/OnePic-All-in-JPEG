@@ -129,10 +129,8 @@ class BurstModeEditFragment : Fragment() {
         }
         binding.burstSaveBtn.setOnClickListener {
             imageContent.resetMainBitmap()
-
+            imageToolModule.showView(binding.progressBar , true)
             CoroutineScope(Dispatchers.Default).launch {
-                imageToolModule.showView(binding.progressBar , true)
-
                 // 1. main으로 지정된 picture를 picturelist에서 삭제
                 var result = imageContent.removePicture(mainPicture)
                 Log.d("error 잡기", "메인 바꾸고 save : ${result}")
@@ -173,6 +171,7 @@ class BurstModeEditFragment : Fragment() {
                         Log.d("error 잡기", "바로 편집에서 save() 호출후")
                         imageContent.checkMainChangeAttribute = true
                         Thread.sleep(2000)
+                        imageToolModule.showView(binding.progressBar , false)
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
                 }
