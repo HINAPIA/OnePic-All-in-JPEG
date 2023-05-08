@@ -330,7 +330,7 @@ class RewindModule() {
         return overlayImg
     }
 
-    suspend fun choiseBestImage(bitmapList: ArrayList<Bitmap>): Int =
+    suspend fun choiseBestImage(bitmapList: ArrayList<Bitmap>): ArrayList<Float> =
         suspendCoroutine { continuation ->
 
             val analysisResults = arrayListOf<Float>()
@@ -370,12 +370,12 @@ class RewindModule() {
 
             while (!checkFinish.all { it }) { }
 
-            var bestIndex = 0
-            for(i in 1 until analysisResults.size) {
-                if(analysisResults[bestIndex] < analysisResults[i]){
-                    bestIndex = i
-                }
-            }
-            continuation.resume(bestIndex)
+//            var bestIndex = 0
+//            for(i in 1 until analysisResults.size) {
+//                if(analysisResults[bestIndex] < analysisResults[i]){
+//                    bestIndex = i
+//                }
+//            }
+            continuation.resume(analysisResults)
         }
 }

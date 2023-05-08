@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.RewindModule
+import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ActivityType
@@ -23,6 +24,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.opencv.android.OpenCVLoader
+import org.opencv.core.*
+
 
 class BurstModeEditFragment : Fragment() {
 
@@ -39,6 +43,11 @@ class BurstModeEditFragment : Fragment() {
     private var mainIndex = 0
 
     private lateinit var mainSubView: View
+
+    init {
+        val isIntialized = OpenCVLoader.initDebug()
+        Log.d("openCV", "isIntialized = $isIntialized")
+    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -113,8 +122,7 @@ class BurstModeEditFragment : Fragment() {
             }
         }
 
-        mainPicture = imageContent.mainPicture
-        pictureList = imageContent.pictureList
+//        Thread.sleep(3000)
         Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
         setSubImage()
         viewBestImage()
@@ -183,27 +191,48 @@ class BurstModeEditFragment : Fragment() {
     fun viewBestImage() {
         imageToolModule.showView(binding.progressBar, true)
         val bitmapList = imageContent.getBitmapList()
-        if(bitmapList != null) {
+        if (bitmapList != null) {
 
             val rewindModule = RewindModule()
-             CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 rewindModule.allFaceDetection(bitmapList)
-                val bestImageIndex = rewindModule.choiseBestImage(bitmapList)
-                 withContext(Dispatchers.Main) {
-                     // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                     Glide.with(binding.burstMainView)
-                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex]))
-                         .into(binding.burstMainView)
+                val faceDetectionResult = rewindModule.choiseBestImage(bitmapList)
+                Log.d("anaylsis", "end faceDetection")
+                val shakeDetectionResult = ShakeLevelModule().shakeLevelDetection(bitmapList)
 
-                     imageToolModule.showView(mainSubView, false)
+                val analysisResults = arrayListOf<Double>()
 
-                     mainSubView = binding.candidateLayout.getChildAt(bestImageIndex).findViewById(R.id.checkMainIcon)
-                     imageToolModule.showView(mainSubView, true)
+                var bestImageIndex = 0
+                for(i in 0 until bitmapList.size) {
+                    Log.d("anaylsis", "[$i] = faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
+                    analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
+                    analysisResults.add(faceDetectionResult[i].toDouble())
+                    if(analysisResults[bestImageIndex] < analysisResults[i]){
+                        bestImageIndex = i
+                    }
+                }
 
-                     imageToolModule.showView(binding.progressBar, false)
-                 }
+                withContext(Dispatchers.Main) {
+                    // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                    Glide.with(binding.burstMainView)
+                        .load(imageContent.getJpegBytes(pictureList[bestImageIndex]))
+                        .into(binding.burstMainView)
+
+                    imageToolModule.showView(mainSubView, false)
+
+                    mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
+                        .findViewById(R.id.checkMainIcon)
+                    imageToolModule.showView(mainSubView, true)
+
+                    imageToolModule.showView(binding.progressBar, false)
+                }
+
+            }
+            CoroutineScope(Dispatchers.IO).launch {
 
             }
         }
     }
+
+
 }

@@ -1,0 +1,25 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml:2:1-4:12
+	package
+		ADDED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml:3:7-27
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml:2:11-69
+uses-sdk
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+		ADDED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+		ADDED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+		INJECTED from /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml

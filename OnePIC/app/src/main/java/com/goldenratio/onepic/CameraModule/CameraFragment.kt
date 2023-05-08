@@ -21,8 +21,6 @@ import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
 import androidx.camera.core.*
@@ -32,7 +30,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
@@ -44,9 +41,7 @@ import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
-import io.reactivex.rxjava3.internal.schedulers.SchedulerPoolFactory.start
 import kotlinx.coroutines.*
-import kotlinx.coroutines.selects.select
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 import java.lang.reflect.InvocationTargetException
