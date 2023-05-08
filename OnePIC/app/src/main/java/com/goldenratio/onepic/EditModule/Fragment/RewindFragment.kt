@@ -85,7 +85,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             val newMainBitmap = imageContent.getMainBitmap()
             if (newMainBitmap != null) {
                 mainBitmap = newMainBitmap
@@ -98,31 +98,16 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         CoroutineScope(Dispatchers.IO).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-            var startTime = System.currentTimeMillis()
+            Log.d("faceRewind","newBitmapList call before")
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            Log.d("faceRewind","newBitmapList $newBitmapList")
             if (newBitmapList != null) {
                 bitmapList = newBitmapList
 
-                var endTime = System.currentTimeMillis()
-                var elapsedTime = endTime - startTime
-                Log.d("ElapsedTime", "get Bitmap Time: $elapsedTime ms")
-                //CoroutineScope(Dispatchers.Default).launch {
-                startTime = System.currentTimeMillis()
-
                 rewindModule.allFaceDetection(bitmapList)
 
-                endTime = System.currentTimeMillis()
-                elapsedTime = endTime - startTime
-                Log.d("ElapsedTime", "get face result Time: $elapsedTime ms")
-                //}
-
                 if (imageContent.activityType == ActivityType.Camera) {
-                    startTime = System.currentTimeMillis()
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
-
-                    endTime = System.currentTimeMillis()
-                    elapsedTime = endTime - startTime
-                    Log.d("ElapsedTime", "autorewind Time: $elapsedTime ms")
 
                     setMainImageBoundingBox()
 
@@ -150,6 +135,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 imageContent.setMainBitmap(mainBitmap)
                 if (imageContent.activityType == ActivityType.Camera) {
+                    imageContent.insertPicture(0, imageContent.mainPicture )
                     withContext(Dispatchers.Main) {
                         jpegViewModel.jpegMCContainer.value?.save()
                         Thread.sleep(2000)

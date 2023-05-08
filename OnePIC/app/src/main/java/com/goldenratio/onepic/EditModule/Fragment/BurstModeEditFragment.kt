@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ActivityType
@@ -65,68 +66,6 @@ class BurstModeEditFragment : Fragment() {
             }
         }
 
-
-        CoroutineScope(Dispatchers.Default).launch{
-            mainPicture = imageContent.mainPicture
-            pictureList = imageContent.pictureList
-            Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
-
-            val checkFinish = BooleanArray(pictureList.size)
-            for (i in 0 until pictureList.size) {
-                checkFinish[i] = false
-            }
-
-            for(i in 0 until pictureList.size) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    // 넣고자 하는 layout 불러오기
-                    val subLayout =
-                        layoutInflater.inflate(R.layout.sub_image_array, null)
-
-                    // 위 불러온 layout에서 변경을 할 view가져오기
-                    val cropImageView: ImageView =
-                        subLayout.findViewById(R.id.cropImageView)
-
-                    // 자른 사진 이미지뷰에 붙이기
-                    //cropImageView.setImageBitmap(bitmapList[i])
-                    withContext(Dispatchers.Main) {
-                        Log.d("error 잡기", "$i 번째 이미지 띄우기")
-                        Glide.with(cropImageView)
-                            .load(imageContent.getJpegBytes(pictureList[i]))
-                            .into(cropImageView)
-                    }
-
-                    if (mainIndex == i) {
-                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                    }
-
-                    cropImageView.setOnClickListener {
-                        mainPicture = pictureList[i]
-                        imageToolModule.showView(mainSubView, false)
-                        CoroutineScope(Dispatchers.Main).launch {
-                            // 메인 이미지 설정
-                            withContext(Dispatchers.Main) {
-                                Glide.with(binding.burstMainView)
-                                    .load(imageContent.getJpegBytes(mainPicture))
-                                    .into(binding.burstMainView)
-                            }
-                        }
-                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                        //binding.burstMainView.setImageBitmap(mainBitmap)
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                        binding.candidateLayout.addView(subLayout)
-                    }
-                    checkFinish[i] = true
-
-                }
-            }
-            while (!checkFinish.all { it }) { }
-            imageToolModule.showView(binding.progressBar, false)
-        }
         binding.burstSaveBtn.setOnClickListener {
             imageContent.resetMainBitmap()
 
@@ -138,29 +77,8 @@ class BurstModeEditFragment : Fragment() {
                 Log.d("error 잡기", "메인 바꾸고 save : ${result}")
                 if (result) {
                     Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
+
                     // 2. main 사진을 첫번 째로 삽입
-
-//                    if(imageContent.checkAttribute(ContentAttribute.magic)) {
-//                        val preMain = imageContent.pictureList[0].embeddedData
-//
-//                        if (preMain != null && preMain.size == 6) {
-//
-//                            val newMain = mainPicture.embeddedData
-//                            newMain?.add(preMain[4])
-//                            newMain?.add(preMain[5])
-//                            Log.d("!!!!!","!!!!!!newMain $newMain")
-//                            if (newMain != null) {
-//                                imageContent.mainPicture.insertEmbeddedData(newMain)
-//                            }
-//
-//                            preMain.removeAt(5)
-//                            preMain.removeAt(4)
-//                            Log.d("!!!!!","!!!!!!preMain $preMain")
-//                            imageContent.pictureList[0].insertEmbeddedData(preMain)
-//
-//                        }
-//                    }
-
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture
                 }
@@ -195,7 +113,98 @@ class BurstModeEditFragment : Fragment() {
                 }
             }
         }
+
+        mainPicture = imageContent.mainPicture
+        pictureList = imageContent.pictureList
+        Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
+        setSubImage()
+        viewBestImage()
+
         return binding.root
     }
 
+    fun setSubImage() {
+        CoroutineScope(Dispatchers.Default).launch{
+//            val checkFinish = BooleanArray(pictureList.size)
+//            for (i in 0 until pictureList.size) {
+//                checkFinish[i] = false
+//            }
+
+            for(i in 0 until pictureList.size) {
+//                CoroutineScope(Dispatchers.Main).launch {
+                    // 넣고자 하는 layout 불러오기
+                    val subLayout =
+                        layoutInflater.inflate(R.layout.sub_image_array, null)
+
+                    // 위 불러온 layout에서 변경을 할 view가져오기
+                    val cropImageView: ImageView =
+                        subLayout.findViewById(R.id.cropImageView)
+
+                    // 이미지뷰에 붙이기
+                    withContext(Dispatchers.Main) {
+                        Log.d("error 잡기", "$i 번째 이미지 띄우기")
+                        Glide.with(cropImageView)
+                            .load(imageContent.getJpegBytes(pictureList[i]))
+                            .into(cropImageView)
+                    }
+
+                    if (mainIndex == i) {
+                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
+                    }
+
+                    cropImageView.setOnClickListener {
+                        mainPicture = pictureList[i]
+                        imageToolModule.showView(mainSubView, false)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // 메인 이미지 설정
+                            withContext(Dispatchers.Main) {
+                                Glide.with(binding.burstMainView)
+                                    .load(imageContent.getJpegBytes(mainPicture))
+                                    .into(binding.burstMainView)
+                            }
+                        }
+                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
+                        //binding.burstMainView.setImageBitmap(mainBitmap)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                        binding.candidateLayout.addView(subLayout)
+                    }
+//                    checkFinish[i] = true
+
+//                }
+            }
+//            while (!checkFinish.all { it }) { }
+//            imageToolModule.showView(binding.progressBar, false)
+        }
+    }
+    fun viewBestImage() {
+        imageToolModule.showView(binding.progressBar, true)
+        val bitmapList = imageContent.getBitmapList()
+        if(bitmapList != null) {
+
+            val rewindModule = RewindModule()
+             CoroutineScope(Dispatchers.IO).launch {
+                rewindModule.allFaceDetection(bitmapList)
+                val bestImageIndex = rewindModule.choiseBestImage(bitmapList)
+                 withContext(Dispatchers.Main) {
+                     // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                     Glide.with(binding.burstMainView)
+                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex]))
+                         .into(binding.burstMainView)
+
+                     imageToolModule.showView(mainSubView, false)
+
+                     mainSubView = binding.candidateLayout.getChildAt(bestImageIndex).findViewById(R.id.checkMainIcon)
+                     imageToolModule.showView(mainSubView, true)
+
+                     imageToolModule.showView(binding.progressBar, false)
+                 }
+
+            }
+        }
+    }
 }

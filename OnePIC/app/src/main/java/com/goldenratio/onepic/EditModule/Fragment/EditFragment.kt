@@ -204,7 +204,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
                     .setPositiveButton("모두 저장", DialogInterface.OnClickListener { dialog, which ->
                         imageTool.showView(binding.progressBar2 , true)
-                        if(imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute){
+                        if(!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute){
                             val mainPicture = imageContent.mainPicture
                             // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                             imageContent.insertPicture(0, mainPicture)

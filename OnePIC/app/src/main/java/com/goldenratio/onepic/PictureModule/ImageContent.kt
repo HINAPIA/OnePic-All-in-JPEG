@@ -76,7 +76,7 @@ class ImageContent {
         init()
         // 메타 데이터 분리
         jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
-        for(i in 0..byteArrayList.size-1){
+        for(i in 0 until byteArrayList.size){
             // frame 분리
             var frameBytes = async {
                 extractFrame(byteArrayList.get(i),contentAttribute)
@@ -130,16 +130,21 @@ class ImageContent {
     // bitmapList getter
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
 //        checkTransformAttributeBitmap = true
+        Log.d("faceRewind","")
         try {
             if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
                 attributeBitmapList.clear()
                 bitmapListAttribute = attribute
             }
             if (attributeBitmapList.size == 0) {
+                Log.d("faceRewind","!!!! getBitmapList while start")
                 while (!checkGetBitmapList || !checkPictureList) {
 //                if(!checkTransformAttributeBitmap)
 //                    return null
+                    Log.d("faceRewind","!!!! $checkGetBitmapList || $checkPictureList")
+                    Thread.sleep(1000)
                 }
+                Log.d("faceRewind","!!!! getBitmapList while end")
 
                 for (i in 0 until pictureList.size) {
 //                if(!checkTransformAttributeBitmap)
@@ -150,7 +155,7 @@ class ImageContent {
             }
 //        checkTransformAttributeBitmap = false
             return attributeBitmapList
-        }catch (e: IOException) {
+        }catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드
             e.printStackTrace() // 예외 정보 출력
             return null
@@ -164,18 +169,21 @@ class ImageContent {
      */
     @Synchronized
     fun  getBitmapList() : ArrayList<Bitmap>? {
-        Log.d("burst", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        Log.d("burst", "getBitmapList 호출")
+        Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        Log.d("faceRewind", "getBitmapList 호출")
 
 //        checkTransformBitmap = true
         try {
+            Log.d("faceRewind", "checkPictureList bitmapList.size ${bitmapList.size}")
             if (bitmapList.size == 0) {
+                Log.d("faceRewind", "checkPictureList while start")
                 while (!checkPictureList) {
 //                if(!checkTransformBitmap)
 //                    return null
                 }
+                Log.d("faceRewind", "checkPictureList $checkPictureList")
                 val pictureListSize = pictureList.size
-                Log.d("burst", "pictureListSize : $pictureListSize")
+                Log.d("faceRewind", "pictureListSize : $pictureListSize")
                 val checkFinish = BooleanArray(pictureListSize)
 
                 val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
@@ -184,12 +192,12 @@ class ImageContent {
                     checkFinish[i] = false
                     bitmapList.add(exBitmap)
                 }
-                Log.d("burst", "==============================")
+                Log.d("faceRewind", "==============================")
                 for (i in 0 until pictureListSize) {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
-                            Log.d("burst", "coroutine in pictureListSize : $pictureListSize")
+                            Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
                             val bitmap =
                                 ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
 //                    if(checkTransformBitmap) {
@@ -200,13 +208,13 @@ class ImageContent {
                             e.printStackTrace() // 예외 정보 출력
                             Log.d("burst", "error : $pictureListSize")
                             bitmapList.clear()
+                            checkFinish[i] = true
                         }
                     }
                 }
                 while (!checkFinish.all { it }) {
 
                 }
-
             }
             checkGetBitmapList = true
 //        checkTransformBitmap = false
