@@ -20,6 +20,7 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.CoroutineScope
@@ -165,8 +166,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 val fileName =
                     currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                 jpegViewModel.currentImageFilePath
-                jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-
+                var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+                ViewerFragment.currentFilePath = savedFilePath.toString()
+                Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
                 //imageTool.showView(binding.progressBar2 , false)
 
 //                val signature = "signature-${System.currentTimeMillis()}"
@@ -189,7 +191,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
 
                 // magic으로 변경했을 경우 모든 파일 저장
-                jpegViewModel.jpegMCContainer.value?.save()
+                var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+                ViewerFragment.currentFilePath = savedFilePath.toString()
+                Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
+
                 CoroutineScope(Dispatchers.Default).launch {
                     setButtonDeactivation()
                     Thread.sleep(2000)
@@ -209,7 +214,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                             imageContent.insertPicture(0, mainPicture)
                         }
-                        jpegViewModel.jpegMCContainer.value?.save()
+
+                        var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+                        ViewerFragment.currentFilePath = savedFilePath.toString()
+                        Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
+
                         CoroutineScope(Dispatchers.Default).launch {
                             setButtonDeactivation()
                             Thread.sleep(2000)
@@ -228,8 +237,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 singlePictureList.add(newImageContent.mainPicture)
                                 newImageContent.setContent(singlePictureList)
 
-                                Log.d("save error", "1")
-                                jpegViewModel.jpegMCContainer.value?.save()
+                                var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+                                ViewerFragment.currentFilePath = savedFilePath.toString()
+                                Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
 
                             }catch (e :IOException){
                                 Toast.makeText(activity,"저장에 실패 했습니다." , Toast.LENGTH_SHORT).show()
