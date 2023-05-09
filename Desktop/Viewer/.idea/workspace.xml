@@ -10,11 +10,81 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../PARSING_20230413_010314.aac" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/AudioModule/AudioResolver.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/ImageTool.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AiContainer.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AudioContent.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/Audio.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/ContentType.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/Picture.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/Text.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Header.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/ImageContent.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/AudioContentInfo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/ImageContentInfo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/ImageInfo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/TextContentInfo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/TextInfo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/JpegConstant.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/TextContent.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/EditView.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/Group 1800.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/textImage.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/AiContainerSingleton.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1$picturesHBox$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1$picturesHBox$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/camerax/PictureModule/Info/AudioContentInfo.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/camerax/PictureModule/Info/ImageContentInfo.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/camerax/PictureModule/Info/ImageInfo.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/camerax/PictureModule/Info/TextContentInfo.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/camerax/PictureModule/Info/TextInfo.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2$pictureList$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$imageContentParsing$2$frame$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$imageContentParsing$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer$setImageContent$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AudioContent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/ActivityType.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/Audio.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/ContentAttribute$Companion.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/ContentAttribute.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/ContentType.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/Picture.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Contents/Text.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/Header.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/ImageContent$setContent$2$frameBytes$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/ImageContent$setContent$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/ImageContent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/JpegConstant$nameHashMap$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/JpegConstant.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/TextContent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +100,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Class" />
         <option value="Kotlin Class" />
+        <option value="FxmlFile" />
       </list>
     </option>
   </component>
@@ -171,16 +243,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/Users/yujin/Documents/GitHub/OnePIC/Desktop/Viewer/src/main/kotlin/com/example/demo/app",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource" />
+    </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
       <recent name="no.tornado.app" />
     </key>
@@ -388,9 +467,28 @@
       <collection />
     </option>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt</url>
+          <line>40</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt</url>
+          <line>75</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Viewer$viewer.ic" NAME="viewer Coverage Results" MODIFIED="1683538138399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/MyApp.kt">

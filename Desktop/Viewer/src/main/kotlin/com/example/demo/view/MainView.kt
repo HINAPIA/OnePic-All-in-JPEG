@@ -1,9 +1,17 @@
 package com.example.demo.view
 
+import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.LoadModule.LoadResolver
+import com.goldenratio.onepic.PictureModule.AiContainer
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.stage.FileChooser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import tornadofx.*
+import java.io.File
+import java.nio.file.Files
 
 //class MainView : View("Hello TornadoFX") {
 //    val mainImageView : ImageViewer by inject()
@@ -11,11 +19,20 @@ import tornadofx.*
 //        mainImageView
 //    }
 //}
-
+object AiContainerSingleton {
+    val aiContainer = AiContainer()
+}
 class ImageViewer : View() {
+    // ViewModel
+    val imageTool = ImageTool()
+
+
+    val aiContainer : AiContainer = AiContainerSingleton.aiContainer
+    val loadResolver : LoadResolver = LoadResolver()
     val mainImageView : MainImageView by inject()
     val editView : EditView by inject()
     val subImagesView : SubImagesView by inject()
+
     override val root = borderpane {
         //메뉴바
         top = menubar{
@@ -24,14 +41,28 @@ class ImageViewer : View() {
                     val selectedFile = chooseFile("Select file to open",
                         arrayOf(FileChooser.ExtensionFilter("Image Files",  "*.jpg", "*.jpeg")))
                         .firstOrNull()
+                    subImagesView.viewClear()
                     // 선택된 파일에 대한 처리
                     if (selectedFile != null) {
-                    val image = Image(selectedFile.toURI().toString())
-                    //val imageView = center as ImageView
+                        var byteArray = Files.readAllBytes(selectedFile.toPath())
+                        CoroutineScope(Dispatchers.Default).launch{
+                            aiContainer.imageContent.init()
+                            loadResolver.createMCContainer(aiContainer, byteArray)
+                            while (!aiContainer.imageContent.checkPictureList){
+                                Thread.sleep(100)
+                            }
+                            var firstImageBytes = aiContainer.imageContent.getJpegBytes(aiContainer.imageContent.pictureList[0])
 
-                    mainImageView.setImage(image)
+                            var orientation = imageTool.getOrientation(firstImageBytes)
+                            val image = Image(selectedFile.toURI().toString())
+                            mainImageView.setImage(image, orientation)
+                            subImagesView.setPictureList(aiContainer.imageContent.pictureList)
+                        }
 
-                }
+
+
+
+                    }
                 }
             }
         }
@@ -42,21 +73,13 @@ class ImageViewer : View() {
 
         setPrefSize(1000.0, 800.0) // 전체 크기를 900x600으로 지정
 
-//        // left
-//        mainImageView.root.prefWidthProperty().bind(widthProperty().multiply(0.73))
-//        mainImageView.root.prefHeightProperty().bind(heightProperty().multiply(0.784))
-//        //right
-//        editView.root.prefWidthProperty().bind(widthProperty().multiply(0.27))
-//        editView.root.prefHeightProperty().bind(heightProperty().multiply(0.784))
-//        //bottom
-//        subImagesView.root.prefWidthProperty().bind(widthProperty().multiply(1))
-//        subImagesView.root.prefHeightProperty().bind(heightProperty().multiply(0.216))
 
-// left
+
+        // left
         mainImageView.root.setPrefSize(730.0, 800.0)
-// right
+        // right
         editView.root.setPrefSize(270.0, 800.0)
-// bottom
+        // bottom
         subImagesView.root.setPrefSize(1.0, 200.0)
 
 
