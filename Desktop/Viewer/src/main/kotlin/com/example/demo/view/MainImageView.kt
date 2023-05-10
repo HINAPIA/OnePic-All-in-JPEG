@@ -3,13 +3,12 @@ package com.example.demo.view
 import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.ScrollPane
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.TransferMode
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.*
 import javafx.scene.layout.BorderPane.setMargin
-import javafx.scene.layout.CornerRadii
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import tornadofx.*
@@ -19,15 +18,47 @@ import java.awt.image.BufferedImage
 
 class MainImageView : View(){
     private val imageView:ImageView = ImageView()
+    val subImagesView : SubImagesView by inject()
+    val metaVBox : VBox = VBox()
+    override val root = borderpane {
 
-    override val root = stackpane {
-        children.add(imageView)
+        center{
+            vbox{
+                children.add(imageView)
+                setPrefSize(900.0,700.0)
+                style{
+                   // backgroundColor = MultiValue(arrayOf(Color.web("#000000")))
+                }
+                setAlignment(Pos.CENTER)
+            }
+        }
+
+        bottom{
+            vbox{
+                children.add(subImagesView.root)
+                setPrefSize(900.0, 200.0)
+                style{
+                    border = Border(BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths(2.0, 0.0, 0.0, 0.0)))
+                    //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
+                }
+                setAlignment(Pos.CENTER)
+            }
+
+
+        }
+
+
+       // subImagesView.root.setPrefSize(900.0, 300.0)
+
+
         // imageView의 위치를 조정
-        setAlignment(Pos.CENTER)
+
        // setMargin(imageView, Insets(10.0))
         style {
             backgroundColor = MultiValue(arrayOf(Color.web("#232323")))
         }
+
+
 
         // 이미지가 로드되면 fitWidth와 fitHeight를 설정
         imageView.imageProperty().addListener { _, _, newImage ->

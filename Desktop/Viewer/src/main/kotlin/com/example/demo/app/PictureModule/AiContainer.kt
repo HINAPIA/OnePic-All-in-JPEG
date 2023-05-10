@@ -2,18 +2,16 @@ package com.goldenratio.onepic.PictureModule
 
 
 //import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 
 
 class AiContainer() {
-    //var audioResolver : AudioResolver = AudioResolver()
+    var audioResolver : AudioResolver = AudioResolver()
    // private lateinit var activity : Activity
     var header : Header
-
-
-
     var imageContent : ImageContent = ImageContent()
     var audioContent : AudioContent = AudioContent()
     var textContent: TextContent = TextContent()

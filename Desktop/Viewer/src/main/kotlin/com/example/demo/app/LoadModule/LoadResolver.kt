@@ -100,7 +100,7 @@ class LoadResolver() {
                         //println("AudioModule, audioAttribute : ${audioAttribute}")
 
                         var audioDataLength = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 12)
-                        //println("AudioModule, audioDataLength : ${audioDataLength}")
+                        println("AudioModule, audioDataLength : ${audioDataLength}")
 
                         var audioBytes =
                             sourceByteArray.copyOfRange(audioDataStartOffset, audioDataStartOffset + audioDataLength)
@@ -108,7 +108,7 @@ class LoadResolver() {
                         var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
                         AiContainer.audioContent.setContent(audio)
                         //TODO("AUDIO RESOLVER")
-                        //AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!, "viewer_record")
+                        AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!)
 
                     }
                 } catch (e: IOException) {

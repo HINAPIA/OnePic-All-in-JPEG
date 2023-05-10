@@ -39,9 +39,7 @@ class SubImagesView : View(){
     }
     fun setPictureList(_pictureList: ArrayList<Picture>) {
         pictureList.removeListener(pictureListChangeListener) // 변경 리스너 제거
-        println("갱신 전 : ${_pictureList[0].size}")
         pictureList.setAll(_pictureList)
-        println("갱신 완료 : ${pictureList[0].size}")
         pictureList.addListener(pictureListChangeListener) // 변경 리스너 다시 등록
         pictureList.setAll(_pictureList)
     }
@@ -64,7 +62,7 @@ class PictureListChangeListener(private val root: Pane) : ListChangeListener<Pic
                     imageView.image = Image(pictureByte.inputStream())
 
                     // 프레임 width의 1/6 크기로 설정
-                    imageView.fitWidth = root.scene?.width?.div(7.0) ?: 0.0
+                    imageView.fitWidth = root.scene?.width?.div(8.0) ?: 0.0
 
                     // 사진의 비율을 유지하도록 계산하여 설정
                     val aspectRatio = imageView.image.width / imageView.image.height
