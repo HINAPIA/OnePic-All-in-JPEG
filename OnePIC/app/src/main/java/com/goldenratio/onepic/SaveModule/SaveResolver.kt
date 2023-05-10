@@ -31,14 +31,15 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         mainActivity = _mainActivity
     }
 
-    fun overwriteSave(fileName : String){
+    fun overwriteSave(fileName : String): String{
+        var savedFile : String = ""
         Log.d("burst", "overwirte save()")
       //  CoroutineScope(Dispatchers.IO).launch {
             var resultByteArray = MCContainerToBytes()
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-                saveImageOnAboveAndroidQ(resultByteArray, fileName)
+                savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName)
                 Log.d("Save Resolver", "save")
             } else {
                 // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
@@ -50,7 +51,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 }
                 if (writePermission == PackageManager.PERMISSION_GRANTED) {
 
-                    saveImageOnUnderAndroidQ(resultByteArray)
+                    savedFile = saveImageOnUnderAndroidQ(resultByteArray)
 
                     // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
@@ -68,21 +69,22 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
             }
-
+        return savedFile
       //  }
 
     }
 
 
 
-    fun save(){
+    fun save() : String{
+        var savedFile : String = ""
 //        CoroutineScope(Dispatchers.IO).launch {
             var resultByteArray = MCContainerToBytes()
             val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-                saveImageOnAboveAndroidQ(resultByteArray, fileName)
+                savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName)
                 Log.d("Save Resolver", "save")
             } else {
                 // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
@@ -94,7 +96,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 }
                 if (writePermission == PackageManager.PERMISSION_GRANTED) {
 
-                    saveImageOnUnderAndroidQ(resultByteArray)
+                    savedFile = saveImageOnUnderAndroidQ(resultByteArray)
 
                     // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
@@ -112,8 +114,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
             }
-
-      //  }
+        return savedFile!!
 
     }
 
@@ -123,7 +124,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     //Android Q (Android 10, API 29 이상에서는 이 메서드를 통해서 이미지를 저장한다.)
     @SuppressLint("Range", "Recycle")
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName : String) {
+    fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName : String) : String {
 //        CoroutineScope(Dispatchers.IO).launch {
             var uri : Uri
             Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 111")
@@ -191,8 +192,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                         }
                     }
                 }
-
-
             } catch(e: FileNotFoundException) {
                 e.printStackTrace()
             } catch (e: IOException) {
@@ -200,22 +199,22 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-       // }
-
+       // }'
+        return uri.toString()
     }
 
-    private fun saveImageOnUnderAndroidQ(byteArray: ByteArray) {
+    private fun saveImageOnUnderAndroidQ(byteArray: ByteArray) :String {
         val fileName = System.currentTimeMillis().toString() + ".jpg"
         val externalStorage = Environment.getExternalStorageDirectory().absolutePath
         val path = "$externalStorage/DCIM/imageSave"
         val dir = File(path)
-
+        val fileItem = File("$dir/$fileName")
         if(dir.exists().not()) {
             dir.mkdirs() // 폴더 없을경우 폴더 생성
         }
 
         try {
-            val fileItem = File("$dir/$fileName")
+
             fileItem.createNewFile()
             //0KB 파일 생성.
 
@@ -228,6 +227,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
             mainActivity.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(fileItem)))
             // 브로드캐스트 수신자에게 파일 미디어 스캔 액션 요청. 그리고 데이터로 추가된 파일에 Uri를 넘겨준다.
+
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -235,6 +235,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return fileItem.toString()
     }
 
     fun MCContainerToBytes() : ByteArray{

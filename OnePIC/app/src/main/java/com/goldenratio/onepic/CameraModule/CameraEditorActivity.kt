@@ -1,16 +1,11 @@
 package com.goldenratio.onepic.CameraModule
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
 import com.goldenratio.onepic.PictureModule.MCContainer
-import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.ActivityCameraEditorBinding
 
 class CameraEditorActivity : AppCompatActivity() {
