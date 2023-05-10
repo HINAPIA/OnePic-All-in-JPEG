@@ -50,8 +50,6 @@ class ViewerFragment : Fragment() {
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
 
-
-
     companion object {
         var currentFilePath:String = ""
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -79,7 +77,6 @@ class ViewerFragment : Fragment() {
             currentPosition = null
         }
 
-
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 
@@ -101,7 +98,7 @@ class ViewerFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         var currentPosition: Int = binding.viewPager2.currentItem
-        currentFilePath = mainViewPagerAdapter.galleryMainimages[currentPosition]
+        currentFilePath = mainViewPagerAdapter.galleryMainimage[currentPosition]
     }
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
@@ -110,6 +107,7 @@ class ViewerFragment : Fragment() {
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
         mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+        binding.viewPager2.setUserInputEnabled(false);
 
         binding.viewPager2.adapter = mainViewPagerAdapter
         binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
@@ -125,7 +123,7 @@ class ViewerFragment : Fragment() {
 
                 // 필름 스크롤뷰 초기화
                 binding.pullRightView.visibility = View.VISIBLE
-                binding.scrollView.visibility = View.GONE
+                binding.scrollView.visibility = View.INVISIBLE//GONE
 
 
                 // 텍스트 버튼 초기화
@@ -152,7 +150,7 @@ class ViewerFragment : Fragment() {
                     mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
 
                 }
-                setCurrentMCContainer(position)
+                // setCurrentMCContainer(position)
             }
         })
 
@@ -242,16 +240,19 @@ class ViewerFragment : Fragment() {
 
             setCurrentOtherImage()
 
-            binding.scrollView.visibility = View.VISIBLE
+            scrollAnimation()
 
-            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
-            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
 
-            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
-            animation.duration = 600
-            it.visibility = View.INVISIBLE
-            binding.scrollView.startAnimation(animation)
+//            binding.scrollView.visibility = View.VISIBLE
+//
+//            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
+//            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+//            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
+//
+//            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+//            animation.duration = 600
+//            it.visibility = View.INVISIBLE
+//            binding.scrollView.startAnimation(animation)
 
 //            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
 //            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
@@ -274,8 +275,21 @@ class ViewerFragment : Fragment() {
 
         binding.backBtn.setOnClickListener{
             Glide.get(requireContext()).clearMemory()
-            findNavController().navigate(R.id.action_viewerFragment_to_galleryFragment)
+            findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment)
         }
+    }
+
+    fun scrollAnimation(){
+        binding.scrollView.visibility = View.VISIBLE
+
+        // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
+        val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+        val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
+
+        val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+        animation.duration = 600
+        binding.pullRightView.visibility = View.INVISIBLE
+        binding.scrollView.startAnimation(animation)
     }
 
     fun setMagicPicture() {
@@ -290,34 +304,34 @@ class ViewerFragment : Fragment() {
 //            ImageToolModule().showView(binding.magicBtn, false)
 //        }
 //        else {
-            ImageToolModule().showView(binding.magicBtn, true)
-            Log.d("magic 유무", "YES!!!!!!!!!!!")
-            binding.magicBtn.setOnClickListener {
+        ImageToolModule().showView(binding.magicBtn, true)
+        Log.d("magic 유무", "YES!!!!!!!!!!!")
+        binding.magicBtn.setOnClickListener {
 
-                // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-                //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
 
-                if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
+            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
 
-                    ImageToolModule().showView(binding.progressBar, true)
+                ImageToolModule().showView(binding.progressBar, true)
 
-                    /* layout 변경 */
-                    it.setBackgroundResource(R.drawable.round_button)
-                    isMagicBtnClicked = true
-                    CoroutineScope(Dispatchers.Default).launch {
-                        mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
-                        mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
-                    }
-                }
-
-                //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-                else { // 클릭 되어 있던 상태
-                    /* layout 변경 */
-                    it.background = ColorDrawable(Color.TRANSPARENT)
-                    isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+                /* layout 변경 */
+                it.setBackgroundResource(R.drawable.round_button)
+                isMagicBtnClicked = true
+                CoroutineScope(Dispatchers.Default).launch {
+                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
                 }
             }
+
+            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
+            else { // 클릭 되어 있던 상태
+                /* layout 변경 */
+                it.background = ColorDrawable(Color.TRANSPARENT)
+                isMagicBtnClicked = false
+                mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+            }
+        }
         try {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
@@ -334,10 +348,12 @@ class ViewerFragment : Fragment() {
 
     /** MCContainer 변경 */
     @RequiresApi(Build.VERSION_CODES.Q)
-     fun setCurrentMCContainer(position:Int){
+    fun setCurrentMCContainer(position:Int){
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
             val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
+
+
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(getUriFromPath(sourcePhotoUri))
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
@@ -357,38 +373,86 @@ class ViewerFragment : Fragment() {
             Log.d("picture list size: ",""+pictureList.size)
 
             CoroutineScope(Dispatchers.IO).launch {
-                for (picture in pictureList){
-                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+
+                val pictureByteArrList = jpegViewModel.getPictureByteArrList()
+                for(i in 0..pictureList.size-1){
+
+                    val picture = pictureList[i]
+                    val pictureByteArr = pictureByteArrList[i]//jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+
                     // 넣고자 하는 layout 불러오기
-                   try {
-                       val scollItemLayout =
-                           layoutInflater.inflate(R.layout.scroll_item_layout, null)
+                    try {
+                        val scollItemLayout =
+                            layoutInflater.inflate(R.layout.scroll_item_layout, null)
 
-                       // 위 불러온 layout에서 변경을 할 view가져오기
-                       val scrollImageView: ImageView =
-                           scollItemLayout.findViewById(R.id.scrollImageView)
+                        // 위 불러온 layout에서 변경을 할 view가져오기
+                        val scrollImageView: ImageView =
+                            scollItemLayout.findViewById(R.id.scrollImageView)
 
-                       CoroutineScope(Dispatchers.Main).launch {
-                           // 이미지 바인딩
-                           Glide.with(scrollImageView)
-                               .load(pictureByteArr)
-                               .into(scrollImageView)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // 이미지 바인딩
+                            Glide.with(scrollImageView)
+                                .load(pictureByteArr)
+                                .into(scrollImageView)
 
-                           scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-                               mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-                               jpegViewModel.setselectedSubImage(picture)
-                           }
-                           binding.linear.addView(scollItemLayout)
-                       }
-                   } catch (e: IllegalStateException) {
-                       println(e.message)
-                   }
-                } // end of for..
+                            scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                                mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                                jpegViewModel.setselectedSubImage(picture)
+                            }
+                            binding.linear.addView(scollItemLayout)
+                        }
+                    } catch (e: IllegalStateException) {
+                        println(e.message)
+                    }
+                }
                 jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
-                Log.d("초기 선택된 이미지: ",""+pictureList[0])
             }
         }
     }
+
+
+    // old version
+//    fun setCurrentOtherImage(){
+//
+//        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
+//
+//        if (pictureList != null) {
+//            binding.linear.removeAllViews()
+//            Log.d("picture list size: ",""+pictureList.size)
+//
+//            CoroutineScope(Dispatchers.IO).launch {
+//                for (picture in pictureList){
+//                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+//                    // 넣고자 하는 layout 불러오기
+//                   try {
+//                       val scollItemLayout =
+//                           layoutInflater.inflate(R.layout.scroll_item_layout, null)
+//
+//                       // 위 불러온 layout에서 변경을 할 view가져오기
+//                       val scrollImageView: ImageView =
+//                           scollItemLayout.findViewById(R.id.scrollImageView)
+//
+//                       CoroutineScope(Dispatchers.Main).launch {
+//                           // 이미지 바인딩
+//                           Glide.with(scrollImageView)
+//                               .load(pictureByteArr)
+//                               .into(scrollImageView)
+//
+//                           scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+//                               mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+//                               jpegViewModel.setselectedSubImage(picture)
+//                           }
+//                           binding.linear.addView(scollItemLayout)
+//                       }
+//                   } catch (e: IllegalStateException) {
+//                       println(e.message)
+//                   }
+//                } // end of for..
+//                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
+//                Log.d("초기 선택된 이미지: ",""+pictureList[0])
+//            }
+//        }
+//    }
 
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {

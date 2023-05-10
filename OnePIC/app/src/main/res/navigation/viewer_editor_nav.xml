@@ -66,6 +66,9 @@
             app:destination="@id/galleryFragment"
             app:popUpTo="@id/galleryFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_viewerFragment_to_basicViewerFragment"
+            app:destination="@id/basicViewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"
@@ -74,6 +77,9 @@
         <action
             android:id="@+id/action_galleryFragment_to_viewerFragment"
             app:destination="@id/viewerFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_basicViewerFragment"
+            app:destination="@id/basicViewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/playFragment"
@@ -117,5 +123,16 @@
             app:destination="@id/editFragment"
             app:popUpTo="@id/editFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/basicViewerFragment"
+        android:name="com.goldenratio.onepic.ViewerModule.Fragment.BasicViewerFragment"
+        android:label="BasicViewerFragment" >
+        <action
+            android:id="@+id/action_basicViewerFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_basicViewerFragment_to_viewerFragment"
+            app:destination="@id/viewerFragment" />
     </fragment>
 </navigation>

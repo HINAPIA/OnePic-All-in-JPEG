@@ -363,6 +363,9 @@ class RewindModule() {
                                 sum += checkFace.smilingProbability!! + eyes
                             }
                             analysisResults[j] = sum / facesResult.size
+                            if((sum / facesResult.size).isNaN()) {
+                                analysisResults[j] = 0.0f
+                            }
                         }
                         checkFinish[j] = true
                     }

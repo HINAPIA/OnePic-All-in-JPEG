@@ -11,11 +11,3 @@ CMake Warning (dev) in CMakeLists.txt:
   line.
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
-CMake Warning:
-  Manually-specified variables were not used by the project:
-
-    CMAKE_EXPORT_COMPILE_COMMANDS
-    CMAKE_LIBRARY_OUTPUT_DIRECTORY
-    CMAKE_RUNTIME_OUTPUT_DIRECTORY
-
-

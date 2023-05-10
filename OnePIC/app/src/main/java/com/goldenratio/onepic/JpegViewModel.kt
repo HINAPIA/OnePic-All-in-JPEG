@@ -1,15 +1,16 @@
 package com.goldenratio.onepic
 
+import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
-import com.goldenratio.onepic.PictureModule.Contents.Picture
+import android.os.Build
 import android.os.Looper
-
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.MCContainer
 
 
@@ -25,11 +26,23 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     private lateinit var urlHashMap:HashMap<String, Int>
 
+    private lateinit var pictureByteArrayList:MutableList<ByteArray> // pictureByteArrayList
+
     /* TODO: Edit 창에서 Main 바꿀 때 필요한 property
         - 동기처리 문제 아직 남아있어서, 만약 갤러리(사진)에 변경 있으면 테스트 할 때는 갤러리뷰 한번 갔다가 들어와주세요! */
 
     var currentImageFilePath:String? = null // 현재 메인 이미지 filePath
     var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
+
+
+    fun setpictureByteArrList(byteArrayList:MutableList<ByteArray>){
+        pictureByteArrayList = byteArrayList
+    }
+
+    fun getPictureByteArrList():MutableList<ByteArray>{
+        return pictureByteArrayList
+    }
+
     fun setCurrentImageFilePath(position:Int){ // 현재 메인 이미지 filePath 설정
         if (currentImageFilePath != null) // 초기화
             currentImageFilePath = null
@@ -74,22 +87,54 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     }
 
     fun getAllPhotos(){
-        val cursor = context.contentResolver.query(
-            GALLERY_URI,
-            null,
-            null,
-            null,
-            MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
-        val uriList = mutableListOf<String>()
-        if(cursor!=null){
-            while(cursor.moveToNext()){
-                // 사진 경로 FilePath 가져오기
-                val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-                uriList.add(uri)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            val cursor = context.contentResolver.query(
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                null,
+                null,
+                null,
+                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC"
+            )
+            val uriList = mutableListOf<String>()
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    // 이미지 URI 가져오기
+                    val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                    val uri = ContentUris.withAppendedId(
+                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                        id
+                    ).toString()
+                    uriList.add(uri)
+                }
+                cursor.close()
+                updateImageUriData(uriList)
             }
-            cursor.close()
-            updateImageUriData(uriList)
+
+
+
         }
+        else {
+
+            val cursor = context.contentResolver.query(
+                GALLERY_URI,
+                null,
+                null,
+                null,
+                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
+            val uriList = mutableListOf<String>()
+            if(cursor!=null){
+                while(cursor.moveToNext()){
+                    // 사진 경로 FilePath 가져오기
+                    val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
+                    uriList.add(uri)
+                }
+                cursor.close()
+                updateImageUriData(uriList)
+            }
+
+        }
+
     }
 
     fun getFilePathIdx(key:String):Int?{

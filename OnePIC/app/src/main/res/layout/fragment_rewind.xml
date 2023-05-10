@@ -233,7 +233,8 @@
             android:layout_height="0dp"
             android:layout_weight="1.5"
             android:orientation="horizontal"
-            android:paddingBottom="10dp">
+            android:paddingBottom="10dp"
+            android:visibility="visible">
 
             <HorizontalScrollView
                 android:layout_width="0dp"
@@ -256,12 +257,12 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <ImageButton
                     android:id="@+id/maxArrowBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="98dp"
+                    android:layout_height="98dp"
                     android:background="@color/transparent_color"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"

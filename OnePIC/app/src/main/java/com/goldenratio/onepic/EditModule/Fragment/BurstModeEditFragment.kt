@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.opencv.android.OpenCVLoader
 import org.opencv.core.*
 
 
@@ -43,11 +42,6 @@ class BurstModeEditFragment : Fragment() {
     private var mainIndex = 0
 
     private lateinit var mainSubView: View
-
-    init {
-        val isIntialized = OpenCVLoader.initDebug()
-        Log.d("openCV", "isIntialized = $isIntialized")
-    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -124,7 +118,9 @@ class BurstModeEditFragment : Fragment() {
 
 //        Thread.sleep(3000)
         Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
-        setSubImage()
+        if(imageContent.activityType == ActivityType.Viewer) {
+            setSubImage()
+        }
         viewBestImage()
 
         return binding.root
@@ -155,7 +151,7 @@ class BurstModeEditFragment : Fragment() {
                             .into(cropImageView)
                     }
 
-                    if (mainIndex == i) {
+                    if (mainIndex == 0) {
                         imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                         mainSubView = subLayout.findViewById(R.id.checkMainIcon)
                     }
@@ -212,18 +208,21 @@ class BurstModeEditFragment : Fragment() {
                     }
                 }
 
+                println("bestImageIndex = $bestImageIndex")
+
                 withContext(Dispatchers.Main) {
                     // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
                     Glide.with(binding.burstMainView)
                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex]))
                         .into(binding.burstMainView)
 
-                    imageToolModule.showView(mainSubView, false)
+                    if(imageContent.activityType == ActivityType.Viewer) {
+                        imageToolModule.showView(mainSubView, false)
 
-                    mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
-                        .findViewById(R.id.checkMainIcon)
-                    imageToolModule.showView(mainSubView, true)
-
+                        mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
+                            .findViewById(R.id.checkMainIcon)
+                        imageToolModule.showView(mainSubView, true)
+                    }
                     imageToolModule.showView(binding.progressBar, false)
                 }
 

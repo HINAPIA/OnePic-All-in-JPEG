@@ -71,6 +71,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
+        if (imageContent.activityType == ActivityType.Camera) {
+            imageToolModule.showView(binding.candidateLayout, false)
+            imageToolModule.showView(binding.imageResetBtn, false)
+            imageToolModule.showView(binding.imageCompareBtn, false)
+        }
         imageToolModule.showView(binding.progressBar, true)
 
         // main Picture의 byteArray를 bitmap 제작
@@ -98,21 +103,19 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         CoroutineScope(Dispatchers.IO).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
-            Log.d("faceRewind","newBitmapList call before")
+            Log.d("faceRewind", "newBitmapList call before")
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-            Log.d("faceRewind","newBitmapList $newBitmapList")
+            Log.d("faceRewind", "newBitmapList $newBitmapList")
             if (newBitmapList != null) {
                 bitmapList = newBitmapList
 
                 rewindModule.allFaceDetection(bitmapList)
 
                 if (imageContent.activityType == ActivityType.Camera) {
+
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
-                    setMainImageBoundingBox()
-
                     imageToolModule.showView(binding.progressBar, false)
-
                 }
             }
         }
@@ -127,7 +130,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     newImage = null
                 }
 
-                val allBytes =  imageToolModule.bitmapToByteArray(mainBitmap, imageContent.getJpegBytes(mainPicture))
+                val allBytes = imageToolModule.bitmapToByteArray(
+                    mainBitmap,
+                    imageContent.getJpegBytes(mainPicture)
+                )
 
                 imageContent.mainPicture =
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
@@ -135,15 +141,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 imageContent.setMainBitmap(mainBitmap)
                 if (imageContent.activityType == ActivityType.Camera) {
-                    imageContent.insertPicture(0, imageContent.mainPicture )
+                    imageContent.insertPicture(0, imageContent.mainPicture)
                     withContext(Dispatchers.Main) {
                         jpegViewModel.jpegMCContainer.value?.save()
                         Thread.sleep(2000)
                         //jpegViewModel.jpegMCContainer.value?.save()
                         findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                     }
-                }
-                else {
+                } else {
                     withContext(Dispatchers.Main) {
                         //jpegViewModel.jpegMCContainer.value?.save()
                         imageContent.checkRewindAttribute = true
@@ -158,8 +163,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.rewindCloseBtn.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_fregemnt_to_editFragment)
-            }catch (e: IllegalStateException) {
-                println(e.message)
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
             }
         }
 
@@ -183,6 +188,24 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
 
+        if(imageContent.activityType == ActivityType.Viewer) {
+            viewerToEditViewSetting()
+        }
+
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            val arrowListener =
+                ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
+            binding.circleArrowBtn.setOnTouchListener(arrowListener)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun viewerToEditViewSetting() {
         // 이미지 뷰 클릭 시
         binding.rewindMainView.setOnTouchListener { view, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
@@ -203,7 +226,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
-                        while(!rewindModule.getCheckFaceDetection()) { }
+                        while (!rewindModule.getCheckFaceDetection()) {
+                        }
                         val boundingBox = getBoundingBox(touchPoint)
 
                         if (boundingBox.size > 0) {
@@ -220,7 +244,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
             return@setOnTouchListener true
         }
-
         // reset 버튼 클릭시
         binding.imageResetBtn.setOnClickListener {
             binding.rewindMainView.setImageBitmap(originalMainBitmap)
@@ -249,19 +272,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 else -> return@setOnTouchListener false
             }
         }
-
-        return binding.root
     }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.post {
-            val arrowListener =
-                ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
-            binding.circleArrowBtn.setOnTouchListener(arrowListener)
-        }
-    }
-
 
     /**
      * setMainImageBoundingBox()

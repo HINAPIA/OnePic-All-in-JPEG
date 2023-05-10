@@ -24,11 +24,17 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     private val checkPointF: PointF
 
     init {
-        minX = -(maxView.width/2).toFloat()
-        minY = -(maxView.height/2).toFloat()
+//        minX = -(maxView.width/2).toFloat()
+//        minY = -(maxView.height/2).toFloat()
+//
+//        maxX = (maxView.width/2).toFloat()
+//        maxY = (maxView.height/2).toFloat()
 
-        maxX = (maxView.width/2).toFloat()
-        maxY = (maxView.height/2).toFloat()
+        minX = -(maxView.width/2 - (view.width/2)).toFloat()
+        minY = -(maxView.height/2 - (view.height/2)).toFloat()
+
+        maxX = (maxView.width/2 - (view.width/2)).toFloat()
+        maxY = (maxView.height/2 - (view.height/2)).toFloat()
 
 
         checkPointF = PointF(view.x+(view.width/2), view.y+(view.height/2))

@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
@@ -32,7 +33,7 @@ import kotlin.coroutines.suspendCoroutine
 class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
     lateinit var viewHolder: PagerViewHolder // Viewholder
-    lateinit var galleryMainimages:List<String>// gallery에 있는 이미지 리스트
+    lateinit var galleryMainimage:List<String>// gallery에 있는 이미지 리스트
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
     private var checkMagicPicturePlay = false // magic picture 재생 or stop
     private var isMainChanged = false
@@ -70,12 +71,12 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         }
         else { // 사용자가 스와이프로 화면 넘길 때
 
-            holder.bind(galleryMainimages[position]) // binding
+            holder.bind(galleryMainimage[position]) // binding
         }
 
     }
 
-    override fun getItemCount(): Int = galleryMainimages.size
+    override fun getItemCount(): Int = galleryMainimage.size
 
     /** 숨겨진 사진 중, 선택된 것 -> Main View에서 보이도록 설정 */
     fun setImageContent(imageContent: ImageContent){
@@ -95,7 +96,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     }
 
     fun setUriList(uriList: List<String>){
-        galleryMainimages = uriList
+        galleryMainimage = uriList
     }
 
     fun setCheckMagicPicturePlay(value:Boolean, isFinished: MutableLiveData<Boolean>){
@@ -105,7 +106,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             checkMagicPicturePlay = false
             viewHolder.magicPictureStop()
 
-           // viewHolder.externalImageView.visibility = View.INVISIBLE
+            // viewHolder.externalImageView.visibility = View.INVISIBLE
         }
         else {
             CoroutineScope(Dispatchers.Default).launch {
@@ -157,61 +158,61 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     }
 
     /* ---------------------------------------------------------- Magic Picture ----------------------------------------------- */
-     /** ViewHolder 정의 = Main Image UI */
+    /** ViewHolder 정의 = Main Image UI */
 
-     fun resetMagicPictureList() {
-         overlayImg.clear()
-         bitmapList.clear()
-         boundingBox.clear()
-         Log.d("view magic","reset after: ${overlayImg.size}")
-     }
+    fun resetMagicPictureList() {
+        overlayImg.clear()
+        bitmapList.clear()
+        boundingBox.clear()
+        Log.d("view magic","reset after: ${overlayImg.size}")
+    }
 
-     private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
-         suspendCoroutine { result ->
+    private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
+        suspendCoroutine { result ->
 //             val overlayImg: ArrayList<Bitmap> = arrayListOf()
-             // rewind 가능한 연속 사진 속성의 picture list 얻음
-             pictureList = imageContent.pictureList
-             if (bitmapList.size == 0) {
-                 val newBitmapList = imageContent.getBitmapList()
-                 if(newBitmapList!=null) {
-                     bitmapList = newBitmapList
-                 }
-             }
+            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            pictureList = imageContent.pictureList
+            if (bitmapList.size == 0) {
+                val newBitmapList = imageContent.getBitmapList()
+                if(newBitmapList!=null) {
+                    bitmapList = newBitmapList
+                }
+            }
 
-             var basicIndex = 0
-             var checkEmbedded = false
-             for (i in 0 until pictureList.size) {
-                 if (pictureList[basicIndex].embeddedData?.size!! > 0) {
-                     checkEmbedded = true
-                     break
-                 }
-                 basicIndex++
-             }
+            var basicIndex = 0
+            var checkEmbedded = false
+            for (i in 0 until pictureList.size) {
+                if (pictureList[basicIndex].embeddedData?.size!! > 0) {
+                    checkEmbedded = true
+                    break
+                }
+                basicIndex++
+            }
 //             Log.d("checkEmbedded", "!!!!!!!! $basicIndex")
 //             Log.d("!!!!!","!!!!!!pictureList ${pictureList[basicIndex].embeddedData}")
-             if (checkEmbedded) {
-                 changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
-                 changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
+            if (checkEmbedded) {
+                changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
+                changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
 
-                 val checkFinish = BooleanArray(pictureList.size - basicIndex)
-                 for (i in basicIndex until pictureList.size) {
-                     checkFinish[i - basicIndex] = false
-                     pictureList[i].embeddedData?.let { boundingBox.add(it) }
-                 }
+                val checkFinish = BooleanArray(pictureList.size - basicIndex)
+                for (i in basicIndex until pictureList.size) {
+                    checkFinish[i - basicIndex] = false
+                    pictureList[i].embeddedData?.let { boundingBox.add(it) }
+                }
 
-                 for (i in basicIndex until pictureList.size) {
-                     CoroutineScope(Dispatchers.Default).launch {
-                         createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
-                         checkFinish[i - basicIndex] = true
-                     }
-                 }
+                for (i in basicIndex until pictureList.size) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
+                        checkFinish[i - basicIndex] = true
+                    }
+                }
 
-                 while (!checkFinish.all { it }) {
-                     // Wait for all tasks to finish
-                 }
-             }
-             result.resume(overlayImg)
-         }
+                while (!checkFinish.all { it }) {
+                    // Wait for all tasks to finish
+                }
+            }
+            result.resume(overlayImg)
+        }
 
 
     private fun createOverlayImg(ovelapBitmap: ArrayList<Bitmap> , rect: ArrayList<Int>, index: Int) {
@@ -264,7 +265,12 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         fun bind(image:String) { // Main 이미지 보여주기
             imageView.visibility = View.VISIBLE
             externalImageView.visibility = View.GONE
-            Glide.with(context).load(getUriFromPath(image)).into(imageView)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                Glide.with(context).load(image).into(imageView)
+            }
+            else {
+                Glide.with(context).load(getUriFromPath(image)).into(imageView)
+            }
         }
 
         fun bindUpdateMainImage(image:String){ // Main 이미지가 변경된 경우, 특정 URL에 대한 캐시 강제 업데이트

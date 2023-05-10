@@ -25,10 +25,7 @@
     "variantName": "debug",
     "isDebuggableEnabled": true,
     "validAbiList": [
-      "ARMEABI_V7A",
-      "ARM64_V8A",
-      "X86",
-      "X86_64"
+      "ARMEABI_V7A"
     ],
     "buildTargetSet": [
       "opencv_jni_shared"
@@ -129,6 +126,7 @@
         "rootBuildGradleFolder": "/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC",
         "sdkFolder": "/Users/hscomputerengineering/Library/Android/sdk",
         "isBuildOnlyTargetAbiEnabled": true,
+        "ideBuildTargetAbi": "armeabi-v7a,armeabi",
         "isCmakeBuildCohabitationEnabled": false,
         "isPrefabEnabled": false
       },

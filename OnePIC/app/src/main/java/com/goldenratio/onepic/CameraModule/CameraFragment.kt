@@ -101,7 +101,7 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 5
+    private val burstSize = 10
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

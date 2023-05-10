@@ -2,6 +2,7 @@ package com.goldenratio.onepic.EditModule
 
 import android.graphics.Bitmap
 import android.util.Log
+import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -9,6 +10,12 @@ import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
 
 class ShakeLevelModule {
+
+    init {
+        val isIntialized = OpenCVLoader.initDebug()
+        Log.d("openCV", "isIntialized = $isIntialized")
+    }
+
     fun calculateSharpness(mat: Mat): Double {
         Log.d("anaylsos", "calculateSharpness start")
         // 이미지를 그레이스케일로 변환
@@ -16,13 +23,18 @@ class ShakeLevelModule {
         Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_BGR2GRAY)
 
         Log.d("anaylsos", "calculateSharpness gray")
-
         // 라플라시안 필터를 적용하여 샤프니스 계산
         val laplacianMat = Mat()
+        Log.d("anaylsos", "calculateSharpness map create")
         Imgproc.Laplacian(grayMat, laplacianMat, CvType.CV_64F)
+
         Log.d("anaylsos", "calculateSharpness Laplacian")
         val sharpness = Core.mean(laplacianMat)
         Log.d("anaylsos", "calculateSharpness sharpness")
+
+        mat.release()
+        grayMat.release()
+        laplacianMat.release()
         return sharpness.`val`[0]
     }
 
@@ -36,6 +48,7 @@ class ShakeLevelModule {
         Log.d("anaylsos", "shakeDetection start")
         val shakeLevelList = arrayListOf<Double>()
         var shakeMaxIndex = 0
+
         for (i in 0 until bitmapList.size) {
             Log.d("anaylsos", "for $i start")
             val map = bitmapToMat(bitmapList[i])
@@ -49,6 +62,13 @@ class ShakeLevelModule {
                     shakeMaxIndex = i
                 }
         }
+
+        val ratioMulti = (2.0/shakeLevelList[shakeMaxIndex])
+
+        for(i in 0 until shakeLevelList.size) {
+            shakeLevelList[i] = shakeLevelList[i] * ratioMulti
+        }
+
         return shakeLevelList
     }
 }

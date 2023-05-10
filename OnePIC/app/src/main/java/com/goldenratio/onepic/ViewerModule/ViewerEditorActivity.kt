@@ -2,31 +2,21 @@ package com.goldenratio.onepic.ViewerModule
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
-
-import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.PictureModule.MCContainer
-
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
-import com.goldenratio.onepic.R
+import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.databinding.ActivityViewerEditorBinding
 
 
@@ -54,9 +44,28 @@ class ViewerEditorActivity : AppCompatActivity() {
         var MCContainer : MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                1
+            )
+        } else {
+            // Android 10 이하 버전에서는 WRITE_EXTERNAL_STORAGE 권한만 요청하면 됨
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 이미 허용됨
+                getAllPhotos() // 갤러리 이미지 uri 가져오기
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+            }
+        }
+
         /* 권한 요청 - Register the AppPermissionObserver */
-        appPermissionObserver = AppPermissionObserver(this)
-        lifecycle.addObserver(appPermissionObserver)
+        //appPermissionObserver = AppPermissionObserver(this)
+        //lifecycle.addObserver(appPermissionObserver)
 
     }
 
@@ -88,30 +97,63 @@ class ViewerEditorActivity : AppCompatActivity() {
     }
 
     private fun getAllPhotos(){ // 사진 경로(File Path) 가져오기
-        val cursor = contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null,
-            null,
-            null,
-            MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
 
-        val uriList = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            val begin = System.currentTimeMillis()
+            val cursor = contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.Images.Media._ID),
+                null,
+                null,
+                "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
+            )
 
-        if(cursor!=null){
-            while(cursor.moveToNext()){
-                // 사진 경로 FilePath 가져오기
-                val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-                uriList.add(uri)
+            val uriList = mutableListOf<String>()
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                    val uri = ContentUris.withAppendedId(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        id
+                    ).toString()
+                    uriList.add(uri)
+                }
+                cursor.close()
+                jpegViewModels.updateImageUriData(uriList)
             }
-            cursor.close()
-            jpegViewModels.updateImageUriData(uriList)
+            val end = System.currentTimeMillis()
+            println("Elapsed time in milliseconds: ${end-begin}")
+            println("is this real? : ${uriList.size}")
         }
+        else {
+            val cursor = contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null,
+                null,
+                null,
+                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC")
+
+            val uriList = mutableListOf<String>()
+
+            if(cursor!=null){
+                while(cursor.moveToNext()){
+                    // 사진 경로 FilePath 가져오기
+                    val uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
+                    uriList.add(uri)
+                }
+                cursor.close()
+                jpegViewModels.updateImageUriData(uriList)
+            }
+
+        }
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         // Remove the AppPermissionObserver
-        lifecycle.removeObserver(appPermissionObserver)
+        //lifecycle.removeObserver(appPermissionObserver)
     }
 
 }
