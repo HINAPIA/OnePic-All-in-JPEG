@@ -10,28 +10,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/AimetaData.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/audioImage.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/playStart.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/test.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/file.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/AudioModule/AudioResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/AudioModule/AudioResolver.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AiContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AiContainer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/textImage.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/textImage.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/audio/record.aac" beforeDir="false" afterPath="$PROJECT_DIR$/src/audio/record.aac" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/AiContainerSingleton.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/AiContainerSingleton.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$2$1.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$3.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1$1.class" afterDir="false" />
@@ -40,13 +41,8 @@
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1$picturesHBox$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1$picturesHBox$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener$onChanged$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/PictureListChangeListener.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/SubImagesView.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer$setImageContent$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer$setImageContent$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/PictureModule/AiContainer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tornadofx-maven-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tornadofx-maven-project.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,8 +59,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
-        <option value="Kotlin Class" />
         <option value="FxmlFile" />
+        <option value="Kotlin Class" />
+        <option value="TornadoFX Code View" />
       </list>
     </option>
   </component>
@@ -209,10 +206,13 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/yujin/Documents/GitHub/OnePIC/Desktop/Viewer/src/main/kotlin/com/example/demo/app&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/yujin/Documents/GitHub/OnePIC/Desktop/Viewer&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -234,22 +234,6 @@
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <module />
     </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
-      <node-interpreter value="project" />
-      <working-dir value="" />
-      <envs />
-      <scope-kind value="ALL" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
-      <config-file value="" />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
-      <method />
-    </configuration>
     <configuration default="true" type="TORNADOFX_RUNCONFIGURATION" factoryName="TornadoFX Configuration Factory" run-type="App" live-views="false" live-stylesheets="false" dump-stylesheets="false">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="RUN_TYPE" value="App" />
@@ -269,20 +253,14 @@
       <module name="tornadofx-maven-project" />
       <envs />
     </configuration>
-    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+    <configuration default="true" type="js.build_tools.gulp">
       <node-interpreter>project</node-interpreter>
       <node-options />
       <gulpfile />
       <tasks />
       <arguments />
       <envs />
-    </configuration>
-    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
-      <command value="run" />
-      <scripts />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
+      <method v="2" />
     </configuration>
     <configuration default="true" type="osgi.bnd.run" factoryName="Run Launcher">
       <method />
@@ -373,6 +351,8 @@
       <workItem from="1513798853679" duration="38000" />
       <workItem from="1513798964802" duration="21000" />
       <workItem from="1517468649479" duration="15000" />
+      <workItem from="1683732611416" duration="57000" />
+      <workItem from="1683732672411" duration="78000" />
     </task>
     <servers />
   </component>
@@ -419,7 +399,7 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -433,13 +413,8 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt</url>
-          <line>40</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt</url>
-          <line>188</line>
+          <line>190</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
@@ -452,8 +427,17 @@
           <line>87</line>
           <option name="timeStamp" value="23" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt</url>
+          <line>56</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

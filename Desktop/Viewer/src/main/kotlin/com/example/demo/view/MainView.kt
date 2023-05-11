@@ -60,12 +60,16 @@ class ImageViewer : View() {
                             val image = Image(selectedFile.toURI().toString())
                             mainImageView.setImage(image, orientation)
                             subImagesView.setPictureList(aiContainer.imageContent.pictureList)
+                            editView.update()
                         }
-
                     }
+
                 }
             }
         }
+
+
+
         // 이미지를 띄어주는 뷰
         left = mainImageView.root
         right = editView.root
@@ -84,7 +88,6 @@ class ImageViewer : View() {
         editView.root.setPrefSize(300.0, 900.0)
         // bottom
         //subImagesView.root.setPrefSize(900.0, 250.0)
-
 
         // BorderPane의 크기를 조정할 때 left, right 팬의 너비를 조절합니다.
 

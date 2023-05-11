@@ -70,6 +70,7 @@ class MainImageView : View(){
         }
     }
 
+
     fun setImage(image : Image, rotation : Int){
         var angle : Int = 360 - rotation
         var bufferedImage = SwingFXUtils.fromFXImage(image, null)

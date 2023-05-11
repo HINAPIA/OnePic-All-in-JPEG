@@ -36,6 +36,7 @@ class EditView : View(){
     private val aiMetaDataImageView : ImageView = ImageView()
     private val aiTextField : Label = Label("")
     private lateinit var aiScrollPane : ScrollPane
+    private val aimetaDataView : AimetaDataView by inject()
 
 
     override val root = stackpane {
@@ -46,114 +47,115 @@ class EditView : View(){
             textImageView.image = image
         }
 
-        imageFileLoad()
-
-        vbox {
-            label("Ebedded Data"){
-                stackpaneConstraints { // stackpaneConstraints를 사용하여 위치와 크기 설정
-                    //alignment = Pos.CENTER
-                    // 전체 너비로
-                    prefWidthProperty().bind(this@stackpane.widthProperty() as ObservableValue<out Number>)
-                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(14)) // 부모 팬의 1/14 크기로 설정
-                }
-                style {
-                    backgroundColor =  MultiValue(arrayOf(c("#5DCBFA")))// 배경색 파란색
-                    padding = box(5.px) // 내부 여백 설정
-                    textFill = Color.WHITE // 글자 색상 흰색
-                    font = Font.font("Arial", FontWeight.BOLD, 10.0)
-                }
-            }
-            spacing = (10).toDouble()
-
-            // Text - image
-            vbox {
-                add(textImageView)
-                textImageView.fitHeight = 17.0
-                textImageView.fitWidth = 53.0
-                add(textContentLabel)
-                spacing = (10).toDouble()
-                padding = insets(10)
-                stackpaneConstraints {
-                    textContentLabel.prefHeightProperty().bind(this@stackpane.heightProperty().divide(6))
-                    textContentLabel.prefWidthProperty().bind(this@stackpane.heightProperty())
-                    textContentLabel.background = Background(BackgroundFill(c("#1A1A1A"), null, null))
-                    //textContentLabel.text = "dksidfjsld k"
-                }
-            }
-
-            // Audio
-            vbox{
-                add(audioImageView)
-                audioImageView.fitHeight = 21.0
-                audioImageView.fitWidth = 63.0
-                //if(AudioResolver.isOn){
-                vbox {
-                    //audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()-30)
-                   // audioResolver.mediaView.fitHeight = 50.0
-                    //TODO("파일 선택 한번 하면 나타나도록)
-//                    audioResolver.prepare()
-//                    audioResolver.play()
+         imageFileLoad()
 //
-//                    add(audioResolver.mediaView)
-//                    audioResolver.mediaView.fitWidth = 100.0 // 부모 노드의 너비에서 30을 빼서 MediaView의 크기를 설정합니다.
-//                    audioResolver.mediaView.fitHeight = 50.0 // MediaView의 높이를 50으로 설정합니다
-
-                    add(audioPlayStartImageView)
-                    audioPlayStartImageView.setOnMouseClicked {
-                        audioResolver.play()
-                    }
-                    audioPlayStartImageView.fitHeight = 30.0
-                    audioPlayStartImageView.fitWidth = 30.0
-                    this@vbox.alignment = Pos.CENTER
-
-
-                }
-
-                stackpaneConstraints {
-                  //  audioResolver.mediaView.fitHeightProperty().bind(this@stackpane.heightProperty().divide(6))
-                  //  audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()/2)
-
-                  //  audioPlayStartImageView.fitWidthProperty().bind(this@stackpane.widthProperty().divide(10))
-                  //  audioPlayStartImageView.fitHeightProperty().bind(this@stackpane.heightProperty().divide(10))
-                //audioResolver.mediaView.background = Background(BackgroundFill(c("#1A1A1A"), null, null))
-                    //textContentLabel.text = "dksidfjsld k"
-
-                }
-                padding = insets(10)
-            }
+        vbox {
+//            label("Ebedded Data"){
+//                stackpaneConstraints { // stackpaneConstraints를 사용하여 위치와 크기 설정
+//                    //alignment = Pos.CENTER
+//                    // 전체 너비로
+//                    prefWidthProperty().bind(this@stackpane.widthProperty() as ObservableValue<out Number>)
+//                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(14)) // 부모 팬의 1/14 크기로 설정
+//                }
+//                style {
+//                    backgroundColor =  MultiValue(arrayOf(c("#5DCBFA")))// 배경색 파란색
+//                    padding = box(5.px) // 내부 여백 설정
+//                    textFill = Color.WHITE // 글자 색상 흰색
+//                    font = Font.font("Arial", FontWeight.BOLD, 10.0)
+//                }
+//            }
+//            spacing = (10).toDouble()
+//
+//            // Text - image
+//            vbox {
+//                add(textImageView)
+//                textImageView.fitHeight = 17.0
+//                textImageView.fitWidth = 53.0
+//                add(textContentLabel)
+//                spacing = (10).toDouble()
+//                padding = insets(10)
+//                stackpaneConstraints {
+//                    textContentLabel.prefHeightProperty().bind(this@stackpane.heightProperty().divide(6))
+//                    textContentLabel.prefWidthProperty().bind(this@stackpane.heightProperty())
+//                    textContentLabel.background = Background(BackgroundFill(c("#1A1A1A"), null, null))
+//                    //textContentLabel.text = "dksidfjsld k"
+//                }
+//            }
+//
+//            // Audio
+//            vbox{
+//                add(audioImageView)
+//                audioImageView.fitHeight = 21.0
+//                audioImageView.fitWidth = 63.0
+//                //if(AudioResolver.isOn){
+//                vbox {
+//                    //audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()-30)
+//                   // audioResolver.mediaView.fitHeight = 50.0
+//                    //TODO("파일 선택 한번 하면 나타나도록)
+////                    audioResolver.prepare()
+////                    audioResolver.play()
+////
+////                    add(audioResolver.mediaView)
+////                    audioResolver.mediaView.fitWidth = 100.0 // 부모 노드의 너비에서 30을 빼서 MediaView의 크기를 설정합니다.
+////                    audioResolver.mediaView.fitHeight = 50.0 // MediaView의 높이를 50으로 설정합니다
+//
+//                    add(audioPlayStartImageView)
+//                    audioPlayStartImageView.setOnMouseClicked {
+//                        audioResolver.play()
+//                    }
+//                    audioPlayStartImageView.fitHeight = 30.0
+//                    audioPlayStartImageView.fitWidth = 30.0
+//                    this@vbox.alignment = Pos.CENTER
+//
+//
+//                }
+//
+//                stackpaneConstraints {
+//                  //  audioResolver.mediaView.fitHeightProperty().bind(this@stackpane.heightProperty().divide(6))
+//                  //  audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()/2)
+//
+//                  //  audioPlayStartImageView.fitWidthProperty().bind(this@stackpane.widthProperty().divide(10))
+//                  //  audioPlayStartImageView.fitHeightProperty().bind(this@stackpane.heightProperty().divide(10))
+//                //audioResolver.mediaView.background = Background(BackgroundFill(c("#1A1A1A"), null, null))
+//                    //textContentLabel.text = "dksidfjsld k"
+//
+//                }
+//                padding = insets(10)
+//            }
 
 
             // Ai MeataData
             vbox {
                 add(aiMetaDataImageView)
+                aiMetaDataImageView.fitHeight = 30.0
+                aiMetaDataImageView.fitWidth = 95.0
+
                 aiScrollPane = ScrollPane()
                 add(aiScrollPane)
                 padding = insets(10)
 
                 aiScrollPane.apply{
 
-                    content = borderpane{
-                        vbox{
-                            add(aiTextField)
-                            aiMetaDataImageView.fitHeight = 30.0
-                            aiMetaDataImageView.fitWidth = 95.0
+                    content = stackpane{
 
-                            //aiTextField.prefHeightProperty().bind(this@stackpane.heightProperty().divide(2))
-                            //aiTextField.prefWidthProperty().bind(this@stackpane.widthProperty())
-                            aiTextField.background = Background(BackgroundFill(c("#1A1A1A"), null, null))
-                            stackpaneConstraints {
+                        add(aimetaDataView.root)
+//                        aimetaDataView.root.prefWidth = 600.0 // aimetaDataView의 폭 지정
+//                        aimetaDataView.root.prefHeight = 400.0 // aimetaDataView의 높이 지정
 
-                            }
-                            padding = insets(10)
 
-                        }
+                        aimetaDataView.root.prefWidthProperty().bind(this@apply.widthProperty())
+                        aimetaDataView.root.prefHeightProperty().bind(this@apply.heightProperty())
+                        prefWidthProperty().bind(this@apply.widthProperty()-10)
+                        prefHeightProperty().bind(this@apply.heightProperty()-10)
                         style{
-                            backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+                            backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
                         }
                     }
-
-                    vbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
-                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(2))
+                    // 수직 스크롤
+                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+                    // 스크롤 팬의 크기 지정
+                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
                     prefWidthProperty().bind(this@stackpane.widthProperty())
                     //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
                     style{
@@ -203,6 +205,9 @@ class EditView : View(){
         }
     }
 
+    fun update(){
+        aimetaDataView.update()
+    }
     fun imageFileLoad(){
         // AUDIO 텍스트 그림
         val audioImageUrl =  File("src/main/kotlin/com/example/demo/resource/audioImage.png").toURI().toURL()

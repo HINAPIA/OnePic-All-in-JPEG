@@ -4,21 +4,5 @@
     <facet type="TornadoFX" name="TornadoFX">
       <configuration />
     </facet>
-    <facet type="kotlin-language" name="Kotlin">
-      <configuration version="2" platform="JVM 1.8" allPlatforms="JVM [1.8]" useProjectSettings="false">
-        <compilerSettings />
-        <compilerArguments>
-          <option name="jvmTarget" value="1.8" />
-          <option name="languageVersion" value="1.8" />
-          <option name="apiVersion" value="1.8" />
-          <option name="pluginClasspaths">
-            <array />
-          </option>
-          <option name="pluginOptions">
-            <array />
-          </option>
-        </compilerArguments>
-      </configuration>
-    </facet>
   </component>
 </module>
