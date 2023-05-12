@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage
 
 
 class MainImageView : View(){
-    private val imageView:ImageView = ImageView()
+    val imageView:ImageView = ImageView()
     val subImagesView : SubImagesView by inject()
     val metaVBox : VBox = VBox()
     override val root = borderpane {
@@ -30,22 +30,22 @@ class MainImageView : View(){
                    // backgroundColor = MultiValue(arrayOf(Color.web("#000000")))
                 }
                 setAlignment(Pos.CENTER)
-            }
+           }
         }
 
-        bottom{
-            vbox{
-                children.add(subImagesView.root)
-                setPrefSize(900.0, 200.0)
-                style{
-                    border = Border(BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths(2.0, 0.0, 0.0, 0.0)))
-                    //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
-                }
-                setAlignment(Pos.CENTER)
-            }
-
-
-        }
+//        bottom{
+//            vbox{
+//                children.add(subImagesView.root)
+//                setPrefSize(900.0, 200.0)
+//                style{
+//                    border = Border(BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths(2.0, 0.0, 0.0, 0.0)))
+//                    //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
+//                }
+//                setAlignment(Pos.CENTER)
+//            }
+//
+//
+//        }
 
 
        // subImagesView.root.setPrefSize(900.0, 300.0)
@@ -66,6 +66,14 @@ class MainImageView : View(){
                 imageView.fitWidth = Math.min(newImage.width, primaryStage.width * 0.6)
                 imageView.fitHeight = Math.min(newImage.height, primaryStage.height * 0.6)
                 imageView.isPreserveRatio = true
+
+                val leftPadding = (primaryStage.width - imageView.fitWidth) / 2
+                imageView.style {
+                    padding = box(0.0.px, Dimension((primaryStage.width/2)-(imageView.fitWidth)/2, Dimension.LinearUnits.px),
+                        0.0.px, Dimension((primaryStage.width/2)-(imageView.fitWidth)/2, Dimension.LinearUnits.px))
+
+                }
+                println("primaryStage.width-imageView.fitWidth :${(primaryStage.width/2)-(imageView.fitWidth)/2}")
             }
         }
     }

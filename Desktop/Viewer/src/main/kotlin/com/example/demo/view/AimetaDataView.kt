@@ -62,8 +62,9 @@ class AimetaDataView : View() {
 //                add(createHbox("Image Content", "100", 30.0))
 //                add(createHbox("    Count", "100", 30.0))
 
+
                 style{
-                   // background = Background(BackgroundFill(c("#FFFFFF"), null, null))
+                    background = Background(BackgroundFill(c("#232323"), null, null))
                   //  textFill = c("#000000") // 글자 색상 흰색
 
                 }

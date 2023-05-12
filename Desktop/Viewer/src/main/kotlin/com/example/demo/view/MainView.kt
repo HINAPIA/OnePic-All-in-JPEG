@@ -27,13 +27,11 @@ object AiContainerSingleton {
 class ImageViewer : View() {
     // ViewModel
     val imageTool = ImageTool()
-
+    val centerView : CenterView by inject()
 
     val aiContainer : AiContainer = AiContainerSingleton.aiContainer
     val loadResolver : LoadResolver = LoadResolver()
-    val mainImageView : MainImageView by inject()
-    val editView : EditView by inject()
-    val subImagesView : SubImagesView by inject()
+
 
     override val root = borderpane {
         //메뉴바
@@ -44,7 +42,7 @@ class ImageViewer : View() {
                     val selectedFile = chooseFile("Select file to open",
                         arrayOf(FileChooser.ExtensionFilter("Image Files",  "*.jpg", "*.jpeg")))
                         .firstOrNull()
-                    subImagesView.viewClear()
+                    centerView.subImagesView.viewClear()
                     // 선택된 파일에 대한 처리
                     if (selectedFile != null) {
                         var byteArray = Files.readAllBytes(selectedFile.toPath())
@@ -58,39 +56,45 @@ class ImageViewer : View() {
 
                             var orientation = imageTool.getOrientation(firstImageBytes)
                             val image = Image(selectedFile.toURI().toString())
-                            mainImageView.setImage(image, orientation)
-                            subImagesView.setPictureList(aiContainer.imageContent.pictureList)
-                            editView.update()
+                            centerView.mainImageView.setImage(image, orientation)
+                            centerView.subImagesView.setPictureList(aiContainer.imageContent.pictureList)
+                            centerView.editView.update()
                         }
                     }
 
                 }
             }
+
+            center = centerView.root
+            centerView.root.setPrefSize(1200.0, 700.0)
+//                hbox{
+//                    // left
+//                    mainImageView.root.setPrefSize(900.0, 700.0)
+//                    // right
+//                    editView.root.setPrefSize(300.0, 700.0)
+//                }
+//                hbox{
+//                    // bottom
+//                    subImagesView.root.setPrefSize(1200.0, 200.0)
+//                }
+//
+//            }
         }
 
 
-
         // 이미지를 띄어주는 뷰
-        left = mainImageView.root
-        right = editView.root
-       // bottom = subImagesView.root
+//        left = mainImageView.root
+//        right = editView.root
+//        bottom = subImagesView.root
 
         setPrefSize(1200.0, 900.0) // 전체 크기를 1200x900으로 지정
-//        // left
-//        mainImageView.root.setPrefSize(730.0, 800.0)
-//        // bottom
-//        subImagesView.root.setPrefSize(730.0, 200.0)
-//        // right
-//        editView.root.setPrefSize(270.0, 1.0)
-        // left
-        mainImageView.root.setPrefSize(900.0, 900.0)
-        // right
-        editView.root.setPrefSize(300.0, 900.0)
-        // bottom
-        //subImagesView.root.setPrefSize(900.0, 250.0)
+
+
 
         // BorderPane의 크기를 조정할 때 left, right 팬의 너비를 조절합니다.
 
     }
+
+
 
 }

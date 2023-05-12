@@ -135,18 +135,9 @@ class EditView : View(){
                 padding = insets(10)
 
                 aiScrollPane.apply{
-
                     content = stackpane{
 
                         add(aimetaDataView.root)
-//                        aimetaDataView.root.prefWidth = 600.0 // aimetaDataView의 폭 지정
-//                        aimetaDataView.root.prefHeight = 400.0 // aimetaDataView의 높이 지정
-
-
-                        aimetaDataView.root.prefWidthProperty().bind(this@apply.widthProperty())
-                        aimetaDataView.root.prefHeightProperty().bind(this@apply.heightProperty())
-                        prefWidthProperty().bind(this@apply.widthProperty()-10)
-                        prefHeightProperty().bind(this@apply.heightProperty()-10)
                         style{
                             backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
                         }
@@ -154,6 +145,7 @@ class EditView : View(){
                     // 수직 스크롤
                     vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
                     hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+
                     // 스크롤 팬의 크기 지정
                     prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
                     prefWidthProperty().bind(this@stackpane.widthProperty())
@@ -164,12 +156,12 @@ class EditView : View(){
                 }
 
                 ///lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-                Platform.runLater {
-                    val viewport = aiScrollPane.lookup(".viewport")
-                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
-                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
-
-                }
+//                Platform.runLater {
+//                    val viewport = aiScrollPane.lookup(".viewport")
+//                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
+//                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
+//
+//                }
             }
 
 

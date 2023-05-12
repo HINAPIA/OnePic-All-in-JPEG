@@ -10,27 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/test.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/file.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/audio/record.aac" beforeDir="false" afterPath="$PROJECT_DIR$/src/audio/record.aac" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1$1$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$2.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1$4.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/EditView$root$1.class" afterDir="false" />
@@ -41,8 +30,14 @@
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer$root$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/ImageViewer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2$1$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView$root$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/MainImageView.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tornadofx-maven-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tornadofx-maven-project.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,8 +55,8 @@
       <list>
         <option value="Class" />
         <option value="FxmlFile" />
-        <option value="Kotlin Class" />
         <option value="TornadoFX Code View" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
@@ -414,7 +409,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt</url>
-          <line>190</line>
+          <line>182</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
