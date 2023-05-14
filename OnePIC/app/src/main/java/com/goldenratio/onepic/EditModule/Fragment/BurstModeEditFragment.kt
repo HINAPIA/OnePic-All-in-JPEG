@@ -1,14 +1,13 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.RewindModule
@@ -24,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.opencv.core.*
 
 
 class BurstModeEditFragment : Fragment() {
@@ -43,11 +41,25 @@ class BurstModeEditFragment : Fragment() {
 
     private lateinit var mainSubView: View
 
-    @SuppressLint("MissingInflatedId")
+    private lateinit var checkFinish: BooleanArray
+
+    private var infoLevel = MutableLiveData<InfoLevel>()
+
+    enum class InfoLevel {
+        BeforeMainSelect,
+        AfterMainSelect
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // 상태바 색상 변경
+        val window: Window = activity?.window
+            ?: throw IllegalStateException("Fragment is not attached to an activity")
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+
         // 뷰 바인딩 설정
         binding = FragmentBurstModeEditBinding.inflate(inflater, container, false)
 
@@ -58,6 +70,8 @@ class BurstModeEditFragment : Fragment() {
 
         mainPicture = imageContent.mainPicture
         pictureList = imageContent.pictureList
+
+        checkFinish = BooleanArray(pictureList.size)
 
         CoroutineScope(Dispatchers.Main).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
@@ -115,12 +129,34 @@ class BurstModeEditFragment : Fragment() {
                 }
             }
         }
+        binding.choiseMainBtn.setOnClickListener {
+            viewBestImage()
+        }
 
 //        Thread.sleep(3000)
         Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
         if(imageContent.activityType == ActivityType.Viewer) {
+            infoLevel.value = InfoLevel.BeforeMainSelect
             setSubImage()
+            infoLevel.observe(viewLifecycleOwner){ _ ->
+                infoTextView()
+            }
         }
+        else {
+            infoLevel.value = InfoLevel.AfterMainSelect
+            infoTextView()
+        }
+
+        // info 확인
+        binding.burstInfoBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+        }
+
+        // info 삭제
+        binding.dialogCloseBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, false)
+        }
+
         viewBestImage()
 
         return binding.root
@@ -151,7 +187,7 @@ class BurstModeEditFragment : Fragment() {
                             .into(cropImageView)
                     }
 
-                    if (mainIndex == 0) {
+                    if (mainIndex == i) {
                         imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                         mainSubView = subLayout.findViewById(R.id.checkMainIcon)
                     }
@@ -160,12 +196,11 @@ class BurstModeEditFragment : Fragment() {
                         mainPicture = pictureList[i]
                         imageToolModule.showView(mainSubView, false)
                         CoroutineScope(Dispatchers.Main).launch {
+                            infoLevel.value = InfoLevel.AfterMainSelect
                             // 메인 이미지 설정
-                            withContext(Dispatchers.Main) {
                                 Glide.with(binding.burstMainView)
                                     .load(imageContent.getJpegBytes(mainPicture))
                                     .into(binding.burstMainView)
-                            }
                         }
                         imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                         mainSubView = subLayout.findViewById(R.id.checkMainIcon)
@@ -199,15 +234,26 @@ class BurstModeEditFragment : Fragment() {
                 val analysisResults = arrayListOf<Double>()
 
                 var bestImageIndex = 0
+
+                if (!checkFinish.all { it }) {
+                    checkFinish = BooleanArray(pictureList.size)
+                }
+                for(i in 0 until bitmapList.size) {
+                    if(!checkFinish[i]) {
+                        bestImageIndex = i
+                        break
+                    }
+                }
+
                 for(i in 0 until bitmapList.size) {
                     Log.d("anaylsis", "[$i] = faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
                     analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
                     analysisResults.add(faceDetectionResult[i].toDouble())
-                    if(analysisResults[bestImageIndex] < analysisResults[i]){
+                    if(!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]){
                         bestImageIndex = i
                     }
                 }
-
+                checkFinish[bestImageIndex] = true
                 println("bestImageIndex = $bestImageIndex")
 
                 withContext(Dispatchers.Main) {
@@ -227,9 +273,19 @@ class BurstModeEditFragment : Fragment() {
                 }
 
             }
-            CoroutineScope(Dispatchers.IO).launch {
+        }
+    }
 
+    fun infoTextView() {
+        Log.d("infoTextView","infoTextView call")
+        when (infoLevel.value) {
+            InfoLevel.BeforeMainSelect -> {
+                binding.infoText.text = "아래 사진을 선택해\n메인 이미지를 변경할 수 있습니다."
             }
+            InfoLevel.AfterMainSelect -> {
+                binding.infoText.text = "Choise Best버튼을 클릭해\n메인 이미지를 추천 받을 수 있습니다."
+            }
+            else -> {}
         }
     }
 

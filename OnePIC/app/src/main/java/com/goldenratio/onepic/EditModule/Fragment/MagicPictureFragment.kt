@@ -11,7 +11,9 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isEmpty
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
@@ -44,11 +46,25 @@ class MagicPictureFragment : RewindFragment() {
 
     private lateinit var context: Context
 
+    private var infoLevel = MutableLiveData(InfoLevel.EditFaceSelect)
+
+    private enum class InfoLevel {
+        EditFaceSelect,
+        MagicStart,
+        ArrowCheck,
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // 상태바 색상 변경
+        val window: Window = activity?.window
+            ?: throw IllegalStateException("Fragment is not attached to an activity")
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+
         context = requireContext()
 
         // 뷰 바인딩 설정
@@ -187,7 +203,6 @@ class MagicPictureFragment : RewindFragment() {
                     }
                 } else {
                     imageToolModule.showView(binding.progressBar, false)
-
                 }
             }
             return@setOnTouchListener true
@@ -196,6 +211,8 @@ class MagicPictureFragment : RewindFragment() {
         // magicPlayBtn 클릭했을 때: magic pricture 실행 (움직이게 하기)
         binding.magicPlayBtn.setOnClickListener {
             if (!checkMagicPicturePlay) {
+                infoLevel.value = InfoLevel.ArrowCheck
+
                 magicPictureRun(cropBitmapList)
                 binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
                 checkMagicPicturePlay = true
@@ -204,6 +221,20 @@ class MagicPictureFragment : RewindFragment() {
                 binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
                 checkMagicPicturePlay = false
             }
+        }
+
+        infoLevel.observe(viewLifecycleOwner){ _ ->
+            infoTextView()
+        }
+
+        // info 확인
+        binding.magicInfoBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+        }
+
+        // info 삭제
+        binding.dialogCloseBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
         return binding.root
@@ -309,28 +340,22 @@ class MagicPictureFragment : RewindFragment() {
                     )
                     cropBitmapList.add(newImage!!)
 
-//                    newImage = imageToolModule.circleCropBitmap(newImage!!)
-//                    // 크롭이미지 배열에 값 추가
-//
-//                    mainBitmap = imageToolModule.overlayBitmap(
-//                        mainBitmap,
-//                        newImage!!,
-//                        changeFaceStartX,
-//                        changeFaceStartY
-//                    )
-//
-//                    binding.magicMainView.setImageBitmap(mainBitmap)
-////                imageToolModule.showView(binding.arrowBar, true)
-//                }
-
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
                 binding.magicCandidateLayout.addView(candidateLayout)
             } catch (e: IllegalStateException) {
                 println(e.message)
             }
         }
+
+        newImage = imageToolModule.circleCropBitmap(cropBitmapList[0])
+        ovelapBitmap.add(
+            imageToolModule.overlayBitmap(
+                mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY
+            )
+        )
+
         imageToolModule.showView(binding.progressBar , false)
-//        imageToolModule.showView(binding.arrowBar, false)
+        infoLevel.value = InfoLevel.MagicStart
     }
     private fun magicPictureRun(cropBitmapList: ArrayList<Bitmap>) {
         ovelapBitmap.clear()
@@ -369,6 +394,11 @@ class MagicPictureFragment : RewindFragment() {
     }
 
     private fun moveCropFace(moveX:Int, moveY:Int) {
+        if(infoLevel.value != InfoLevel.EditFaceSelect) {
+            imageToolModule.showView(binding.infoDialogLayout, false)
+            infoLevel.value = InfoLevel.EditFaceSelect
+        }
+
         if(checkMagicPicturePlay) {
             handler.removeCallbacksAndMessages(null)
             binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
@@ -385,6 +415,22 @@ class MagicPictureFragment : RewindFragment() {
             )
 
             binding.magicMainView.setImageBitmap(ovelapBitmap[0])
+        }
+    }
+
+    override fun infoTextView() {
+        Log.d("infoTextView","infoTextView call")
+        when (infoLevel.value) {
+            InfoLevel.EditFaceSelect -> {
+                binding.infoText.text = "움직이길 원하는 얼굴을 누릅니다."
+            }
+            InfoLevel.MagicStart -> {
+                binding.infoText.text = "재생 버튼을 통해 움직임을 확인합니다."
+            }
+            InfoLevel.ArrowCheck -> {
+                binding.infoText.text = "얼굴의 위치는\n조정 바를 통해 수정할 수 있습니다."
+            }
+            else -> {}
         }
     }
 }

@@ -63,10 +63,12 @@ class ShakeLevelModule {
                 }
         }
 
-        val ratioMulti = (2.0/shakeLevelList[shakeMaxIndex])
+        if(shakeLevelList.size > 0) {
+            val ratioMulti = (2.0 / shakeLevelList[shakeMaxIndex])
 
-        for(i in 0 until shakeLevelList.size) {
-            shakeLevelList[i] = shakeLevelList[i] * ratioMulti
+            for (i in 0 until shakeLevelList.size) {
+                shakeLevelList[i] = shakeLevelList[i] * ratioMulti
+            }
         }
 
         return shakeLevelList

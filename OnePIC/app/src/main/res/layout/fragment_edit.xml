@@ -18,50 +18,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
+        <Button
             android:id="@+id/backBtn"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="-10dp"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
             android:background="@color/transparent_color"
-            android:scaleType="fitCenter"
-            android:src="@drawable/back_icon"
-            app:layout_constraintBottom_toTopOf="@+id/guideline5"
-            app:layout_constraintEnd_toStartOf="@+id/guideline8"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="@string/cancle_text"
+            android:textAlignment="textStart"
+            android:textColor="@color/point_color"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline6"
-            app:layout_constraintTop_toTopOf="@+id/guideline4"
-            app:tint="@color/main_color" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-        <ImageButton
+        <Button
             android:id="@+id/saveBtn"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="@color/transparent_color"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/save_icon"
-            android:textAlignment="textEnd"
-            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            android:layout_width="69dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/dark_purple"
+            android:text="@string/save_text"
+            android:textSize="18sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
-            app:layout_constraintStart_toStartOf="@+id/guideline9"
-            app:layout_constraintTop_toTopOf="@+id/guideline4"
-            app:tint="@color/main_color" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.25" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.75" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline6"
@@ -76,20 +59,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.97" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.12" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.88" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -120,8 +89,10 @@
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <ProgressBar
                 android:id="@+id/progressBar2"
@@ -207,6 +178,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.08" />
+        app:layout_constraintGuide_begin="75dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

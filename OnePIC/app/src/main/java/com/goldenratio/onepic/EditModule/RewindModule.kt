@@ -69,7 +69,11 @@ class RewindModule() {
                 modelCoroutine.add(CoroutineScope(Dispatchers.IO).launch {
                     Log.d("RewindModule", "start = $j")
                     // j 번째 사진 faces 정보 얻기
-                    faceArraylist[j] = runFaceContourDetection(bitmapList[j])
+                    try {
+                        faceArraylist[j] = runFaceContourDetection(bitmapList[j])
+                    }catch (e: IndexOutOfBoundsException){
+                        e.printStackTrace()
+                    }
                     Log.d("RewindModule", "end = $j")
                     checkFinish[j] = true
                 })
@@ -116,13 +120,26 @@ class RewindModule() {
      *        감지된 얼굴에 사각형 그리기
      */
     suspend fun runFaceDetection(index: Int): ArrayList<Face> = suspendCoroutine { bitmapResult ->
-
         // face Detection
         var faces: ArrayList<Face>
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("magic", "runFaceDetection !!!!!!!!!")
             faces = getFaces(index)
             Log.d("magic", "end runFaceDetection !!!!!!!!!")
+
+            Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
+            bitmapResult.resume(faces)
+            //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
+        }
+    }
+
+    suspend fun runMainFaceDetection(bitmap: Bitmap): ArrayList<Face> = suspendCoroutine { bitmapResult ->
+        // face Detection
+        var faces: ArrayList<Face>
+        CoroutineScope(Dispatchers.Default).launch {
+
+            faces = runFaceContourDetection(bitmap)
+            Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
             bitmapResult.resume(faces)
             //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
@@ -308,6 +325,7 @@ class RewindModule() {
         originalFaceLandmarks: List<FaceLandmark>,
         changeFaceLandmarks: List<FaceLandmark>
     ): Bitmap {
+
         val addStartY =
             ((changeFaceLandmarks[0].position.y - changeFaceLandmarks[3].position.y) / 2).toInt()
         val addEndY =
@@ -355,6 +373,7 @@ class RewindModule() {
 
                                 val eyes =
                                     if (checkFace.leftEyeOpenProbability!! > checkFace.rightEyeOpenProbability!!) {
+                                        checkFace.leftEyeOpenProbability!!
                                         checkFace.leftEyeOpenProbability!!
                                     } else {
                                         checkFace.rightEyeOpenProbability!!

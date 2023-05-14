@@ -55,6 +55,7 @@ class ImageContent {
         pictureList.clear()
         pictureCount = 0
         bitmapList.clear()
+        mainBitmap = null
         attributeBitmapList.clear()
         bitmapListAttribute = null
         activityType = null

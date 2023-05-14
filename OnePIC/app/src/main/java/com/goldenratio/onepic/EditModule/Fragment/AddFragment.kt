@@ -42,8 +42,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     private lateinit var imageToolModule : ImageToolModule
     private lateinit var mainPicture : Picture
 
-    protected val jpegViewModel by activityViewModels<JpegViewModel>()
-    protected lateinit var imageContent : ImageContent
+    private val jpegViewModel by activityViewModels<JpegViewModel>()
+    private lateinit var imageContent : ImageContent
 
     // audio
     var isAudioOn : Boolean = false
@@ -123,6 +123,17 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         binding.addCloseBtn.setOnClickListener {
             audioResolver.audioStop()
             findNavController().navigate(R.id.action_addFragment_to_editFragment)
+        }
+
+        // info 확인
+        binding.addInfoBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+
+        }
+
+        // info 삭제
+        binding.dialogCloseBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
         // text btn 클릭 시
@@ -505,7 +516,6 @@ class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFrag
             this.confirmDialogInterface?.onYesButtonClick(id!!)
             dismiss()
         }
-
         return view
     }
 

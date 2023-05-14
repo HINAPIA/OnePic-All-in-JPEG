@@ -25,5 +25,5 @@ local.properties
 */Makefile
 */cmake_install.cmake
 .DS_Store
-
+*/opencv/build/*
 # End of https://www.toptal.com/developers/gitignore/api/opencv
