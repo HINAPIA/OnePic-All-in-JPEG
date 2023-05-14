@@ -7,11 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="tornadofx-empty-maven-project" />
+        <module name="Viewer" />
         <module name="tornadofx-empty-project" />
-        <module name="tornadofx-maven-project" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="OnePic Viewer" target="1.7" />
       <module name="tornadofx-empty-maven-project" target="1.5" />
       <module name="tornadofx-empty-project" target="1.5" />
     </bytecodeTargetLevel>

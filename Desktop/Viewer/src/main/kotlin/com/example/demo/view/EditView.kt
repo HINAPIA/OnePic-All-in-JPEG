@@ -136,11 +136,7 @@ class EditView : View(){
 
                 aiScrollPane.apply{
                     content = stackpane{
-
                         add(aimetaDataView.root)
-                        style{
-                            backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
-                        }
                     }
                     // 수직 스크롤
                     vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
@@ -149,19 +145,19 @@ class EditView : View(){
                     // 스크롤 팬의 크기 지정
                     prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
                     prefWidthProperty().bind(this@stackpane.widthProperty())
-                    //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
+                   // lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
                     style{
                         backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
                     }
                 }
 
-                ///lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-//                Platform.runLater {
-//                    val viewport = aiScrollPane.lookup(".viewport")
-//                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
-//                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
-//
-//                }
+                //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
+                Platform.runLater {
+                    val viewport = aiScrollPane.lookup(".viewport")
+                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
+                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
+
+                }
             }
 
 
@@ -192,8 +188,8 @@ class EditView : View(){
 //        }
           style {
               backgroundColor = MultiValue(arrayOf(c("#232323")))
-              borderWidth += box(2.px)
-              borderColor += box(c("#000000"))
+//              borderWidth += box(2.px)
+//              borderColor += box(c("#000000"))
         }
     }
 

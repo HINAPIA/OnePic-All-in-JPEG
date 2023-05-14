@@ -29,35 +29,12 @@ class MainImageView : View(){
                 style{
                    // backgroundColor = MultiValue(arrayOf(Color.web("#000000")))
                 }
-                setAlignment(Pos.CENTER)
+               // setAlignment(Pos.CENTER)
            }
         }
-
-//        bottom{
-//            vbox{
-//                children.add(subImagesView.root)
-//                setPrefSize(900.0, 200.0)
-//                style{
-//                    border = Border(BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths(2.0, 0.0, 0.0, 0.0)))
-//                    //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
-//                }
-//                setAlignment(Pos.CENTER)
-//            }
-//
-//
-//        }
-
-
-       // subImagesView.root.setPrefSize(900.0, 300.0)
-
-
-        // imageView의 위치를 조정
-
-       // setMargin(imageView, Insets(10.0))
         style {
-            backgroundColor = MultiValue(arrayOf(Color.web("#232323")))
+            backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
         }
-
 
 
         // 이미지가 로드되면 fitWidth와 fitHeight를 설정
@@ -68,11 +45,6 @@ class MainImageView : View(){
                 imageView.isPreserveRatio = true
 
                 val leftPadding = (primaryStage.width - imageView.fitWidth) / 2
-                imageView.style {
-                    padding = box(0.0.px, Dimension((primaryStage.width/2)-(imageView.fitWidth)/2, Dimension.LinearUnits.px),
-                        0.0.px, Dimension((primaryStage.width/2)-(imageView.fitWidth)/2, Dimension.LinearUnits.px))
-
-                }
                 println("primaryStage.width-imageView.fitWidth :${(primaryStage.width/2)-(imageView.fitWidth)/2}")
             }
         }

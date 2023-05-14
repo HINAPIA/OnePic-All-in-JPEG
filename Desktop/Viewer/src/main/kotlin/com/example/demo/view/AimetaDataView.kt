@@ -21,25 +21,12 @@ class AimetaDataView : View() {
 
         padding = insets(0,0,0,10)
         spacing = 5.0
-//        add(createHbox("Data Field Length", "100", 30.0))
-//        add(createHbox("Image Content", "100", 30.0))
-//        add(createHbox("    Count", "100", 30.0))
-//        add(createHbox("Text Content", "100", 30.0))
-//
-//        add(createHbox("Audio Content", "100", 30.0))
-//        add(createHbox("    Size", "100", 30.0))
-//
-//
-
-
             style{
                 background = Background(BackgroundFill(c("#1A1A1A"), null, null))
                 textFill = c("#FFFFFF") // 글자 색상 흰색
                 font = Font.font("Arial", FontWeight.NORMAL, 11.0)
             }
 
-//        prefWidth = 600.0
-//        prefHeight = 400.0
     }
 
     fun update(){
@@ -61,10 +48,8 @@ class AimetaDataView : View() {
                 add(audioContentView())
 //                add(createHbox("Image Content", "100", 30.0))
 //                add(createHbox("    Count", "100", 30.0))
-
-
                 style{
-                    background = Background(BackgroundFill(c("#232323"), null, null))
+                    background = Background(BackgroundFill(c("#1A1A1A"), null, null))
                   //  textFill = c("#000000") // 글자 색상 흰색
 
                 }
