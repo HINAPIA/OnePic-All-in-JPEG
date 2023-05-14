@@ -109,8 +109,8 @@
 
         <ImageButton
             android:id="@+id/rewindInfoBtn"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_marginStart="8dp"
             android:background="@color/transparent_color"
             android:scaleType="fitCenter"
@@ -119,7 +119,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/rewindOption"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/information_icon"
+            app:srcCompat="@drawable/info_icon"
             app:tint="@color/info_color" />
 
 
