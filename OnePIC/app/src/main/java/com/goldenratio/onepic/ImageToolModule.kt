@@ -251,7 +251,11 @@ class ImageToolModule {
         return Point(newPointX.toInt(), newPointY.toInt())
     }
 
-    fun getFitCenterPaddingValue(imageView: ImageView, bitmap: Bitmap): Int {
+    fun getFitCenterPaddingValue(imageView: ImageView): Int {
+
+        if(imageView.drawable == null) return 0
+
+        val bitmap: Bitmap = imageView.drawable.toBitmap()
 
         // imageView width, height 가져오기
         val viewWidth = imageView.width
