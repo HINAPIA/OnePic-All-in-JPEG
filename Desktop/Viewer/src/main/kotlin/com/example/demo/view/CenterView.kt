@@ -1,5 +1,6 @@
 package com.example.demo.view
 
+import com.example.demo.app.ImageTool
 import com.example.demo.view.AiContainerSingleton.aiContainer
 import com.goldenratio.onepic.PictureModule.AiContainer
 import com.madgag.gif.fmsware.AnimatedGifEncoder
@@ -14,10 +15,13 @@ import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
+import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import javafx.util.Duration
 import tornadofx.*
 import java.awt.image.BufferedImage
@@ -32,12 +36,13 @@ class CenterView : View() {
 
     val aiContainer : AiContainer = AiContainerSingleton.aiContainer
     //val mainImageView : MainImageView by inject()
-    val editView : EditView by inject()
-    val subImagesView : SubImagesView by inject()
+    val editView : EditView =EditView(this)
+    val subImagesView : SubImagesView = SubImagesView(this)
     val mainImageView: ImageView =ImageView()
 
    // val analysisButton = Button()
     var analysisButton : ImageView = ImageView()
+    var analysisLabel : Label = Label()
 
     val rightImageView: ImageView = ImageView()
     val gifImageVeiew : ImageView = ImageView()
@@ -47,9 +52,131 @@ class CenterView : View() {
 
     lateinit var preAnalsImage : Image
     lateinit var analsImage : Image
+
+    var imageOrientation : Int = 0
+    var imageTool = ImageTool()
+    var fileImageView = ImageView()
+    var fileNameLabel = Label()
+
     override val root = stackpane{
+        // '분석하기' 버튼
+        addAnalysisButton()
+        StackPane.setAlignment(analysisButton, Pos.BOTTOM_RIGHT)
+        StackPane.setMargin(analysisButton, Insets(0.0, 70.0, 100.0, 50.0))
+        // '분석 중 Text
+        analysisLabel.apply{
+            text = "분석 중. . ."
+            style{
+                textFill = c("#FFFFFF") // 글자 색상 흰색
+                font = Font.font("Inter", FontWeight.EXTRA_BOLD, 25.0)
+            }
+            StackPane.setAlignment(this, Pos.CENTER)
+            StackPane.setMargin(this, Insets(150.0, 0.0, 0.0, 00.0))
+            isVisible = false
+        }
+
+        // gifImageView
+        gifImageVeiew.fitWidth = 100.0
+        gifImageVeiew.isPreserveRatio = true
+        StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 100.0, 00.0))
+
+        //file name label
+        fileNameLabel.apply{
+            text = "김유진.jpeg"
+            style{
+                textFill = c("#FFFFFF") // 글자 색상 흰색
+                font = Font.font("Inter", FontWeight.BOLD, 20.0)
+            }
+            StackPane.setAlignment(this, Pos.CENTER)
+            //StackPane.setMargin(this, Insets(150.0, 0.0, 0.0, 00.0))
+            isVisible = false
+        }
 
 
+        // subImageView 위치 조정
+        subImagesView.root.maxWidth = 900.0
+        subImagesView.root.maxHeight = 180.0
+        subImagesView.root.isVisible = false
+        StackPane.setMargin(subImagesView.root, Insets(0.0, 0.0, 20.0, 0.0))
+        StackPane.setAlignment(subImagesView.root, Pos.BOTTOM_CENTER)
+
+        //editView 위치 조정
+        editView.root.setMaxSize(315.0, 530.0)
+        editView.root.setMinSize(315.0, 530.0)
+        editView.root.isVisible = false
+        StackPane.setAlignment(editView.root, Pos.CENTER_RIGHT)
+        StackPane.setMargin(editView.root, Insets(00.0, 60.0, 80.0, 0.0))
+
+        fileImageView.apply{
+            image =  Image(File(imageSourcePath+ "file.png").toURI().toURL().toExternalForm())
+            isVisible = false
+        }
+
+        // Main image View
+        children.add(mainImageView)
+        children.add(fileImageView)
+        children.add(gifImageVeiew)
+        children.add(fileNameLabel)
+        children.add(analysisButton)
+        children.add(subImagesView.root)
+        children.add(editView.root)
+        children.add(analysisLabel)
+
+
+        style {
+            backgroundColor = MultiValue(arrayOf(c("#232323")))
+        }
+
+
+        // 이미지가 로드되면 fitWidth와 fitHeight를 설정
+        mainImageView.imageProperty().addListener { _, _, newImage ->
+            if (newImage != null) {
+                mainImageView.isPreserveRatio = true
+//                mainImageView.fitWidthProperty().bind(primaryStage.widthProperty().multiply(0.5));
+//
+              //  mainImageView.fitHeight = Region.USE_COMPUTED_SIZE
+
+                style {
+                    backgroundColor = MultiValue(arrayOf(c("#232323")))
+                }
+            }
+        }
+    }
+    fun setMainImage(image : Image, rotation : Int){
+        var newImage = imageTool.rotaionImage(image, rotation)
+        mainImageView.image = newImage
+        mainImageView.fitWidthProperty().bind(primaryStage.widthProperty().multiply(0.5));
+        // 사진의 비율을 유지하도록 계산하여 설정
+        var aspectRatio = mainImageView.image.width / mainImageView.image.height
+        mainImageView.fitHeight = mainImageView.fitWidth / aspectRatio
+
+        // 파일 표시
+        fileImageView.isVisible = true
+        fileImageView.fitWidthProperty().bind(mainImageView.fitWidthProperty().divide(4))
+        aspectRatio = fileImageView.image.width / fileImageView.image.height
+        fileImageView.fitHeight = fileImageView.fitWidth / aspectRatio
+        fileImageView.isPreserveRatio = true // 이미지의 비율을 유지하도록 설정
+        StackPane.setMargin(fileImageView, Insets(0.0,0.0 , mainImageView.fitHeight -fileImageView.fitHeight,mainImageView.fitWidth/2+fileImageView.fitWidth+5))
+
+        fileNameLabel.isVisible = true
+        StackPane.setMargin(fileNameLabel, Insets(0.0,0.0 , mainImageView.fitHeight + 60,0.0))
+    }
+
+    fun startAnalsys() {
+       // root.children.
+        if(!isAnalsys){
+            isAnalsys = true
+            analyzing()
+            startAnimation()
+
+        }
+
+    }
+
+    fun setFileName(fileName : String){
+        fileNameLabel.text = fileName
+    }
+    fun addAnalysisButton(){
         preAnalsImage =  Image(File(imageSourcePath+ "preAnals.png").toURI().toURL().toExternalForm())
         analsImage =  Image(File(imageSourcePath +"Anals.png").toURI().toURL().toExternalForm())
 
@@ -61,96 +188,46 @@ class CenterView : View() {
         analysisButton.setOnMouseEntered { e -> analysisButton.setImage(analsImage) }
         analysisButton.setOnMouseExited { e -> analysisButton.setImage(preAnalsImage) }
         analysisButton.setOnMouseClicked { e ->
-                // 분석 시작
-                startAnalsys()
+            // 분석 시작
+            startAnalsys()
         }
         // analysisButton x, y 지정
         analysisButton.layoutX = 790.0
         analysisButton.layoutY = 780.0
-        StackPane.setAlignment(analysisButton, Pos.BOTTOM_RIGHT)
-        StackPane.setMargin(subImagesView.root, Insets(0.0, 0.0, 100.0, 50.0))
-
-
-        // gifImageView
-        gifImageVeiew.fitWidth = 100.0
-        gifImageVeiew.isPreserveRatio = true
-
-        style {
-            //alignment = Pos.CENTER
-            backgroundColor = MultiValue(arrayOf(c("#FFFFFF")))
-        }
-
-        // subImageView 위치 조정
-        subImagesView.root.maxWidth = 830.0
-        subImagesView.root.maxHeight = 180.0
-        StackPane.setMargin(subImagesView.root, Insets(20.0, 0.0, 0.0, 0.0))
-        StackPane.setAlignment(subImagesView.root, Pos.TOP_CENTER)
-
-
-       // subImagesView.root.prefHeightProperty().bind(this.heightProperty().subtract(170))
-        //
-
-
-        // Main image View
-        children.add(mainImageView)
-        children.add(gifImageVeiew)
-
-        children.add(analysisButton)
-
-        children.add(subImagesView.root)
-
-        style {
-            backgroundColor = MultiValue(arrayOf(c("#232323")))
-        }
-        // Zoom image View
-//        add(AnchorPane().apply {
-//            add(rightImageView)
-//            // Set constraints to align zoomImageView to the right of mainImageView
-//            setTopAnchor(rightImageView, 50.0)
-//            setBottomAnchor(rightImageView, 50.0)
-//            setLeftAnchor(rightImageView, 0.0)
-//            setRightAnchor(rightImageView, 50.0)
-//        })
-
-        // 이미지가 로드되면 fitWidth와 fitHeight를 설정
-        mainImageView.imageProperty().addListener { _, _, newImage ->
-            if (newImage != null) {
-                mainImageView.isPreserveRatio = true
-                mainImageView.fitWidthProperty().bind(primaryStage.widthProperty().multiply(0.5));
-                mainImageView.fitHeight = Region.USE_COMPUTED_SIZE
-
-                style {
-                    backgroundColor = MultiValue(arrayOf(c("#232323")))
-                }
-            }
-        }
-    }
-    fun setMainImage(image : Image, rotation : Int){
-        var angle : Int = 360 - rotation
-        var bufferedImage = SwingFXUtils.fromFXImage(image, null)
-        var newBufferedImage = rotateImageClockwise(bufferedImage, angle.toDouble())
-        var newImage = SwingFXUtils.toFXImage(newBufferedImage, null)
-        mainImageView.image = newImage
-
-    }
-
-    fun startAnalsys() {
-       // root.children.
-        if(!isAnalsys){
-            isAnalsys = true
-            startAnimation()
-        }
-
     }
     fun startAnimation(){
+        analysisButton.isVisible = false
         analyzingImageAnimation()
 
     }
 
-    fun turnLeftAnimation(imageView : ImageView){
-        val transition = TranslateTransition(Duration.seconds(1.0), imageView)
-        transition.byX = -(imageView.layoutX-50) // 왼쪽으로 100픽셀 이동
+    fun turnTopAnimation(){
+        println("이미지 올리기")
+        val transition1 = TranslateTransition(Duration.seconds(1.0), mainImageView)
+        transition1.byY = -(mainImageView.translateY+80) // 왼쪽으로 100픽셀 이동
+        transition1.play()
+
+        val transition2 = TranslateTransition(Duration.seconds(1.0), fileImageView)
+        transition2.byY = -(fileImageView.translateY+80) // 왼쪽으로 100픽셀 이동
+        transition2.play()
+
+        val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
+        transition3.byY = -(fileNameLabel.translateY+80) // 왼쪽으로 100픽셀 이동
+        transition3.play()
+    }
+
+    fun turnLeftAnimation(){
+        val transition = TranslateTransition(Duration.seconds(1.0), mainImageView)
+        transition.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
         transition.play()
+
+        val transition2 = TranslateTransition(Duration.seconds(1.0), fileImageView)
+        transition2.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
+        transition2.play()
+
+        val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
+        transition3.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
+        transition3.play()
     }
     fun analyzingImageAnimation(){
         gifImageVeiew.isVisible = true
@@ -158,42 +235,55 @@ class CenterView : View() {
         val gifFrames = getGifFrames(inputStream)
         inputStream.close()
 
+        // main Iamge 위로 올라가기
+        turnTopAnimation()
+
         val timeline = Timeline()
-        analyzing()
+
         for (i in gifFrames.indices) {
             val image = gifFrames[i]
-            val keyFrame = KeyFrame(Duration.millis(40.0 * i), EventHandler {
+            val keyFrame = KeyFrame(Duration.millis(40.0 * i + 1), EventHandler {
                 gifImageVeiew.image = image
                 analysisButton.setImage(analsImage)
             })
             timeline.keyFrames.add(keyFrame)
         }
-        timeline.cycleCount = 2
+        timeline.cycleCount = 3
         timeline.play()
 
-        // 분성 애니메이션이 끝났을 때
+        // 분석 애니메이션이 끝났을 때
         timeline.setOnFinished {
             finishedAnalysis()
+
         }
 
     }
-    fun analyzing(){
-//        root.children.add(subImagesView.root)
-//        StackPane.setAlignment(subImagesView.root, Pos.TOP_CENTER)
-//        subImagesView.root.prefWidth(830.0)
-//        subImagesView.root.prefHeight(150.0)
-//        StackPane.setMargin(subImagesView.root, Insets(70.0, 0.0, 100.0, 50.0))
-        subImagesView.setPictureList(aiContainer.imageContent.pictureList)
 
+    // 분석 중일 때
+    fun analyzing(){
+        subImagesView.clear()
+        subImagesView.root.isVisible = true
+
+        analysisLabel.isVisible = true
+        //text 바꾸기
+        if(aiContainer.textContent.textCount >0){
+            subImagesView.chageText(aiContainer.textContent.textList[0].data)
+        }
+        // 이미지 리스트 뷰 바꾸기
+        subImagesView.setPictureList(aiContainer.imageContent.pictureList)
 
     }
 
+    //분석이 끝났을 때
     fun finishedAnalysis(){
         gifImageVeiew.isVisible = false
+        analysisLabel.isVisible = false
         isAnalsys = false
         analysisButton.setImage(preAnalsImage)
         // animation
-        turnLeftAnimation(mainImageView)
+        turnLeftAnimation()
+        editView.root.isVisible = true
+        editView.update()
     }
     private fun getGifFrames(inputStream: FileInputStream): List<Image> {
         val gifFrames = mutableListOf<Image>()
@@ -212,6 +302,24 @@ class CenterView : View() {
         }
         return gifFrames
     }
+
+
+    // subImage뷰에서 요소를 선택하면 메타데이타 영역의 색이 바뀜
+    fun focusView(type : String, index : Int){
+        editView.focusView(type,index)
+    }
+    fun unfocusView(type : String, index : Int){
+        editView.unfocusView(type,index)
+    }
+
+    // 메타데이터 영역에서 요소를 선택하면 subImage뷰에서 색이 바뀜
+    fun reverseFocusView(type : String, index : Int){
+        subImagesView.focusView(type,index)
+    }
+    fun reverseUnfocusView(type : String, index : Int){
+        subImagesView.unfocusView(type,index)
+    }
+
 //    fun analsysUI(){
 //        // Load the GIF image from file
 //        val decoder = GifDecoder()
@@ -239,17 +347,6 @@ class CenterView : View() {
 //
 //    }
 
-    fun rotateImageClockwise(image: BufferedImage, angle: Double): BufferedImage {
-        val radians = Math.toRadians(angle)
-        val rotatedWidth = Math.abs(Math.sin(radians) * image.height) + Math.abs(Math.cos(radians) * image.width)
-        val rotatedHeight = Math.abs(Math.sin(radians) * image.width) + Math.abs(Math.cos(radians) * image.height)
-        val rotatedImage = BufferedImage(rotatedWidth.toInt(), rotatedHeight.toInt(), image.type)
-        val graphics2D = rotatedImage.createGraphics()
-        graphics2D.translate((rotatedWidth - image.width) / 2.0, (rotatedHeight - image.height) / 2.0)
-        graphics2D.rotate(radians, image.width / 2.0, image.height / 2.0)
-        graphics2D.drawRenderedImage(image, null)
-        graphics2D.dispose()
-        return rotatedImage
-    }
+
 
 }

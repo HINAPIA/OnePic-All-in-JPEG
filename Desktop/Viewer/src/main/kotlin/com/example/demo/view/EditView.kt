@@ -22,7 +22,7 @@ import java.io.File
 import javax.swing.text.LabelView
 
 
-class EditView : View(){
+class EditView (val centerView : CenterView) : View(){
     // text
     private val textImageView: ImageView = ImageView()
     private val textContentLabel : Label = Label("")
@@ -33,24 +33,170 @@ class EditView : View(){
     private val audioPlayStartImageView : ImageView = ImageView()
 
     // Ai meta
-    private val aiMetaDataImageView : ImageView = ImageView()
+    private var aiMetaDataImageView : ImageView = ImageView()
     private val aiTextField : Label = Label("")
     private lateinit var aiScrollPane : ScrollPane
-    private val aimetaDataView : AimetaDataView by inject()
+    private val aimetaDataView = AimetaDataView(centerView)
 
 
-    override val root = stackpane {
-
+    override val root = vbox {
         val textImageUrl = File("src/main/kotlin/com/example/demo/resource/textImage.png").toURI().toURL()
         if(textImageUrl != null){
             val image = Image(textImageUrl.toExternalForm())
             textImageView.image = image
         }
 
+        hbox{
+            spacing = 5.0
+            add(aiMetaDataImageView)
+            aiMetaDataImageView.isPreserveRatio = true
+            aiMetaDataImageView.fitHeight = 30.0
+            aiMetaDataImageView.fitWidth = 95.0
+
+            label{
+                text = "All-in Meta Data"
+                style{
+                    textFill = c("#FFFFFF") // 글자 색상 흰색
+                    font = Font.font("Inter", FontWeight.EXTRA_BOLD, 14.0)
+
+                }
+            }
+        }
+
+
+        aiScrollPane =  scrollpane {
+            padding = insets(10)
+            content = stackpane{
+                add(aimetaDataView.root)
+            }
+            // 수직 스크롤
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+
+            //315X480
+            // 스크롤 팬의 크기 지정
+            setMinSize(300.0, 480.0)
+            setMaxSize(300.0, 480.0)
+            style{
+                backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+            }
+        }
          imageFileLoad()
+//315X530
+            // Ai MeataData
+          //  vbox {
+
 //
-        vbox {
-//            label("Ebedded Data"){
+//                aiScrollPane = ScrollPane()
+//                add(aiScrollPane)
+
+
+//                aiScrollPane.apply{
+//                    content = stackpane{
+//                        add(aimetaDataView.root)
+//                    }
+//                    // 수직 스크롤
+//                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+//                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+//
+//                    // 스크롤 팬의 크기 지정
+//                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
+//                    prefWidthProperty().bind(this@stackpane.widthProperty())
+//                   // lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
+//                    style{
+//                        backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+//                    }
+//                }
+
+                //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
+                Platform.runLater {
+                    val viewport = aiScrollPane.lookup(".viewport")
+                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
+                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
+                    val scrollBarSkin = lookup(".scroll-bar:vertical .thumb") as? Region
+                    // scroll bar 스킨이 null이 아닌 경우, 스크롤 바 막대의 색상을 검은색으로 설정
+                    scrollBarSkin?.style = "-fx-background-color: black;"
+                }
+         //   }
+
+        style {
+            backgroundColor = MultiValue(arrayOf(c("#232323")))
+//              borderWidth += box(2.px)
+//              borderColor += box(c("#000000"))
+        }
+    }
+
+
+
+
+
+
+        // 이미지가 로드되면 fitWidth와 fitHeight를 설정
+//        textImageView.imageProperty().addListener { _, _, newImage ->
+//            // 이미지 파일 경로
+//            //val imageUrl = javaClass.getResource("src/main/kotlin/com.example.demo/resource/textImage.png")
+//            val imageUrl = javaClass.getResource("com/example/demo/resource/textImage.png")
+//            // 이미지 로드
+//            val image = Image(imageUrl.toExternalForm())
+//            // 이미지 뷰에 이미지 설정
+//            textImageView.image = image
+//            // 이미지 뷰 크기에 맞게 이미지 조절
+//            //textImageView.isPreserveRatio = true
+//            textImageView.fitWidthProperty().bind(this@stackpane.widthProperty())
+//            textImageView.fitHeightProperty().bind(this@stackpane.widthProperty().divide(10))
+//            style{
+//                backgroundColor = MultiValue(arrayOf(c("#FFFFFF")))
+//            }
+//
+//        }
+
+
+    fun update(){
+        aimetaDataView.update()
+    }
+
+    fun focusView(type:String, index : Int){
+        when(type){
+            "image" -> aimetaDataView.selectImageConentView(index)
+            "text" -> aimetaDataView.selectTextConentView()
+            "audio" ->aimetaDataView.selectAudioConentView()
+        }
+
+    }
+    fun unfocusView(type:String, index : Int){
+        when(type){
+            "image" -> aimetaDataView.unSelectImageConentView(index)
+            "text" -> aimetaDataView.unSelectContentView()
+            "audio" -> aimetaDataView.unSelectContentView()
+
+        }
+
+    }
+    fun imageFileLoad(){
+        // AUDIO 텍스트 그림
+        val audioImageUrl =  File("src/main/kotlin/com/example/demo/resource/audioImage.png").toURI().toURL()
+        if(audioImageUrl != null){
+            val image = Image(audioImageUrl.toExternalForm())
+            audioImageView.image = image
+        }
+
+        // 재생 시작 그림
+        val audioPlayStartImageUrl =File("src/main/kotlin/com/example/demo/resource/playStart.png").toURI().toURL()
+        if(audioPlayStartImageUrl != null){
+            val image = Image(audioPlayStartImageUrl.toExternalForm())
+            audioPlayStartImageView.image = image
+        }
+
+        // Ai meta Label
+        val aiMeataImageUrl =File("src/main/kotlin/com/example/demo/resource/anal.png").toURI().toURL()
+        if(aiMeataImageUrl != null){
+            var image = Image(aiMeataImageUrl.toExternalForm())
+            aiMetaDataImageView.image = image
+        }
+
+    }
+
+    //            label("Ebedded Data"){
 //                stackpaneConstraints { // stackpaneConstraints를 사용하여 위치와 크기 설정
 //                    //alignment = Pos.CENTER
 //                    // 전체 너비로
@@ -122,103 +268,6 @@ class EditView : View(){
 //                }
 //                padding = insets(10)
 //            }
-
-
-            // Ai MeataData
-            vbox {
-                add(aiMetaDataImageView)
-                aiMetaDataImageView.fitHeight = 30.0
-                aiMetaDataImageView.fitWidth = 95.0
-
-                aiScrollPane = ScrollPane()
-                add(aiScrollPane)
-                padding = insets(10)
-
-                aiScrollPane.apply{
-                    content = stackpane{
-                        add(aimetaDataView.root)
-                    }
-                    // 수직 스크롤
-                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
-                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-
-                    // 스크롤 팬의 크기 지정
-                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
-                    prefWidthProperty().bind(this@stackpane.widthProperty())
-                   // lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-                    style{
-                        backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
-                    }
-                }
-
-                //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-                Platform.runLater {
-                    val viewport = aiScrollPane.lookup(".viewport")
-                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
-                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
-
-                }
-            }
-
-
-
-
-
-        }
-
-
-
-        // 이미지가 로드되면 fitWidth와 fitHeight를 설정
-//        textImageView.imageProperty().addListener { _, _, newImage ->
-//            // 이미지 파일 경로
-//            //val imageUrl = javaClass.getResource("src/main/kotlin/com.example.demo/resource/textImage.png")
-//            val imageUrl = javaClass.getResource("com/example/demo/resource/textImage.png")
-//            // 이미지 로드
-//            val image = Image(imageUrl.toExternalForm())
-//            // 이미지 뷰에 이미지 설정
-//            textImageView.image = image
-//            // 이미지 뷰 크기에 맞게 이미지 조절
-//            //textImageView.isPreserveRatio = true
-//            textImageView.fitWidthProperty().bind(this@stackpane.widthProperty())
-//            textImageView.fitHeightProperty().bind(this@stackpane.widthProperty().divide(10))
-//            style{
-//                backgroundColor = MultiValue(arrayOf(c("#FFFFFF")))
-//            }
-//
-//        }
-          style {
-              backgroundColor = MultiValue(arrayOf(c("#232323")))
-//              borderWidth += box(2.px)
-//              borderColor += box(c("#000000"))
-        }
-    }
-
-    fun update(){
-        aimetaDataView.update()
-    }
-    fun imageFileLoad(){
-        // AUDIO 텍스트 그림
-        val audioImageUrl =  File("src/main/kotlin/com/example/demo/resource/audioImage.png").toURI().toURL()
-        if(audioImageUrl != null){
-            val image = Image(audioImageUrl.toExternalForm())
-            audioImageView.image = image
-        }
-
-        // 재생 시작 그림
-        val audioPlayStartImageUrl =File("src/main/kotlin/com/example/demo/resource/playStart.png").toURI().toURL()
-        if(audioPlayStartImageUrl != null){
-            val image = Image(audioPlayStartImageUrl.toExternalForm())
-            audioPlayStartImageView.image = image
-        }
-
-        // Ai meta Label
-        val aiMeataImageUrl =File("src/main/kotlin/com/example/demo/resource/AimetaData.png").toURI().toURL()
-        if(aiMeataImageUrl != null){
-            val image = Image(aiMeataImageUrl.toExternalForm())
-            aiMetaDataImageView.image = image
-        }
-
-    }
 
 
 }

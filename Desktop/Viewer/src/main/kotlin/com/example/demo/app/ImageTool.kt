@@ -7,6 +7,8 @@ import com.drew.metadata.Metadata
 import com.drew.metadata.MetadataException
 import com.drew.metadata.exif.ExifIFD0Directory
 import com.drew.metadata.jpeg.JpegDirectory
+import javafx.embed.swing.SwingFXUtils
+import javafx.scene.image.Image
 import java.awt.geom.AffineTransform
 import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
@@ -51,4 +53,24 @@ class ImageTool {
      }
      return 0
  }
+    fun rotaionImage(image : Image, rotation : Int) : Image{
+        var angle : Int = 360 - rotation
+        var bufferedImage = SwingFXUtils.fromFXImage(image, null)
+        var newBufferedImage = rotateImageClockwise(bufferedImage, angle.toDouble())
+        var newImage = SwingFXUtils.toFXImage(newBufferedImage, null)
+       return newImage
+    }
+
+    fun rotateImageClockwise(image: BufferedImage, angle: Double): BufferedImage {
+        val radians = Math.toRadians(angle)
+        val rotatedWidth = Math.abs(Math.sin(radians) * image.height) + Math.abs(Math.cos(radians) * image.width)
+        val rotatedHeight = Math.abs(Math.sin(radians) * image.width) + Math.abs(Math.cos(radians) * image.height)
+        val rotatedImage = BufferedImage(rotatedWidth.toInt(), rotatedHeight.toInt(), image.type)
+        val graphics2D = rotatedImage.createGraphics()
+        graphics2D.translate((rotatedWidth - image.width) / 2.0, (rotatedHeight - image.height) / 2.0)
+        graphics2D.rotate(radians, image.width / 2.0, image.height / 2.0)
+        graphics2D.drawRenderedImage(image, null)
+        graphics2D.dispose()
+        return rotatedImage
+    }
 }

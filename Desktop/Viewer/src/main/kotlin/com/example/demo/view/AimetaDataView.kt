@@ -13,22 +13,74 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
-class AimetaDataView : View() {
+class AimetaDataView (val centerView : CenterView) : View() {
 
     private var aiContainer = AiContainerSingleton.aiContainer
     private var header = aiContainer.header
+
+     var textContent = VBox()
+     var audioContent =  VBox()
+
+    var imageContentViewList : ArrayList<VBox> = arrayListOf()
     override val root = vbox{
 
         padding = insets(0,0,0,10)
         spacing = 5.0
             style{
                 background = Background(BackgroundFill(c("#1A1A1A"), null, null))
-                textFill = c("#FFFFFF") // 글자 색상 흰색
-                font = Font.font("Arial", FontWeight.NORMAL, 11.0)
+               // textFill = c("#FFFFFF") // 글자 색상 흰색
+                font = Font.font("Inter", FontWeight.NORMAL, 11.0)
             }
 
     }
-
+    fun selectImageConentView(index : Int){
+        println("index : ${index}")
+        if(index < imageContentViewList.size && imageContentViewList.size != 0){
+            val imageView = imageContentViewList.get(index)
+            // vbox 내부에 있는 모든 text 컨트롤의 색상을 파란색으로 변경
+            imageView.lookupAll(".label").forEach { text ->
+                text.style {
+                    textFill = c("#257CFF") // 파란색으로 변경
+                }
+            }
+        }
+    }
+    fun selectTextConentView(){
+        textContent.lookupAll(".label").forEach { text ->
+            text.style {
+                textFill = c("#31D655") // 파란색으로 변경
+            }
+        }
+    }
+    fun selectAudioConentView(){
+        audioContent.lookupAll(".label").forEach { text ->
+            text.style {
+                textFill = c("#EA2424") // 파란색으로 변경
+            }
+        }
+    }
+    fun unSelectImageConentView(index : Int){
+        if(index < imageContentViewList.size && imageContentViewList.size != 0){
+            val imageView = imageContentViewList.get(index)
+            imageView.lookupAll(".label").forEach { text ->
+                text.style {
+                    textFill = c("#FFFFFF") // 파란색으로 변경
+                }
+            }
+        }
+    }
+    fun unSelectContentView(){
+        audioContent.lookupAll(".label").forEach { text ->
+            text.style {
+                textFill = c("#FFFFFF") // 파란색으로 변경
+            }
+        }
+        textContent.lookupAll(".label").forEach { text ->
+            text.style {
+                textFill = c("#FFFFFF") // 파란색으로 변경
+            }
+        }
+    }
     fun update(){
         var width = 70
         var key = ""
@@ -40,12 +92,35 @@ class AimetaDataView : View() {
                 padding = insets(10)
                 spacing = 5.0
 
-                add(createHbox("- Data Field Length", "100", 70.0))
-                add(createHbox("- Indentity", "All-in", 70 +50.0))
+                add(createHbox("Data Field Length", "100", 70.0))
+                add(createHbox("Indentity", "All-in", 70 +50.0))
+                separator()
 
                 add(imageContentView())
-                add(textContentView())
-                add(audioContentView())
+                separator()
+                textContent = textContentView()
+                textContent.setOnMouseEntered { e ->
+                    selectTextConentView()
+                    centerView.reverseFocusView("text", 0)
+                }
+                textContent.setOnMouseExited { e ->
+                    unSelectContentView()
+                    centerView.reverseUnfocusView("text", 0)
+                }
+                add(textContent)
+
+
+                separator()
+                audioContent = audioContentView()
+                audioContent.setOnMouseEntered { e ->
+                    selectAudioConentView()
+                    centerView.reverseFocusView("audio", 0)
+                }
+                audioContent.setOnMouseExited { e ->
+                    unSelectContentView()
+                    centerView.reverseUnfocusView("audio", 0)
+                }
+                add(audioContent)
 //                add(createHbox("Image Content", "100", 30.0))
 //                add(createHbox("    Count", "100", 30.0))
                 style{
@@ -69,7 +144,7 @@ class AimetaDataView : View() {
     fun audioContentView() : VBox{
         var audioContentInfo = header.audioContentInfo
         return vbox{
-            add(createHbox("- Audio Content", "", 00.0))
+            add(createHbox("Audio Content", "", 00.0))
             vbox{
                 padding = insets(0,0,0,20)
                 spacing = 5.0
@@ -82,7 +157,7 @@ class AimetaDataView : View() {
     fun textContentView() : VBox{
         var textContentInfo = header.textContentInfo
         return vbox{
-            add(createHbox("- Text Content", "", 0.0))
+            add(createHbox("Text Content", "", 0.0))
             vbox{
                 padding = insets(0,0,0,20)
                 spacing = 5.0
@@ -107,27 +182,34 @@ class AimetaDataView : View() {
     }
     fun imageContentView(): VBox{
         var imageContentInfo = header.imageContentInfo
+        imageContentViewList.clear()
         return vbox{
-            add(createHbox("- Image Content", "",0.0))
+            add(createHbox("Image Content", "",0.0))
             vbox{
                 padding = insets(0,0,0,20)
                 spacing = 5.0
                 add(createHbox("Count", imageContentInfo.imageCount.toString(), 130.0))
 
                 for(i in 0..imageContentInfo.imageCount - 1){
+                    separator()
                     var imageInfo = imageContentInfo.imageInfoList.get(i)
-                    vbox {
+                    var imageContentView = vbox {
+                        //hbox
                         add(createHbox("#${i+1} Image","", 80.0))
                         // 1개의 image info
-                        vbox {
+                         vbox {
                             padding = insets(0,0,0,20)
-                            add(createHbox("Size","${((imageInfo.dataSize)/1000.0.toInt()).toDouble()}kb", 80.0))
+                            add(createHbox("Size","${(((imageInfo.dataSize)/(1000.0)).toInt()).toDouble()}kb", 80.0))
                             var attribute = ContentAttribute.fromCode(imageInfo.attribute)
                             add(createHbox("Attribute", attribute.toString(), 80.0))
                             spacing = 5.0
-                        }
 
+                            style{
+                                textFill = c("#257CFF") // 글자 색상 파란색
+                            }
+                        }
                     }
+                    imageContentViewList.add(imageContentView)
                 }
             }
             spacing = 5.0
@@ -140,14 +222,14 @@ class AimetaDataView : View() {
                 text = key
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Arial", FontWeight.NORMAL, 10.0)
+                    font = Font.font("Inter", FontWeight.NORMAL, 11.0)
                 }
             }
             label {
                 text = value
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Arial", FontWeight.MEDIUM, 10.0)
+                    font = Font.font("Inter", FontWeight.MEDIUM, 11.0)
                 }
             }
 

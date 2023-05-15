@@ -17,6 +17,7 @@ class ImageContent {
     var markerHashMap: HashMap<Int?, String?> = jpegConstant.nameHashMap
     var pictureList : ArrayList<Picture> = arrayListOf()
     var pictureCount = 0
+    var orientation : Int = 0
 
     lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture

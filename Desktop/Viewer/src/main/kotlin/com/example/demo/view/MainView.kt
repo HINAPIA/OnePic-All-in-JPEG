@@ -47,6 +47,8 @@ class ImageViewer : View() {
                     //centerView.subImagesView.viewClear()
                     // 선택된 파일에 대한 처리
                     if (selectedFile != null) {
+                        val fileName = selectedFile?.name ?: ""
+                        centerView.setFileName(fileName)
                         var byteArray = Files.readAllBytes(selectedFile.toPath())
                         CoroutineScope(Dispatchers.Default).launch {
                             aiContainer.imageContent.init()
@@ -57,7 +59,10 @@ class ImageViewer : View() {
                             var firstImageBytes =
                                 aiContainer.imageContent.getJpegBytes(aiContainer.imageContent.pictureList[0])
 
+                            //회전 정보 갱신
                             var orientation = imageTool.getOrientation(firstImageBytes)
+                            aiContainer.imageContent.orientation = orientation
+
                             val image = Image(selectedFile.toURI().toString())
                             // Main Image 바꾸기
                             centerView.setMainImage(image, orientation)
