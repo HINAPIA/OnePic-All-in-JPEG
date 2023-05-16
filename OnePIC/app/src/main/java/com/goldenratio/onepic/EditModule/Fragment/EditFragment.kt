@@ -167,16 +167,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                 jpegViewModel.currentImageFilePath
                 var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                ViewerFragment.currentFilePath = savedFilePath.toString()
+                //ViewerFragment.currentFilePath = savedFilePath.toString() // "/storage/emulated/0/DCIM/ImageSave/1683091580267.jpg"
                 Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
-                //imageTool.showView(binding.progressBar2 , false)
 
-//                val signature = "signature-${System.currentTimeMillis()}"
-//
-//                Glide.with(requireContext())
-//                    .load((Uri.parse("content://media/external/images/media/267015")))
-//                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                    .signature(ObjectKey(signature)) // 서명을 이용한 캐시 키 생성
 
                 CoroutineScope(Dispatchers.Default).launch {
                     setButtonDeactivation()
@@ -192,7 +185,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                 // magic으로 변경했을 경우 모든 파일 저장
                 var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                ViewerFragment.currentFilePath = savedFilePath.toString()
+                //ViewerFragment.currentFilePath = savedFilePath.toString()
                 Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
 
                 CoroutineScope(Dispatchers.Default).launch {
@@ -216,7 +209,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         }
 
                         var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                        ViewerFragment.currentFilePath = savedFilePath.toString()
+                        //ViewerFragment.currentFilePath = savedFilePath.toString()
                         Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
 
                         CoroutineScope(Dispatchers.Default).launch {
@@ -238,7 +231,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 newImageContent.setContent(singlePictureList)
 
                                 var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                                ViewerFragment.currentFilePath = savedFilePath.toString()
+                                //ViewerFragment.currentFilePath = savedFilePath.toString()
                                 Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
 
                             }catch (e :IOException){

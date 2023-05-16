@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="10dp" /> <!-- 원하는 모서리 둥글기의 반지름을 지정합니다 -->
+            <solid android:color="#E0E0E0" /> <!-- 배경색을 설정합니다 -->
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="20dp" /> <!-- 원하는 모서리 둥글기의 반지름을 지정합니다 -->
+                <solid android:color="@color/dark_purple" /> <!-- 진행중인 부분의 색을 설정합니다 -->
+            </shape>
+        </clip>
+    </item>
+</layer-list>

@@ -7,10 +7,8 @@
     <ImageView
         android:id="@+id/scrollImageView"
         android:layout_marginTop="5dp"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:background="@drawable/chosen_image_border"
-        android:padding="2dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:scaleType="fitXY"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

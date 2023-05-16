@@ -2,17 +2,17 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
@@ -44,6 +44,7 @@ class ViewerFragment : Fragment() {
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
     private var isMainChanged:Boolean? = null
+    private var isInitFocus:Boolean = true
 
     /* text, audio, magic 선택 여부 */
     private var isTxtBtnClicked = false
@@ -53,6 +54,8 @@ class ViewerFragment : Fragment() {
     companion object {
         var currentFilePath:String = ""
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
+        var audioTopMargin = MutableLiveData<Int>()
+        var audioEndMargin = MutableLiveData<Int>()
     }
 
     override fun onCreateView(
@@ -70,12 +73,31 @@ class ViewerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         init()
 
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
             currentPosition = null
         }
+
+        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
+
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+
+            Log.d("songsong currentFIlePath: ", currentFilePath)
+            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+
+            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
+
+        }
+
+
+        setCurrentOtherImage()
+        binding.scrollView.visibility = View.VISIBLE
+
+        //scrollAnimation()
+
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
@@ -105,6 +127,19 @@ class ViewerFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun init() {
 
+        var container = jpegViewModel.jpegMCContainer.value!!
+
+        /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
+        if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
+            binding.audioBtn.visibility = View.VISIBLE
+            // margin 계산
+
+        }
+        else {
+            binding.audioBtn.visibility = View.GONE
+        }
+
+
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
         mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
         binding.viewPager2.setUserInputEnabled(false);
@@ -122,7 +157,7 @@ class ViewerFragment : Fragment() {
                 mainViewPagerAdapter.notifyDataSetChanged()
 
                 // 필름 스크롤뷰 초기화
-                binding.pullRightView.visibility = View.VISIBLE
+                //binding.pullRightView.visibility = View.VISIBLE
                 binding.scrollView.visibility = View.INVISIBLE//GONE
 
 
@@ -221,51 +256,79 @@ class ViewerFragment : Fragment() {
 
             if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
                 /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
+                binding.audioBtn.setImageResource(R.drawable.mute2)
                 isAudioBtnClicked = true
-
-                // 오디오 재생
-                jpegViewModel.jpegMCContainer.value!!.audioPlay()
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
                 /* layout 변경 */
-                it.background = ColorDrawable(Color.TRANSPARENT)
+                binding.audioBtn.setImageResource(R.drawable.sound4)
                 isAudioBtnClicked = false
+
+                // 오디오 재생
+                jpegViewModel.jpegMCContainer.value!!.audioPlay()
             }
         }
 
-        binding.pullRightView.setOnClickListener {
-
-            setCurrentOtherImage()
-
-            scrollAnimation()
 
 
-//            binding.scrollView.visibility = View.VISIBLE
-//
-//            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-//            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
-//            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
-//
-//            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
-//            animation.duration = 600
-//            it.visibility = View.INVISIBLE
-//            binding.scrollView.startAnimation(animation)
+        audioTopMargin.observe(requireActivity()){ value ->
 
-//            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
-//            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-//                override fun onPreDraw(): Boolean {
-//                    if (binding.scrollView.x == endPosition) {
-//                        binding.scrollView.clearAnimation()
-//                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
-//                        return false
-//                    }
-//                    return true
-//                }
-//            })
+            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
+            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+            val topMarginInDp =  value// 위쪽 마진(dp)
+            val rightMarginInDp = 20 // 오른쪽 마진(dp)
+            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+
+            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+            binding.audioBtn.layoutParams = layoutParams
+
         }
+
+        audioEndMargin.observe(requireActivity()) {value ->
+
+            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
+            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+            val topMarginInDp =  20// 위쪽 마진(dp)
+            val rightMarginInDp = value // 오른쪽 마진(dp)
+            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+
+            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+            binding.audioBtn.layoutParams = layoutParams
+        }
+
+
+//        binding.pullRightView.setOnClickListener {
+//
+//            setCurrentOtherImage()
+//
+//            scrollAnimation()
+//
+//
+////            binding.scrollView.visibility = View.VISIBLE
+////
+////            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
+////            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+////            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
+////
+////            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+////            animation.duration = 600
+////            it.visibility = View.INVISIBLE
+////            binding.scrollView.startAnimation(animation)
+//
+////            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
+////            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+////                override fun onPreDraw(): Boolean {
+////                    if (binding.scrollView.x == endPosition) {
+////                        binding.scrollView.clearAnimation()
+////                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
+////                        return false
+////                    }
+////                    return true
+////                }
+////            })
+//        }
 
 //        setMagicPicture()
 
@@ -282,14 +345,26 @@ class ViewerFragment : Fragment() {
     fun scrollAnimation(){
         binding.scrollView.visibility = View.VISIBLE
 
-        // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-        val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+        val startPosition = - binding.scrollView.width - 10
         val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
 
-        val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+        val animation = TranslateAnimation(startPosition.toFloat(), endPosition,0f, 0f)
         animation.duration = 600
-        binding.pullRightView.visibility = View.INVISIBLE
         binding.scrollView.startAnimation(animation)
+
+
+
+
+
+
+        // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
+//        val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
+//        val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
+//
+//        val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
+//        animation.duration = 600
+//        binding.pullRightView.visibility = View.INVISIBLE
+//        binding.scrollView.startAnimation(animation)
     }
 
     fun setMagicPicture() {
@@ -368,6 +443,8 @@ class ViewerFragment : Fragment() {
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
 
+        binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
+
         if (pictureList != null) {
             binding.linear.removeAllViews()
             Log.d("picture list size: ",""+pictureList.size)
@@ -395,10 +472,39 @@ class ViewerFragment : Fragment() {
                                 .load(pictureByteArr)
                                 .into(scrollImageView)
 
+
+                            scrollImageView.isFocusable = true // 포커스를 받을 수 있도록 설정
+                            scrollImageView.isFocusableInTouchMode = true // 터치 모드에서 포커스를 받을 수 있도록 설정
+
+                            scrollImageView.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+                                if (hasFocus) {
+                                    // 포커스를 얻었을 때의 동작 처리
+                                    scrollImageView.setBackgroundResource(R.drawable.chosen_image_border)
+                                    scrollImageView.setPadding(6,6,6,6)
+//                                    mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+//                                    jpegViewModel.setselectedSubImage(picture)
+                                } else {
+                                    // 포커스를 잃었을 때의 동작 처리
+                                    scrollImageView.background = null
+                                    scrollImageView.setPadding(0,0,0,0)
+
+                                }
+                            }
+
                             scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
                                 mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
                                 jpegViewModel.setselectedSubImage(picture)
                             }
+
+                            scrollImageView.setOnTouchListener { _, event ->
+                                when (event.action) {
+                                    MotionEvent.ACTION_UP -> {
+                                        scrollImageView.performClick() // 클릭 이벤트 강제로 발생
+                                    }
+                                }
+                                false
+                            }
+
                             binding.linear.addView(scollItemLayout)
                         }
                     } catch (e: IllegalStateException) {

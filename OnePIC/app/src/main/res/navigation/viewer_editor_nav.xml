@@ -134,5 +134,16 @@
         <action
             android:id="@+id/action_basicViewerFragment_to_viewerFragment"
             app:destination="@id/viewerFragment" />
+        <action
+            android:id="@+id/action_basicViewerFragment_to_analyzeFragment"
+            app:destination="@id/analyzeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/analyzeFragment"
+        android:name="com.goldenratio.onepic.ViewerModule.Fragment.AnalyzeFragment"
+        android:label="AnalyzeFragment" >
+        <action
+            android:id="@+id/action_analyzeFragment_to_viewerFragment"
+            app:destination="@id/viewerFragment" />
     </fragment>
 </navigation>

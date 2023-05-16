@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -23,6 +24,7 @@ import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
+import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -157,6 +159,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         return uri
     }
 
+
     /* ---------------------------------------------------------- Magic Picture ----------------------------------------------- */
     /** ViewHolder 정의 = Main Image UI */
 
@@ -271,6 +274,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             else {
                 Glide.with(context).load(getUriFromPath(image)).into(imageView)
             }
+            setFitCenterPaddingValue()
         }
 
         fun bindUpdateMainImage(image:String){ // Main 이미지가 변경된 경우, 특정 URL에 대한 캐시 강제 업데이트
@@ -289,7 +293,38 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             Glide.with(context)
                 .load(embeddedImage)
                 .into(externalImageView)
+            setFitCenterPaddingValue()
         }
+
+        fun setFitCenterPaddingValue() {
+
+            if(imageView.drawable == null) {
+                Log.d("여기에서 나가버림",": here")
+                return
+            }
+
+            val bitmap: Bitmap = imageView.drawable.toBitmap()
+
+            // imageView width, height 가져오기
+            val viewWidth = imageView.width
+            val viewHeight = imageView.height
+
+            val bitmapWidth = bitmap.width
+            val bitmapHeight = bitmap.height
+
+            val alpha = viewWidth/bitmapWidth
+
+           if( viewHeight > bitmapHeight * alpha ){ // 가로에 맞춰짐
+                ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 20     //viewHeight - bitmapHeight * alpha
+            }
+            else { // 세로에 맞춰짐
+                ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 20//viewHeight
+            }
+        }
+
+
+
+
 
         fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
             externalImageView.visibility = View.VISIBLE
