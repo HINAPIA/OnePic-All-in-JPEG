@@ -29,7 +29,7 @@ class EditView (val centerView : CenterView) : View(){
 
     // aduio
     private  val audioImageView : ImageView = ImageView()
-    private val audioResolver : AudioResolver = AudioResolver()
+    //private val audioResolver : AudioResolver = AudioResolver()
     private val audioPlayStartImageView : ImageView = ImageView()
 
     // Ai meta
@@ -150,6 +150,12 @@ class EditView (val centerView : CenterView) : View(){
 //
 //        }
 
+    fun clear(){
+        runLater {
+            root.isVisible = false
+            aimetaDataView.root.clear()
+        }
+    }
 
     fun update(){
         aimetaDataView.update()

@@ -82,9 +82,6 @@ class AimetaDataView (val centerView : CenterView) : View() {
         }
     }
     fun update(){
-        var width = 70
-        var key = ""
-        var value = ""
         header.settingHeaderInfo()
         runLater {
             root.clear()

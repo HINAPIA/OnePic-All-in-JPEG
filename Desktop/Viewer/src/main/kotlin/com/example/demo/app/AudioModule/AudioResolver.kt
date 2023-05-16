@@ -1,5 +1,6 @@
 package com.goldenratio.onepic.AudioModule
 
+import com.example.demo.view.SubImagesView
 import com.goldenratio.onepic.PictureModule.Contents.Audio
 import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
@@ -8,6 +9,7 @@ import javafx.util.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import tornadofx.DefaultScope
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -24,28 +26,108 @@ class AudioResolver() {
     var mediaView : MediaView = MediaView()
     private var isPlaying = false
 
+    private var playingTimerTask : TimerTask? = null
+    var subImagesView: SubImagesView? = null
+
+    var currentTime = 0
+
+    val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
+
     companion object{
         var isOn = false
     }
 
     fun prepare(){
-        println("audio : prepare()")
-        var filePath: String? =  null
-        if(savedFile == null){
-            savedFile = getOutputMediaFilePath("record")
+        CoroutineScope(Dispatchers.Default).launch {
+            println("audio : prepare()")
+            var filePath: String? =  null
+            if(savedFile == null){
+                savedFile = getOutputMediaFilePath("record")
+            }
+            val file = File(audioSourcePath + "record.wav")
+            val uri = file.toURI().toString()
+            media = Media(uri)
+            mediaPlayer = MediaPlayer(media)
+            mediaPlayer.setOnEndOfMedia {
+                CoroutineScope(Dispatchers.Default).launch {
+                    println("재생 끝")
+                    mediaPlayer.stop()
+                    mediaPlayer = MediaPlayer(media)
+                    mediaPlayer.setOnReady {
+                        println("Audio: Ready to play")
+                        isPlaying = false
+                        currentTime = (mediaPlayer.totalDuration.toMillis()).toInt() / 1000
+                    }
+                }
+            }
+            mediaPlayer?.setOnReady {
+                println("Audio: Ready to play")
+                currentTime = (mediaPlayer.totalDuration.toMillis()).toInt()/1000
+                var string : String = String.format("%02d:%02d", currentTime/60, currentTime)
+                if(subImagesView != null)
+                    subImagesView!!.setAudioTextLabel(string)
+            }
         }
-        val file = File("src/audio/record.aac")
-        val uri = file.toURI().toString()
-//        val mediaPlayer = MediaPlayer()
-//        filePath = savedFile!!.path
-       // println("filePath : ${filePath}")
-        media = Media(uri)
-        mediaPlayer = MediaPlayer(media)
-        mediaView.mediaPlayer = mediaPlayer
 
-
-        println("audio : 오디오 준비 끝")
     }
+
+    fun play() {
+        if (!isPlaying) {
+            println("audio : 오디오 재생 시작")
+            isPlaying = true
+            //var time = (mediaPlayer.totalDuration.toMillis()).toInt() + 1
+            playinAudioUIStart(currentTime)
+            mediaPlayer?.play()
+
+        }
+    }
+
+    fun playinAudioUIStart(_time : Int){
+        if(playingTimerTask != null)
+            playingTimerTask!!.cancel()
+        var time = _time
+        if(isPlaying){
+            var string : String = String.format("%02d:%02d", time/60, time)
+            if(subImagesView != null)
+                subImagesView!!.setAudioTextLabel(string)
+            playingTimerTask = object : TimerTask() {
+                var cnt = 0
+                override fun run() {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        var string : String = String.format("%02d:%02d", time/60, time)
+                        subImagesView!!.setAudioTextLabel(string)
+                        time -= 1
+                        if(time <0){
+                            playinAudioUIStop()
+                        }
+                    }
+                }
+            }
+            val timer = Timer()
+            timer.schedule(playingTimerTask, 0, 1000)
+        }
+    }
+
+    fun playinAudioUIStop(){
+        if(playingTimerTask != null)
+            playingTimerTask!!.cancel()
+        CoroutineScope(Dispatchers.Default).launch {
+            var time = currentTime
+            var string : String = String.format("%02d:%02d", time/60, time)
+            subImagesView!!.setAudioTextLabel(string)
+        }
+    }
+
+//    fun play() {
+//        //prepare()
+//        if (!isPlaying) {
+//            println("audio : 오디오 재생 시작")
+//            mediaPlayer.play()
+//            // mediaPlayer.run { play() }
+//            //isPlaying = true
+//        }
+//    }
+
 
     fun savedFileDelete(){
         savedFile?.delete()
@@ -63,7 +145,7 @@ class AudioResolver() {
         //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val mediaDir = "audio"
 
-        val file = File("src/$mediaDir/$fileName.${"aac"}")
+        val file = File(audioSourcePath+"$fileName.${"wav"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
@@ -83,14 +165,6 @@ class AudioResolver() {
         return savedFile as File
     }
 
-    fun play() {
-        //prepare()
-        if (!isPlaying) {
-            println("audio : 오디오 재생 시작")
-            mediaPlayer.run { play() }
-            //isPlaying = true
-        }
-    }
 
     fun pause() {
         if (isPlaying) {

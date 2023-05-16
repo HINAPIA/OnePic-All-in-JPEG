@@ -431,8 +431,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         val timer = Timer()
         timer.schedule(playingTimerTask, 0, 1000)
         }
-
-
     }
 
     fun playinAudioUIStop(){

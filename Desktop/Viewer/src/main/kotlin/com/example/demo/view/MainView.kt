@@ -64,8 +64,10 @@ class ImageViewer : View() {
                             aiContainer.imageContent.orientation = orientation
 
                             val image = Image(selectedFile.toURI().toString())
+
                             // Main Image 바꾸기
                             centerView.setMainImage(image, orientation)
+                            centerView.prepareAudio()
                            // centerView.subImagesView.setPictureList(aiContainer.imageContent.pictureList)
                            // centerView.editView.update()
                         }

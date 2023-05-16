@@ -68,7 +68,7 @@ class CenterView : View() {
             text = "분석 중. . ."
             style{
                 textFill = c("#FFFFFF") // 글자 색상 흰색
-                font = Font.font("Inter", FontWeight.EXTRA_BOLD, 25.0)
+                font = Font.font("Inter", FontWeight.BOLD, 25.0)
             }
             StackPane.setAlignment(this, Pos.CENTER)
             StackPane.setMargin(this, Insets(150.0, 0.0, 0.0, 00.0))
@@ -78,7 +78,7 @@ class CenterView : View() {
         // gifImageView
         gifImageVeiew.fitWidth = 100.0
         gifImageVeiew.isPreserveRatio = true
-        StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 100.0, 00.0))
+        StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 180.0, 00.0))
 
         //file name label
         fileNameLabel.apply{
@@ -143,9 +143,20 @@ class CenterView : View() {
         }
     }
     fun setMainImage(image : Image, rotation : Int){
+
+        mainImageView.translateX = 0.0; mainImageView.translateY = 20.0
+        fileImageView.translateX = 0.0; fileImageView.translateY = 20.0
+        fileNameLabel.translateX = 0.0; fileNameLabel.translateY = 20.0
+        analysisButton.isVisible = true
+
+        subImagesView.clear()
+        editView.clear()
+
         var newImage = imageTool.rotaionImage(image, rotation)
         mainImageView.image = newImage
         mainImageView.fitWidthProperty().bind(primaryStage.widthProperty().multiply(0.5));
+
+       // StackPane.setAlignment(mainImageView, Pos.CENTER)
         // 사진의 비율을 유지하도록 계산하여 설정
         var aspectRatio = mainImageView.image.width / mainImageView.image.height
         mainImageView.fitHeight = mainImageView.fitWidth / aspectRatio
@@ -156,7 +167,7 @@ class CenterView : View() {
         aspectRatio = fileImageView.image.width / fileImageView.image.height
         fileImageView.fitHeight = fileImageView.fitWidth / aspectRatio
         fileImageView.isPreserveRatio = true // 이미지의 비율을 유지하도록 설정
-        StackPane.setMargin(fileImageView, Insets(0.0,0.0 , mainImageView.fitHeight -fileImageView.fitHeight,mainImageView.fitWidth/2+fileImageView.fitWidth+5))
+        StackPane.setMargin(fileImageView, Insets(0.0,0.0 , mainImageView.fitHeight - fileImageView.fitHeight,mainImageView.fitWidth/2+fileImageView.fitWidth+5))
 
         fileNameLabel.isVisible = true
         StackPane.setMargin(fileNameLabel, Insets(0.0,0.0 , mainImageView.fitHeight + 60,0.0))
@@ -166,9 +177,8 @@ class CenterView : View() {
        // root.children.
         if(!isAnalsys){
             isAnalsys = true
-            analyzing()
             startAnimation()
-
+            analyzing()
         }
 
     }
@@ -214,19 +224,20 @@ class CenterView : View() {
         val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
         transition3.byY = -(fileNameLabel.translateY+80) // 왼쪽으로 100픽셀 이동
         transition3.play()
+
     }
 
     fun turnLeftAnimation(){
         val transition = TranslateTransition(Duration.seconds(1.0), mainImageView)
-        transition.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
+        transition.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
         transition.play()
 
         val transition2 = TranslateTransition(Duration.seconds(1.0), fileImageView)
-        transition2.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
+        transition2.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
         transition2.play()
 
         val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
-        transition3.byX = -(mainImageView.layoutX-20) // 왼쪽으로 100픽셀 이동
+        transition3.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
         transition3.play()
     }
     fun analyzingImageAnimation(){
@@ -242,7 +253,7 @@ class CenterView : View() {
 
         for (i in gifFrames.indices) {
             val image = gifFrames[i]
-            val keyFrame = KeyFrame(Duration.millis(40.0 * i + 1), EventHandler {
+            val keyFrame = KeyFrame(Duration.millis(40.0 * i + 1000), EventHandler {
                 gifImageVeiew.image = image
                 analysisButton.setImage(analsImage)
             })
@@ -261,9 +272,7 @@ class CenterView : View() {
 
     // 분석 중일 때
     fun analyzing(){
-        subImagesView.clear()
         subImagesView.root.isVisible = true
-
         analysisLabel.isVisible = true
         //text 바꾸기
         if(aiContainer.textContent.textCount >0){
@@ -271,8 +280,12 @@ class CenterView : View() {
         }
         // 이미지 리스트 뷰 바꾸기
         subImagesView.setPictureList(aiContainer.imageContent.pictureList)
-
     }
+
+    fun prepareAudio(){// 오디오 준비시키기
+        subImagesView.prepareAudio()
+    }
+
 
     //분석이 끝났을 때
     fun finishedAnalysis(){

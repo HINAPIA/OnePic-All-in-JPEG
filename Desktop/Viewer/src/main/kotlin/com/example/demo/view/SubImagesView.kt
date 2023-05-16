@@ -1,6 +1,7 @@
 package com.example.demo.view
 
 import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.AiContainer
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import javafx.animation.Interpolator
@@ -25,11 +26,16 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.layout.HBox.setMargin
+import javafx.scene.media.Media
+import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.util.Duration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import tornadofx.*
 import tornadofx.Stylesheet.Companion.content
 import tornadofx.Stylesheet.Companion.root
@@ -48,11 +54,18 @@ class SubImagesView(val centerView : CenterView) : View() {
     lateinit var textView : StackPane
     var textLabel : Label = Label()
     lateinit var audioView : StackPane
+    var audioTextLabel : Label = Label()
 
     var subImageView = ImageView()
+    var audioResolver = AudioResolver()
 
     val imageSourcePath = "src/main/kotlin/com/example/demo/resource/"
+    val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
+
+
+    var mediaPlayer : MediaPlayer? = null
     override val root = stackpane {
+        audioResolver.subImagesView = this@SubImagesView
         // 흰색
         imageview {
             var baseImage =  Image(File(imageSourcePath +"base.png").toURI().toURL().toExternalForm())
@@ -103,6 +116,16 @@ class SubImagesView(val centerView : CenterView) : View() {
                         borderColor += box(c("#EA2424"))
                     }
                 }
+                audioView.setOnMouseClicked { e->
+                    audioResolver.play()
+
+
+                    //audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()-30)
+//                   // audioResolver.mediaView.fitHeight = 50.0
+//                    //TODO("파일 선택 한번 하면 나타나도록)
+////                    audioResolver.prepare()
+////                    audioResolver.play()
+                }
 
                 add(audioView)
 
@@ -117,7 +140,7 @@ class SubImagesView(val centerView : CenterView) : View() {
         //images
         picturesScrollPane = scrollpane {
             content = picturesPane
-            //setfSize(540.0, 130.0)
+
             setMinSize(500.0, 130.0)
             setMaxSize(500.0, 130.0)
             setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER)
@@ -150,11 +173,8 @@ class SubImagesView(val centerView : CenterView) : View() {
          picturesPane.apply{
              setMinSize(500.0, 130.0)
              maxHeight(130.0)
-            // padding = Insets(10.0)
             style{
-                //paddingAll = 20.0
                 backgroundColor = MultiValue(arrayOf(Color.web("#020202")))
-                //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
                 effect = DropShadow(10.0, 0.0, 5.0, javafx.scene.paint.Color.GRAY).apply {
                     blurType = javafx.scene.effect.BlurType.ONE_PASS_BOX
                 }
@@ -165,7 +185,7 @@ class SubImagesView(val centerView : CenterView) : View() {
 
         subImageView.apply {
             style {
-                borderWidth += box(5.px)
+                //borderWidth += box(5.px)
                 borderColor += box(Color.BLUE)
                 backgroundColor += c("yellow")
                 // 상하좌우 모서리 모두 10px 둥글게 처리
@@ -200,7 +220,24 @@ class SubImagesView(val centerView : CenterView) : View() {
                 StackPane.setAlignment(this, Pos.CENTER_LEFT)
                 StackPane.setMargin(this, Insets(0.0, 10.0,0.0,0.0))
             }
+            audioTextLabel = label {
+                text = "00 : 00"
+                style {
+                    textFill = c("#FFFFFF") // 글자 색상 흰색
+                    font = Font.font("Inter", FontWeight.BOLD, 11.0)
+
+                }
+            }
         }
+    }
+
+    fun setAudioTextLabel(text : String){
+        runLater{
+            audioTextLabel.text = text
+        }
+    }
+    fun prepareAudio(){
+        audioResolver.prepare()
     }
     fun addTextView() : StackPane{
         return stackpane{
@@ -246,10 +283,14 @@ class SubImagesView(val centerView : CenterView) : View() {
     }
 
     fun clear(){
-        picturesPane.children.clear()
-        //textLabel.text = ""
-        textView.isVisible = false
-        audioView.isVisible = false
+        runLater {
+            root.isVisible = false
+            picturesPane.children.clear()
+            //textLabel.text = ""
+            textView.isVisible = false
+            audioView.isVisible = false
+            audioTextLabel.text = "00 : 00"
+        }
     }
 
     fun focusView(type:String, index : Int){
@@ -293,7 +334,6 @@ class SubImagesView(val centerView : CenterView) : View() {
 
                 }
             }
-
         }
     }
 
@@ -319,6 +359,7 @@ class SubImagesView(val centerView : CenterView) : View() {
                 borderColor += box(Color.BLUE)
             }
         }
+
         override fun onChanged(change: ListChangeListener.Change<out Picture>?) {
             var picturesPane = pictureScrollPane.content as HBox
             while (change?.next() == true) {
@@ -331,40 +372,24 @@ class SubImagesView(val centerView : CenterView) : View() {
 
                         var orientation = AiContainerSingleton.aiContainer.imageContent.orientation
                         imageView.image = imageTool.rotaionImage(Image(pictureByte.inputStream()), orientation)
-                        // 프레임 width의 1/6 크기로 설정
-                        // imageView.fitWidth = root.scene?.width?.div(8.0) ?: 0.0
                         imageView.fitHeightProperty().bind(picturesPane.heightProperty().multiply(0.8))
-                        imageView.style {
-                            borderWidth += box(5.px)
-                            borderColor += box(Color.BLUE)
-                            backgroundColor += c("yellow")
-                            // 상하좌우 모서리 모두 10px 둥글게 처리
-                            borderRadius = multi(box(10.px))
 
-                            //paddingAll = 10.0
-                            //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
-                        }
                         // 사진의 비율을 유지하도록 계산하여 설정
                         val aspectRatio = imageView.image.height / imageView.image.width
                         imageView.fitWidth = imageView.fitHeight / aspectRatio
                         picturesView.add(imageView)
 
                         imageView.setOnMouseEntered { e ->
-                           // selectView(imageView)
                             centerView.focusView("image", i)
                         }
-                        imageView.setOnMouseExited { e -> centerView.unfocusView("image", i)
+                        imageView.setOnMouseExited { e ->
+                            centerView.unfocusView("image", i)
                             imageView.style{
                                 //borderWidth += box(0.px)
                                 //borderColor += box(Color.BLUE)
                             }
                         }
-//                        imageView.setOnMouseClicked { e ->
-//                            // 분석 시작
-//                            startAnalsys()
-//                        }
                     }
-
                     runLater {
                         // 검은 창에 이미지 띄우기
                         picturesPane.children.clear()
@@ -379,10 +404,8 @@ class SubImagesView(val centerView : CenterView) : View() {
                             val keyFrame = KeyFrame(Duration.seconds(1.toDouble()), {
                                 pictureScrollPane.isVisible = true
                                 val scaleTransition = ScaleTransition(Duration.seconds(1.0), pictureScrollPane)
-                                scaleTransition.fromX = 0.0
-                                scaleTransition.fromY = 0.0
-                                scaleTransition.toX = 1.0
-                                scaleTransition.toY = 1.0
+                                scaleTransition.fromX = 0.0;scaleTransition.fromY = 0.0
+                                scaleTransition.toX = 1.0;scaleTransition.toY = 1.0
                                 scaleTransition.interpolator = Interpolator.EASE_OUT
                                 scaleTransition.play()
                             })
@@ -392,23 +415,23 @@ class SubImagesView(val centerView : CenterView) : View() {
                                 // 애니메이션
                                 val keyFrame = KeyFrame(Duration.seconds(i +2.toDouble()), {
                                     val imageView = picturesView[i]
-//                                    imageView.style {
-//                                        borderWidth += box(5.px)
-//                                        borderColor += box(Color.BLUE)
-//                                        backgroundColor += c("yellow")
-//                                        // 상하좌우 모서리 모두 10px 둥글게 처리
-//                                        borderRadius = multi(box(10.px))
-//                                        paddingAll = 10.0
-//                                        background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
-//                                    }
+                                    imageView.apply {
+                                        style {
+                                            borderWidth += box(5.px)
+                                            borderColor += box(Color.BLUE)
+                                            backgroundColor += c("yellow")
+                                            // 상하좌우 모서리 모두 10px 둥글게 처리
+                                            borderRadius = multi(box(10.px)) }
+                                        //paddingAll = 10.0
+                                        //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
+                                    }
+//
                                     picturesPane.children.add(imageView)
                                     // 점점 커지는 애니메이션
                                     addGrowingAnimation()
                                     val scaleTransition = ScaleTransition(Duration.seconds(1.0), picturesView[i])
-                                    scaleTransition.fromX = 0.0
-                                    scaleTransition.fromY = 0.0
-                                    scaleTransition.toX = 1.0
-                                    scaleTransition.toY = 1.0
+                                    scaleTransition.fromX = 0.0;scaleTransition.fromY = 0.0
+                                    scaleTransition.toX = 1.0;scaleTransition.toY = 1.0
                                     scaleTransition.interpolator = Interpolator.EASE_OUT
                                     scaleTransition.play()
                                 })
@@ -423,10 +446,8 @@ class SubImagesView(val centerView : CenterView) : View() {
                                 textView.isVisible = true
                                 // 점점 커지는 애니메이션
                                 val scaleTransition = ScaleTransition(Duration.seconds(1.0), textView)
-                                scaleTransition.fromX = 0.0
-                                scaleTransition.fromY = 0.0
-                                scaleTransition.toX = 1.0
-                                scaleTransition.toY = 1.0
+                                scaleTransition.fromX = 0.0;scaleTransition.fromY = 0.0
+                                scaleTransition.toX = 1.0;scaleTransition.toY = 1.0
                                 scaleTransition.interpolator = Interpolator.EASE_OUT
                                 scaleTransition.play()
                             })
@@ -436,10 +457,8 @@ class SubImagesView(val centerView : CenterView) : View() {
                                 audioView.isVisible = true
                                 // 점점 커지는 애니메이션
                                 val scaleTransition = ScaleTransition(Duration.seconds(1.0), audioView)
-                                scaleTransition.fromX = 0.0
-                                scaleTransition.fromY = 0.0
-                                scaleTransition.toX = 1.0
-                                scaleTransition.toY = 1.0
+                                scaleTransition.fromX = 0.0;scaleTransition.fromY = 0.0
+                                scaleTransition.toX = 1.0;scaleTransition.toY = 1.0
                                 scaleTransition.interpolator = Interpolator.EASE_OUT
                                 scaleTransition.play()
                             })
