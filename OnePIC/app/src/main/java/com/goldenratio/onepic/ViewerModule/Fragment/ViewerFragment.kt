@@ -88,16 +88,17 @@ class ViewerFragment : Fragment() {
             currentPosition = null
         }
 
-//        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
-//
-//            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-//
-//            Log.d("songsong currentFIlePath: ", currentFilePath)
-//            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
-//
-//            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
-//
-//        }
+        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
+
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+
+            Log.d("songsong currentFIlePath: ", currentFilePath)
+
+            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+
+            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
+
+        }
 
 
         setCurrentOtherImage()
@@ -305,38 +306,6 @@ class ViewerFragment : Fragment() {
             binding.audioBtn.layoutParams = layoutParams
         }
 
-
-//        binding.pullRightView.setOnClickListener {
-//
-//            Image()
-//
-//            scrollAnimation()
-//
-//
-////            binding.scrollView.visibility = View.VISIBLE
-////
-////            // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-////            val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
-////            val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
-////
-////            val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
-////            animation.duration = 600
-////            it.visibility = View.INVISIBLE
-////            binding.scrollView.startAnimation(animation)
-//
-////            // 애니메이션 중 위치가 endPosition에 도달하면 애니메이션을 즉시 종료
-////            binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-////                override fun onPreDraw(): Boolean {
-////                    if (binding.scrollView.x == endPosition) {
-////                        binding.scrollView.clearAnimation()
-////                        binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
-////                        return false
-////                    }
-////                    return true
-////                }
-////            })
-//        }
-
 //        setMagicPicture()
 
         binding.editBtn.setOnClickListener{
@@ -359,19 +328,6 @@ class ViewerFragment : Fragment() {
         animation.duration = 600
         binding.scrollView.startAnimation(animation)
 
-
-
-
-
-
-        // 스크롤뷰가 왼쪽에서 오른쪽으로 스르륵 나오도록 애니메이션 효과를 적용
-//        val startPosition =  binding.pullRightView.x - binding.scrollView.width - 10
-//        val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
-//
-//        val animation = TranslateAnimation(startPosition, endPosition,0f, 0f)
-//        animation.duration = 600
-//        binding.pullRightView.visibility = View.INVISIBLE
-//        binding.scrollView.startAnimation(animation)
     }
 
     fun setMagicPicture() {
@@ -379,13 +335,6 @@ class ViewerFragment : Fragment() {
         imageContent.resetMainBitmap()
         mainViewPagerAdapter.resetMagicPictureList()
 
-//        while(!imageContent.checkPictureList){}
-
-//        if(!imageContent.checkAttribute(ContentAttribute.magic)){
-//            Log.d("magic 유무", "NO!!!!!!!!!!!")
-//            ImageToolModule().showView(binding.magicBtn, false)
-//        }
-//        else {
         ImageToolModule().showView(binding.magicBtn, true)
         Log.d("magic 유무", "YES!!!!!!!!!!!")
         binding.magicBtn.setOnClickListener {
