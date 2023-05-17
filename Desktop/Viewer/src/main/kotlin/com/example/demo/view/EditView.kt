@@ -3,6 +3,7 @@ package com.example.demo.view
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import javafx.application.Platform
 import javafx.beans.value.ObservableValue
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
@@ -78,9 +79,13 @@ class EditView (val centerView : CenterView) : View(){
             setMinSize(300.0, 480.0)
             setMaxSize(300.0, 480.0)
             style{
-                backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+                //backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+                paddingAll = 5.0
+                background = Background(BackgroundFill(Color.web("#1A1A1A"), CornerRadii(15.0), Insets.EMPTY))
+
             }
         }
+        spacing = 3.0
          imageFileLoad()
 //315X530
             // Ai MeataData

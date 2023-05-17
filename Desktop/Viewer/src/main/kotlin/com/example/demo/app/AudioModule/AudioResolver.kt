@@ -24,7 +24,7 @@ class AudioResolver() {
     //private val media = Media(filePath)
     private lateinit var media : Media
     var mediaView : MediaView = MediaView()
-    private var isPlaying = false
+    var isPlaying = false
 
     private var playingTimerTask : TimerTask? = null
     var subImagesView: SubImagesView? = null
@@ -75,7 +75,6 @@ class AudioResolver() {
         if (!isPlaying) {
             println("audio : 오디오 재생 시작")
             isPlaying = true
-            //var time = (mediaPlayer.totalDuration.toMillis()).toInt() + 1
             playinAudioUIStart(currentTime)
             mediaPlayer?.play()
 
@@ -97,7 +96,7 @@ class AudioResolver() {
                         var string : String = String.format("%02d:%02d", time/60, time)
                         subImagesView!!.setAudioTextLabel(string)
                         time -= 1
-                        if(time <0){
+                        if(time <-1){
                             playinAudioUIStop()
                         }
                     }

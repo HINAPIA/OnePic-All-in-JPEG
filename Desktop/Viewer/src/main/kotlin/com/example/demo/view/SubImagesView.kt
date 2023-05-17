@@ -62,6 +62,8 @@ class SubImagesView(val centerView : CenterView) : View() {
     val imageSourcePath = "src/main/kotlin/com/example/demo/resource/"
     val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
 
+    var animationTime = 0.5
+
 
     var mediaPlayer : MediaPlayer? = null
     override val root = stackpane {
@@ -87,7 +89,6 @@ class SubImagesView(val centerView : CenterView) : View() {
                         borderWidth += box(4.px)
                         borderColor += box(c("#31D655"))
                         borderRadius  += box(10.px)
-
                     }
                 }
                 textView.setOnMouseExited { e ->
@@ -97,7 +98,9 @@ class SubImagesView(val centerView : CenterView) : View() {
                         borderColor += box(c("#31D655"))
                     }
                 }
-
+                textView.setOnMouseClicked {
+                    centerView.textContentStackPaneToggle()
+                }
                 add(textView)
                 // Audio
                 audioView = addAudioView()
@@ -110,21 +113,19 @@ class SubImagesView(val centerView : CenterView) : View() {
                     }
                 }
                 audioView.setOnMouseExited { e ->
-                    centerView.unfocusView("audio", 0)
-                    audioView.style{
-                        borderWidth += box(0.px)
-                        borderColor += box(c("#EA2424"))
+                    println("setOnMouseExited")
+                    if(!audioResolver.isPlaying){
+                       // println("setOnMouseExited")
+                        centerView.unfocusView("audio", 0)
+                        audioView.style{
+                            borderWidth += box(0.px)
+                            borderColor += box(c("#EA2424"))
+                        }
                     }
+
                 }
                 audioView.setOnMouseClicked { e->
                     audioResolver.play()
-
-
-                    //audioResolver.mediaView.fitWidthProperty().bind(this@stackpane.widthProperty()-30)
-//                   // audioResolver.mediaView.fitHeight = 50.0
-//                    //TODO("파일 선택 한번 하면 나타나도록)
-////                    audioResolver.prepare()
-////                    audioResolver.play()
                 }
 
                 add(audioView)
@@ -175,6 +176,7 @@ class SubImagesView(val centerView : CenterView) : View() {
              maxHeight(130.0)
             style{
                 backgroundColor = MultiValue(arrayOf(Color.web("#020202")))
+                //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
                 effect = DropShadow(10.0, 0.0, 5.0, javafx.scene.paint.Color.GRAY).apply {
                     blurType = javafx.scene.effect.BlurType.ONE_PASS_BOX
                 }
@@ -183,17 +185,17 @@ class SubImagesView(val centerView : CenterView) : View() {
              //alignment = Pos.CENTER // StackPane의 자식 노드들을 중앙으로 정렬
          }
 
-        subImageView.apply {
-            style {
-                //borderWidth += box(5.px)
-                borderColor += box(Color.BLUE)
-                backgroundColor += c("yellow")
-                // 상하좌우 모서리 모두 10px 둥글게 처리
-                borderRadius = multi(box(10.px))
-                //paddingAll = 10.0
-                //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
-            }
-        }
+//        subImageView.apply {
+//            style {
+//                //borderWidth += box(5.px)
+//                borderColor += box(Color.BLUE)
+//                backgroundColor += c("yellow")
+//                // 상하좌우 모서리 모두 10px 둥글게 처리
+//                borderRadius = multi(box(10.px))
+//                //paddingAll = 10.0
+//                //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
+//            }
+//        }
     }
 
     init {
@@ -340,9 +342,10 @@ class SubImagesView(val centerView : CenterView) : View() {
     class PictureListChangeListener(val centerView : CenterView, private val pictureScrollPane: ScrollPane, val textView : StackPane, val audioView : StackPane) : ListChangeListener<Picture> {
         private val picturesView = mutableListOf<ImageView>()
         var imageTool = ImageTool()
+        var animationTime = 0.5
 
         fun addGrowingAnimation(){
-            val scaleTransition = ScaleTransition(Duration.seconds(1.0), audioView)
+            val scaleTransition = ScaleTransition(Duration.seconds(animationTime), audioView)
             scaleTransition.fromX = 0.0
             scaleTransition.fromY = 0.0
             scaleTransition.toX = 1.0
@@ -389,6 +392,9 @@ class SubImagesView(val centerView : CenterView) : View() {
                                 //borderColor += box(Color.BLUE)
                             }
                         }
+                        imageView.setOnMouseClicked { e ->
+                            centerView.setMainChage(imageView.image)
+                        }
                     }
                     runLater {
                         // 검은 창에 이미지 띄우기
@@ -396,14 +402,14 @@ class SubImagesView(val centerView : CenterView) : View() {
                         picturesPane.apply {
                             alignment = Pos.CENTER_LEFT
                             spacing = 20.0
-                            padding = Insets(10.0, 30.0, 10.0, 30.0)
-                            setMargin(this@apply, Insets(0.0, 20.0, 0.0, 20.0))
+                            padding = Insets(10.0, 10.0, 10.0, 10.0)
+                            setMargin(this@apply, Insets(0.0, 10.0, 10.0, 20.0))
 
                             val timeline = Timeline()
                             // 이미지를 담는 검은 배경이 나타나는 애니메이션
                             val keyFrame = KeyFrame(Duration.seconds(1.toDouble()), {
                                 pictureScrollPane.isVisible = true
-                                val scaleTransition = ScaleTransition(Duration.seconds(1.0), pictureScrollPane)
+                                val scaleTransition = ScaleTransition(Duration.seconds(animationTime), pictureScrollPane)
                                 scaleTransition.fromX = 0.0;scaleTransition.fromY = 0.0
                                 scaleTransition.toX = 1.0;scaleTransition.toY = 1.0
                                 scaleTransition.interpolator = Interpolator.EASE_OUT
@@ -413,7 +419,7 @@ class SubImagesView(val centerView : CenterView) : View() {
                             // 이미지가 하나씩 나타나는 애니메이션
                             for (i in 0..picturesView.size - 1) {
                                 // 애니메이션
-                                val keyFrame = KeyFrame(Duration.seconds(i +2.toDouble()), {
+                                val keyFrame = KeyFrame(Duration.seconds(animationTime*i +2.toDouble()), {
                                     val imageView = picturesView[i]
                                     imageView.apply {
                                         style {
@@ -442,7 +448,7 @@ class SubImagesView(val centerView : CenterView) : View() {
 
                             // 텍스트, 오디오 요소가 나타나는 애니메이션
                             val timeline2 = Timeline()
-                            var keyFrame2 = KeyFrame(Duration.seconds(picturesView.size+2.toDouble()),{
+                            var keyFrame2 = KeyFrame(Duration.seconds((picturesView.size)*animationTime+2.toDouble()),{
                                 textView.isVisible = true
                                 // 점점 커지는 애니메이션
                                 val scaleTransition = ScaleTransition(Duration.seconds(1.0), textView)
@@ -453,7 +459,7 @@ class SubImagesView(val centerView : CenterView) : View() {
                             })
 
                             timeline2.keyFrames.add(keyFrame2)
-                            keyFrame2 = KeyFrame(Duration.seconds(picturesView.size+3.toDouble()),{
+                            keyFrame2 = KeyFrame(Duration.seconds((picturesView.size)*animationTime +3.toDouble()),{
                                 audioView.isVisible = true
                                 // 점점 커지는 애니메이션
                                 val scaleTransition = ScaleTransition(Duration.seconds(1.0), audioView)
