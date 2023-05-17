@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         jpegViewModelFactory = JpegViewModelFactory(this)
         jpegViewModels = ViewModelProvider(this, jpegViewModelFactory)[JpegViewModel::class.java]
 
+
         val MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
     }

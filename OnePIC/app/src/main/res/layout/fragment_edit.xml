@@ -20,7 +20,7 @@
 
         <Button
             android:id="@+id/backBtn"
-            android:layout_width="70dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent_color"
             android:paddingTop="2dp"
@@ -36,7 +36,7 @@
 
         <Button
             android:id="@+id/saveBtn"
-            android:layout_width="69dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/dark_purple"
             android:text="@string/save_text"

@@ -348,13 +348,15 @@ class RewindModule() {
         return overlayImg
     }
 
-    suspend fun choiseBestImage(bitmapList: ArrayList<Bitmap>): ArrayList<Float> =
+    suspend fun choiseBestImage(bitmapList: ArrayList<Bitmap>): ArrayList<Double> =
         suspendCoroutine { continuation ->
 
-            val analysisResults = arrayListOf<Float>()
+            var analysisResults = arrayListOf<Double>()
             val checkFinish = BooleanArray(bitmapList.size)
+            var faceMaxIndex = 0
+
             for (i in 0 until bitmapList.size) {
-                analysisResults.add(0.0f)
+                analysisResults.add(0.0)
                 checkFinish[i] = false
             }
 
@@ -365,6 +367,8 @@ class RewindModule() {
                     CoroutineScope(Dispatchers.Default).launch {
                         val facesResult = faceArraylist[j]
                         var sum = 0.0f
+
+
                         // 그 이후 인덱스일 경우, 각 face을 비교
                         if (facesResult != null) {
                             for (i in 0 until facesResult.size) {
@@ -380,11 +384,17 @@ class RewindModule() {
                                     }
 
                                 sum += checkFace.smilingProbability!! + eyes
+
                             }
-                            analysisResults[j] = sum / facesResult.size
+                            analysisResults[j] = sum / facesResult.size.toDouble()
                             if((sum / facesResult.size).isNaN()) {
-                                analysisResults[j] = 0.0f
+                                analysisResults[j] = 0.0
                             }
+
+                            if (j != 0)
+                                if (analysisResults[faceMaxIndex] < sum) {
+                                    faceMaxIndex = j
+                                }
                         }
                         checkFinish[j] = true
                     }
@@ -392,11 +402,8 @@ class RewindModule() {
 
             while (!checkFinish.all { it }) { }
 
-//            var bestIndex = 0
-//            for(i in 1 until analysisResults.size) {
-//                if(analysisResults[bestIndex] < analysisResults[i]){
-//                    bestIndex = i
-//                }
+//            if(analysisResults[faceMaxIndex] > 2.0) {
+                analysisResults = imageToolModule.adjustMinMaxValues(analysisResults, 0.0, 2.0)
 //            }
             continuation.resume(analysisResults)
         }

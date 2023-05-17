@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_calendarFragment_to_addDiaryFragment"
             app:destination="@id/addDiaryFragment" />
+        <action
+            android:id="@+id/action_calendarFragment_to_viewDiaryFragment"
+            app:destination="@id/viewDiaryFragment" />
     </fragment>
     <fragment
         android:id="@+id/addDiaryFragment"
@@ -21,6 +24,17 @@
         tools:layout="@layout/fragment_add_diary" >
         <action
             android:id="@+id/action_addDiaryFragment_to_calendarFragment"
+            app:destination="@id/calendarFragment"
+            app:popUpTo="@id/calendarFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewDiaryFragment"
+        android:name="com.goldenratio.onepicdiary.Fragment.ViewDiaryFragment"
+        android:label="fragment_view_diary"
+        tools:layout="@layout/fragment_view_diary" >
+        <action
+            android:id="@+id/action_viewDiaryFragment_to_calendarFragment"
             app:destination="@id/calendarFragment"
             app:popUpTo="@id/calendarFragment"
             app:popUpToInclusive="true" />
