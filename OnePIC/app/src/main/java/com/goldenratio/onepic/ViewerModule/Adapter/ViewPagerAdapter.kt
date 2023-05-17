@@ -296,7 +296,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             isFirstResource: Boolean
                         ): Boolean {
                             setFitCenterPaddingValue(resource)
-                            return true
+                            return false
                         }
                     })
                     .into(imageView)
@@ -342,12 +342,12 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
         fun setFitCenterPaddingValue(resource:Drawable?) {
 
-            if(/*imageView.drawable*/resource == null) {
+            if(resource == null) {
                 Log.d("여기에서 나가버림",": here")
                 return
             }
 
-            val bitmap: Bitmap = /*imageView.drawable*/resource.toBitmap()
+            val bitmap: Bitmap = resource.toBitmap()
 
             // imageView width, height 가져오기
             val viewWidth = imageView.width
