@@ -197,13 +197,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute
                 ) {
 
+
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
                     val currentFilePath = jpegViewModel.currentImageFilePath
                     val fileName =
                         currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                     jpegViewModel.currentImageFilePath
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    ViewerFragment.currentFilePath = savedFilePath.toString()
+                    //ViewerFragment.currentFilePath = savedFilePath.toString()
                     Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
 
                     CoroutineScope(Dispatchers.Default).launch {
@@ -212,15 +213,18 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //                imageTool.showView(binding.progressBar2 , false)
                         withContext(Dispatchers.Main) {
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+
                         }
                     }
                 } else if (imageContent.checkMagicAttribute) {
                     imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
 
+
                     // magic으로 변경했을 경우 모든 파일 저장
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                    ViewerFragment.currentFilePath = savedFilePath.toString()
+                    //ViewerFragment.currentFilePath = savedFilePath.toString()
                     Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
+
 
                     CoroutineScope(Dispatchers.Default).launch {
                         setButtonDeactivation()
@@ -244,11 +248,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 }
 
                                 var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                                ViewerFragment.currentFilePath = savedFilePath.toString()
+
+                                //ViewerFragment.currentFilePath = savedFilePath.toString()
                                 Log.d(
                                     "savedFilePath",
                                     "savedFilePath : ${savedFilePath.toString()}"
                                 )
+
 
                                 CoroutineScope(Dispatchers.Default).launch {
                                     setButtonDeactivation()
@@ -271,7 +277,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                     newImageContent.setContent(singlePictureList)
 
                                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                                    ViewerFragment.currentFilePath = savedFilePath.toString()
+                                    //ViewerFragment.currentFilePath = savedFilePath.toString()
                                     Log.d(
                                         "savedFilePath",
                                         "savedFilePath : ${savedFilePath.toString()}"

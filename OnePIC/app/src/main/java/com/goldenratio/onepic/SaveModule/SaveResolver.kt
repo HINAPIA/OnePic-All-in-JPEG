@@ -144,7 +144,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
                 cursor.close()
                 uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
-                ViewerFragment.currentFilePath = uri.toString()
+               // ViewerFragment.currentFilePath = uri.toString()
                 Log.d("saveResolver", "덮어 쓰기")
 
                 // Delete the existing file
@@ -159,6 +159,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 Log.d("saveResolver", "새 파일에 저장")
                 uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+                ViewerFragment.currentFilePath = uri.toString()
+                Log.d("here here : ",ViewerFragment.currentFilePath )
            // }
 
             Log.d("burst", "${uri}")

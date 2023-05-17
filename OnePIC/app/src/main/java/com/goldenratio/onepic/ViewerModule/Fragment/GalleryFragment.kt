@@ -2,11 +2,13 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
@@ -33,6 +35,7 @@ class GalleryFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -41,7 +44,7 @@ class GalleryFragment : Fragment() {
         binding.gridView.adapter = gridAdapter
 
         ViewerFragment.currentFilePath = ""
-
+        BasicViewerFragment.currentFilePath =""
 
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 

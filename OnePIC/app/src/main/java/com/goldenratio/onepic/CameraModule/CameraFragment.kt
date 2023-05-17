@@ -1,5 +1,6 @@
 package com.goldenratio.onepic.CameraModule
 
+import com.goldenratio.onepic.R
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -38,9 +39,10 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.ImageContent
-import com.goldenratio.onepic.R
+
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
+
 import kotlinx.coroutines.*
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
