@@ -594,6 +594,7 @@ class CameraFragment : Fragment() {
         }
     }
 
+
     private fun showTextViewWithFadeInAnimation(view: View) {
         Log.v("basicToggle", "showTextViewWithFadeInAnimation View : ${view}")
         view.visibility = View.VISIBLE

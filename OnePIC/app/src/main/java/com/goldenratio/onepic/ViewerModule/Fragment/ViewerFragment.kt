@@ -166,7 +166,9 @@ class ViewerFragment : Fragment() {
 
                 // 필름 스크롤뷰 초기화
                 //binding.pullRightView.visibility = View.VISIBLE
-                //binding.scrollView.visibility = View.INVISIBLE//GONE
+
+               // binding.scrollView.visibility = View.INVISIBLE//GONE
+
 
 
                 // 텍스트 버튼 초기화
