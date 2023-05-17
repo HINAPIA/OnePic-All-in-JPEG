@@ -270,13 +270,19 @@
 <!--        </LinearLayout>-->
         <FrameLayout
             android:layout_width="match_parent"
-            android:background="@drawable/container"
             android:scaleType="fitCenter"
             android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:layout_height="0dp"
             android:layout_weight="1.5">
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:scaleType="fitXY"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/container" />
 
             <LinearLayout
                 android:id="@+id/datalinearLayout"
@@ -308,7 +314,6 @@
             </LinearLayout>
 
             <HorizontalScrollView
-
                 android:id="@+id/scrollView"
                 android:layout_marginStart="40dp"
                 android:layout_marginEnd="40dp"
