@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -18,25 +19,47 @@
         app:srcCompat="@drawable/line_icon" />
 
     <ImageView
+        android:id="@+id/currentIcon"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/dateText"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/current_day" />
+
+    <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/dateText"
         app:layout_constraintEnd_toStartOf="@+id/lineImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/dateText" />
 
+    <ImageView
+        android:id="@+id/sticker"
+        android:layout_width="15dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sticker"
+        app:tint="#ABB890FF" />
+
     <TextView
         android:id="@+id/dateText"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:gravity="center_horizontal"
-        android:paddingTop="5dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center|center_horizontal"
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lineImage" />
+        app:layout_constraintTop_toTopOf="@+id/lineImage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

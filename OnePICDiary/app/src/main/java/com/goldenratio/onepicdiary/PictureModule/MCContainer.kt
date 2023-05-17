@@ -4,15 +4,17 @@ import android.app.Activity
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
+import com.goldenratio.onepic.SaveModule.SaveResolver
 import kotlinx.coroutines.*
 
 
 class MCContainer(_activity: Activity) {
-//     var saveResolver : SaveResolver
-//     var audioResolver : AudioResolver = AudioResolver(_activity)
+    var saveResolver : SaveResolver
+    var audioResolver : AudioResolver = AudioResolver(_activity)
     private lateinit var activity : Activity
     var header : Header
 
@@ -25,7 +27,7 @@ class MCContainer(_activity: Activity) {
     private var groupCount : Int = 0
     init {
         activity = _activity
-//        saveResolver = SaveResolver(activity ,this)
+        saveResolver = SaveResolver(activity ,this)
         header = Header(this)
 
     }
@@ -69,13 +71,13 @@ class MCContainer(_activity: Activity) {
     /*Edit modules에서 호출하는 함수 끝 */
 
     fun overwiteSave(fileName : String) {
-//       saveResolver.overwriteSave(fileName)
+        saveResolver.overwriteSave(fileName)
 
     }
     //Container의 데이터를 파일로 저장
-//     fun save() : String {
-//        return saveResolver.save()
-//    }
+    fun save() : String {
+        return saveResolver.save()
+    }
     // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
     suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute) : Boolean= withContext(Dispatchers.Default){
 
@@ -112,7 +114,7 @@ class MCContainer(_activity: Activity) {
     fun audioPlay(){
         var audio = audioContent.audio
         if(audio != null){
-//            audioResolver.audioPlay(audio)
+            audioResolver.audioPlay(audio)
         }
 
     }

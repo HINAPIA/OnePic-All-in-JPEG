@@ -300,4 +300,20 @@ class ImageToolModule {
         }
     }
 
+    fun adjustMinMaxValues(arr: ArrayList<Double>, newMin: Double, newMax: Double): ArrayList<Double> {
+        val minValue = arr.minOrNull() ?: return arr
+        val maxValue = arr.maxOrNull() ?: return arr
+
+        val adjustedArr = arrayListOf<Double>()
+        val minMaxDiff = maxValue - minValue
+        val newMinMaxDiff = newMax - newMin
+
+        for (i in arr.indices) {
+            val normalizedValue = (arr[i] - minValue) / minMaxDiff.toDouble() // 정규화된 값 계산
+            adjustedArr.add(normalizedValue * newMinMaxDiff.toDouble() + newMin) // 비율에 따라 값 변환
+        }
+
+        return adjustedArr
+    }
+
 }

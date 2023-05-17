@@ -1,26 +1,35 @@
 package com.goldenratio.onepicdiary.Fragment
 
-import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.JpegViewModel
+import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepicdiary.CalendarAdapter
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentCalendarBinding
+import kotlinx.coroutines.*
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 import kotlin.properties.Delegates
 
 class CalendarFragment : Fragment() {
 
-    private var currentMonth by Delegates.notNull<Int>()
-    private var currentYear by Delegates.notNull<Int>()
     private lateinit var binding: FragmentCalendarBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
+
+    private var currentMonth by Delegates.notNull<Int>()
+    private var currentYear by Delegates.notNull<Int>()
 
     private lateinit var calendar: Calendar
     private lateinit var adapter: CalendarAdapter
@@ -38,6 +47,13 @@ class CalendarFragment : Fragment() {
         currentMonth = calendar.get(Calendar.MONTH)
 
 //        Log.d("calendar","##### "+calendar.get(Calendar.DATE))
+
+        val cellList = jpegViewModel.diaryCellArrayList
+
+        if(cellList.size > 0) {
+            currentYear = cellList[cellList.size-1].year
+            currentMonth = cellList[cellList.size-1].month - 1
+        }
 
         setDiary()
 
@@ -104,27 +120,47 @@ class CalendarFragment : Fragment() {
         return days
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // 선택한 이미지 처리 로직을 여기에 추가
-        if(jpegViewModel.currentUri != null) {
-
-            currentYear = jpegViewModel.year
-            currentMonth = jpegViewModel.month - 1
-
-            setDiary()
-
-            adapter.addDiaryImage(jpegViewModel.currentUri!!, jpegViewModel.day)
-            jpegViewModel.currentUri = null
-        }
-    }
-
     private fun setDiary() {
+        binding.progressBar.visibility = View.VISIBLE
+
         val days = generateCalendarDays(currentYear, currentMonth)
 
         adapter = CalendarAdapter(requireContext(), days)
         binding.calendarGrid.adapter = adapter
+
+        val cellList = jpegViewModel.diaryCellArrayList
+
+        CoroutineScope(Dispatchers.Default).launch {
+            for (i in 0 until cellList.size) {
+                val cellYear = cellList[i].year
+                val cellMonth = cellList[i].month - 1
+
+                if (currentYear == cellYear && currentMonth == cellMonth)
+                    adapter.addDiaryImage(cellList[i].currentUri, cellList[i].day, ::viewDiary)
+            }
+            withContext(Dispatchers.Main) {
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+
+        CoroutineScope(Dispatchers.Default).launch {
+            calendar = Calendar.getInstance()
+
+            val nowYear = calendar.get(Calendar.YEAR)
+            val nowMonth = calendar.get(Calendar.MONTH)
+
+            if(currentYear == nowYear && currentMonth == nowMonth) {
+                adapter.setMainImage(calendar.get(Calendar.DATE))
+            }
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun viewDiary(uri: Uri) {
+
+        jpegViewModel.currentUri = uri
+        jpegViewModel.setCurrentMCContainer()
+
+        findNavController().navigate(R.id.action_calendarFragment_to_viewDiaryFragment)
+    }
 }

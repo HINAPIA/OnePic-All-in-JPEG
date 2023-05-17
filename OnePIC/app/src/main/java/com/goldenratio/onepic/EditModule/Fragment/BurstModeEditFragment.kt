@@ -66,8 +66,6 @@ class BurstModeEditFragment : Fragment() {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
 
-        imageToolModule.showView(binding.progressBar,true)
-
         mainPicture = imageContent.mainPicture
         pictureList = imageContent.pictureList
 
@@ -157,7 +155,14 @@ class BurstModeEditFragment : Fragment() {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
-        viewBestImage()
+        CoroutineScope(Dispatchers.Default).launch {
+            if (imageContent.activityType == ActivityType.Camera) {
+                withContext(Dispatchers.Main) {
+                    imageToolModule.showView(binding.progressBar, true)
+                }
+                viewBestImage()
+            }
+        }
 
         return binding.root
     }
@@ -226,16 +231,17 @@ class BurstModeEditFragment : Fragment() {
 
             val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
+
                 rewindModule.allFaceDetection(bitmapList)
                 val faceDetectionResult = rewindModule.choiseBestImage(bitmapList)
                 Log.d("anaylsis", "end faceDetection")
+
                 val shakeDetectionResult = ShakeLevelModule().shakeLevelDetection(bitmapList)
 
                 val analysisResults = arrayListOf<Double>()
 
                 var bestImageIndex = 0
-
-                if (!checkFinish.all { it }) {
+                if (checkFinish.all { it }) {
                     checkFinish = BooleanArray(pictureList.size)
                 }
                 for(i in 0 until bitmapList.size) {
@@ -246,20 +252,25 @@ class BurstModeEditFragment : Fragment() {
                 }
 
                 for(i in 0 until bitmapList.size) {
-                    Log.d("anaylsis", "[$i] = faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
-                    analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
-                    analysisResults.add(faceDetectionResult[i].toDouble())
+                    Log.d("anaylsis", "[$i] = ${checkFinish[i]} |  faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
+                    analysisResults.add(faceDetectionResult[i].toDouble() + shakeDetectionResult[i])
+                    Log.d("anaylsis", "[$i] = ${analysisResults[i]}")
                     if(!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]){
                         bestImageIndex = i
+                        checkFinish[i] = true
                     }
                 }
+
+                Log.d("anaylsis", "=== ${analysisResults[bestImageIndex]}")
                 checkFinish[bestImageIndex] = true
                 println("bestImageIndex = $bestImageIndex")
+
+                mainPicture = pictureList[bestImageIndex]
 
                 withContext(Dispatchers.Main) {
                     // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
                     Glide.with(binding.burstMainView)
-                        .load(imageContent.getJpegBytes(pictureList[bestImageIndex]))
+                        .load(imageContent.getJpegBytes(mainPicture))
                         .into(binding.burstMainView)
 
                     if(imageContent.activityType == ActivityType.Viewer) {

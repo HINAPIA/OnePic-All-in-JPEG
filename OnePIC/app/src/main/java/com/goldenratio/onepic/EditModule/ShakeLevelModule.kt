@@ -2,6 +2,7 @@ package com.goldenratio.onepic.EditModule
 
 import android.graphics.Bitmap
 import android.util.Log
+import com.goldenratio.onepic.ImageToolModule
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Core
@@ -46,7 +47,7 @@ class ShakeLevelModule {
 
     fun shakeLevelDetection(bitmapList: ArrayList<Bitmap>) : ArrayList<Double> {
         Log.d("anaylsos", "shakeDetection start")
-        val shakeLevelList = arrayListOf<Double>()
+        var shakeLevelList = arrayListOf<Double>()
         var shakeMaxIndex = 0
 
         for (i in 0 until bitmapList.size) {
@@ -63,13 +64,7 @@ class ShakeLevelModule {
                 }
         }
 
-        if(shakeLevelList.size > 0) {
-            val ratioMulti = (2.0 / shakeLevelList[shakeMaxIndex])
-
-            for (i in 0 until shakeLevelList.size) {
-                shakeLevelList[i] = shakeLevelList[i] * ratioMulti
-            }
-        }
+        shakeLevelList = ImageToolModule().adjustMinMaxValues(shakeLevelList, 0.0,2.0)
 
         return shakeLevelList
     }

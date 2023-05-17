@@ -1,20 +1,19 @@
 package com.goldenratio.onepicdiary
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.*
+import java.util.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class CalendarAdapter(private val context: Context, private val days: MutableList<Int?>) : BaseAdapter() {
 
@@ -32,7 +31,6 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
         return position.toLong()
     }
 
-    @SuppressLint("MissingInflatedId")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val day = days[position]
 
@@ -48,23 +46,50 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
             cellViewMap[day] = cellView
         }
 
-
-        // 셀의 모양이나 기능을 추가로 커스텀할 수 있습니다.
-
         return cellView
     }
 
-    fun addDiaryImage(uri: Uri, date: Int) {
+    suspend fun addDiaryImage(uri: Uri, date: Int, clickFun: (Uri) -> Unit) : Boolean = suspendCoroutine { result ->
         CoroutineScope(Dispatchers.Default).launch {
 
             while (date > cellViewMap.size) {
+                delay(300)
             }
 
             withContext(Dispatchers.Main) {
                 cellViewMap[date]?.findViewById<TextView>(R.id.dateText)
                     ?.setTextColor(Color.WHITE)
-                cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)?.setImageURI(uri)
+//                cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)?.setImageURI(uri)
+                val imageView = cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)!!
+                withContext(Dispatchers.Main) {
+                    Glide.with(imageView)
+                        .load(uri)
+                        .into(imageView)
+                }
+                cellViewMap[date]?.findViewById<ImageView>(R.id.sticker)?.visibility = View.VISIBLE
+
+                cellViewMap[date]?.setOnClickListener {
+                    clickFun(uri)
+                }
             }
+
+            result.resume(true)
         }
     }
+
+    suspend fun setMainImage(date: Int) : Boolean = suspendCoroutine { result ->
+        CoroutineScope(Dispatchers.Default).launch {
+
+            while (date > cellViewMap.size) {
+            }
+            withContext(Dispatchers.Main) {
+                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)
+                    ?.setTextColor(Color.WHITE)
+                cellViewMap[date]?.findViewById<ImageView>(R.id.currentIcon)?.visibility = View.VISIBLE
+            }
+
+            result.resume(true)
+        }
+    }
+
 }
