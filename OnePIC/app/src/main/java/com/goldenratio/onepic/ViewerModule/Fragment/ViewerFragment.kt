@@ -88,16 +88,16 @@ class ViewerFragment : Fragment() {
             currentPosition = null
         }
 
-        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
-
-            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-
-            Log.d("songsong currentFIlePath: ", currentFilePath)
-            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
-
-            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
-
-        }
+//        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
+//
+//            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+//
+//            Log.d("songsong currentFIlePath: ", currentFilePath)
+//            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+//
+//            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
+//
+//        }
 
 
         setCurrentOtherImage()
@@ -165,7 +165,7 @@ class ViewerFragment : Fragment() {
 
                 // 필름 스크롤뷰 초기화
                 //binding.pullRightView.visibility = View.VISIBLE
-                binding.scrollView.visibility = View.INVISIBLE//GONE
+                //binding.scrollView.visibility = View.INVISIBLE//GONE
 
 
                 // 텍스트 버튼 초기화
@@ -308,7 +308,7 @@ class ViewerFragment : Fragment() {
 
 //        binding.pullRightView.setOnClickListener {
 //
-//            setCurrentOtherImage()
+//            Image()
 //
 //            scrollAnimation()
 //
@@ -478,7 +478,6 @@ class ViewerFragment : Fragment() {
                             Glide.with(scrollImageView)
                                 .load(pictureByteArr)
                                 .into(scrollImageView)
-
 
                             scrollImageView.isFocusable = true // 포커스를 받을 수 있도록 설정
                             scrollImageView.isFocusableInTouchMode = true // 터치 모드에서 포커스를 받을 수 있도록 설정
