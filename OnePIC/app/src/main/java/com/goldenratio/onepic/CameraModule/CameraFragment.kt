@@ -115,7 +115,13 @@ class CameraFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+
+        // 상태바 색상 변경
+        val window: Window = activity?.window
+            ?: throw IllegalStateException("Fragment is not attached to an activity")
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/calendarFragment">
+
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.goldenratio.onepicdiary.Fragment.CalendarFragment"
+        android:label="fragment_calendar"
+        tools:layout="@layout/fragment_calendar" >
+        <action
+            android:id="@+id/action_calendarFragment_to_addDiaryFragment"
+            app:destination="@id/addDiaryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addDiaryFragment"
+        android:name="com.goldenratio.onepicdiary.Fragment.AddDiaryFragment"
+        android:label="fragment_add_diary"
+        tools:layout="@layout/fragment_add_diary" >
+        <action
+            android:id="@+id/action_addDiaryFragment_to_calendarFragment"
+            app:destination="@id/calendarFragment"
+            app:popUpTo="@id/calendarFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>

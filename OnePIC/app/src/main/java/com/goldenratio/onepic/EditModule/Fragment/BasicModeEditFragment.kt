@@ -1,9 +1,8 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -30,7 +29,13 @@ class BasicModeEditFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        // 상태바 색상 변경
+        val window: Window = activity?.window
+            ?: throw IllegalStateException("Fragment is not attached to an activity")
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+
         // 뷰 바인딩 설정
         binding = FragmentBasicModeEditBinding.inflate(inflater, container, false)
 

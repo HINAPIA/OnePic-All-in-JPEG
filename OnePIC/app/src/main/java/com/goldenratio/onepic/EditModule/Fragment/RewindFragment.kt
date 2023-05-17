@@ -8,16 +8,15 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
@@ -31,6 +30,7 @@ import com.goldenratio.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
 
 open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
@@ -57,12 +57,27 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected lateinit var imageContent: ImageContent
     lateinit var fragment: Fragment
 
+    private var infoLevel = MutableLiveData<InfoLevel>()
+
+    private enum class InfoLevel {
+        EditFaceSelect,
+        ChangeFaceSelect,
+        ArrowCheck,
+        BasicLevelEnd
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         bundle: Bundle?
     ): View {
+        // 상태바 색상 변경
+        val window: Window = activity?.window
+            ?: throw IllegalStateException("Fragment is not attached to an activity")
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+
         // 뷰 바인딩 설정
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
@@ -72,9 +87,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         rewindModule = RewindModule()
 
         if (imageContent.activityType == ActivityType.Camera) {
-            imageToolModule.showView(binding.candidateLayout, false)
+//            imageToolModule.showView(binding.faceListView, false)
             imageToolModule.showView(binding.imageResetBtn, false)
             imageToolModule.showView(binding.imageCompareBtn, false)
+
         }
         imageToolModule.showView(binding.progressBar, true)
 
@@ -82,7 +98,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         mainPicture = imageContent.mainPicture
 
         // 메인 이미지 임시 설정
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 Glide.with(binding.rewindMainView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
@@ -121,6 +137,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
+
+            CoroutineScope(Dispatchers.Default).launch {
+                imageToolModule.showView(binding.infoDialogLayout, false)
+                infoLevel.value = InfoLevel.EditFaceSelect
+            }
+
             CoroutineScope(Dispatchers.Default).launch {
 
                 imageToolModule.showView(binding.progressBar, true)
@@ -170,6 +192,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // autoRewind 클릭시
         binding.autoRewindBtn.setOnClickListener {
+
+            CoroutineScope(Dispatchers.Main).launch {
+                imageToolModule.showView(binding.infoDialogLayout, false)
+                infoLevel.value = InfoLevel.EditFaceSelect
+            }
+
             imageToolModule.showView(binding.progressBar, true)
             imageToolModule.showView(binding.arrowBar, false)
             binding.candidateLayout.removeAllViews()
@@ -179,8 +207,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     rewindModule.allFaceDetection(bitmapList)
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
-                    withContext(Dispatchers.Main) {
-                        binding.rewindMainView.setImageBitmap(mainBitmap)
+                    if(imageContent.activityType == ActivityType.Camera) {
+                        withContext(Dispatchers.Main) {
+                            binding.rewindMainView.setImageBitmap(mainBitmap)
+                        }
+                    }
+                    else {
+                        setMainImageBoundingBox()
                     }
                     newImage = null
                     imageToolModule.showView(binding.progressBar, false)
@@ -188,8 +221,26 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
 
+        // info 확인
+        binding.rewindInfoBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+        }
+
+        // info 삭제
+        binding.dialogCloseBtn.setOnClickListener {
+            imageToolModule.showView(binding.infoDialogLayout, false)
+        }
+
         if(imageContent.activityType == ActivityType.Viewer) {
             viewerToEditViewSetting()
+            infoLevel.value = InfoLevel.EditFaceSelect
+            infoLevel.observe(viewLifecycleOwner){ _ ->
+                infoTextView()
+            }
+        }
+        else {
+            infoLevel.value = InfoLevel.BasicLevelEnd
+            infoTextView()
         }
 
         return binding.root
@@ -198,9 +249,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.post {
-            val arrowListener =
-                ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn)
-            binding.circleArrowBtn.setOnTouchListener(arrowListener)
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+            imageToolModule.showView(binding.arrowBar, false)
         }
     }
 
@@ -246,6 +296,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         // reset 버튼 클릭시
         binding.imageResetBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                imageToolModule.showView(binding.infoDialogLayout, false)
+            }
             binding.rewindMainView.setImageBitmap(originalMainBitmap)
             mainBitmap = originalMainBitmap
             preMainBitmap = null
@@ -256,7 +309,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // compare 버튼 클릭시
         binding.imageCompareBtn.setOnTouchListener { view, event ->
-
+            CoroutineScope(Dispatchers.Main).launch {
+                imageToolModule.showView(binding.infoDialogLayout, false)
+            }
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     binding.rewindMainView.setImageBitmap(originalMainBitmap)
@@ -281,6 +336,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      */
     open fun setMainImageBoundingBox() {
 
+        if(infoLevel.value != InfoLevel.EditFaceSelect) {
+            CoroutineScope(Dispatchers.Main).launch {
+                infoLevel.value = InfoLevel.EditFaceSelect
+            }
+        }
+
         //showView(binding.faceListView, false)
         imageToolModule.showView(binding.arrowBar, false)
         if (!binding.candidateLayout.isEmpty()) {
@@ -294,7 +355,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
             val faceResult = rewindModule.runFaceDetection(0)
-
+//            val faceResult = rewindModule.runMainFaceDetection(mainBitmap)
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
             if (faceResult.size == 0) {
@@ -457,6 +518,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                     binding.rewindMainView.setImageBitmap(preMainBitmap)
                     imageToolModule.showView(binding.arrowBar, true)
+                    infoLevel.value = InfoLevel.ArrowCheck
                 }
 
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
@@ -467,9 +529,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
         imageToolModule.showView(binding.progressBar , false)
         imageToolModule.showView(binding.arrowBar, false)
+        infoLevel.value = InfoLevel.ChangeFaceSelect
     }
 
     private fun moveCropFace(moveX:Int, moveY:Int) {
+        if(infoLevel.value != InfoLevel.BasicLevelEnd)
+            infoLevel.value = InfoLevel.BasicLevelEnd
         if (newImage != null) {
 
             changeFaceStartX += moveX
@@ -494,6 +559,25 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             )
 
             binding.rewindMainView.setImageBitmap(preMainBitmap)
+        }
+    }
+
+    open fun infoTextView() {
+        Log.d("infoTextView","infoTextView call")
+        when (infoLevel.value) {
+            InfoLevel.EditFaceSelect -> {
+                binding.infoText.text = "변경을 원하는 얼굴을 누릅니다."
+            }
+            InfoLevel.ChangeFaceSelect -> {
+                binding.infoText.text = "아래 사진을 보고\n마음에 드는 얼굴을 선택합니다."
+            }
+            InfoLevel.ArrowCheck -> {
+                binding.infoText.text = "변경된 얼굴의 위치는\n조정 바를 통해 수정할 수 있습니다."
+            }
+            InfoLevel.BasicLevelEnd -> {
+                binding.infoText.text = "Auto 버튼을 통해 모두가 잘나온 얼굴로\n자동 얼굴 변경을 할 수 있습니다."
+            }
+            else -> {}
         }
     }
 

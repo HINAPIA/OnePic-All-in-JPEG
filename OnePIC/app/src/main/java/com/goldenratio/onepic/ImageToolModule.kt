@@ -215,13 +215,12 @@ class ImageToolModule {
 
         detectionResults.forEach {
             // draw bounding box
-            pen.color = context.resources.getColor(R.color.point_color)
-            pen.strokeWidth = floatToDp(9F).toFloat()
+            pen.color = context.resources.getColor(R.color.white)
+            pen.strokeWidth = floatToDp(8F).toFloat()
             pen.style = Paint.Style.STROKE
             val box = it.boundingBox.toRectF()
             canvas.drawArc(box, -30f, 70f, false, pen)
-            canvas.drawArc(box, 143f, 70f, false, pen)
-
+            canvas.drawArc(box, 140f, 70f, false, pen)
         }
         return outputBitmap
     }
@@ -252,6 +251,29 @@ class ImageToolModule {
         return Point(newPointX.toInt(), newPointY.toInt())
     }
 
+    fun getFitCenterPaddingValue(imageView: ImageView): Int {
+
+        if(imageView.drawable == null) return 0
+
+        val bitmap: Bitmap = imageView.drawable.toBitmap()
+
+        // imageView width, height 가져오기
+        val viewWidth = imageView.width
+        val viewHeight = imageView.height
+
+        val bitmapWidth = bitmap.width
+        val bitmapHeight = bitmap.height
+
+        val alpha = viewWidth/bitmapWidth
+
+        return if( viewHeight > bitmapHeight * alpha ){
+            viewHeight - bitmapHeight * alpha
+        } else {
+            viewHeight
+        }
+
+    }
+
     /**
      * checkPointInRect(point: Point, rect: Rect):
      *          point 가 rect 안에 존재하는 지를 알아낸다.
@@ -264,6 +286,11 @@ class ImageToolModule {
                 point.y >= rect.top && point.y <= rect.bottom
     }
 
+    /**
+     * showView(view: View, isShow: Boolean)
+     *          view를 보여주고 숨기는 함수
+     *          false면 gone, true면 visible
+     */
     fun showView(view: View, isShow: Boolean){
         CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Main) {

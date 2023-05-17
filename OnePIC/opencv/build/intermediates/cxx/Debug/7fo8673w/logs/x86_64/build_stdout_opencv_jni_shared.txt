@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/x86_64'
+ninja: no work to do.
