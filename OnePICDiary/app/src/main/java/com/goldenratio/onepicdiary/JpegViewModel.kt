@@ -1,10 +1,11 @@
 package com.goldenratio.onepic
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
@@ -15,12 +16,17 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 
+
 class JpegViewModel(private val context:Context) : ViewModel() {
 
     var jpegMCContainer = MutableLiveData<MCContainer>()
 
     var diaryCellArrayList = arrayListOf<DiaryCellData>()
     var currentUri : Uri? = null
+    var currentFilePath : String = ""
+
+    var preferences: SharedPreferences =
+        context.getSharedPreferences("image_file_path", Context.MODE_PRIVATE)
 
     private var loadResolver : LoadResolver = LoadResolver()
 
@@ -72,5 +78,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         return byteBuffer.toByteArray()
     }
 
-
+    fun getFileNameFromUri(uri: Uri): String {
+        val documentFile = DocumentFile.fromSingleUri(context, uri)
+        return documentFile?.name!!
+    }
 }

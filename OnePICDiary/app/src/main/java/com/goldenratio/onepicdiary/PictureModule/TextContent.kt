@@ -15,6 +15,7 @@ class TextContent {
         init()
         for(i in 0..textList.size-1){
             var text = Text(textList.get(i), contentAttribute)
+            //
             insertText(text)
         }
     }

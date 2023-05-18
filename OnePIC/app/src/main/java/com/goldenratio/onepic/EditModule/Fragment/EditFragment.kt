@@ -19,7 +19,6 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
-import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.CoroutineScope
@@ -195,13 +194,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                 if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute
-                ) {
-
+                    || !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
+                    !imageContent.checkMagicAttribute && imageContent.checkAddAttribute
+                 ) {
 
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
                     val currentFilePath = jpegViewModel.currentImageFilePath
-                    val fileName =
-                        currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+                    val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                     jpegViewModel.currentImageFilePath
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     //ViewerFragment.currentFilePath = savedFilePath.toString()

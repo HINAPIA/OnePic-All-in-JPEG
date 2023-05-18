@@ -12,14 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepicdiary.CalendarAdapter
+import com.goldenratio.onepicdiary.DiaryCellData
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentCalendarBinding
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
+import java.io.File
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -34,6 +32,7 @@ class CalendarFragment : Fragment() {
     private lateinit var calendar: Calendar
     private lateinit var adapter: CalendarAdapter
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -48,6 +47,7 @@ class CalendarFragment : Fragment() {
 
 //        Log.d("calendar","##### "+calendar.get(Calendar.DATE))
 
+        getPreference()
         val cellList = jpegViewModel.diaryCellArrayList
 
         if(cellList.size > 0) {
@@ -120,6 +120,7 @@ class CalendarFragment : Fragment() {
         return days
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun setDiary() {
         binding.progressBar.visibility = View.VISIBLE
 
@@ -163,4 +164,24 @@ class CalendarFragment : Fragment() {
 
         findNavController().navigate(R.id.action_calendarFragment_to_viewDiaryFragment)
     }
-}
+
+    fun getPreference() {
+        val allPreferences: Map<String, *> = jpegViewModel.preferences.all
+
+        for ((key, value) in allPreferences) {
+
+            // 키와 값을 출력
+            println("Key: $key")
+            println("Value: $value")
+
+            val date = key.split("/")
+
+            val imageUri = Uri.parse(value as String?)
+
+            val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
+            Log.d("Cell Text", "````````````` $cell")
+
+            jpegViewModel.diaryCellArrayList.add(cell)
+        }
+    }
+ }
