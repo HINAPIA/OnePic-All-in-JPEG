@@ -70,8 +70,8 @@ class MCContainer(_activity: Activity) {
 
     /*Edit modules에서 호출하는 함수 끝 */
 
-    fun overwiteSave(fileName : String) {
-        saveResolver.overwriteSave(fileName)
+    fun overwiteSave(fileName : String): String {
+        return saveResolver.overwriteSave(fileName)
 
     }
     //Container의 데이터를 파일로 저장

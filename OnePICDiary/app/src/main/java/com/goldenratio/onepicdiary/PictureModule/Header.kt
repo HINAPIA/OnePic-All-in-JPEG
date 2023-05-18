@@ -1,5 +1,6 @@
 package com.goldenratio.onepic.PictureModule
 
+import android.util.Log
 import com.goldenratio.camerax.PictureModule.Info.AudioContentInfo
 import com.goldenratio.camerax.PictureModule.Info.ImageContentInfo
 import com.goldenratio.camerax.PictureModule.Info.TextContentInfo
@@ -22,6 +23,7 @@ class Header(_MC_container : MCContainer) {
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(MCContainer.imageContent)
         textContentInfo = TextContentInfo(MCContainer.textContent)
+
         audioContentInfo = AudioContentInfo(MCContainer.audioContent,imageContentInfo.getEndOffset()+3)
         headerDataLength = getAPP3FieldLength()
 

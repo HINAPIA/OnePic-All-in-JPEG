@@ -4,8 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <groupId>com.example</groupId>
-    <artifactId>tornadofx-maven-project</artifactId>
+    <artifactId>OnePic Viewer</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -18,7 +25,7 @@
         <dependency>
             <groupId>no.tornado</groupId>
             <artifactId>tornadofx</artifactId>
-            <version>${tornadofx.version}</version>
+            <version>1.7.20</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -31,6 +38,22 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.rtyley</groupId>
+            <artifactId>animated-gif-lib-for-java</artifactId>
+            <version>animated-gif-lib-1.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -63,7 +86,20 @@
                     <jvmTarget>1.8</jvmTarget>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>7</source>
+                    <target>7</target>
+                </configuration>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 
 </project>

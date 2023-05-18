@@ -113,7 +113,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
             }
-        return savedFile!!
+        return savedFile
 
     }
 
@@ -137,6 +137,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 selectionArgs,
                 null
             )
+        Log.d("savedFilePath", "delete File Path = $fileName")
             // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
             if (cursor != null && cursor.moveToFirst()) {
                 // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.

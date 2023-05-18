@@ -246,8 +246,7 @@
                 android:id="@+id/infoDialogLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="visible"
-                tools:visibility="gone">
+                android:visibility="gone">
 
                 <View
                     android:id="@+id/infoDialogView"
