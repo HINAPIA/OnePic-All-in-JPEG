@@ -10,11 +10,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../PARSING_20230413_010314.aac" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$4$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +40,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Class" />
+        <option value="FxmlFile" />
+        <option value="TornadoFX Code View" />
         <option value="Kotlin Class" />
       </list>
     </option>
@@ -175,12 +188,24 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Desktop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/yujin/Documents/GitHub/OnePIC/Desktop/Viewer/src/main/kotlin/com/example/demo/resource&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource" />
+      <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource" />
+    </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
       <recent name="no.tornado.app" />
     </key>
@@ -192,22 +217,6 @@
       <option name="HEIGHT" value="300" />
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <module />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
-      <node-interpreter value="project" />
-      <working-dir value="" />
-      <envs />
-      <scope-kind value="ALL" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
-      <config-file value="" />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
-      <method />
     </configuration>
     <configuration default="true" type="TORNADOFX_RUNCONFIGURATION" factoryName="TornadoFX Configuration Factory" run-type="App" live-views="false" live-stylesheets="false" dump-stylesheets="false">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -228,20 +237,14 @@
       <module name="tornadofx-maven-project" />
       <envs />
     </configuration>
-    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+    <configuration default="true" type="js.build_tools.gulp">
       <node-interpreter>project</node-interpreter>
       <node-options />
       <gulpfile />
       <tasks />
       <arguments />
       <envs />
-    </configuration>
-    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
-      <command value="run" />
-      <scripts />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
+      <method v="2" />
     </configuration>
     <configuration default="true" type="osgi.bnd.run" factoryName="Run Launcher">
       <method />
@@ -257,7 +260,7 @@
     </configuration>
     <configuration name="viewer" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.example.demo.app.MyApp" />
-      <module name="tornadofx-maven-project" />
+      <module name="Viewer" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -332,6 +335,8 @@
       <workItem from="1513798853679" duration="38000" />
       <workItem from="1513798964802" duration="21000" />
       <workItem from="1517468649479" duration="15000" />
+      <workItem from="1683732611416" duration="57000" />
+      <workItem from="1683732672411" duration="78000" />
     </task>
     <servers />
   </component>
@@ -378,7 +383,7 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -388,9 +393,55 @@
       <collection />
     </option>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt</url>
+          <line>146</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt</url>
+          <line>37</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt</url>
+          <line>301</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt</url>
+          <line>302</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt</url>
+          <line>327</line>
+          <properties>
+            <option name="lambda-ordinal" value="-1" />
+          </properties>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="this" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Viewer$viewer.ic" NAME="viewer Coverage Results" MODIFIED="1684238012775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/MyApp.kt">
