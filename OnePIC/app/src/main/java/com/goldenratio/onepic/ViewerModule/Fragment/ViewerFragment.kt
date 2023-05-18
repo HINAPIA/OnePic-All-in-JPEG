@@ -5,13 +5,16 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
+import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
@@ -44,19 +47,25 @@ class ViewerFragment : Fragment() {
 
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
-    private var isMainChanged:Boolean? = null
-    private var isInitFocus:Boolean = true
+
 
     /* text, audio, magic 선택 여부 */
-    private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
 
     companion object {
         var currentFilePath:String = ""
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
+        var isAudioPlaying = MutableLiveData<Boolean>()
         var audioTopMargin = MutableLiveData<Int>()
         var audioEndMargin = MutableLiveData<Int>()
+    }
+
+    private lateinit var context: Context
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context = requireContext()
     }
 
     override fun onCreateView(
@@ -92,19 +101,18 @@ class ViewerFragment : Fragment() {
 
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
 
-            Log.d("songsong currentFIlePath: ", currentFilePath)
+            var path = currentFilePath
 
-            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
+                path = getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
+            }
 
-            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
-
+            binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
         }
 
 
         setCurrentOtherImage()
         binding.scrollView.visibility = View.VISIBLE
-
-        //scrollAnimation()
 
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
@@ -137,6 +145,31 @@ class ViewerFragment : Fragment() {
 
         var container = jpegViewModel.jpegMCContainer.value!!
 
+        binding.viewPager2.setOnClickListener {
+
+            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
+
+                if (binding.savedTextView.visibility == View.VISIBLE){
+                    binding.savedTextView.visibility = View.INVISIBLE
+                }
+                else {
+                    binding.savedTextView.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        binding.savedTextView.setOnClickListener {
+            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
+                if (it.visibility == View.VISIBLE){
+                    it.visibility = View.INVISIBLE
+                }
+                else {
+                    it.visibility = View.VISIBLE
+                }
+            }
+        }
+
+
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
         if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
             binding.audioBtn.visibility = View.VISIBLE
@@ -145,6 +178,36 @@ class ViewerFragment : Fragment() {
         }
         else {
             binding.audioBtn.visibility = View.GONE
+        }
+
+        /*  Text 있을 경우 - 표시 */
+
+        if (container.textContent.textCount != 0){
+
+            binding.savedTextView.visibility = View.VISIBLE
+
+            var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+
+            if(textList != null && textList.size !=0){
+
+                val text = textList.get(0).data
+
+                val shadowColor = Color.parseColor("#CAC6C6")// 그림자 색상
+                val shadowDx = 5f // 그림자의 X 방향 오프셋
+                val shadowDy = 0f // 그림자의 Y 방향 오프셋
+                val shadowRadius = 3f // 그림자의 반경
+
+                binding.savedTextView.setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
+                binding.savedTextView.setText(text)
+
+
+            }
+            else {
+                binding.savedTextView.setText("")
+            }
+        }
+        else {
+            binding.savedTextView.visibility = View.INVISIBLE
         }
 
 
@@ -164,20 +227,6 @@ class ViewerFragment : Fragment() {
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
 
-                // 필름 스크롤뷰 초기화
-                //binding.pullRightView.visibility = View.VISIBLE
-
-               // binding.scrollView.visibility = View.INVISIBLE//GONE
-
-
-
-                // 텍스트 버튼 초기화
-                if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
-                    isTxtBtnClicked = false
-                    binding.textLinear.visibility = View.INVISIBLE
-                    //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
-                }
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
@@ -209,55 +258,7 @@ class ViewerFragment : Fragment() {
             }
         }
 
-        /** Button 이벤트 리스너 - editBtn, backBtn, textBtn*/
-
-        //TODO: Text가 여러 개 이므로, 어떻게 layout 구성할지 생각
-        binding.textBtn.setOnClickListener{
-
-            val textLinear = binding.textLinear
-
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-
-            if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
-                /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
-                isTxtBtnClicked = true
-                textLinear.visibility = View.VISIBLE
-                // 블러처리할 배경 색상값
-                val blurColor = Color.parseColor("#80000000")
-
-                // 배경 색상값을 포함한 ShapeDrawable 생성
-                val shapeDrawable = ShapeDrawable()
-                shapeDrawable.paint.color = blurColor
-
-                // ColorFilter를 적용하여 블러처리 효과 적용
-                val blurMaskFilter = BlurMaskFilter(10f, BlurMaskFilter.Blur.NORMAL)
-                shapeDrawable.paint.maskFilter = blurMaskFilter
-                shapeDrawable.alpha = 150
-
-                // TextView에 배경 설정
-                binding.savedTextView.background = shapeDrawable
-
-
-                /* 텍스트 메시지 띄우기 */
-                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-                if(textList != null && textList.size !=0){
-                    binding.savedTextView.setText(textList.get(0).data)
-                } else{
-                    binding.savedTextView.setText("")
-                }
-
-            }
-
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-            else { // 클릭 되어 있던 상태
-                /* layout 변경 */
-                it.background = ColorDrawable(Color.TRANSPARENT)
-                isTxtBtnClicked = false
-                textLinear.visibility = View.INVISIBLE
-            }
-        }
+        /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
 
         binding.audioBtn.setOnClickListener{
 
@@ -266,29 +267,38 @@ class ViewerFragment : Fragment() {
 
             if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
                 /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.mute2)
+                binding.audioBtn.setImageResource(R.drawable.sound4)
                 isAudioBtnClicked = true
+
+                // 오디오 재생
+                jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                isAudioPlaying.value = true
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
+
                 /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.sound4)
+                binding.audioBtn.setImageResource(R.drawable.audio)
                 isAudioBtnClicked = false
 
-                // 오디오 재생
-                jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                jpegViewModel.jpegMCContainer.value!!.audioStop()
             }
         }
 
+        isAudioPlaying.observe(requireActivity()){ value ->
+            if (value == false){
+                binding.audioBtn.performClick()
+            }
+        }
 
 
         audioTopMargin.observe(requireActivity()){ value ->
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  value// 위쪽 마진(dp)
-            val rightMarginInDp = 20 // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(20f).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -300,8 +310,8 @@ class ViewerFragment : Fragment() {
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  20// 위쪽 마진(dp)
-            val rightMarginInDp = value // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(20f).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(value.toFloat()).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -473,50 +483,6 @@ class ViewerFragment : Fragment() {
         }
     }
 
-
-    // old version
-//    fun setCurrentOtherImage(){
-//
-//        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
-//
-//        if (pictureList != null) {
-//            binding.linear.removeAllViews()
-//            Log.d("picture list size: ",""+pictureList.size)
-//
-//            CoroutineScope(Dispatchers.IO).launch {
-//                for (picture in pictureList){
-//                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
-//                    // 넣고자 하는 layout 불러오기
-//                   try {
-//                       val scollItemLayout =
-//                           layoutInflater.inflate(R.layout.scroll_item_layout, null)
-//
-//                       // 위 불러온 layout에서 변경을 할 view가져오기
-//                       val scrollImageView: ImageView =
-//                           scollItemLayout.findViewById(R.id.scrollImageView)
-//
-//                       CoroutineScope(Dispatchers.Main).launch {
-//                           // 이미지 바인딩
-//                           Glide.with(scrollImageView)
-//                               .load(pictureByteArr)
-//                               .into(scrollImageView)
-//
-//                           scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-//                               mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-//                               jpegViewModel.setselectedSubImage(picture)
-//                           }
-//                           binding.linear.addView(scollItemLayout)
-//                       }
-//                   } catch (e: IllegalStateException) {
-//                       println(e.message)
-//                   }
-//                } // end of for..
-//                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
-//                Log.d("초기 선택된 이미지: ",""+pictureList[0])
-//            }
-//        }
-//    }
-
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
         val byteBuffer = ByteArrayOutputStream()
@@ -550,5 +516,98 @@ class ViewerFragment : Fragment() {
             return Uri.parse("Invalid path")
         }
         return uri
+    }
+
+    fun pxToDp(px: Float): Float {
+
+        val resources = context.resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            px,
+            resources.displayMetrics
+        )
+    }
+
+    fun getFilePathFromUri(context: Context, uri: Uri): String? {
+        var filePath: String? = null
+
+        // "content" scheme일 경우
+        if (uri.scheme == "content") {
+            // API 레벨이 KitKat(19) 이상인 경우
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
+                // External Storage Document Provider
+                if (isExternalStorageDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":")
+                    val type = split[0]
+
+                    if ("primary".equals(type, ignoreCase = true)) {
+                        filePath = "${context.getExternalFilesDir(null)}/${split[1]}"
+                    }
+                }
+                // Downloads Document Provider
+                else if (isDownloadsDocument(uri)) {
+                    val id = DocumentsContract.getDocumentId(uri)
+                    val contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        id.toLong()
+                    )
+                    filePath = getDataColumn(context, contentUri, null, null)
+                }
+                // Media Provider
+                else if (isMediaDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":")
+                    val type = split[0]
+
+                    var contentUri: Uri? = null
+                    when (type) {
+                        "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    }
+
+                    val selection = "_id=?"
+                    val selectionArgs = arrayOf(split[1])
+
+                    filePath = getDataColumn(context, contentUri, selection, selectionArgs)
+                }
+            }
+            // API 레벨이 KitKat(19) 미만인 경우 또는 Document Uri가 아닌 경우
+            else {
+                filePath = getDataColumn(context, uri, null, null)
+            }
+        }
+        // "file" scheme일 경우
+        else if (uri.scheme == "file") {
+            filePath = uri.path
+        }
+
+        return filePath
+    }
+
+    private fun isExternalStorageDocument(uri: Uri): Boolean {
+        return "com.android.externalstorage.documents" == uri.authority
+    }
+
+    private fun isDownloadsDocument(uri: Uri): Boolean {
+        return "com.android.providers.downloads.documents" == uri.authority
+    }
+
+    private fun isMediaDocument(uri: Uri): Boolean {
+        return "com.android.providers.media.documents" == uri.authority
+    }
+
+    private fun getDataColumn(context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
+        var path: String? = null
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                path = it.getString(columnIndex)
+            }
+        }
+        return path
     }
 }

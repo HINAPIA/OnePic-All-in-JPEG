@@ -10,6 +10,7 @@ import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.goldenratio.onepic.PictureModule.Contents.Audio
+import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -123,6 +124,9 @@ class AudioResolver(val context : Context) {
                      AudioAttributes.Builder()
                          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                          .build())
+                 setOnCompletionListener {
+                     ViewerFragment.isAudioPlaying.value = false
+                 }
             try {
                  setDataSource(savedFile!!.path)
                  prepare()

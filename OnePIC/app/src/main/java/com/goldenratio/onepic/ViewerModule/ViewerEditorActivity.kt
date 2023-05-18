@@ -99,7 +99,7 @@ class ViewerEditorActivity : AppCompatActivity() {
     private fun getAllPhotos(){ // 사진 경로(File Path) 가져오기
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-            val begin = System.currentTimeMillis()
+
             val cursor = contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Images.Media._ID),
@@ -122,9 +122,6 @@ class ViewerEditorActivity : AppCompatActivity() {
                 cursor.close()
                 jpegViewModels.updateImageUriData(uriList)
             }
-            val end = System.currentTimeMillis()
-            println("Elapsed time in milliseconds: ${end-begin}")
-            println("is this real? : ${uriList.size}")
         }
         else {
             val cursor = contentResolver.query(
