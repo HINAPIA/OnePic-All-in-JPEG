@@ -63,19 +63,19 @@ class AddDiaryFragment : Fragment() {
         binding.saveBtn.setOnClickListener {
             val year = 2023
 
-                val cell = DiaryCellData(imageUri!!, year, month-1, day)
-                cell.titleText = binding.titleTextField.text.toString()
-                cell.contentText = binding.contentTextField.text.toString()
+            val cell = DiaryCellData(imageUri!!, year, month - 1, day)
+            cell.titleText = binding.titleTextField.text.toString()
+            cell.contentText = binding.contentTextField.text.toString()
 
-                val textList: ArrayList<String> = arrayListOf()
-                textList.add(cell.toString())
+            val textList: ArrayList<String> = arrayListOf()
+            textList.add(cell.toString())
             Log.d("Cell Text", "AddDiary -- $cell")
 
 
             jpegViewModel.jpegMCContainer.value!!.setTextConent(
-                    ContentAttribute.basic,
-                    textList
-                )
+                ContentAttribute.basic,
+                textList
+            )
 
 
             // CoroutineScope(Dispatchers.Default).launch {
@@ -85,22 +85,20 @@ class AddDiaryFragment : Fragment() {
             // 기존 파일 삭제
             jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(imageUri!!, fileName)
 
-
             var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
             //var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    val imageUri = Uri.parse(savedFilePath)
-                    cell.currentUri = imageUri
+            val imageUri = Uri.parse(savedFilePath)
+            cell.currentUri = imageUri
 
-                    jpegViewModel.currentUri = imageUri
-                    jpegViewModel.diaryCellArrayList.add(cell)
+            jpegViewModel.currentUri = imageUri
+            jpegViewModel.diaryCellArrayList.add(cell)
 
 
-                    val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
-                    editor.putString("$year/$month/$day", savedFilePath)
-                    editor.apply()
-
-                findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
-            }
+            val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
+            editor.putString("$year/$month/$day", savedFilePath)
+            editor.apply()
+            findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
+        }
         binding.mainView.setOnClickListener {
             openGallery()
         }
@@ -135,6 +133,7 @@ class AddDiaryFragment : Fragment() {
                 val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
                 while (!imageContent.checkPictureList) {
                     Thread.sleep(200)
+
                 }
             }
         }
