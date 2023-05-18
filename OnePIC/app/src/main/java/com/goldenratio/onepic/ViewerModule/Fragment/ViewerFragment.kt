@@ -2,6 +2,7 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -12,6 +13,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
@@ -44,8 +46,6 @@ class ViewerFragment : Fragment() {
 
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
-    private var isMainChanged:Boolean? = null
-    private var isInitFocus:Boolean = true
 
 
     /* text, audio, magic 선택 여부 */
@@ -137,6 +137,31 @@ class ViewerFragment : Fragment() {
 
         var container = jpegViewModel.jpegMCContainer.value!!
 
+        binding.viewPager2.setOnClickListener {
+
+            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
+
+                if (binding.savedTextView.visibility == View.VISIBLE){
+                    binding.savedTextView.visibility = View.INVISIBLE
+                }
+                else {
+                    binding.savedTextView.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        binding.savedTextView.setOnClickListener {
+            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
+                if (it.visibility == View.VISIBLE){
+                    it.visibility = View.INVISIBLE
+                }
+                else {
+                    it.visibility = View.VISIBLE
+                }
+            }
+        }
+
+
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
         if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
             binding.audioBtn.visibility = View.VISIBLE
@@ -194,14 +219,6 @@ class ViewerFragment : Fragment() {
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
 
-
-//                // 텍스트 버튼 초기화
-//                if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
-//                    binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
-//                    isTxtBtnClicked = false
-//                    binding.textLinear.visibility = View.INVISIBLE
-//                    //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
-//                }
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
@@ -272,8 +289,8 @@ class ViewerFragment : Fragment() {
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  value// 위쪽 마진(dp)
-            val rightMarginInDp = 20 // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(requireContext(),value.toFloat()).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(requireContext(),20f).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -285,8 +302,8 @@ class ViewerFragment : Fragment() {
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  20// 위쪽 마진(dp)
-            val rightMarginInDp = value // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(requireContext(),20f).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(requireContext(),value.toFloat()).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -491,5 +508,14 @@ class ViewerFragment : Fragment() {
             return Uri.parse("Invalid path")
         }
         return uri
+    }
+
+    fun pxToDp(context: Context, px: Float): Float {
+        val resources = context.resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            px,
+            resources.displayMetrics
+        )
     }
 }

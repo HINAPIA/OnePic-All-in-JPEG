@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -157,7 +158,7 @@ class BasicViewerFragment : Fragment() {
         val itemWidth = screenWidth / 2 // 화면 너비의 절반으로 아이템 크기 설정
 
 
-        val paddingStart = (screenWidth - itemWidth) / 2 + 170//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
+        val paddingStart = pxToDp(requireContext(),((screenWidth - itemWidth) / 2 + 170).toFloat()).toInt()//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
         recyclerView.setPaddingRelative(paddingStart, 0, paddingStart, 0)
         recyclerView.clipToPadding = false
 
@@ -214,9 +215,13 @@ class BasicViewerFragment : Fragment() {
         }
     }
 
-    private fun dpToPx(dp: Float, context: Context): Int {
-        val density = context.resources.displayMetrics.density
-        return (dp * density + 0.5f).toInt()
+    fun pxToDp(context: Context, px: Float): Float {
+        val resources = context.resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            px,
+            resources.displayMetrics
+        )
     }
 
 }
