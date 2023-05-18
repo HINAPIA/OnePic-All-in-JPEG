@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.text.Spannable
 import android.text.SpannableString
@@ -60,6 +61,13 @@ class ViewerFragment : Fragment() {
         var audioEndMargin = MutableLiveData<Int>()
     }
 
+    private lateinit var context: Context
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context = requireContext()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -93,18 +101,18 @@ class ViewerFragment : Fragment() {
 
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
 
-            Log.d("songsong currentFIlePath: ", currentFilePath)
+            var path = currentFilePath
 
-            //mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
+                path = getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
+            }
 
-            binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
+            binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
         }
 
 
         setCurrentOtherImage()
         binding.scrollView.visibility = View.VISIBLE
-
-        //scrollAnimation()
 
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
@@ -289,8 +297,8 @@ class ViewerFragment : Fragment() {
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  pxToDp(requireContext(),value.toFloat()).toInt()// 위쪽 마진(dp)
-            val rightMarginInDp = pxToDp(requireContext(),20f).toInt() // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(20f).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -302,8 +310,8 @@ class ViewerFragment : Fragment() {
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
             val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  pxToDp(requireContext(),20f).toInt()// 위쪽 마진(dp)
-            val rightMarginInDp = pxToDp(requireContext(),value.toFloat()).toInt() // 오른쪽 마진(dp)
+            val topMarginInDp =  pxToDp(20f).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = pxToDp(value.toFloat()).toInt() // 오른쪽 마진(dp)
             val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
             layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -510,12 +518,96 @@ class ViewerFragment : Fragment() {
         return uri
     }
 
-    fun pxToDp(context: Context, px: Float): Float {
+    fun pxToDp(px: Float): Float {
+
         val resources = context.resources
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_PX,
             px,
             resources.displayMetrics
         )
+    }
+
+    fun getFilePathFromUri(context: Context, uri: Uri): String? {
+        var filePath: String? = null
+
+        // "content" scheme일 경우
+        if (uri.scheme == "content") {
+            // API 레벨이 KitKat(19) 이상인 경우
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
+                // External Storage Document Provider
+                if (isExternalStorageDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":")
+                    val type = split[0]
+
+                    if ("primary".equals(type, ignoreCase = true)) {
+                        filePath = "${context.getExternalFilesDir(null)}/${split[1]}"
+                    }
+                }
+                // Downloads Document Provider
+                else if (isDownloadsDocument(uri)) {
+                    val id = DocumentsContract.getDocumentId(uri)
+                    val contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        id.toLong()
+                    )
+                    filePath = getDataColumn(context, contentUri, null, null)
+                }
+                // Media Provider
+                else if (isMediaDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":")
+                    val type = split[0]
+
+                    var contentUri: Uri? = null
+                    when (type) {
+                        "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    }
+
+                    val selection = "_id=?"
+                    val selectionArgs = arrayOf(split[1])
+
+                    filePath = getDataColumn(context, contentUri, selection, selectionArgs)
+                }
+            }
+            // API 레벨이 KitKat(19) 미만인 경우 또는 Document Uri가 아닌 경우
+            else {
+                filePath = getDataColumn(context, uri, null, null)
+            }
+        }
+        // "file" scheme일 경우
+        else if (uri.scheme == "file") {
+            filePath = uri.path
+        }
+
+        return filePath
+    }
+
+    private fun isExternalStorageDocument(uri: Uri): Boolean {
+        return "com.android.externalstorage.documents" == uri.authority
+    }
+
+    private fun isDownloadsDocument(uri: Uri): Boolean {
+        return "com.android.providers.downloads.documents" == uri.authority
+    }
+
+    private fun isMediaDocument(uri: Uri): Boolean {
+        return "com.android.providers.media.documents" == uri.authority
+    }
+
+    private fun getDataColumn(context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
+        var path: String? = null
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                path = it.getString(columnIndex)
+            }
+        }
+        return path
     }
 }
