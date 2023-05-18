@@ -8,8 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.R
 
-class RecyclerViewAdapter(private val imageList: List<String>) :
+class RecyclerViewAdapter(var imageList: List<String>) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+
+//    fun setRecyclerViewItem(list:List<String>){
+//        imageList = list
+//    }
+
+    fun updateData(newData: List<String>) {
+        imageList = newData
+        notifyDataSetChanged()
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageView)
@@ -31,4 +40,5 @@ class RecyclerViewAdapter(private val imageList: List<String>) :
     override fun getItemCount(): Int {
         return imageList.size
     }
+
 }

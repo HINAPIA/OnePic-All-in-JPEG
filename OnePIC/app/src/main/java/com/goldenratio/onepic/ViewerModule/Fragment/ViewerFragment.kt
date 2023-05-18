@@ -2,15 +2,15 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
-import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
 import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.*
 import android.view.animation.TranslateAnimation
@@ -49,7 +49,6 @@ class ViewerFragment : Fragment() {
 
 
     /* text, audio, magic 선택 여부 */
-    private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
 
@@ -152,12 +151,30 @@ class ViewerFragment : Fragment() {
 
         if (container.textContent.textCount != 0){
 
+            binding.savedTextView.visibility = View.VISIBLE
+
+            var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+
+            if(textList != null && textList.size !=0){
+
+                val text = textList.get(0).data
+
+                val shadowColor = Color.parseColor("#CAC6C6")// 그림자 색상
+                val shadowDx = 5f // 그림자의 X 방향 오프셋
+                val shadowDy = 0f // 그림자의 Y 방향 오프셋
+                val shadowRadius = 3f // 그림자의 반경
+
+                binding.savedTextView.setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
+                binding.savedTextView.setText(text)
 
 
-
+            }
+            else {
+                binding.savedTextView.setText("")
+            }
         }
         else {
-            binding
+            binding.savedTextView.visibility = View.INVISIBLE
         }
 
 
@@ -176,11 +193,6 @@ class ViewerFragment : Fragment() {
 
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
-
-                // 필름 스크롤뷰 초기화
-                //binding.pullRightView.visibility = View.VISIBLE
-
-               // binding.scrollView.visibility = View.INVISIBLE//GONE
 
 
 //                // 텍스트 버튼 초기화
@@ -221,55 +233,7 @@ class ViewerFragment : Fragment() {
             }
         }
 
-        /** Button 이벤트 리스너 - editBtn, backBtn, textBtn*/
-
-        //TODO: Text가 여러 개 이므로, 어떻게 layout 구성할지 생각
-//        binding.textBtn.setOnClickListener{
-//
-//            val textLinear = binding.textLinear
-//
-//            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-//            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-//
-//            if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
-//                /* layout 변경 */
-//                it.setBackgroundResource(R.drawable.round_button)
-//                isTxtBtnClicked = true
-//                textLinear.visibility = View.VISIBLE
-//                // 블러처리할 배경 색상값
-//                val blurColor = Color.parseColor("#80000000")
-//
-//                // 배경 색상값을 포함한 ShapeDrawable 생성
-//                val shapeDrawable = ShapeDrawable()
-//                shapeDrawable.paint.color = blurColor
-//
-//                // ColorFilter를 적용하여 블러처리 효과 적용
-//                val blurMaskFilter = BlurMaskFilter(10f, BlurMaskFilter.Blur.NORMAL)
-//                shapeDrawable.paint.maskFilter = blurMaskFilter
-//                shapeDrawable.alpha = 150
-//
-//                // TextView에 배경 설정
-//                binding.savedTextView.background = shapeDrawable
-//
-//
-//                /* 텍스트 메시지 띄우기 */
-//                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-//                if(textList != null && textList.size !=0){
-//                    binding.savedTextView.setText(textList.get(0).data)
-//                } else{
-//                    binding.savedTextView.setText("")
-//                }
-//
-//            }
-//
-//            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-//            else { // 클릭 되어 있던 상태
-//                /* layout 변경 */
-//                it.background = ColorDrawable(Color.TRANSPARENT)
-//                isTxtBtnClicked = false
-//                textLinear.visibility = View.INVISIBLE
-//            }
-//        }
+        /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
 
         binding.audioBtn.setOnClickListener{
 
@@ -493,50 +457,6 @@ class ViewerFragment : Fragment() {
             }
         }
     }
-
-
-    // old version
-//    fun setCurrentOtherImage(){
-//
-//        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
-//
-//        if (pictureList != null) {
-//            binding.linear.removeAllViews()
-//            Log.d("picture list size: ",""+pictureList.size)
-//
-//            CoroutineScope(Dispatchers.IO).launch {
-//                for (picture in pictureList){
-//                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
-//                    // 넣고자 하는 layout 불러오기
-//                   try {
-//                       val scollItemLayout =
-//                           layoutInflater.inflate(R.layout.scroll_item_layout, null)
-//
-//                       // 위 불러온 layout에서 변경을 할 view가져오기
-//                       val scrollImageView: ImageView =
-//                           scollItemLayout.findViewById(R.id.scrollImageView)
-//
-//                       CoroutineScope(Dispatchers.Main).launch {
-//                           // 이미지 바인딩
-//                           Glide.with(scrollImageView)
-//                               .load(pictureByteArr)
-//                               .into(scrollImageView)
-//
-//                           scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-//                               mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-//                               jpegViewModel.setselectedSubImage(picture)
-//                           }
-//                           binding.linear.addView(scollItemLayout)
-//                       }
-//                   } catch (e: IllegalStateException) {
-//                       println(e.message)
-//                   }
-//                } // end of for..
-//                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
-//                Log.d("초기 선택된 이미지: ",""+pictureList[0])
-//            }
-//        }
-//    }
 
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
