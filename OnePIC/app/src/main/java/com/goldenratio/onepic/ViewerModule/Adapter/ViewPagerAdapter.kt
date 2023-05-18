@@ -6,6 +6,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -19,6 +20,11 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.DrawableImageViewTarget
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.PictureModule.Contents.Picture
@@ -269,21 +275,60 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             imageView.visibility = View.VISIBLE
             externalImageView.visibility = View.GONE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                Glide.with(context).load(image).into(imageView)
+                Glide.with(context)
+                    .load(image)
+                    .listener(object : RequestListener<Drawable> {
+
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: com.bumptech.glide.request.target.Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            setFitCenterPaddingValue(resource)
+                            return false
+                        }
+                    })
+                    .into(imageView)
             }
             else {
-                Glide.with(context).load(getUriFromPath(image)).into(imageView)
-            }
-            setFitCenterPaddingValue()
-        }
+                Glide.with(context)
+                    .load(getUriFromPath(image))
+                    .listener(object : RequestListener<Drawable> {
 
-        fun bindUpdateMainImage(image:String){ // Main 이미지가 변경된 경우, 특정 URL에 대한 캐시 강제 업데이트
-            imageView.visibility = View.VISIBLE
-            externalImageView.visibility = View.GONE
-            Glide.with(context)
-                .load(getUriFromPath(image))
-                .signature(ObjectKey(System.currentTimeMillis()))
-                .into(imageView)
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: com.bumptech.glide.request.target.Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            setFitCenterPaddingValue(resource)
+                            return false
+                        }
+                    })
+                    .into(imageView)
+            }
+
         }
 
         /** ByteArray 로 imageView에 띄우기  */
@@ -293,17 +338,16 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             Glide.with(context)
                 .load(embeddedImage)
                 .into(externalImageView)
-            setFitCenterPaddingValue()
         }
 
-        fun setFitCenterPaddingValue() {
+        fun setFitCenterPaddingValue(resource:Drawable?) {
 
-            if(imageView.drawable == null) {
+            if(resource == null) {
                 Log.d("여기에서 나가버림",": here")
                 return
             }
 
-            val bitmap: Bitmap = imageView.drawable.toBitmap()
+            val bitmap: Bitmap = resource.toBitmap()
 
             // imageView width, height 가져오기
             val viewWidth = imageView.width
@@ -315,15 +359,12 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             val alpha = viewWidth/bitmapWidth
 
            if( viewHeight > bitmapHeight * alpha ){ // 가로에 맞춰짐
-                ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 20     //viewHeight - bitmapHeight * alpha
+                ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 60     //viewHeight - bitmapHeight * alpha
             }
             else { // 세로에 맞춰짐
-                ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 20//viewHeight
+                ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 60//viewHeight
             }
         }
-
-
-
 
 
         fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {

@@ -5,8 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../OnePIC/app/src/main/java/com/example/onepic/EditModule/Fragment/BurstModeEditFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../PARSING_20230413_010314.aac" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/resource/test.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/file.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/src/audio/record.aac" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/src/audio/record.aac" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/MainImageView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/MainImageView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/src/main/kotlin/com/example/demo/view/MainView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/EditView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/ImageViewer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/MainImageView.class" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/target/classes/com/example/demo/view/MainImageView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Viewer/tornadofx-maven-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Viewer/tornadofx-maven-project.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,12 +193,12 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
       <recent name="no.tornado.app" />
@@ -388,9 +418,6 @@
     <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
       <collection />
     </option>
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
