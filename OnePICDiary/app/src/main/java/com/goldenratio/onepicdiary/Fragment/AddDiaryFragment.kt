@@ -17,11 +17,11 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepicdiary.DiaryCellData
+import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
+import com.goldenratio.onepicdiary.DiaryModule.LayoutToolModule
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentAddDiaryBinding
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.*
 
 
@@ -30,11 +30,14 @@ class AddDiaryFragment : Fragment() {
     private var imageUri: Uri? = null
     private lateinit var binding: FragmentAddDiaryBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
+    private lateinit var layoutToolModule : LayoutToolModule
+
+    var month: Int = 0
+    var day: Int = 0
 
     private val PICK_IMAGE_REQUEST = 1
 
-    private lateinit var calendar: Calendar
-
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -45,52 +48,59 @@ class AddDiaryFragment : Fragment() {
         binding.cancleBtn.setOnClickListener {
             findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
         }
+
+       val calendar = Calendar.getInstance()
+
+        month = calendar.get(Calendar.MONTH)+1
+        day = calendar.get(Calendar.DATE)
+
+        layoutToolModule = LayoutToolModule()
+
+        layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month, ::month)
+        layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day, ::day)
+
         // 저장 버튼 클릭 시
         binding.saveBtn.setOnClickListener {
-            val year = binding.datePicker.year
-            val month = binding.datePicker.month
-            val day = binding.datePicker.dayOfMonth
+            val year = 2023
 
-                val cell = DiaryCellData(imageUri!!, year, month+1, day)
+                val cell = DiaryCellData(imageUri!!, year, month-1, day)
                 cell.titleText = binding.titleTextField.text.toString()
                 cell.contentText = binding.contentTextField.text.toString()
 
                 val textList: ArrayList<String> = arrayListOf()
                 textList.add(cell.toString())
-                Log.d( "Cell Text ----- ", cell.toString())
-                jpegViewModel.jpegMCContainer.value!!.setTextConent(
+            Log.d("Cell Text", "AddDiary -- $cell")
+
+
+            jpegViewModel.jpegMCContainer.value!!.setTextConent(
                     ContentAttribute.basic,
                     textList
                 )
-                Log.d("Cell Text"," == > "+ textList.toString())
 
-                CoroutineScope(Dispatchers.Default).launch {
 
-                    val fileName = jpegViewModel.getFileNameFromUri(imageUri!!)
-//                    val fileName =
-//                        currentFilePath!!.substring(currentFilePath.lastIndexOf("/") -1)
-                    var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    //ViewerFragment.currentFilePath = savedFilePath.toString()
-                    Log.d("savedFilePath", "savedFilePath : $savedFilePath")
-                    Log.d("savedFilePath", "currentFilePath : $fileName")
+            // CoroutineScope(Dispatchers.Default).launch {
+            val fileName = jpegViewModel.getFileNameFromUri(imageUri!!)
+            jpegViewModel.currentFileName = fileName
 
-                    Log.d("savedFilePath", "file Path ------- ${imageUri!!.path}")
+            // 기존 파일 삭제
+            jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(imageUri!!, fileName)
 
+
+            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+            //var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     val imageUri = Uri.parse(savedFilePath)
-
                     cell.currentUri = imageUri
-                    jpegViewModel.currentUri = imageUri
 
+                    jpegViewModel.currentUri = imageUri
                     jpegViewModel.diaryCellArrayList.add(cell)
+
 
                     val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
                     editor.putString("$year/$month/$day", savedFilePath)
                     editor.apply()
-                }
 
                 findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
             }
-
         binding.mainView.setOnClickListener {
             openGallery()
         }
@@ -107,36 +117,24 @@ class AddDiaryFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        jpegViewModel.jpegMCContainer.value?.init()
+
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             imageUri = data.data
-                    // 선택한 이미지 처리 로직을 여기에 추가
+            // 선택한 이미지 처리 로직을 여기에 추가
             if (imageUri != null) {
-//                adapter.addDiaryImage(imageUri, currentYear, currentMonth, 15)
-//                binding.mainView.setImageURI(imageUri)
                 CoroutineScope(Dispatchers.Main).launch {
                     Glide.with(binding.mainView)
                         .load(imageUri)
                         .into(binding.mainView)
                 }
-                jpegViewModel.currentUri = imageUri
-                jpegViewModel.setCurrentMCContainer()
 
-                while (!jpegViewModel.jpegMCContainer.value!!.imageContent.checkPictureList) {
+                jpegViewModel.jpegMCContainer.value!!.init()
+                jpegViewModel.setCurrentMCContainer(imageUri!!)
 
-                }
-                // text 입력 UI에 기존의 텍스트 메시지 띄우기
-                val textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-                if(textList.size !=0){
-                    val title = textList[0].data.split("<title>")
-                    val finalTitle = title[1].split("</title>")
-
-                    val contentText = textList[0].data.split("<contentText>")
-                    val finalContentText  = contentText[1].split("</contentText>")
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.titleTextField.setText(finalTitle[0])
-                        binding.contentTextField.setText(finalContentText[0])
-                    }
+                val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+                while (!imageContent.checkPictureList) {
+                    Thread.sleep(200)
                 }
             }
         }

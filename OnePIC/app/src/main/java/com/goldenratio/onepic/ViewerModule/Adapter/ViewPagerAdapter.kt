@@ -16,7 +16,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -229,8 +231,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
 
-
-
         // bitmap를 자르기
         if(rect.size >= 4 && bitmapList.size > index) {
             val cropImage = imageToolModule.cropBitmap(
@@ -266,13 +266,14 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
     inner class PagerViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder
         (LayoutInflater.from(parent.context).inflate(R.layout.main_image_list_item, parent, false)){
-        // TODO: 조금 더 깔끔한 방법으로 바꾸기 (ImageView 하나만으로 구현 - cache 처리 필요)
+
         private val imageView: ImageView = itemView.findViewById(R.id.imageView) // Main Gallery 이미지 보여주는 view
         val externalImageView:ImageView = itemView.findViewById(R.id.externalImageView) // ScrollView로 부터 선택된 embedded image 보여주는 view
 
         /** Uri 로 imageView에 띄우기 */
         fun bind(image:String) { // Main 이미지 보여주기
             imageView.visibility = View.VISIBLE
+
             externalImageView.visibility = View.GONE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 Glide.with(context)
@@ -359,10 +360,10 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             val alpha = viewWidth/bitmapWidth
 
            if( viewHeight > bitmapHeight * alpha ){ // 가로에 맞춰짐
-                ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 60     //viewHeight - bitmapHeight * alpha
+                   ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 60     //viewHeight - bitmapHeight * alpha
             }
             else { // 세로에 맞춰짐
-                ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 60//viewHeight
+                   ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 60//viewHeight
             }
         }
 
@@ -403,5 +404,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             externalImageView.visibility = View.INVISIBLE
         }
     }
+
+
 
 }

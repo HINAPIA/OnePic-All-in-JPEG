@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.PictureModule.MCContainer
-import com.goldenratio.onepicdiary.DiaryCellData
+import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -22,8 +22,11 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     var jpegMCContainer = MutableLiveData<MCContainer>()
 
     var diaryCellArrayList = arrayListOf<DiaryCellData>()
+
+    var addCellData: DiaryCellData? = null
+    var daysInMonth: Int = 0
     var currentUri : Uri? = null
-    var currentFilePath : String = ""
+    var currentFileName : String = ""
 
     var preferences: SharedPreferences =
         context.getSharedPreferences("image_file_path", Context.MODE_PRIVATE)
@@ -47,20 +50,15 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     /** MCContainer 변경 */
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun setCurrentMCContainer(){
+    fun setCurrentMCContainer(uri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
+            val iStream: InputStream? = context.contentResolver.openInputStream(uri)
+            var sourceByteArray = getBytes(iStream!!)
+            var jop = async {
+                loadResolver.createMCContainer(jpegMCContainer.value!!, sourceByteArray)
 
-            val uri = currentUri
-
-            if(uri != null) {
-                val iStream: InputStream? = context.contentResolver.openInputStream(uri)
-                var sourceByteArray = getBytes(iStream!!)
-                var jop = async {
-                    loadResolver.createMCContainer(jpegMCContainer.value!!, sourceByteArray )
-                }
-                jop.await()
-//                jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
             }
+            jop.await()
         }
     }
 

@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +33,15 @@ class BasicViewerFragment : Fragment() {
     private lateinit var binding: FragmentBasicViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var mainViewPagerAdapter: BasicViewerAdapter
+    private lateinit var recyclerViewAdapter:RecyclerViewAdapter
 
     private var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
     private var centerItemPosition:Int? = null // recyclerView의 중앙 item idx
+
+
+    // 순환적으로 스크롤 동작하는것 제어 하는 변수
+    var isUserScrolling = false
+
     companion object {
         var currentFilePath:String = ""
         var isPictureClicked: MutableLiveData<Boolean> = MutableLiveData(true)
@@ -75,6 +84,8 @@ class BasicViewerFragment : Fragment() {
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
             mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
+            recyclerViewAdapter.updateData(jpegViewModel.imageUriLiveData.value!!)//setRecyclerViewItem(jpegViewModel.imageUriLiveData.value!!)
+
 
             var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
 
@@ -103,21 +114,43 @@ class BasicViewerFragment : Fragment() {
 
         binding.viewPager2.adapter = mainViewPagerAdapter
         binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+            override fun onPageScrollStateChanged(state: Int) {
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    isUserScrolling = true
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    isUserScrolling = false
+                }
+                super.onPageScrollStateChanged(state)
+            }
+
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 isPictureClicked.value = true // 초기화
 
-                mainViewPagerAdapter.notifyDataSetChanged()
+                // UI 스레드에서 notifyDataSetChanged() 호출
+                Handler(Looper.getMainLooper()).post {
+                    mainViewPagerAdapter.notifyDataSetChanged()
+                }
 
-                // 리사이클러뷰를 중앙에 오도록 해당 인덱스로 스크롤
-                binding.recyclerView.scrollToPosition(position)
+
+                if (isUserScrolling){
+                    // 리사이클러뷰를 중앙에 오도록 해당 인덱스로 스크롤
+                    binding.recyclerView.scrollToPosition(position)
+                }
+
+                isUserScrolling = false // 초기화
+
             }
+
         })
+
+        recyclerViewAdapter = RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        recyclerView.adapter = RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)
+        recyclerView.adapter = recyclerViewAdapter//RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)
 
 
         // 리사이클러뷰를 가운데에 배치하고 시작과 끝에 여분의 공간을 추가합니다.
@@ -125,12 +158,22 @@ class BasicViewerFragment : Fragment() {
         val itemWidth = screenWidth / 2 // 화면 너비의 절반으로 아이템 크기 설정
 
 
-        val paddingStart = (screenWidth - itemWidth) / 2 + 170//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
+        val paddingStart = pxToDp(requireContext(),((screenWidth - itemWidth) / 2 + 170).toFloat()).toInt()//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
         recyclerView.setPaddingRelative(paddingStart, 0, paddingStart, 0)
         recyclerView.clipToPadding = false
 
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    isUserScrolling = true
+                } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    isUserScrolling = false
+                }
+                super.onScrollStateChanged(recyclerView, newState)
+            }
+
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
@@ -138,11 +181,13 @@ class BasicViewerFragment : Fragment() {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                 centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
-
-                binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
+                if (isUserScrolling){
+                    binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
+                }
 
                 super.onScrolled(recyclerView, dx, dy)
             }
+
         })
 
 
@@ -170,9 +215,13 @@ class BasicViewerFragment : Fragment() {
         }
     }
 
-    private fun dpToPx(dp: Float, context: Context): Int {
-        val density = context.resources.displayMetrics.density
-        return (dp * density + 0.5f).toInt()
+    fun pxToDp(context: Context, px: Float): Float {
+        val resources = context.resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            px,
+            resources.displayMetrics
+        )
     }
 
 }

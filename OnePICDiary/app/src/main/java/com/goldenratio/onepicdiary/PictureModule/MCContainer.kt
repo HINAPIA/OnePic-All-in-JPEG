@@ -10,6 +10,7 @@ import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.SaveModule.SaveResolver
 import kotlinx.coroutines.*
+import java.io.File
 
 
 class MCContainer(_activity: Activity) {
@@ -74,6 +75,8 @@ class MCContainer(_activity: Activity) {
         return saveResolver.overwriteSave(fileName)
 
     }
+
+
     //Container의 데이터를 파일로 저장
     fun save() : String {
         return saveResolver.save()
