@@ -1,35 +1,26 @@
 package com.example.demo.view
 
 import com.example.demo.app.ImageTool
-import com.example.demo.view.AiContainerSingleton.aiContainer
 import com.goldenratio.onepic.PictureModule.AiContainer
-import com.madgag.gif.fmsware.AnimatedGifEncoder
-import com.madgag.gif.fmsware.GifDecoder
-import com.sun.javafx.scene.layout.region.Margins
-import javafx.animation.Animation
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
-import javafx.animation.TranslateTransition
+import javafx.animation.*
 import javafx.embed.swing.SwingFXUtils
-import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Label
-import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
+import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import tornadofx.*
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.io.InputStream
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
@@ -44,7 +35,8 @@ class CenterView : View() {
 
    // val analysisButton = Button()
     var analysisButton : ImageView = ImageView()
-    var analysisLabel : Label = Label()
+    var analysisLabels : VBox = VBox()
+    var analysisContent : Label = Label()
 
     val rightImageView: ImageView = ImageView()
     val gifImageVeiew : ImageView = ImageView()
@@ -71,16 +63,34 @@ class CenterView : View() {
         StackPane.setAlignment(analysisButton, Pos.BOTTOM_RIGHT)
         StackPane.setMargin(analysisButton, Insets(0.0, 70.0, 100.0, 50.0))
         // '분석 중 Text
-        analysisLabel.apply{
-            text = "JPEG 파일 \n 분석 중. . ."
-            style{
-                textFill = c("#FFFFFF") // 글자 색상 흰색
-                font = Font.font("Inter", FontWeight.BOLD, 25.0)
-            }
+        analysisLabels.apply{
+            maxWidth = 600.0
             StackPane.setAlignment(this, Pos.CENTER)
-            StackPane.setMargin(this, Insets(150.0, 0.0, 180.0, 00.0))
+            StackPane.setMargin(this, Insets(150.0, 0.0, 150.0, 00.0))
             isVisible = false
+            alignment = Pos.CENTER
+            label{
+                text = "JPEG 파일 분석 중. . ."
+                style{
+                    textFill = c("#FFFFFF") // 글자 색상 흰색
+                    font = Font.font("나눔고딕", FontWeight.EXTRA_BOLD, 24.0)
+                }
+            }
+            analysisContent = label{
+                padding = insets(10)
+                textAlignment = TextAlignment.CENTER
+                //text ="이미지 분석 6개\n 텍스트 1개 발견 \n 오디오 발견"
+                style{
+                    textFill = c("#FFFFFF") // 글자 색상 흰색
+                    font = Font.font("나눔고딕", FontWeight.BOLD, 15.0)
+                    lineSpacing = 2.0
+                }
+            }
+//            style{
+//                backgroundColor = MultiValue(arrayOf(Color.web("#FF0000")))
+//            }
         }
+
 
         // gifImageView
         gifImageVeiew.fitWidth = 100.0
@@ -126,7 +136,8 @@ class CenterView : View() {
             style {
                 paddingAll = 5.0
                 background = Background(BackgroundFill(Color.web("#2B2A2A", 0.64), CornerRadii(15.0), Insets.EMPTY))
-                //backgroundColor = MultiValue(arrayOf(c("#2B2A2A", 0.64)))
+
+            //backgroundColor = MultiValue(arrayOf(c("#2B2A2A", 0.64)))
             }
             textContentLabel = label {
                 text = ""
@@ -147,7 +158,7 @@ class CenterView : View() {
         children.add(analysisButton)
         children.add(subImagesView.root)
         children.add(editView.root)
-        children.add(analysisLabel)
+        children.add(analysisLabels)
         children.add(textContentStackPane)
 
 
@@ -253,7 +264,8 @@ class CenterView : View() {
     // 분석 중일 때
     fun analyzing(){
         subImagesView.root.isVisible = true
-        analysisLabel.isVisible = true
+        analysisLabels.isVisible = true
+
         //text 바꾸기
         if(aiContainer.textContent.textCount > 0){
             subImagesView.chageText(aiContainer.textContent.textList[0].data)
@@ -267,6 +279,7 @@ class CenterView : View() {
     }
 
     fun analyzingImageAnimation(){
+        // 돋보기 움짤 재생
         gifImageVeiew.isVisible = true
         val inputStream = FileInputStream(imageSourcePath+ "giphy.gif")
         val gifFrames = getGifFrames(inputStream)
@@ -290,6 +303,38 @@ class CenterView : View() {
         println(timeline.cycleCount)
 
         timeline.play()
+        // 돋보기 재생 끝
+
+        val list = arrayListOf<String>()
+        list.add("사진 ${AiContainerSingleton.aiContainer.imageContent.pictureCount}개 발견...")
+        if(AiContainerSingleton.aiContainer.textContent.textCount > 0)
+            list.add("텍스트 ${AiContainerSingleton.aiContainer.textContent.textCount}개 발견...")
+        if(AiContainerSingleton.aiContainer.audioContent.audio != null)
+            list.add("오디오 1개 발견...")
+        analysisContent.text =""
+//        analysisLabels.children.add(label{
+//            text = "JPEG 파일 \n 분석 중. . ."
+//            style{
+//                textFill = c("#FFFFFF") // 글자 색상 흰색
+//                font = Font.font("Inter", FontWeight.BOLD, 22.0)
+//            }
+//        })
+//        analysisLabels.children.add(analysisContent)
+
+        val timeline2 = Timeline()
+        var count = (timeline.cycleCount*2.5)/list.size -1
+        for(i in 0..list.size -1){
+            println("추가")
+            val keyFrame = KeyFrame(Duration.seconds(((i+1)*count +1).toDouble()), {
+              //val newText = list.get(i)
+                StackPane.setMargin(analysisLabels, Insets(150.0, 0.0, 150.0 - 25*(i+1), 00.0))
+                analysisContent.text += list.get(i)+"\n"
+            })
+            timeline2.keyFrames.add(keyFrame)
+        }
+        timeline2.cycleCount = 1
+        timeline2.play()
+
 
         // 분석 애니메이션이 끝났을 때
         timeline.setOnFinished {
@@ -309,7 +354,7 @@ class CenterView : View() {
     //분석이 끝났을 때
     fun finishedAnalysis(){
         gifImageVeiew.isVisible = false
-        analysisLabel.isVisible = false
+        analysisLabels.isVisible = false
         isAnalsys = false
         analysisButton.setImage(preAnalsImage)
         // animation
@@ -354,19 +399,19 @@ class CenterView : View() {
 
     fun turnTopAnimation(){
         println("이미지 올리기")
-        val transition1 = TranslateTransition(Duration.seconds(1.0), mainImageView)
+        val transition1 = TranslateTransition(Duration.seconds(1.5), mainImageView)
         transition1.byY = -(mainImageView.translateY+80) // 왼쪽으로 100픽셀 이동
         transition1.play()
 
-        val transition2 = TranslateTransition(Duration.seconds(1.0), fileImageView)
+        val transition2 = TranslateTransition(Duration.seconds(1.5), fileImageView)
         transition2.byY = -(fileImageView.translateY+80) // 왼쪽으로 100픽셀 이동
         transition2.play()
 
-        val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
+        val transition3 = TranslateTransition(Duration.seconds(1.5), fileNameLabel)
         transition3.byY = -(fileNameLabel.translateY+80) // 왼쪽으로 100픽셀 이동
         transition3.play()
 
-        val transition4 = TranslateTransition(Duration.seconds(1.0), textContentStackPane)
+        val transition4 = TranslateTransition(Duration.seconds(1.5), textContentStackPane)
         transition4.byY = -(textContentStackPane.translateY+80) // 왼쪽으로 100픽셀 이동
         transition4.play()
 
