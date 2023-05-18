@@ -21,7 +21,6 @@ import com.goldenratio.onepicdiary.DiaryCellData
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentAddDiaryBinding
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.*
 
 
@@ -35,6 +34,7 @@ class AddDiaryFragment : Fragment() {
 
     private lateinit var calendar: Calendar
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -64,33 +64,26 @@ class AddDiaryFragment : Fragment() {
                 )
                 Log.d("Cell Text"," == > "+ textList.toString())
 
-                CoroutineScope(Dispatchers.Default).launch {
+               // CoroutineScope(Dispatchers.Default).launch {
+            val fileName = jpegViewModel.getFileNameFromUri(jpegViewModel.currentUri!!)
+            jpegViewModel.currentFileName = fileName
+            // 기존 파일 삭제
+            jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(imageUri!!, fileName)
 
-                    val fileName = jpegViewModel.getFileNameFromUri(imageUri!!)
-//                    val fileName =
-//                        currentFilePath!!.substring(currentFilePath.lastIndexOf("/") -1)
-                    var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    //ViewerFragment.currentFilePath = savedFilePath.toString()
-                    Log.d("savedFilePath", "savedFilePath : $savedFilePath")
-                    Log.d("savedFilePath", "currentFilePath : $fileName")
 
-                    Log.d("savedFilePath", "file Path ------- ${imageUri!!.path}")
-
+            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+            //var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     val imageUri = Uri.parse(savedFilePath)
-
                     cell.currentUri = imageUri
                     jpegViewModel.currentUri = imageUri
-
                     jpegViewModel.diaryCellArrayList.add(cell)
 
                     val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
                     editor.putString("$year/$month/$day", savedFilePath)
                     editor.apply()
-                }
-
+              //  }
                 findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
             }
-
         binding.mainView.setOnClickListener {
             openGallery()
         }
@@ -107,12 +100,12 @@ class AddDiaryFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        jpegViewModel.jpegMCContainer.value?.init()
+
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             imageUri = data.data
-                    // 선택한 이미지 처리 로직을 여기에 추가
+            // 선택한 이미지 처리 로직을 여기에 추가
             if (imageUri != null) {
-//                adapter.addDiaryImage(imageUri, currentYear, currentMonth, 15)
-//                binding.mainView.setImageURI(imageUri)
                 CoroutineScope(Dispatchers.Main).launch {
                     Glide.with(binding.mainView)
                         .load(imageUri)
@@ -121,8 +114,9 @@ class AddDiaryFragment : Fragment() {
                 jpegViewModel.currentUri = imageUri
                 jpegViewModel.setCurrentMCContainer()
 
-                while (!jpegViewModel.jpegMCContainer.value!!.imageContent.checkPictureList) {
 
+                Log.d("save_test", "선택된 이미지 uri : ${imageUri}")
+                while (!jpegViewModel.jpegMCContainer.value!!.imageContent.checkPictureList) {
                 }
                 // text 입력 UI에 기존의 텍스트 메시지 띄우기
                 val textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList

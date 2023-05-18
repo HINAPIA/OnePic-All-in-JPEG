@@ -23,7 +23,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     var diaryCellArrayList = arrayListOf<DiaryCellData>()
     var currentUri : Uri? = null
-    var currentFilePath : String = ""
+    var currentFileName : String = ""
 
     var preferences: SharedPreferences =
         context.getSharedPreferences("image_file_path", Context.MODE_PRIVATE)
@@ -49,7 +49,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun setCurrentMCContainer(){
         CoroutineScope(Dispatchers.IO).launch {
-
             val uri = currentUri
 
             if(uri != null) {
