@@ -47,6 +47,7 @@ class ViewerFragment : Fragment() {
     private var isMainChanged:Boolean? = null
     private var isInitFocus:Boolean = true
 
+
     /* text, audio, magic 선택 여부 */
     private var isTxtBtnClicked = false
     private var isAudioBtnClicked = false
@@ -55,6 +56,7 @@ class ViewerFragment : Fragment() {
     companion object {
         var currentFilePath:String = ""
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
+        var isAudioPlaying = MutableLiveData<Boolean>()
         var audioTopMargin = MutableLiveData<Int>()
         var audioEndMargin = MutableLiveData<Int>()
     }
@@ -94,10 +96,9 @@ class ViewerFragment : Fragment() {
 
             Log.d("songsong currentFIlePath: ", currentFilePath)
 
-            mainViewPagerAdapter.viewHolder.bind(currentFilePath)
+            //mainViewPagerAdapter.viewHolder.bind(currentFilePath)
 
-            //setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
-
+            binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(currentFilePath)!!,false)
         }
 
 
@@ -147,6 +148,18 @@ class ViewerFragment : Fragment() {
             binding.audioBtn.visibility = View.GONE
         }
 
+        /*  Text 있을 경우 - 표시 */
+
+        if (container.textContent.textCount != 0){
+
+
+
+
+        }
+        else {
+            binding
+        }
+
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
         mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
@@ -170,14 +183,13 @@ class ViewerFragment : Fragment() {
                // binding.scrollView.visibility = View.INVISIBLE//GONE
 
 
-
-                // 텍스트 버튼 초기화
-                if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
-                    isTxtBtnClicked = false
-                    binding.textLinear.visibility = View.INVISIBLE
-                    //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
-                }
+//                // 텍스트 버튼 초기화
+//                if( isTxtBtnClicked ) { // 클릭 되어 있던 상태
+//                    binding.textBtn.background = ColorDrawable(Color.TRANSPARENT)
+//                    isTxtBtnClicked = false
+//                    binding.textLinear.visibility = View.INVISIBLE
+//                    //TODO: 1) mainPictureDrawable도 초기화, 2) FrameLayout에 추가 되었었던 View hidden 처리
+//                }
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
@@ -212,52 +224,52 @@ class ViewerFragment : Fragment() {
         /** Button 이벤트 리스너 - editBtn, backBtn, textBtn*/
 
         //TODO: Text가 여러 개 이므로, 어떻게 layout 구성할지 생각
-        binding.textBtn.setOnClickListener{
-
-            val textLinear = binding.textLinear
-
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-
-            if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
-                /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
-                isTxtBtnClicked = true
-                textLinear.visibility = View.VISIBLE
-                // 블러처리할 배경 색상값
-                val blurColor = Color.parseColor("#80000000")
-
-                // 배경 색상값을 포함한 ShapeDrawable 생성
-                val shapeDrawable = ShapeDrawable()
-                shapeDrawable.paint.color = blurColor
-
-                // ColorFilter를 적용하여 블러처리 효과 적용
-                val blurMaskFilter = BlurMaskFilter(10f, BlurMaskFilter.Blur.NORMAL)
-                shapeDrawable.paint.maskFilter = blurMaskFilter
-                shapeDrawable.alpha = 150
-
-                // TextView에 배경 설정
-                binding.savedTextView.background = shapeDrawable
-
-
-                /* 텍스트 메시지 띄우기 */
-                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-                if(textList != null && textList.size !=0){
-                    binding.savedTextView.setText(textList.get(0).data)
-                } else{
-                    binding.savedTextView.setText("")
-                }
-
-            }
-
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-            else { // 클릭 되어 있던 상태
-                /* layout 변경 */
-                it.background = ColorDrawable(Color.TRANSPARENT)
-                isTxtBtnClicked = false
-                textLinear.visibility = View.INVISIBLE
-            }
-        }
+//        binding.textBtn.setOnClickListener{
+//
+//            val textLinear = binding.textLinear
+//
+//            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+//            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+//
+//            if (!isTxtBtnClicked) { // 클릭 안되어 있던 상태
+//                /* layout 변경 */
+//                it.setBackgroundResource(R.drawable.round_button)
+//                isTxtBtnClicked = true
+//                textLinear.visibility = View.VISIBLE
+//                // 블러처리할 배경 색상값
+//                val blurColor = Color.parseColor("#80000000")
+//
+//                // 배경 색상값을 포함한 ShapeDrawable 생성
+//                val shapeDrawable = ShapeDrawable()
+//                shapeDrawable.paint.color = blurColor
+//
+//                // ColorFilter를 적용하여 블러처리 효과 적용
+//                val blurMaskFilter = BlurMaskFilter(10f, BlurMaskFilter.Blur.NORMAL)
+//                shapeDrawable.paint.maskFilter = blurMaskFilter
+//                shapeDrawable.alpha = 150
+//
+//                // TextView에 배경 설정
+//                binding.savedTextView.background = shapeDrawable
+//
+//
+//                /* 텍스트 메시지 띄우기 */
+//                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+//                if(textList != null && textList.size !=0){
+//                    binding.savedTextView.setText(textList.get(0).data)
+//                } else{
+//                    binding.savedTextView.setText("")
+//                }
+//
+//            }
+//
+//            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
+//            else { // 클릭 되어 있던 상태
+//                /* layout 변경 */
+//                it.background = ColorDrawable(Color.TRANSPARENT)
+//                isTxtBtnClicked = false
+//                textLinear.visibility = View.INVISIBLE
+//            }
+//        }
 
         binding.audioBtn.setOnClickListener{
 
@@ -266,21 +278,30 @@ class ViewerFragment : Fragment() {
 
             if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
                 /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.mute2)
+                binding.audioBtn.setImageResource(R.drawable.sound4)
                 isAudioBtnClicked = true
+
+                // 오디오 재생
+                jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                isAudioPlaying.value = true
             }
 
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
+
                 /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.sound4)
+                binding.audioBtn.setImageResource(R.drawable.audio)
                 isAudioBtnClicked = false
 
-                // 오디오 재생
-                jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                jpegViewModel.jpegMCContainer.value!!.audioStop()
             }
         }
 
+        isAudioPlaying.observe(requireActivity()){ value ->
+            if (value == false){
+                binding.audioBtn.performClick()
+            }
+        }
 
 
         audioTopMargin.observe(requireActivity()){ value ->

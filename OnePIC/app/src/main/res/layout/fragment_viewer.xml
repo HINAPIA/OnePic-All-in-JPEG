@@ -123,8 +123,9 @@
                 android:background="@color/transparent_color"
                 android:padding="4.5dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/sound4"
+                android:src="@drawable/audio"
                 />
+
 
             <LinearLayout
                 android:id="@+id/textLinear"
@@ -134,14 +135,13 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="invisible">
+                android:orientation="horizontal">
 
                 <TextView
+                    android:background="@color/point_color"
                     android:id="@+id/savedTextView"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:layout_weight="1"
                     android:gravity="center"
                     android:inputType="textMultiLine"
                     android:paddingLeft="30dp"
@@ -151,14 +151,6 @@
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="16sp" />
-
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/textViewPager2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="20dp"
-                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -188,20 +180,20 @@
             android:orientation="horizontal"
             android:padding="3dp">
 
-            <android.widget.Button
-                android:visibility="gone"
-                android:id="@+id/textBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:background="@color/transparent_color"
-                android:fontFamily="serif"
-                android:minWidth="34dp"
-                android:minHeight="34dp"
-                android:text="T"
-                android:textColor="@color/point_color"
-                android:textSize="22sp"
-                app:tint="@color/point_color" />
+<!--            <android.widget.Button-->
+<!--                android:visibility="gone"-->
+<!--                android:id="@+id/textBtn"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginLeft="12dp"-->
+<!--                android:background="@color/transparent_color"-->
+<!--                android:fontFamily="serif"-->
+<!--                android:minWidth="34dp"-->
+<!--                android:minHeight="34dp"-->
+<!--                android:text="T"-->
+<!--                android:textColor="@color/point_color"-->
+<!--                android:textSize="22sp"-->
+<!--                app:tint="@color/point_color" />-->
 
 <!--            <ImageButton-->
 <!--                android:visibility="gone"-->
@@ -227,20 +219,6 @@
                 android:src="@drawable/magic"
                 app:tint="@color/point_color" />
 
-<!--            <ImageView-->
-<!--                android:id="@+id/imageView3"-->
-<!--                android:layout_marginStart="20dp"-->
-<!--                android:layout_marginEnd="5dp"-->
-<!--                android:layout_width="20dp"-->
-<!--                android:layout_height="20dp"-->
-<!--                app:srcCompat="@drawable/image_icon" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/imageCntTextView"-->
-<!--                android:gravity="center"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="TextView" />-->
         </LinearLayout>
 <!--        <LinearLayout-->
 <!--            android:id="@+id/datalinearLayout"-->
@@ -291,7 +269,7 @@
                 android:orientation="horizontal"
                 android:layout_marginEnd="10dp"
                 android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="10dp"
                 android:layout_gravity="center_horizontal"
                 android:padding="3dp">
 
@@ -315,6 +293,7 @@
 
             <HorizontalScrollView
                 android:id="@+id/scrollView"
+                android:layout_marginTop="5dp"
                 android:layout_marginStart="40dp"
                 android:layout_marginEnd="40dp"
                 android:layout_gravity="center"
@@ -345,6 +324,19 @@
 <!--                android:layout_gravity="right"-->
 <!--                android:text="All in JPEG" />-->
 
+<!--            <android.widget.Button-->
+<!--                android:id="@+id/textBtn"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginLeft="12dp"-->
+<!--                android:background="@color/transparent_color"-->
+<!--                android:fontFamily="serif"-->
+<!--                android:minWidth="34dp"-->
+<!--                android:minHeight="34dp"-->
+<!--                android:text="T"-->
+<!--                android:textColor="@color/point_color"-->
+<!--                android:textSize="22sp"-->
+<!--                app:tint="@color/point_color" />-->
 
         </FrameLayout>
     </LinearLayout>

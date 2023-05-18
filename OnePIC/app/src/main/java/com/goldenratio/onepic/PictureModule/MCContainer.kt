@@ -118,6 +118,14 @@ class MCContainer(_activity: Activity) {
         }
 
     }
+
+    fun audioStop(){
+        var audio = audioContent.audio
+        if (audio != null){
+            audioResolver.audioStop()
+        }
+    }
+
     fun getJpegMetaBytes() : ByteArray{
         if(imageContent.jpegMetaData.size == 0){
             Log.e("user error", "JpegMetaData size가 0입니다.")

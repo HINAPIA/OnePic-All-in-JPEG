@@ -111,11 +111,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
                 updateImageUriData(uriList)
             }
 
-
-
         }
         else {
-
             val cursor = context.contentResolver.query(
                 GALLERY_URI,
                 null,
@@ -132,9 +129,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
                 cursor.close()
                 updateImageUriData(uriList)
             }
-
         }
-
     }
 
     fun getFilePathIdx(key:String):Int?{
