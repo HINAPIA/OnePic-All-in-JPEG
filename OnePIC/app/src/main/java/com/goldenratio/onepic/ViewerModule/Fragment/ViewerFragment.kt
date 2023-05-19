@@ -56,6 +56,7 @@ class ViewerFragment : Fragment() {
     companion object {
         var currentFilePath:String = ""
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
+        var isEditStoraged:Boolean = false
         var isAudioPlaying = MutableLiveData<Boolean>()
         var audioTopMargin = MutableLiveData<Int>()
         var audioEndMargin = MutableLiveData<Int>()
@@ -97,7 +98,7 @@ class ViewerFragment : Fragment() {
             currentPosition = null
         }
 
-        if (currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
+        if (isEditStoraged && currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
 
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
 
@@ -108,6 +109,8 @@ class ViewerFragment : Fragment() {
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
+
+            ViewerFragment.isEditStoraged = false
         }
 
 

@@ -19,6 +19,7 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.CoroutineScope
@@ -179,6 +180,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // Save
         binding.saveBtn.setOnClickListener{
 
+              ViewerFragment.isEditStoraged = true
 //            if(!imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
 //                !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
 //                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
