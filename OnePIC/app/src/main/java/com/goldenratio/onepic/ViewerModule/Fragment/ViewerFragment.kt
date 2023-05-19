@@ -13,6 +13,7 @@ import android.provider.MediaStore
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
@@ -175,12 +176,21 @@ class ViewerFragment : Fragment() {
 
 
         val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
+
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val displayHeight = displayMetrics.heightPixels
+
+        Log.d("heihgt height",""+displayHeight)
+
         val leftMarginInDp = 0 // 왼쪽 마진(dp)
-        val topMarginInDp =  0// 위쪽 마진(dp)
-        val rightMarginInDp =  - pxToDp(20f).toInt()// 오른쪽 마진(dp)
+        val topMarginInDp =  pxToDp((displayHeight*0.15/1.8).toFloat()).toInt()
+        val rightMarginInDp =  - pxToDp(35f).toInt()// 오른쪽 마진(dp)
         val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
         textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+
         binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
 

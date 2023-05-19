@@ -196,8 +196,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                 if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute
-                    || !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                    !imageContent.checkMagicAttribute && imageContent.checkAddAttribute
                  ) {
 
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
