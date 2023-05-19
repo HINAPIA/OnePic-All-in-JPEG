@@ -10,4 +10,5 @@
     <color name="point_color">#C1BAF2</color>
     <color name="transparent_color">#00FFFFFF</color>
     <color name="date">#E6D1FF</color>
+    <color name="line">#BEBEBE</color>
 </resources>

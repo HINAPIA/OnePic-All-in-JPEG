@@ -127,7 +127,7 @@ class RewindModule() {
             faces = getFaces(index)
             Log.d("magic", "end runFaceDetection !!!!!!!!!")
 
-            Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
+            //Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
             bitmapResult.resume(faces)
             //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }
@@ -139,7 +139,7 @@ class RewindModule() {
         CoroutineScope(Dispatchers.Default).launch {
 
             faces = runFaceContourDetection(bitmap)
-            Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
+            //Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
             bitmapResult.resume(faces)
             //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
         }

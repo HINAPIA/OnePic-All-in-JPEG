@@ -262,6 +262,18 @@
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/container" />
 
+
+            <TextView
+                android:id="@+id/allInJpegTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:rotation="90"
+                android:textSize="12sp"
+                android:layout_gravity="right"
+                android:text="All in JPEG" />
+
+
             <LinearLayout
                 android:id="@+id/datalinearLayout"
                 android:layout_width="wrap_content"
@@ -311,32 +323,6 @@
                 </LinearLayout>
 
             </HorizontalScrollView>
-
-<!--            <TextView-->
-<!--                android:id="@+id/textView7"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="-20dp"-->
-<!--                android:layout_marginTop="64dp"-->
-<!--                android:textStyle="bold"-->
-<!--                android:rotation="90"-->
-<!--                android:textSize="12sp"-->
-<!--                android:layout_gravity="right"-->
-<!--                android:text="All in JPEG" />-->
-
-<!--            <android.widget.Button-->
-<!--                android:id="@+id/textBtn"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginLeft="12dp"-->
-<!--                android:background="@color/transparent_color"-->
-<!--                android:fontFamily="serif"-->
-<!--                android:minWidth="34dp"-->
-<!--                android:minHeight="34dp"-->
-<!--                android:text="T"-->
-<!--                android:textColor="@color/point_color"-->
-<!--                android:textSize="22sp"-->
-<!--                app:tint="@color/point_color" />-->
 
         </FrameLayout>
     </LinearLayout>

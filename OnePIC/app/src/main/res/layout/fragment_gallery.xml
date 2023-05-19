@@ -30,6 +30,34 @@
             app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/point_color" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/abril_fatface"
+            android:text="@string/app_name"
+            android:textColor="@color/dark_purple"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+            app:layout_constraintStart_toStartOf="@+id/vertical_centerline"
+            app:layout_constraintTop_toTopOf="@+id/guideline4" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/vertical_centerline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".33" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/vertical_centerline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".66" />
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
