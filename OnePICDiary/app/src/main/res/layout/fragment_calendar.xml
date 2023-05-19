@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.CalendarFragment" >
+    tools:context=".Fragment.CalendarFragment">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -33,6 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="6"
+            android:fontFamily="@font/uhbee_se_hyun_bold"
             android:gravity="center"
             android:padding="16dp"
             android:textSize="20sp"
@@ -66,6 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="일"
             android:textColor="#FF0000"
@@ -75,6 +77,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="월"
             android:textColor="@color/black"
@@ -84,6 +87,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="화"
             android:textColor="@color/black"
@@ -93,6 +97,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="수"
             android:textColor="@color/black"
@@ -102,6 +107,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="목"
             android:textColor="@color/black"
@@ -111,6 +117,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:text="금"
             android:textColor="@color/black"
@@ -120,8 +127,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:fontFamily="@font/uhbee_se_hyun"
 
+            android:gravity="center"
             android:text="토"
             android:textColor="#0073FF"
             android:textSize="10sp" />

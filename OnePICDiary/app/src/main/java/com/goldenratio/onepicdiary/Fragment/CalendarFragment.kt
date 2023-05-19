@@ -12,12 +12,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepicdiary.CalendarAdapter
-import com.goldenratio.onepicdiary.DiaryCellData
+import com.goldenratio.onepicdiary.DiaryModule.CalendarAdapter
+import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentCalendarBinding
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -105,6 +104,7 @@ class CalendarFragment : Fragment() {
             days.add(null)
         }
 
+        jpegViewModel.daysInMonth = daysInMonth
         // 현재 달의 날짜 추가
         for (i in 1..daysInMonth) {
             days.add(i)
@@ -136,8 +136,10 @@ class CalendarFragment : Fragment() {
                 val cellYear = cellList[i].year
                 val cellMonth = cellList[i].month - 1
 
-                if (currentYear == cellYear && currentMonth == cellMonth)
+                if (currentYear == cellYear && currentMonth == cellMonth) {
+                    // TODO: 문제 존재.. 전 달에도 추가됨 -> 껐다 키면 문제 없음
                     adapter.addDiaryImage(cellList[i].currentUri, cellList[i].day, ::viewDiary)
+                }
             }
             withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.GONE
@@ -158,9 +160,8 @@ class CalendarFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     fun viewDiary(uri: Uri) {
-
-        jpegViewModel.currentUri = uri
-        jpegViewModel.setCurrentMCContainer()
+        jpegViewModel.jpegMCContainer.value!!.init()
+        jpegViewModel.setCurrentMCContainer(uri)
 
         findNavController().navigate(R.id.action_calendarFragment_to_viewDiaryFragment)
     }
@@ -169,7 +170,6 @@ class CalendarFragment : Fragment() {
         val allPreferences: Map<String, *> = jpegViewModel.preferences.all
 
         for ((key, value) in allPreferences) {
-
             // 키와 값을 출력
             println("Key: $key")
             println("Value: $value")
@@ -179,7 +179,7 @@ class CalendarFragment : Fragment() {
             val imageUri = Uri.parse(value as String?)
 
             val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
-            Log.d("Cell Text", "````````````` $cell")
+            Log.d("Cell Text", "````````````` ${cell.toString()}")
 
             jpegViewModel.diaryCellArrayList.add(cell)
         }
