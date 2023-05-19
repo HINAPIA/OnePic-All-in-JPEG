@@ -110,7 +110,7 @@ class ViewerFragment : Fragment() {
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
 
-            ViewerFragment.isEditStoraged = false
+            isEditStoraged = false
         }
 
 
@@ -329,7 +329,9 @@ class ViewerFragment : Fragment() {
 
         binding.backBtn.setOnClickListener{
             Glide.get(requireContext()).clearMemory()
-            findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment)
+            val bundle = Bundle()
+            bundle.putInt("currentPosition",binding.viewPager2.currentItem)
+            findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment,bundle)
         }
     }
 
