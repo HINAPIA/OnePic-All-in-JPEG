@@ -30,21 +30,6 @@
             app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/point_color" />
 
-
-        <ImageButton
-            android:id="@+id/editBtn"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:background="@color/transparent_color"
-            android:scaleType="fitCenter"
-            android:src="@drawable/icon_edit"
-            android:textAlignment="textEnd"
-            app:layout_constraintBottom_toTopOf="@+id/guideline5"
-            app:layout_constraintEnd_toStartOf="@+id/guideline7"
-            app:layout_constraintStart_toStartOf="@+id/guideline9"
-            app:layout_constraintTop_toTopOf="@+id/guideline4"
-            app:tint="@color/point_color" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
