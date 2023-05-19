@@ -60,6 +60,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -104,6 +112,14 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
+
+    <ImageView
         android:id="@+id/mainView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -112,6 +128,14 @@
         android:paddingBottom="5dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/before_add_image" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -153,6 +177,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -186,7 +218,7 @@
             android:ems="10"
             android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="top|left"
-            android:inputType="textPersonName"
+            android:inputType="textMultiLine|textCapSentences"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -196,6 +228,14 @@
             app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

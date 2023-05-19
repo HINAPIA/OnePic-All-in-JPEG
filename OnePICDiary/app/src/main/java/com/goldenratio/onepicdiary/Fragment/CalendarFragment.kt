@@ -197,18 +197,20 @@ class CalendarFragment : Fragment() {
                 // inputStream이 null이 아니라면 사진 URI가 존재하는 것입니다.
                 // 원하는 작업을 수행하거나 결과를 처리할 수 있습니다.
                 if(inputStream != null) {
-                    val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
-                    Log.d("Cell Text", "````````````` ${cell.toString()}")
-                    jpegViewModel.diaryCellArrayList.add(cell)
+                        val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
+                        Log.d("Cell Text", "````````````` ${cell.toString()}")
+                        jpegViewModel.diaryCellArrayList.add(cell)
                 }
                 inputStream?.close()
-            } catch (e: IOException) {
+            } catch (e: IOException ) {
                 // 사진 URI가 존재하지 않는 경우 발생하는 예외입니다.
                 // 예외 처리 코드를 추가할 수 있습니다.
 
                 val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
                 editor.remove(key) // 삭제할 값의 키를 지정합니다.
                 editor.apply()
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
             }
         }
     }

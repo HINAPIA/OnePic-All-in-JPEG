@@ -21,7 +21,7 @@ class LayoutToolModule {
         var currentLayout: ImageView? = null
 
         CoroutineScope(Dispatchers.Default).launch{
-            for(i in 1 .. currentDate) {
+            for(i in 1 .. date) {
                 val subLayout =
                     layoutInflater.inflate(R.layout.date_layout, null)
 
@@ -39,7 +39,7 @@ class LayoutToolModule {
                 }
 
                 subLayout.setOnClickListener {
-                    clickFun.set(i)
+                    clickFun.get().value = i
                     currentLayout?.visibility = View.GONE
                     currentLayout = imageView
                     imageView.visibility = View.VISIBLE

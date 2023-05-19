@@ -51,12 +51,31 @@ class ViewDiaryFragment : Fragment() {
         layoutToolModule = LayoutToolModule()
 
         CoroutineScope(Dispatchers.Default).launch {
+
+            imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+            textContent = jpegViewModel.jpegMCContainer.value!!.textContent
+
             while (!imageContent.checkPictureList) {
                 delay(300)
             }
 
-            imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
-            textContent = jpegViewModel.jpegMCContainer.value!!.textContent
+            setDiary()
+
+            withContext(Dispatchers.Main) {
+                Log.d("Cell Text", "@@@@@@-> ${textContent.getMonth()} || ${textContent.getDay()}")
+                month.value = textContent.getMonth() + 1
+                day.value = textContent.getDay()
+
+                layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month.value!!, ::month)
+                layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day.value!!, ::day)
+
+                month.observe(viewLifecycleOwner) { _ ->
+                    dateChange()
+                }
+                day.observe(viewLifecycleOwner) { _ ->
+                    dateChange()
+                }
+            }
 
             Log.d("Cell Text", "@@@@@@-> ${textContent.getMonth()} || ${textContent.getDay()}")
 //            binding.dateText.text = "2023년 ${textContent.getMonth()+1}월 ${textContent.getDay()}일"

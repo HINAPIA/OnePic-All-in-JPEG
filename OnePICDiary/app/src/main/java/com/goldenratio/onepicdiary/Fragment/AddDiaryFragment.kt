@@ -48,12 +48,8 @@ class AddDiaryFragment : Fragment() {
         binding.contentTextField.setHorizontallyScrolling(false)
         binding.contentTextField.maxLines = Int.MAX_VALUE
 
-
-       val calendar = Calendar.getInstance()
-
         month.value = jpegViewModel.selectMonth + 1
         day.value = jpegViewModel.selectDay
-
 
         layoutToolModule = LayoutToolModule()
 
@@ -63,9 +59,10 @@ class AddDiaryFragment : Fragment() {
         // 저장 버튼 클릭 시
         binding.saveBtn.setOnClickListener {
             val year = 2023
+            val month = Integer.parseInt((month.value!!).toString())
+            val day = Integer.parseInt((day.value!!).toString())
 
-
-            val cell = DiaryCellData(imageUri!!, year, month.value!! - 1, day.value!!)
+            val cell = DiaryCellData(imageUri!!, year, month -1, day)
             cell.titleText = binding.titleTextField.text.toString()
             cell.contentText = binding.contentTextField.text.toString()
 
@@ -124,7 +121,6 @@ class AddDiaryFragment : Fragment() {
                         .load(imageUri)
                         .into(binding.mainView)
                 }
-
                 jpegViewModel.jpegMCContainer.value!!.init()
                 jpegViewModel.setCurrentMCContainer(imageUri!!)
 
