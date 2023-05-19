@@ -2,6 +2,8 @@ package com.goldenratio.onepic.SaveModule
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.RecoverableSecurityException
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -50,18 +52,13 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
                 if (writePermission == PackageManager.PERMISSION_GRANTED) {
-
                     savedFile = saveImageOnUnderAndroidQ(resultByteArray)
-
-                    // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     val requestExternalStorageCode = 1
-
                     val permissionStorage = arrayOf(
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
                         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                     )
-
                     ActivityCompat.requestPermissions(
                         mainActivity as Activity,
                         permissionStorage,
@@ -126,9 +123,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName : String) : String {
 //        CoroutineScope(Dispatchers.IO).launch {
-            var uri : Uri
-            Log.d("Picture Module", "이미지 저장 함수 :saveImageOnAboveAndroidQ 111")
-            // 기존 파일이 존재하는지 확인합니다.
+            var result : Boolean = true
+            var uri : Uri? = null
             val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
             val selectionArgs = arrayOf(fileName)
             val cursor = mainActivity.contentResolver.query(
@@ -138,33 +134,64 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 selectionArgs,
                 null
             )
-            // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
-            if (cursor != null && cursor.moveToFirst()) {
-                // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.
-                val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
-                cursor.close()
-                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
-               // ViewerFragment.currentFilePath = uri.toString()
-                Log.d("saveResolver", "덮어 쓰기")
 
-                // Delete the existing file
-                val contentResolver = mainActivity.contentResolver
-                contentResolver.delete(uri, null, null)
-            }
+        // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
+        if (cursor != null && cursor.moveToFirst()) {
+            result =  deleteImage(fileName)
+        }
+//            // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.
+//            val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
+//            cursor.close()
+//            uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
+//            // ViewerFragment.currentFilePath = uri.toString()
+//            Log.d("saveResolver", "덮어 쓰기")
+//
+//            // Delete the existing file
+//            val contentResolver = mainActivity.contentResolver
+//            contentResolver.delete(uri, null, null)
+
+//            cursor?.use { cursor ->
+//            if (cursor.moveToFirst()) {
+//                // 확장자가 있는 파일 이름으로
+//                // fasle 이면 지워지지 않음
+//                 result =  deleteImage(fileName)
+//            } else {
+//                // 이미지가 존재하지 않는 경우
+//                Log.d("save_test", "이미지가 존재 하지 않음")
+//            }
+//        }
+
+            // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
+//            if (cursor != null && cursor.moveToFirst()) {
+//                deleteImage(fileName)
+//                // 기존 파일이 존재하는 경우 해당 파일의 Uri를 반환합니다.
+//                val tempUri = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID))
+//                cursor.close()
+//                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, tempUri)
+//               // ViewerFragment.currentFilePath = uri.toString()
+//                Log.d("saveResolver", "덮어 쓰기")
+//
+//                // Delete the existing file
+//                val contentResolver = mainActivity.contentResolver
+//                contentResolver.delete(uri, null, null)
+         //   }
             // 기존 파일이 존재하지 않는 경우 새로운 파일을 생성
             //else {
+            if(result){
                 val values = ContentValues()
                 values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
                 values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                Log.d("saveResolver", "새 파일에 저장")
+                Log.d("save_test", "파일 저장 : ${fileName}")
+
                 uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
                 ViewerFragment.currentFilePath = uri.toString()
                 Log.d("here here : ",ViewerFragment.currentFilePath )
-           // }
 
-            Log.d("burst", "${uri}")
 
+            } else{
+                Log.d("save_test", "파일 저장 안함 : ${fileName}")
+            }
             try {
                 val outputStream: OutputStream? = uri?.let {
                     mainActivity.getContentResolver().openOutputStream(
@@ -175,7 +202,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     outputStream.write(byteArray)
                     outputStream.close()
                 }
-
                 // 파일이 완전히 저장되었는지 확인합니다.
                 val contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
                 val selectionClause = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
@@ -202,8 +228,56 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 e.printStackTrace()
             }
        // }'
-        return uri.toString()
+
+        if(result){
+            return ""
+        } else{
+            return "another"
+        }
     }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun deleteImage(fileName : String) : Boolean {
+        // 이미지를 조회하기 위한 쿼리
+        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+        val selectionArgs = arrayOf(fileName)
+        val contentResolver = mainActivity.contentResolver
+        val queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+        // 이미지 조회
+        val cursor = contentResolver.query(queryUri, null, selection, selectionArgs, null)
+        cursor?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                try {
+                    // 이미지가 존재하는 경우
+                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                    val imageUri = ContentUris.withAppendedId(queryUri, cursor.getLong(idColumn))
+
+                    // 이미지 삭제
+                    val deletedRows = contentResolver.delete(imageUri, null, null)
+                    if (deletedRows > 0) {
+                        Log.d("save_test", "이미지 삭제 성공")
+                    } else {
+                        Log.d("save_test", "이미지 삭제 실패")
+                    }
+                } catch (e: SecurityException) {
+                    // 사용자 요청 메시지를 보냄
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && e is RecoverableSecurityException) {
+                        Log.d("save_test", "삭제 중 예외 처리 (우리 앱 사진이 아님)")
+                        return false
+                    } else {
+                        // 예외 처리
+                        Log.d("save_test", "삭제 중 예외 처리 (우리 앱 사진이 아님) && 버전 13이하")
+                    }
+                }
+            } else {
+                // 이미지가 존재하지 않는 경우
+                Log.d("save_test", "이미지가 존재 하지 않음")
+            }
+        }
+        return true
+
+    }
+
 
     private fun saveImageOnUnderAndroidQ(byteArray: ByteArray) :String {
         val fileName = System.currentTimeMillis().toString() + ".jpg"
@@ -216,7 +290,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         }
 
         try {
-
             fileItem.createNewFile()
             //0KB 파일 생성.
 

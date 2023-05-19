@@ -2,6 +2,7 @@ package com.goldenratio.onepic.ViewerModule
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,9 +10,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.JpegViewModel
@@ -69,6 +72,28 @@ class ViewerEditorActivity : AppCompatActivity() {
 
     }
 
+    // 덮어쓰기 시 사용자 의견 요청 띄우고 들어오는 곳
+//    @RequiresApi(Build.VERSION_CODES.Q)
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == 1) {
+//            if (resultCode == Activity.RESULT_OK) {
+//                // 사용자가 승인한 경우 삭제 진행
+//                val currentFilePath = jpegViewModels.currentImageFilePath
+//                var fileName : String = ""
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+//                    fileName = jpegViewModels.getFileNameFromUri(currentFilePath!!.toUri())
+//                }else{
+//                    fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+//                }
+//                Log.d("save_test", "사용자 허가를 받고 다시 진행")
+//                jpegViewModels.jpegMCContainer.value?.saveResolver!!.deleteImage(fileName)
+//            } else {
+//                // 사용자가 거부한 경우 또는 오류가 발생한 경우
+//                // 예외 처리
+//            }
+//        }
+//    }
 
     override fun onRequestPermissionsResult( // 권한 요청 처리
         requestCode: Int,

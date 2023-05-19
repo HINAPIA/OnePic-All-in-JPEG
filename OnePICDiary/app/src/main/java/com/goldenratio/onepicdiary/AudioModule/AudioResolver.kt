@@ -26,7 +26,6 @@ class AudioResolver(val context : Context) {
     var savedFile: File?  = null
    // private var inputStream : ByteArrayInputStream? = null
    var mediaPlayer = MediaPlayer()
-    
     fun startRecording(fileName: String) : File? {
         if(isRecording){
             return null

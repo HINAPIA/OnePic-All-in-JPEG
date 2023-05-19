@@ -151,7 +151,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         }
     }
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun deleteImage(imageUri: Uri,fileName : String) {
+    fun deleteImage(fileName : String) {
 
         // 이미지를 조회하기 위한 쿼리
         val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"

@@ -83,8 +83,10 @@ class AddDiaryFragment : Fragment() {
             jpegViewModel.currentFileName = fileName
 
             // 기존 파일 삭제
-            jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(imageUri!!, fileName)
 
+            // 파일 이름
+            Log.d("save_test", fileName)
+            jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(fileName)
             var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
             //var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
             val imageUri = Uri.parse(savedFilePath)

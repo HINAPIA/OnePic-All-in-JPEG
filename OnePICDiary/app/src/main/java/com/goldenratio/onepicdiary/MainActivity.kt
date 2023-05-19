@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 // 사용자가 승인한 경우 삭제 진행
                 Log.d("save_test", "사용자 허가를 받고 다시 진행")
-                jpegViewModels.jpegMCContainer.value?.saveResolver!!.deleteImage(jpegViewModels.currentUri!!, jpegViewModels.currentFileName)
+                jpegViewModels.jpegMCContainer.value?.saveResolver!!.deleteImage( jpegViewModels.currentFileName)
             } else {
                 // 사용자가 거부한 경우 또는 오류가 발생한 경우
                 // 예외 처리
