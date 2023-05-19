@@ -9,9 +9,11 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.transition.TransitionInflater
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 
 import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
@@ -21,6 +23,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.R
@@ -102,22 +109,52 @@ class AnalyzeFragment : Fragment() {
            binding.progressBar.progress = progress
             if (progress > 100) {
 
-                binding.stateTextView.text = "분석 완료!"
-                binding.loadingImageView.visibility = View.GONE
+                binding.stateTextView.text = "분석 완료"
+
+                val desiredWidthInDp = 20 // 원하는 dp 값
+                val desiredHeightInDp = 20 // 원하는 dp 값
+
+                val density = resources.displayMetrics.density
+                val desiredWidthInPixels = (desiredWidthInDp * density).toInt()
+                val desiredHeightInPixels = (desiredHeightInDp * density).toInt()
+
+                //Glide.with(binding.loadingImageView).load(R.raw.confirm).into(binding.loadingImageView)
+                Glide.with(binding.loadingImageView)
+                    .asGif()
+                    .load(R.raw.confirm)
+                    .listener(object : RequestListener<GifDrawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<GifDrawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                           return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: GifDrawable?,
+                            model: Any?,
+                            target: Target<GifDrawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            resource?.setLoopCount(1)
+                            return false
+                        }
+
+                    })
+                    .into(binding.loadingImageView)
+
+
+                val params = binding.loadingImageView.layoutParams as LinearLayout.LayoutParams
+                params.gravity = Gravity.CENTER // 또는 다른 원하는 Gravity 값 설정
+                params.width = desiredWidthInPixels
+                params.height = desiredHeightInPixels
+                params.setMargins(0, 0, 0, 0) // 모든 마진을 0으로 설정
+                binding.loadingImageView.layoutParams = params
+
                 binding.magnifyingView.visibility = View.GONE
-//                binding.resultLinear.visibility = View.VISIBLE
-//
-//                var container = jpegViewModel.jpegMCContainer.value!!
-//
-//                var text = "이미지에 담긴 사진 ${container.imageContent.pictureCount}장\n"
-//                if (container.audioContent.audio!!.size != 0){
-//                    text = "${text}이미지에 담긴 오디오 있음"
-//                }
-//                if (container.textContent.textCount != 0){
-//                    text = "${text}이미지에 담긴 텍스트 있음\n"
-//                }
-//
-//                binding.analyzeDataTextView.text = text
 
                 setAnalyzeResultText()
 
@@ -240,7 +277,7 @@ class AnalyzeFragment : Fragment() {
             var jop = async {
                 loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
             jop.await()
-            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
+            jpegViewModel.setCurrentImageUri(position) // edit 위한 처리
         }
     }
 
@@ -267,7 +304,7 @@ class AnalyzeFragment : Fragment() {
     fun setAnalyzeResultText () {
 
         CoroutineScope(Dispatchers.Default).launch{
-            Thread.sleep(3000)
+            Thread.sleep(1500)
 
             CoroutineScope(Dispatchers.Main).launch{
                 val bundle = Bundle()
