@@ -28,6 +28,9 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     var currentUri : Uri? = null
     var currentFileName : String = ""
 
+    var selectMonth: Int = 0
+    var selectDay: Int = 0
+
     var preferences: SharedPreferences =
         context.getSharedPreferences("image_file_path", Context.MODE_PRIVATE)
 

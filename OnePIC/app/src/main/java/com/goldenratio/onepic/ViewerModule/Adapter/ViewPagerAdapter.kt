@@ -16,18 +16,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.signature.ObjectKey
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
@@ -66,6 +62,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     private lateinit var mainBitmap: Bitmap
 
     private var overlayImg: ArrayList<Bitmap> = arrayListOf()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : PagerViewHolder {
         viewHolder = PagerViewHolder(parent)
         return viewHolder
@@ -83,7 +80,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
             holder.bind(galleryMainimage[position]) // binding
         }
-
     }
 
     override fun getItemCount(): Int = galleryMainimage.size
@@ -133,7 +129,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                     isFinished.value = true
                 }
             }
-
         }
     }
 

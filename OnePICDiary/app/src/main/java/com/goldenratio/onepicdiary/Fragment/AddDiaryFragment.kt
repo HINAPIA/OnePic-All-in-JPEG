@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.JpegViewModel
@@ -32,8 +33,8 @@ class AddDiaryFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var layoutToolModule : LayoutToolModule
 
-    var month: Int = 0
-    var day: Int = 0
+    private var month = MutableLiveData<Int>()
+    private var day =  MutableLiveData<Int>()
 
     private val PICK_IMAGE_REQUEST = 1
 
@@ -44,26 +45,27 @@ class AddDiaryFragment : Fragment() {
     ): View {
         binding = FragmentAddDiaryBinding.inflate(inflater, container, false)
 
-        // 취소 버튼 클릭 시
-        binding.cancleBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
-        }
+        binding.contentTextField.setHorizontallyScrolling(false)
+        binding.contentTextField.maxLines = Int.MAX_VALUE
+
 
        val calendar = Calendar.getInstance()
 
-        month = calendar.get(Calendar.MONTH)+1
-        day = calendar.get(Calendar.DATE)
+        month.value = jpegViewModel.selectMonth + 1
+        day.value = jpegViewModel.selectDay
+
 
         layoutToolModule = LayoutToolModule()
 
-        layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month, ::month)
-        layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day, ::day)
+        layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month.value!!, ::month)
+        layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day.value!!, ::day)
 
         // 저장 버튼 클릭 시
         binding.saveBtn.setOnClickListener {
             val year = 2023
 
-            val cell = DiaryCellData(imageUri!!, year, month - 1, day)
+
+            val cell = DiaryCellData(imageUri!!, year, month.value!! - 1, day.value!!)
             cell.titleText = binding.titleTextField.text.toString()
             cell.contentText = binding.contentTextField.text.toString()
 
@@ -77,22 +79,18 @@ class AddDiaryFragment : Fragment() {
                 textList
             )
 
+            // 기존 파일 삭제
+//                jpegViewModel.jpegMCContainer.value?.saveResolver!!.save(
+//                    imageUri!!,
+//                    fileName
+//                )
+
+            val savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+
 
             // CoroutineScope(Dispatchers.Default).launch {
-            val fileName = jpegViewModel.getFileNameFromUri(imageUri!!)
-            jpegViewModel.currentFileName = fileName
-
-            // 기존 파일 삭제
-            jpegViewModel.jpegMCContainer.value?.saveResolver!!.deleteImage(imageUri!!, fileName)
-
-            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-            //var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-            val imageUri = Uri.parse(savedFilePath)
-            cell.currentUri = imageUri
-
-            jpegViewModel.currentUri = imageUri
-            jpegViewModel.diaryCellArrayList.add(cell)
-
+//            val fileName = jpegViewModel.getFileNameFromUri(imageUri!!)
+//            jpegViewModel.currentFileName = fileName
 
             val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
             editor.putString("$year/$month/$day", savedFilePath)

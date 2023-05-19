@@ -1,5 +1,7 @@
 package com.goldenratio.onepicdiary.Fragment
 
+import android.content.ContentResolver
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +19,9 @@ import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentCalendarBinding
 import kotlinx.coroutines.*
+import kotlinx.coroutines.selects.select
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -78,6 +83,8 @@ class CalendarFragment : Fragment() {
 
         // 다이어리 추가 버튼
         binding.diaryAddBtn.setOnClickListener {
+            jpegViewModel.selectDay = adapter.day
+
             findNavController().navigate(R.id.action_calendarFragment_to_addDiaryFragment)
         }
 
@@ -124,12 +131,15 @@ class CalendarFragment : Fragment() {
     private fun setDiary() {
         binding.progressBar.visibility = View.VISIBLE
 
+        jpegViewModel.selectMonth = currentMonth
+
         val days = generateCalendarDays(currentYear, currentMonth)
 
         adapter = CalendarAdapter(requireContext(), days)
         binding.calendarGrid.adapter = adapter
 
         val cellList = jpegViewModel.diaryCellArrayList
+
 
         CoroutineScope(Dispatchers.Default).launch {
             for (i in 0 until cellList.size) {
@@ -153,7 +163,9 @@ class CalendarFragment : Fragment() {
             val nowMonth = calendar.get(Calendar.MONTH)
 
             if(currentYear == nowYear && currentMonth == nowMonth) {
-                adapter.setMainImage(calendar.get(Calendar.DATE))
+                val date = calendar.get(Calendar.DATE)
+                adapter.setMainImage(date)
+                jpegViewModel.selectDay = date
             }
         }
     }
@@ -178,10 +190,26 @@ class CalendarFragment : Fragment() {
 
             val imageUri = Uri.parse(value as String?)
 
-            val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
-            Log.d("Cell Text", "````````````` ${cell.toString()}")
+            val contentResolver: ContentResolver = requireContext().getContentResolver()
 
-            jpegViewModel.diaryCellArrayList.add(cell)
+            try {
+                val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
+                // inputStream이 null이 아니라면 사진 URI가 존재하는 것입니다.
+                // 원하는 작업을 수행하거나 결과를 처리할 수 있습니다.
+                if(inputStream != null) {
+                    val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
+                    Log.d("Cell Text", "````````````` ${cell.toString()}")
+                    jpegViewModel.diaryCellArrayList.add(cell)
+                }
+                inputStream?.close()
+            } catch (e: IOException) {
+                // 사진 URI가 존재하지 않는 경우 발생하는 예외입니다.
+                // 예외 처리 코드를 추가할 수 있습니다.
+
+                val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
+                editor.remove(key) // 삭제할 값의 키를 지정합니다.
+                editor.apply()
+            }
         }
     }
  }

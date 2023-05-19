@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="6"
-            android:fontFamily="@font/uhbee_se_hyun_bold"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center"
             android:padding="16dp"
             android:textSize="20sp"

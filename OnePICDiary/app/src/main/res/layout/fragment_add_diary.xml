@@ -9,27 +9,20 @@
     android:orientation="vertical"
     tools:context=".Fragment.AddDiaryFragment">
 
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.7"
-        android:fontFamily="@font/uhbee_se_hyun_bold"
-        android:gravity="center"
-        android:text="- 일기장 -"
-        android:textSize="23sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line"
+        app:tint="@color/line" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="-1.5dp"
         android:layout_marginEnd="-1.5dp"
-        android:layout_weight="0.55"
-        android:background="@drawable/sub_border">
+        android:layout_weight="0.55">
 
         <TextView
             android:id="@+id/monthTextView"
@@ -114,10 +107,7 @@
         android:id="@+id/mainView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-1.5dp"
-        android:layout_marginEnd="-1.5dp"
         android:layout_weight="5"
-        android:background="@drawable/sub_border"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:scaleType="fitCenter"
@@ -126,17 +116,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-1.5dp"
-        android:layout_marginEnd="-1.5dp"
         android:layout_weight="0.6">
 
         <TextView
             android:id="@+id/titleView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/uhbee_se_hyun_bold"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:gravity="center_vertical"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             android:text="제목"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -167,10 +156,23 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-1.5dp"
-        android:layout_marginEnd="-1.5dp"
-        android:layout_weight="3"
-        android:background="@drawable/sub_border">
+        android:layout_weight="3">
+
+        <TextView
+            android:id="@+id/titleView2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/uhbee_se_hyun"
+            android:gravity="center_vertical"
+            android:paddingStart="19.8dp"
+            android:paddingEnd="19.8dp"
+            android:text="내용"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
         <EditText
             android:id="@+id/contentTextField"
@@ -189,7 +191,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/titleView2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -204,30 +206,15 @@
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
-            android:fontFamily="@font/uhbee_se_hyun_bold"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/uhbee_se_hyun"
             android:text="저장"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/cancleBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="50dp"
-            android:backgroundTint="#D1D1D1"
-            android:fontFamily="@font/uhbee_se_hyun_bold"
-            android:text="취소"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.666" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

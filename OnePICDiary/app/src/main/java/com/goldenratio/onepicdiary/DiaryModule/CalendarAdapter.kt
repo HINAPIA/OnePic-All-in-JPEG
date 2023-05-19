@@ -18,6 +18,8 @@ import kotlin.coroutines.suspendCoroutine
 class CalendarAdapter(private val context: Context, private val days: MutableList<Int?>) : BaseAdapter() {
 
     val cellViewMap = mutableMapOf<Int, View>()
+    var day = 0
+    var selectView: View? = null
 
     override fun getCount(): Int {
         return days.size
@@ -44,6 +46,15 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
         } else {
             dateText.text = day.toString()
             cellViewMap[day] = cellView
+            cellView.setOnClickListener {
+                this.day = day
+                if(selectView != null) {
+                    selectView?.visibility = View.GONE
+                }
+                selectView = cellViewMap[day]!!
+                selectView = cellViewMap[day]?.findViewById<ImageView>(R.id.currentIcon)
+                selectView?.visibility = View.VISIBLE
+            }
         }
 
         return cellView
@@ -57,9 +68,7 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
             }
 
             withContext(Dispatchers.Main) {
-                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)
-                    ?.setTextColor(Color.WHITE)
-//                cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)?.setImageURI(uri)
+//                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)?.setTextColor(Color.WHITE)
                 val imageView = cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)!!
                 withContext(Dispatchers.Main) {
                     Glide.with(imageView)
@@ -82,10 +91,13 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
 
             while (date > cellViewMap.size) {
             }
+
+            day =  date
+
             withContext(Dispatchers.Main) {
-                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)
-                    ?.setTextColor(Color.WHITE)
-                cellViewMap[date]?.findViewById<ImageView>(R.id.currentIcon)?.visibility = View.VISIBLE
+//                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)?.setTextColor(Color.WHITE)
+                selectView = cellViewMap[date]?.findViewById<ImageView>(R.id.currentIcon)
+                selectView?.visibility = View.VISIBLE
             }
 
             result.resume(true)
