@@ -277,7 +277,7 @@ class AnalyzeFragment : Fragment() {
             var jop = async {
                 loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
             jop.await()
-            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
+            jpegViewModel.setCurrentImageUri(position) // edit 위한 처리
         }
     }
 
