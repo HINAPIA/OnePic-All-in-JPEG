@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
@@ -43,6 +44,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var checkAdd = true
 
     private var isSaved = false
+    private var isFinished = MutableLiveData<Boolean>()
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -57,6 +59,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             ?: throw IllegalStateException("Fragment is not attached to an activity")
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+
+        isFinished.observe(requireActivity()){value ->
+            if (value == true){
+                CoroutineScope(Dispatchers.Main).launch {
+                    findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                }
+                isFinished.value = false // 초기화
+            }
+        }
 
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
@@ -210,12 +221,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     CoroutineScope(Dispatchers.Default).launch {
                         setButtonDeactivation()
                         setCurrentPictureByteArrList()
-                        Thread.sleep(2000)
+//                        Thread.sleep(2000)
 //                imageTool.showView(binding.progressBar2 , false)
-                        withContext(Dispatchers.Main) {
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-
-                        }
+//                        withContext(Dispatchers.Main) {
+//                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//
+//                        }
                     }
                 } else if (imageContent.checkMagicAttribute) {
                     imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
@@ -230,11 +241,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     CoroutineScope(Dispatchers.Default).launch {
                         setButtonDeactivation()
                         setCurrentPictureByteArrList()
-                        Thread.sleep(2000)
-                        withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar2 , false)
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                        }
+//                        Thread.sleep(2000)
+//                        withContext(Dispatchers.Main) {
+////                        imageTool.showView(binding.progressBar2 , false)
+//                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//                        }
                     }
                 } else {
                     imageTool.showView(binding.progressBar2, false)
@@ -261,11 +272,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 CoroutineScope(Dispatchers.Default).launch {
                                     setButtonDeactivation()
                                     setCurrentPictureByteArrList()
-                                    Thread.sleep(2000)
-                                    withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar2 , false)
-                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                                    }
+//                                    Thread.sleep(2000)
+//                                    withContext(Dispatchers.Main) {
+////                        imageTool.showView(binding.progressBar2 , false)
+//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//                                    }
                                 }
                             })
                         .setNeutralButton("예",
@@ -293,12 +304,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 CoroutineScope(Dispatchers.Default).launch {
                                     setButtonDeactivation()
                                     setCurrentPictureByteArrList()
-                                    Thread.sleep(1000)
-//                            imageTool.showView(binding.progressBar2 , false)
-                                    withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar2 , false)
-                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                                    }
+//                                    Thread.sleep(1000)
+////                            imageTool.showView(binding.progressBar2 , false)
+//                                    withContext(Dispatchers.Main) {
+////                        imageTool.showView(binding.progressBar2 , false)
+//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//                                    }
                                 }
                             })
                         .show()
@@ -328,7 +339,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     pictureByteArrayList.add(pictureByteArr!!)
                 } // end of for..
                 jpegViewModel.setpictureByteArrList(pictureByteArrayList)
-
+                CoroutineScope(Dispatchers.Main).launch {
+                    isFinished.value = true
+                }
             }
         }
     }
