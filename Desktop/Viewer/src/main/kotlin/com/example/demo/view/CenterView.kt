@@ -268,10 +268,16 @@ class CenterView : View() {
 
         //text 바꾸기
         if(aiContainer.textContent.textCount > 0){
+            subImagesView.textView.style{
+                backgroundColor = MultiValue(arrayOf(Color.web("#020202")))
+            }
             subImagesView.chageText(aiContainer.textContent.textList[0].data)
             textContentLabel.text = aiContainer.textContent.textList[0].data
         } else{
             subImagesView.chageText("")
+            subImagesView.textView.style{
+                backgroundColor = MultiValue(arrayOf(Color.web("#808080")))
+            }
             textContentLabel.text = ""
         }
         // 이미지 리스트 뷰 바꾸기

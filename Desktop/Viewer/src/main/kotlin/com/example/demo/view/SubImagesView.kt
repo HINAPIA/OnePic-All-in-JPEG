@@ -246,6 +246,7 @@ class SubImagesView(val centerView : CenterView) : View() {
             setMinSize(200.0, 50.0)
             setMaxSize(200.0, 50.0)
             style{
+                println("addTextView() 호출")
                 paddingAll = 10.0
                 background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
                 effect = DropShadow(10.0, 0.0, 5.0, javafx.scene.paint.Color.GRAY).apply {
