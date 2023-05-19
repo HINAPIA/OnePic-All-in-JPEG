@@ -106,6 +106,7 @@ class ViewerFragment : Fragment() {
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
                 path = getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
+                Log.d("filepath .jpeg 있나요 : ",path)
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
@@ -171,6 +172,16 @@ class ViewerFragment : Fragment() {
                 }
             }
         }
+
+
+        val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
+        val leftMarginInDp = 0 // 왼쪽 마진(dp)
+        val topMarginInDp =  0// 위쪽 마진(dp)
+        val rightMarginInDp =  - pxToDp(20f).toInt()// 오른쪽 마진(dp)
+        val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+
+        textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+        binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
 
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
@@ -395,21 +406,21 @@ class ViewerFragment : Fragment() {
 
 
     /** MCContainer 변경 */
-    @RequiresApi(Build.VERSION_CODES.Q)
-    fun setCurrentMCContainer(position:Int){
-        CoroutineScope(Dispatchers.IO).launch {
-            Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
-
-
-            val iStream: InputStream? = requireContext().contentResolver.openInputStream(getUriFromPath(sourcePhotoUri))
-            var sourceByteArray = getBytes(iStream!!)
-            var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
-            jop.await()
-            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
-        }
-    }
+//    @RequiresApi(Build.VERSION_CODES.Q)
+//    fun setCurrentMCContainer(position:Int){
+//        CoroutineScope(Dispatchers.IO).launch {
+//            Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
+//            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
+//
+//
+//            val iStream: InputStream? = requireContext().contentResolver.openInputStream(getUriFromPath(sourcePhotoUri))
+//            var sourceByteArray = getBytes(iStream!!)
+//            var jop = async {
+//                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
+//            jop.await()
+//            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
+//        }
+//    }
 
     /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
     fun setCurrentOtherImage(){

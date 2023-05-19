@@ -31,7 +31,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     /* TODO: Edit 창에서 Main 바꿀 때 필요한 property
         - 동기처리 문제 아직 남아있어서, 만약 갤러리(사진)에 변경 있으면 테스트 할 때는 갤러리뷰 한번 갔다가 들어와주세요! */
 
-    var currentImageFilePath:String? = null // 현재 메인 이미지 filePath
+    var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)
     var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
 
 
@@ -44,9 +44,9 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     }
 
     fun setCurrentImageFilePath(position:Int){ // 현재 메인 이미지 filePath 설정
-        if (currentImageFilePath != null) // 초기화
-            currentImageFilePath = null
-        this.currentImageFilePath = imageUriLiveData.value!!.get(position)
+        if (currentImageUri != null) // 초기화
+            currentImageUri = null
+        this.currentImageUri = imageUriLiveData.value!!.get(position)
     }
 
     fun setselectedSubImage(picture:Picture?){ // 선택된 서브 이미지 picture 객체 설정

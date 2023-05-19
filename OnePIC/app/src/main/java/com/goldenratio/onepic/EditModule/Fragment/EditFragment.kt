@@ -111,7 +111,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         /* TODO: ViewrFragment to EditorFragment - currentImageFilePath와 selectedImageFilePath 확인 */
         // ViewerFragment에서 스크롤뷰 이미지 중 아무것도 선택하지 않은 상태에서 edit 누르면 picturelist의 맨 앞 객체(메인)이 선택된 것으로 했음
-        Log.d("currentImageFilePath: ",""+jpegViewModel.currentImageFilePath)
+        Log.d("currentImageUri: ",""+jpegViewModel.currentImageUri)
         Log.d("selectedImageFilePath: ",""+jpegViewModel.selectedSubImage)
 
         return binding.root
@@ -201,9 +201,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                  ) {
 
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
-                    val currentFilePath = jpegViewModel.currentImageFilePath
+                    val currentFilePath = jpegViewModel.currentImageUri
                     val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
-                    jpegViewModel.currentImageFilePath
+                    jpegViewModel.currentImageUri
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     //ViewerFragment.currentFilePath = savedFilePath.toString()
                     Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")

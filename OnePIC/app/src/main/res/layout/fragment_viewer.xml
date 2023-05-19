@@ -262,6 +262,19 @@
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/container" />
 
+
+            <TextView
+                android:id="@+id/allInJpegTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:textStyle="bold"
+                android:rotation="90"
+                android:textSize="12sp"
+                android:layout_gravity="right"
+                android:text="All in JPEG" />
+
+
             <LinearLayout
                 android:id="@+id/datalinearLayout"
                 android:layout_width="wrap_content"
