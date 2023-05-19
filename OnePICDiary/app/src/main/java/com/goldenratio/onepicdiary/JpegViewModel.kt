@@ -20,10 +20,8 @@ import java.io.InputStream
 class JpegViewModel(private val context:Context) : ViewModel() {
 
     var jpegMCContainer = MutableLiveData<MCContainer>()
-
     var diaryCellArrayList = arrayListOf<DiaryCellData>()
 
-    var addCellData: DiaryCellData? = null
     var daysInMonth: Int = 0
     var currentUri : Uri? = null
     var currentFileName : String = ""

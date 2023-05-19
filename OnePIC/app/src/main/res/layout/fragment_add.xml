@@ -382,7 +382,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="16dp"
                 android:backgroundTint="@color/transparent_color"
-                android:drawabletTop="@drawable/audio_add_icon_resize"
+                android:drawableTop="@drawable/audio_add_icon_resize"
                 android:text="Audio"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"

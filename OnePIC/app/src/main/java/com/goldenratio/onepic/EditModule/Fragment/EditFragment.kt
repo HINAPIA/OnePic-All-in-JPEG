@@ -192,10 +192,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     android.R.style.Theme_DeviceDefault_Light_Dialog
                 )
 
-                if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                    !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute
-                    || !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                    !imageContent.checkMagicAttribute && imageContent.checkAddAttribute
+                if (imageContent.checkMainChangeAttribute || !imageContent.checkAddAttribute &&
+                    !imageContent.checkRewindAttribute && !imageContent.checkMagicAttribute
                  ) {
 
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기

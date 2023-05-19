@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepicdiary.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,12 +16,12 @@ import kotlin.reflect.KMutableProperty0
 
 class LayoutToolModule {
     @SuppressLint("MissingInflatedId", "CutPasteId")
-    fun setSubImage(layoutInflater: LayoutInflater, date: Int, view: LinearLayout, currentDate: Int, clickFun: KMutableProperty0<Int>) {
+    fun setSubDate(layoutInflater: LayoutInflater, date: Int, view: LinearLayout, currentDate: Int, clickFun: KMutableProperty0<MutableLiveData<Int>>) {
 
         var currentLayout: ImageView? = null
 
         CoroutineScope(Dispatchers.Default).launch{
-            for(i in 1 .. currentDate) {
+            for(i in 1 .. date) {
                 val subLayout =
                     layoutInflater.inflate(R.layout.date_layout, null)
 
@@ -38,7 +39,7 @@ class LayoutToolModule {
                 }
 
                 subLayout.setOnClickListener {
-                    clickFun.set(i)
+                    clickFun.get().value = i
                     currentLayout?.visibility = View.GONE
                     currentLayout = imageView
                     imageView.visibility = View.VISIBLE
@@ -51,4 +52,5 @@ class LayoutToolModule {
             }
         }
     }
+
 }
