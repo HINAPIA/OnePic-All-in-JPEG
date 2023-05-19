@@ -19,6 +19,7 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.ViewerModule.Fragment.AnalyzeFragment
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
@@ -208,6 +209,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         setButtonDeactivation()
+                        setCurrentPictureByteArrList()
                         Thread.sleep(2000)
 //                imageTool.showView(binding.progressBar2 , false)
                         withContext(Dispatchers.Main) {
@@ -227,6 +229,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         setButtonDeactivation()
+                        setCurrentPictureByteArrList()
                         Thread.sleep(2000)
                         withContext(Dispatchers.Main) {
 //                        imageTool.showView(binding.progressBar2 , false)
@@ -257,6 +260,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                                 CoroutineScope(Dispatchers.Default).launch {
                                     setButtonDeactivation()
+                                    setCurrentPictureByteArrList()
                                     Thread.sleep(2000)
                                     withContext(Dispatchers.Main) {
 //                        imageTool.showView(binding.progressBar2 , false)
@@ -288,6 +292,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                 }
                                 CoroutineScope(Dispatchers.Default).launch {
                                     setButtonDeactivation()
+                                    setCurrentPictureByteArrList()
                                     Thread.sleep(1000)
 //                            imageTool.showView(binding.progressBar2 , false)
                                     withContext(Dispatchers.Main) {
@@ -308,5 +313,23 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         checkRewind = false
         checkMagic = false
         checkAdd = false
+    }
+
+    fun setCurrentPictureByteArrList(){
+
+        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
+
+        if (pictureList != null) {
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val pictureByteArrayList = mutableListOf<ByteArray>()
+                for (picture in pictureList){
+                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+                    pictureByteArrayList.add(pictureByteArr!!)
+                } // end of for..
+                jpegViewModel.setpictureByteArrList(pictureByteArrayList)
+
+            }
+        }
     }
 }

@@ -111,6 +111,7 @@ class ViewerFragment : Fragment() {
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
+            jpegViewModel.setCurrentImageUri(binding.viewPager2.currentItem)
 
             isEditStoraged = false
         }
@@ -136,6 +137,12 @@ class ViewerFragment : Fragment() {
 
             }
         }
+    }
+
+    override fun onResume(){
+        super.onResume()
+
+
     }
 
     override fun onStop() {
@@ -181,16 +188,16 @@ class ViewerFragment : Fragment() {
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val displayHeight = displayMetrics.heightPixels
+        val displayWidth = displayMetrics.widthPixels
 
-        Log.d("heihgt height",""+displayHeight)
+        Log.d("width width",""+displayWidth)
 
         val leftMarginInDp = 0 // 왼쪽 마진(dp)
-        val topMarginInDp =  pxToDp((displayHeight*0.15/1.8).toFloat()).toInt()
-        val rightMarginInDp =  - pxToDp(35f).toInt()// 오른쪽 마진(dp)
+        val topMarginInDp =  pxToDp((displayHeight*0.15/1.75).toFloat()).toInt()
+        val rightMarginInDp =  -pxToDp((displayWidth/24).toFloat()).toInt()// 오른쪽 마진(dp)
         val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
         textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-
         binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
 

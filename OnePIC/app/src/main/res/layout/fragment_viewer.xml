@@ -269,7 +269,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:rotation="90"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:layout_gravity="right"
                 android:text="All in JPEG" />
 

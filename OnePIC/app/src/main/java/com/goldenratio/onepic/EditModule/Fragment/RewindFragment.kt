@@ -138,7 +138,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
 
-            CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
                 infoLevel.value = InfoLevel.EditFaceSelect
             }

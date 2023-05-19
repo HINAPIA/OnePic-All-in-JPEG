@@ -160,6 +160,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 Log.d("saveResolver", "새 파일에 저장")
                 uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
                 ViewerFragment.currentFilePath = uri.toString()
+
                 Log.d("here here : ",ViewerFragment.currentFilePath )
            // }
 
