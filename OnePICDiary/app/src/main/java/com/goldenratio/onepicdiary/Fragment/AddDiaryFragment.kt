@@ -1,6 +1,7 @@
 package com.goldenratio.onepicdiary.Fragment
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -16,12 +17,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import com.goldenratio.onepicdiary.DiaryModule.LayoutToolModule
+import com.goldenratio.onepicdiary.MainActivity
 import com.goldenratio.onepicdiary.R
+import com.goldenratio.onepicdiary.databinding.BottomSheetLayoutBinding
 import com.goldenratio.onepicdiary.databinding.FragmentAddDiaryBinding
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -36,8 +41,14 @@ class AddDiaryFragment : Fragment() {
     private var month = MutableLiveData<Int>()
     private var day =  MutableLiveData<Int>()
 
+    private lateinit var activity: MainActivity
+
     private val PICK_IMAGE_REQUEST = 1
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activity = context as MainActivity
+    }
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +74,12 @@ class AddDiaryFragment : Fragment() {
 
         //오디오 버튼 클릭 시
         binding.mikeBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_addDiaryFragment_to_audioAddFragment)
+
+            val bottomSheetFragment = AudioBottomSheet()
+            bottomSheetFragment.show(activity.supportFragmentManager, "bottomSheet")
+
+
+            //findNavController().navigate(R.id.action_addDiaryFragment_to_audioAddFragment)
         }
 
         // 저장 버튼 클릭 시

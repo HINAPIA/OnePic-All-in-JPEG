@@ -3,10 +3,12 @@ package com.goldenratio.onepic
 import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
+import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -137,5 +139,10 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             return urlHashMap.get(key)
         }
         return null
+    }
+
+    fun getFileNameFromUri(uri: Uri): String {
+        val documentFile = DocumentFile.fromSingleUri(context, uri)
+        return documentFile?.name!!
     }
 }

@@ -64,7 +64,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.8"
-        app:layout_constraintBottom_toTopOf="@+id/horizonal_centerline2">
+        app:layout_constraintBottom_toTopOf="@+id/horizonal_centerline2"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/imageView2"
