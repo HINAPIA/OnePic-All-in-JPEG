@@ -185,7 +185,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 mainActivity.contentResolver.query(queryUri, null, selectionClause, selectionArgs, null)?.use { cursor ->
                     if (cursor.moveToFirst()) {
                         val isPending = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING))
-                        if (isPending == 0) {
+                        if (isPending == 0 && result) {
                             Log.d("error 잡기", "파일 저장 완료")
                             CoroutineScope(Dispatchers.Main).launch {
                                 Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()

@@ -51,10 +51,20 @@ class AddDiaryFragment : Fragment() {
         month.value = jpegViewModel.selectMonth + 1
         day.value = jpegViewModel.selectDay
 
+//       val calendar = Calendar.getInstance()
+//
+//        month.value = calendar.get(Calendar.MONTH) + 1
+//        day.value = calendar.get(Calendar.DATE)
+
         layoutToolModule = LayoutToolModule()
 
         layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month.value!!, ::month)
         layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day.value!!, ::day)
+
+        //오디오 버튼 클릭 시
+        binding.mikeBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_addDiaryFragment_to_audioAddFragment)
+        }
 
         // 저장 버튼 클릭 시
         binding.saveBtn.setOnClickListener {
@@ -114,6 +124,7 @@ class AddDiaryFragment : Fragment() {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             imageUri = data.data
+            jpegViewModel.currentUri = imageUri
             // 선택한 이미지 처리 로직을 여기에 추가
             if (imageUri != null) {
                 CoroutineScope(Dispatchers.Main).launch {
