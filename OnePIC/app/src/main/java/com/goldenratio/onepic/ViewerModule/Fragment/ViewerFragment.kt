@@ -454,7 +454,6 @@ class ViewerFragment : Fragment() {
 
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
                 for(i in 0..pictureList.size-1){
-
                     val picture = pictureList[i]
                     val pictureByteArr = pictureByteArrList[i]//jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
 

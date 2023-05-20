@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="CustomBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
+<!--        <item name="android:windowIsFloating">true</item>-->
+<!--        <item name="android:windowNoTitle">true</item>-->
+<!--        <item name="android:windowIsTranslucent">true</item>-->
+
+        <item name="bottomSheetStyle">@style/CustomRoundedBackgroundBottomSheet</item>
+    </style>
+    <style name="CustomRoundedBackgroundBottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/dialog_rounded_background</item>
+    </style>
+>
+</resources>

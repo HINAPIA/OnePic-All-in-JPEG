@@ -3,6 +3,6 @@
 3    package="org.opencv" >
 4
 5    <uses-sdk android:minSdkVersion="21" />
-5-->/Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
+5-->/Users/yujin/Documents/GitHub/OnePIC/OnePIC/opencv/java/AndroidManifest.xml
 6
 7</manifest>

@@ -10,22 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/file.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/audio/record.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/audio/record.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/build_model.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/build_model.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/configure_command" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/configure_command" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/configure_stdout.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/configure_stdout.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/generate_cxx_metadata_21_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/generate_cxx_metadata_21_timing.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/metadata_generation_record.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/metadata_generation_record.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86/libc++_shared.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_21_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_21_timing.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/.transforms/8e1d2324a52b6650340fc1aa8e5a9d39/results.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/.transforms/ec785318b5dea4efaec5f170995e8243/results.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/Fragment/AudioAddFragment.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/drawable/back.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/drawable/mike.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/layout/fragment_audio_add.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/SaveModule/SaveResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/SaveModule/SaveResolver.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/Fragment/AddDiaryFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/Fragment/AddDiaryFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/JpegViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/JpegViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/PictureModule/MCContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/PictureModule/MCContainer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/SaveModule/SaveResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/java/com/goldenratio/onepicdiary/SaveModule/SaveResolver.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/layout/fragment_add_diary.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/layout/fragment_add_diary.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/navigation/nav.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePICDiary/app/src/main/res/navigation/nav.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
