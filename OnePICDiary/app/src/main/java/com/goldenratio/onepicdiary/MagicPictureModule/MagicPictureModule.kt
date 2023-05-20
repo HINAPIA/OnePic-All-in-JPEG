@@ -18,7 +18,7 @@ class MagicPictureModule(val imageContent: ImageContent) {
     /* Magic picture 변수 */
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
 
-    private lateinit var imageToolModule: ImageToolModule
+    private var imageToolModule: ImageToolModule
 
     private var changeFaceStartX = 0
     private var changeFaceStartY = 0
@@ -26,20 +26,28 @@ class MagicPictureModule(val imageContent: ImageContent) {
     var pictureList : ArrayList<Picture> = arrayListOf()
     private var bitmapList: ArrayList<Bitmap> = arrayListOf()
 
-    private lateinit var mainBitmap: Bitmap
+    private var mainBitmap: Bitmap
 
-    private var overlayImg: ArrayList<Bitmap> = arrayListOf()
+    private var isInit = false
 
     init {
         while(!imageContent.checkPictureList) {
 
         }
+        imageToolModule = ImageToolModule()
         mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
         pictureList = imageContent.pictureList
+        isInit = true
     }
 
-    private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
+    suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
         suspendCoroutine { result ->
+            val overlayImg: ArrayList<Bitmap> = arrayListOf()
+
+            Log.d("faceRewind","while start")
+            while (!isInit) {}
+            Log.d("faceRewind","while end")
+
 //             val overlayImg: ArrayList<Bitmap> = arrayListOf()
             // rewind 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList

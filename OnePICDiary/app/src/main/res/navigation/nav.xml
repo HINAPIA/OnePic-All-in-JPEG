@@ -38,5 +38,10 @@
             app:destination="@id/calendarFragment"
             app:popUpTo="@id/calendarFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_viewDiaryFragment_to_addDiaryFragment"
+            app:destination="@id/addDiaryFragment"
+            app:popUpTo="@id/addDiaryFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

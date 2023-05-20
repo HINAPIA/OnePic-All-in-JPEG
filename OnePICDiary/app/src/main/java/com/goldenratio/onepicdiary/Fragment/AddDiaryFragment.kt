@@ -53,16 +53,16 @@ class AddDiaryFragment : Fragment() {
 
         layoutToolModule = LayoutToolModule()
 
-        layoutToolModule.setSubImage(layoutInflater, 12, binding.monthLayout, month.value!!, ::month)
-        layoutToolModule.setSubImage(layoutInflater, jpegViewModel.daysInMonth, binding.dayLayout, day.value!!, ::day)
+        layoutToolModule.setSubImage(layoutInflater,binding.monthLayout, 12, month.value!!, null, ::month)
+        layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, day.value!!, null, ::day)
 
         // 저장 버튼 클릭 시
         binding.saveBtn.setOnClickListener {
             val year = 2023
-            val month = Integer.parseInt((month.value!!).toString())
+            val month = Integer.parseInt((month.value!!).toString()) - 1
             val day = Integer.parseInt((day.value!!).toString())
 
-            val cell = DiaryCellData(imageUri!!, year, month -1, day)
+            val cell = DiaryCellData(imageUri!!, year, month, day)
             cell.titleText = binding.titleTextField.text.toString()
             cell.contentText = binding.contentTextField.text.toString()
 

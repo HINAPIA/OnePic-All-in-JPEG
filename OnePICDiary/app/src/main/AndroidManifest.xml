@@ -14,6 +14,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.OnePICDiary"
+        android:hardwareAccelerated="false"
+        android:largeHeap="true"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"

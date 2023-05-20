@@ -56,7 +56,7 @@ class CalendarFragment : Fragment() {
 
         if(cellList.size > 0) {
             currentYear = cellList[cellList.size-1].year
-            currentMonth = cellList[cellList.size-1].month - 1
+            currentMonth = cellList[cellList.size-1].month
         }
 
         setDiary()
@@ -144,7 +144,7 @@ class CalendarFragment : Fragment() {
         CoroutineScope(Dispatchers.Default).launch {
             for (i in 0 until cellList.size) {
                 val cellYear = cellList[i].year
-                val cellMonth = cellList[i].month - 1
+                val cellMonth = cellList[i].month
 
                 if (currentYear == cellYear && currentMonth == cellMonth) {
                     // TODO: 문제 존재.. 전 달에도 추가됨 -> 껐다 키면 문제 없음
@@ -180,6 +180,7 @@ class CalendarFragment : Fragment() {
 
     fun getPreference() {
         val allPreferences: Map<String, *> = jpegViewModel.preferences.all
+        jpegViewModel.diaryCellArrayList.clear()
 
         for ((key, value) in allPreferences) {
             // 키와 값을 출력

@@ -261,12 +261,10 @@ class ImageToolModule {
      *          view를 보여주고 숨기는 함수
      *          false면 gone, true면 visible
      */
-    fun showView(view: View, isShow: Boolean){
+    fun showView(view: View, isShow: Boolean) {
         CoroutineScope(Dispatchers.Main).launch {
-            withContext(Dispatchers.Main) {
-                if (isShow) view.visibility = View.VISIBLE
-                else view.visibility = View.GONE
-            }
+            if (isShow) view.visibility = View.VISIBLE
+            else view.visibility = View.GONE
         }
     }
 

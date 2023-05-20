@@ -11,4 +11,7 @@
     <color name="transparent_color">#00FFFFFF</color>
     <color name="date">#E6D1FF</color>
     <color name="line">#BEBEBE</color>
+    <color name="on_image_color">#575757</color>
+    <color name="progressive_color">#9A9C95</color>
+    <color name="text_color">#FFFDFD</color>
 </resources>

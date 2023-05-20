@@ -68,7 +68,7 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
             }
 
             withContext(Dispatchers.Main) {
-//                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)?.setTextColor(Color.WHITE)
+                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)?.setTextColor(Color.WHITE)
                 val imageView = cellViewMap[date]?.findViewById<ImageView>(R.id.imageView)!!
                 withContext(Dispatchers.Main) {
                     Glide.with(imageView)

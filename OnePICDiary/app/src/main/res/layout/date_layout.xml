@@ -18,6 +18,20 @@
         app:tint="@color/point_color"
         tools:visibility="visible" />
 
+    <ImageView
+        android:id="@+id/subImageView"
+        android:layout_width="29dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="-1dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/dateText"
+        app:layout_constraintEnd_toEndOf="@+id/dateText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sub_circle"
+        app:tint="@color/black"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/dateText"
         android:layout_width="wrap_content"
