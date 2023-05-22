@@ -20,33 +20,31 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-1.5dp"
-        android:layout_marginEnd="-1.5dp"
         android:layout_weight="0.55">
 
         <TextView
             android:id="@+id/monthTextView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
-            android:text="월"
-            android:textSize="15sp"
+            android:text="Mon"
+            android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/horizontalScrollView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/monthTextView"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0">
 
@@ -57,6 +55,13 @@
                 android:orientation="horizontal"
                 android:paddingTop="8dp" />
         </HorizontalScrollView>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="60dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -71,22 +76,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-1.5dp"
-        android:layout_marginTop="-1.5dp"
-        android:layout_marginEnd="-1.5dp"
         android:layout_weight="0.55">
 
         <TextView
             android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
-            android:text="일"
-            android:textSize="15sp"
+            android:text="Day"
+            android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,11 +96,10 @@
             android:id="@+id/dayScrollbar"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/dateTextView"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
@@ -108,6 +109,13 @@
                 android:orientation="horizontal"
                 android:paddingTop="8dp" />
         </HorizontalScrollView>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="60dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -135,23 +143,25 @@
         android:layout_height="2dp"
         android:scaleType="fitXY"
         android:src="@drawable/line"
+        android:visibility="gone"
         app:tint="@color/line" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.6">
+        android:layout_weight="0.6"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/titleView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
-            android:text="제목"
-            android:textSize="15sp"
+            android:text="Title"
+            android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -165,9 +175,9 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/edittext_rounded_corner_rectangle"
             android:ems="10"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:inputType="textPersonName"
-            android:textSize="15sp"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -194,13 +204,14 @@
             android:id="@+id/titleView2"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
-            android:paddingStart="19.8dp"
-            android:paddingEnd="19.8dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             android:text="내용"
-            android:textSize="15sp"
+            android:textSize="18dp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -216,10 +227,13 @@
             android:layout_marginBottom="13dp"
             android:background="@drawable/edittext_rounded_corner_rectangle"
             android:ems="10"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:gravity="top|left"
+            android:hint="글을 입력해주세요"
             android:inputType="textMultiLine|textCapSentences"
-            android:textSize="15sp"
+            android:lineSpacingExtra="5sp"
+            android:textColorHint="#AEAEAE"
+            android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -248,15 +262,14 @@
             android:layout_height="wrap_content"
             android:background="#FFB8B8"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent=".04
-" />
+            app:layout_constraintGuide_percent="0.04379562" />
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/uhbee_se_hyun"
+            android:fontFamily="@font/ohmu"
             android:text="저장"
             android:textAllCaps="false"
             android:textColor="@color/black"

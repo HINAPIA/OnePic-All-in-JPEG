@@ -47,10 +47,11 @@ class TextContent {
         Log.d("Cell Text","setDate Call")
         if(textList.size !=0) {
             var date = textList[0].data.split("<date>")
-            if (date.isNotEmpty())
+            if (date.size >= 2) {
                 date = date[1].split("</date>")
-            if (date.isNotEmpty())
-                currentDate = date[0].split("/")
+                if (date.isNotEmpty())
+                    currentDate = date[0].split("/")
+            }
         }
     }
 

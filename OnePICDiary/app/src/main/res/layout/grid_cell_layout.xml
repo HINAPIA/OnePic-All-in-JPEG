@@ -28,6 +28,20 @@
         app:layout_constraintTop_toTopOf="@+id/dateText" />
 
     <ImageView
+        android:id="@+id/currentDayIcon"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:scaleType="fitCenter"
+        android:tint="#BABABA"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/dateText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/dateText"
+        app:srcCompat="@drawable/current_day"
+        tools:visibility="visible" />
+
+    <ImageView
         android:id="@+id/currentIcon"
         android:layout_width="match_parent"
         android:layout_height="35dp"
@@ -58,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_marginTop="16dp"
-        android:fontFamily="@font/uhbee_se_hyun"
+        android:fontFamily="@font/ohmu"
         android:gravity="center|center_horizontal"
         android:textColor="#000000"
         android:textSize="18sp"

@@ -97,6 +97,7 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
             withContext(Dispatchers.Main) {
 //                cellViewMap[date]?.findViewById<TextView>(R.id.dateText)?.setTextColor(Color.WHITE)
                 selectView = cellViewMap[date]?.findViewById<ImageView>(R.id.currentIcon)
+                cellViewMap[date]?.findViewById<ImageView>(R.id.currentDayIcon)?.visibility = View.VISIBLE
                 selectView?.visibility = View.VISIBLE
             }
 

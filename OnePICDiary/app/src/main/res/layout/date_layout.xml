@@ -6,42 +6,51 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/dateText"
+        android:id="@+id/ContainDiary"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginBottom="1dp"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/dateText"
         app:layout_constraintEnd_toEndOf="@+id/dateText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/dateText"
         app:srcCompat="@drawable/current_day"
-        app:tint="@color/point_color"
+        app:tint="@color/purple_200"
         tools:visibility="visible" />
 
     <ImageView
-        android:id="@+id/subImageView"
+        android:id="@+id/imageView"
         android:layout_width="29dp"
         android:layout_height="29dp"
-        android:layout_marginStart="-1dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/dateText"
-        app:layout_constraintEnd_toEndOf="@+id/dateText"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/sub_circle"
-        app:tint="@color/black"
-        tools:visibility="visible" />
+        app:srcCompat="@drawable/current_day"
+        app:tint="@color/point_color" />
+
+    <ImageView
+        android:id="@+id/monthImageView"
+        android:layout_width="29dp"
+        android:layout_height="29dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        app:srcCompat="@drawable/select_month"
+        app:tint="@color/point_color" />
 
     <TextView
         android:id="@+id/dateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:fontFamily="@font/uhbee_se_hyun"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:fontFamily="@font/ohmu"
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="1" />
+        android:textColor="#000000"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        tools:text="10" />
 </androidx.constraintlayout.widget.ConstraintLayout>

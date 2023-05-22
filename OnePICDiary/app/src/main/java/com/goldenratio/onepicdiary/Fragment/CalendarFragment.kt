@@ -1,5 +1,6 @@
 package com.goldenratio.onepicdiary.Fragment
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.SharedPreferences
 import android.net.Uri
@@ -13,15 +14,17 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepicdiary.DiaryModule.CalendarAdapter
+import com.goldenratio.onepicdiary.DiaryModule.CalendarViewPagerAdapter
 import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.FragmentCalendarBinding
 import kotlinx.coroutines.*
-import kotlinx.coroutines.selects.select
 import java.io.IOException
 import java.io.InputStream
+import java.time.Month
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -36,6 +39,7 @@ class CalendarFragment : Fragment() {
     private lateinit var calendar: Calendar
     private lateinit var adapter: CalendarAdapter
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,31 +58,23 @@ class CalendarFragment : Fragment() {
         getPreference()
         val cellList = jpegViewModel.diaryCellArrayList
 
-        if(cellList.size > 0) {
-            currentYear = cellList[cellList.size-1].year
-            currentMonth = cellList[cellList.size-1].month
+        if (cellList.size > 0) {
+            currentYear = cellList[cellList.size - 1].year
+            currentMonth = cellList[cellList.size - 1].month
         }
 
-        setDiary()
+        setDiary(currentMonth)
 
         // 이전 달로 변경
         binding.previousMonth.setOnClickListener {
-            currentMonth--
-            if (currentMonth == -1) {
-                currentMonth = 11
-                currentYear--
-            }
-            setDiary()
+
+            setDiary(-1)
         }
 
         // 다음 달로 변경
         binding.afterMonth.setOnClickListener {
-            currentMonth++
-            if (currentMonth == 12) {
-                currentMonth = 0
-                currentYear++
-            }
-            setDiary()
+
+            setDiary(+1)
         }
 
         // 다이어리 추가 버튼
@@ -86,6 +82,16 @@ class CalendarFragment : Fragment() {
             jpegViewModel.selectDay = adapter.day
 
             findNavController().navigate(R.id.action_calendarFragment_to_addDiaryFragment)
+        }
+
+        val pageChangeCallback = MyPageChangeCallback(::setDiary)
+        binding.viewPager.adapter = CalendarViewPagerAdapter(requireContext())
+        binding.viewPager.registerOnPageChangeCallback(pageChangeCallback)
+
+        binding.viewPager.setOnTouchListener { _, event ->
+            // 터치 이벤트를 처리하지 않고 하위 뷰로 전달되도록 함
+            Log.d("Click Touch", "viewPager")
+            false
         }
 
         return binding.root
@@ -128,7 +134,23 @@ class CalendarFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun setDiary() {
+    private fun setDiary(addValue : Int) {
+
+        if(addValue == -1) {
+            currentMonth--
+            if (currentMonth == -1) {
+                currentMonth = 11
+                currentYear--
+            }
+        }
+        else {
+            currentMonth++
+            if (currentMonth == 12) {
+                currentMonth = 0
+                currentYear++
+            }
+        }
+
         binding.progressBar.visibility = View.VISIBLE
 
         jpegViewModel.selectMonth = currentMonth
@@ -147,7 +169,6 @@ class CalendarFragment : Fragment() {
                 val cellMonth = cellList[i].month
 
                 if (currentYear == cellYear && currentMonth == cellMonth) {
-                    // TODO: 문제 존재.. 전 달에도 추가됨 -> 껐다 키면 문제 없음
                     adapter.addDiaryImage(cellList[i].currentUri, cellList[i].day, ::viewDiary)
                 }
             }
@@ -213,6 +234,19 @@ class CalendarFragment : Fragment() {
             } catch (e: NumberFormatException) {
                 e.printStackTrace()
             }
+        }
+    }
+
+
+    class MyPageChangeCallback(val clickFun: (Int) -> Unit) : ViewPager2.OnPageChangeCallback() {
+
+        private var prePosition = 0
+        override fun onPageSelected(position: Int) {
+            // 페이지 선택 시 호출할 함수를 여기에 작성합니다.
+            if (position > prePosition)
+                clickFun(1)
+            else
+                clickFun(-1)
         }
     }
  }

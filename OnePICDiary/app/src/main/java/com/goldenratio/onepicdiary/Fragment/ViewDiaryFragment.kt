@@ -52,7 +52,6 @@ class ViewDiaryFragment : Fragment() {
     var magicPlaySpeed: Long = 100
 
     private var isMagicPlay = false
-    private var isMagicSetting = false
     private var isViewUnder = false
 
     private var overlayBitmap = arrayListOf<Bitmap>()
@@ -68,6 +67,23 @@ class ViewDiaryFragment : Fragment() {
         binding = FragmentViewDiaryBinding.inflate(inflater, container, false)
 
         layoutToolModule = LayoutToolModule()
+
+        binding.deleteBtn.setOnClickListener {
+            val key = "2023/${month.value!!-1}/${day.value!!}"
+            val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
+            Log.d("Cell Text", key)
+            editor.remove(key) // 삭제할 값의 키를 지정합니다.
+            editor.apply()
+            findNavController().navigate(R.id.action_viewDiaryFragment_to_calendarFragment)
+        }
+
+
+        return binding.root
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         CoroutineScope(Dispatchers.Default).launch {
 
@@ -88,9 +104,12 @@ class ViewDiaryFragment : Fragment() {
                 day.value = textContent.getDay()
                 Log.d("Cell Text", "create : ${month.value!!} || ${day.value!!}")
 
-                layoutToolModule.setSubImage(layoutInflater, binding.monthLayout, 12, month.value!!, null, ::month)
-
-                setDayView()
+                layoutToolModule.month = month.value!!
+                try {
+                    layoutToolModule.setSubImage(layoutInflater, binding.monthLayout, 12, month.value!!, null, ::month)
+                }catch (e: IllegalStateException){
+                    e.printStackTrace()
+                }
                 month.observe(viewLifecycleOwner) { _ ->
                     dateChange()
                     setDayView()
@@ -100,22 +119,6 @@ class ViewDiaryFragment : Fragment() {
                 }
             }
         }
-
-//        binding.okBtn.setOnClickListener {
-//            findNavController().navigate(R.id.action_viewDiaryFragment_to_calendarFragment)
-//        }
-
-        binding.deleteBtn.setOnClickListener {
-            val key = "2023/${month.value!!-1}/${day.value!!}"
-            val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
-            Log.d("Cell Text", key)
-            editor.remove(key) // 삭제할 값의 키를 지정합니다.
-            editor.apply()
-            findNavController().navigate(R.id.action_viewDiaryFragment_to_calendarFragment)
-        }
-
-
-        return binding.root
     }
 
     fun setDayView() {
@@ -136,8 +139,10 @@ class ViewDiaryFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             binding.dayLayout.removeAllViews()
         }
-        layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, day.value!!, dayList, ::day)
-
+        CoroutineScope(Dispatchers.Default).launch {
+            layoutToolModule.month = month.value!!
+            layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, day.value!!, dayList, ::day)
+        }
     }
 
 
@@ -153,9 +158,13 @@ class ViewDiaryFragment : Fragment() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            viewPagerAdapter = ViewPagerAdapter(requireContext())
-            viewPagerAdapter.setImageList(byteArrayList)
-            binding.viewPager.adapter = viewPagerAdapter
+            try {
+                viewPagerAdapter = ViewPagerAdapter(requireContext())
+                viewPagerAdapter.setImageList(byteArrayList)
+                binding.viewPager.adapter = viewPagerAdapter
+            }catch (e: IllegalStateException) {
+                e.printStackTrace()
+            }
         }
 
         binding.viewUnberBtn.setOnClickListener {
@@ -172,14 +181,17 @@ class ViewDiaryFragment : Fragment() {
 
         viewOnImageLayout()
 
-        setMagic()
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     fun dateChange() {
-        for(i in 0 until overlayBitmap.size) {
-            overlayBitmap[i].recycle()
-        }
+        handler.removeCallbacksAndMessages(null)
+
+//        for(i in 0 until overlayBitmap.size) {
+//            overlayBitmap[i].recycle()
+//        }
+        overlayBitmap.clear()
+
 
         val cellList = jpegViewModel.diaryCellArrayList
         var isCell = false
@@ -192,6 +204,7 @@ class ViewDiaryFragment : Fragment() {
             if (cell.month == month.value!! - 1 && cell.day == day.value) {
                 isCell = true
                 binding.addBtn.visibility = View.GONE
+//                binding.viewUnberBtn.visibility = View.VISIBLE
                 jpegViewModel.jpegMCContainer.value!!.init()
                 jpegViewModel.setCurrentMCContainer(cell.currentUri)
 
@@ -209,6 +222,7 @@ class ViewDiaryFragment : Fragment() {
             binding.UnderImageLayout.visibility = View.GONE
             binding.OnImageLayout.visibility = View.INVISIBLE
             binding.magicBtn.visibility = View.GONE
+            binding.viewUnberBtn.visibility = View.GONE
 
             binding.addBtn.visibility = View.VISIBLE
             binding.addBtn.setOnClickListener {
@@ -221,12 +235,7 @@ class ViewDiaryFragment : Fragment() {
     }
 
     private fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
-        CoroutineScope(Dispatchers.Main).launch {
-
-            while(!isMagicSetting) {
-
-            }
-            binding.progressBar.visibility = View.GONE
+        CoroutineScope(Dispatchers.Default).launch {
 
             var currentImageIndex = 0
             var increaseIndex = 1
@@ -275,19 +284,17 @@ class ViewDiaryFragment : Fragment() {
         }
     }
 
-    fun setMagic() {
+    fun setMasetMagigic() {
         CoroutineScope(Dispatchers.IO).launch {
             if (imageContent.checkAttribute(ContentAttribute.magic)) {
 
                 withContext(Dispatchers.Main) {
                     binding.magicBtn.visibility = View.VISIBLE
+                    binding.magicBtn.setImageResource(R.drawable.play)
                 }
-                magicPictureModule = MagicPictureModule(imageContent)
 
-                withContext(Dispatchers.Default) {
-                    overlayBitmap = magicPictureModule.magicPictureProcessing()
-                    isMagicSetting = true
-                }
+                isMagicPlay = false
+                magicPictureModule = MagicPictureModule(imageContent)
 
                 binding.magicBtn.setOnClickListener {
                     if (!isMagicPlay) {
@@ -297,10 +304,27 @@ class ViewDiaryFragment : Fragment() {
                             binding.progressBar.visibility = View.VISIBLE
                             binding.viewPager.visibility = View.GONE
                             binding.mainView.visibility = View.VISIBLE
+
+                            if(overlayBitmap.isEmpty()) {
+                                Glide.with(binding.mainView)
+                                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                                    .into(binding.mainView)
+                            }
                         }
                         isMagicPlay = true
 
-                        magicPictureRun(overlayBitmap)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            if(overlayBitmap.isEmpty()) {
+                                overlayBitmap = magicPictureModule.magicPictureProcessing()
+                            }
+
+                            Log.d("magic","magicPictureProcessing end ${overlayBitmap.size}")
+                            withContext(Dispatchers.Main) {
+                                binding.progressBar.visibility = View.GONE
+                            }
+                            Log.d("magic","magicPucture run ${overlayBitmap.size}")
+                            magicPictureRun(overlayBitmap)
+                        }
                     } else {
                         handler.removeCallbacksAndMessages(null)
 
