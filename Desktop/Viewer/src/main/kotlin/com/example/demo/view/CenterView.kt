@@ -24,7 +24,6 @@ import java.io.IOException
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
-
 class CenterView : View() {
 
     val aiContainer : AiContainer = AiContainerSingleton.aiContainer
@@ -73,16 +72,16 @@ class CenterView : View() {
                 text = "JPEG 파일 분석 중. . ."
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("나눔고딕", FontWeight.EXTRA_BOLD, 24.0)
+                    font = Font.font("Inter-Bold", FontWeight.BOLD, 24.0)
                 }
             }
             analysisContent = label{
-                padding = insets(10)
+                padding = insets(9)
                 textAlignment = TextAlignment.CENTER
                 //text ="이미지 분석 6개\n 텍스트 1개 발견 \n 오디오 발견"
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("나눔고딕", FontWeight.BOLD, 15.0)
+                    font = Font.font("MBC 1961굴림 OTF M.otf", FontWeight.MEDIUM, 15.0)
                     lineSpacing = 2.0
                 }
             }
@@ -335,16 +334,11 @@ class CenterView : View() {
         timeline2.cycleCount = 1
         timeline2.play()
 
-
         // 분석 애니메이션이 끝났을 때
         timeline.setOnFinished {
             finishedAnalysis()
-
         }
-
     }
-
-
 
     fun prepareAudio(){// 오디오 준비시키기
         subImagesView.prepareAudio()
@@ -426,9 +420,9 @@ class CenterView : View() {
         transition2.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
         transition2.play()
 
-        val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
-        transition3.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
-        transition3.play()
+//        val transition3 = TranslateTransition(Duration.seconds(1.0), fileNameLabel)
+//        transition3.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동
+//        transition3.play()
 
         val transition4 = TranslateTransition(Duration.seconds(1.0), textContentStackPane)
         transition4.byX = +(mainImageView.translateX-170) // 왼쪽으로 100픽셀 이동

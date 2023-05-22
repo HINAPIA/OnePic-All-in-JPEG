@@ -41,18 +41,23 @@ class AddDiaryFragment : Fragment() {
     private var day =  MutableLiveData<Int>()
 
     private lateinit var activity: MainActivity
-
     private val PICK_IMAGE_REQUEST = 1
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as MainActivity
     }
+
+    override fun onResume() {
+        super.onResume()
+        jpegViewModel.isAddedAudio.value = false
+    }
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        Log.d("save_audio", "onCreateView")
         binding = FragmentAddDiaryBinding.inflate(inflater, container, false)
 
         binding.contentTextField.setHorizontallyScrolling(false)
@@ -61,6 +66,23 @@ class AddDiaryFragment : Fragment() {
         month.value = jpegViewModel.selectMonth + 1
         day.value = jpegViewModel.selectDay
 
+
+        jpegViewModel.isAddedAudio.observe(viewLifecycleOwner) {
+            if(it){
+                Log.d("save_audio", "isAddedAudio True")
+                binding.mikeBtn.setImageDrawable(resources.getDrawable(R.drawable.audiocheck))
+            }else{
+                Log.d("save_audio", "isAddedAudio False")
+                binding.mikeBtn.setImageDrawable(resources.getDrawable(R.drawable.mike))
+            }
+        }
+
+//       val calendar = Calendar.getInstance()
+//
+//        month.value = calendar.get(Calendar.MONTH) + 1
+//        day.value = calendar.get(Calendar.DATE)
+
+
         layoutToolModule = LayoutToolModule()
 
         //오디오 버튼 클릭 시
@@ -68,7 +90,6 @@ class AddDiaryFragment : Fragment() {
 
             val bottomSheetFragment = AudioBottomSheet()
             bottomSheetFragment.show(activity.supportFragmentManager, "bottomSheet")
-
 
             //findNavController().navigate(R.id.action_addDiaryFragment_to_audioAddFragment)
         }
@@ -102,7 +123,6 @@ class AddDiaryFragment : Fragment() {
 //                    fileName
 //                )
 
-                jpegViewModel.jpegMCContainer.value
 
                 val savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
 
@@ -141,6 +161,7 @@ class AddDiaryFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.d("save_audio", "onActivityResult")
         jpegViewModel.jpegMCContainer.value?.init()
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {

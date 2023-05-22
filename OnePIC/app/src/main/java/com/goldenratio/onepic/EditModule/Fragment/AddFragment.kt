@@ -69,7 +69,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     var isTextOn : Boolean = false
     var textList : ArrayList<String> = arrayListOf()
 
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -87,9 +86,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
         textInit()
-        // main Picture의 byteArray를 bitmap 제작
-//        mainPicture = imageContent.mainPicture
-//        var mainBitmap = ImageToolModule().byteArrayToBitmap(imageContent.getJpegBytes(mainPicture))
+
         val mainBitmap = imageContent.getMainBitmap()
 
         // imageView 변환
@@ -130,7 +127,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             imageToolModule.showView(binding.infoDialogLayout, true)
 
         }
-
         // info 삭제
         binding.dialogCloseBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, false)
@@ -149,7 +145,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         isRecordedMode = true
                     }
                     isAudioOn = false
-
                     binding.contentLayout.visibility = View.GONE
                 }
                 isTextOn = true
@@ -199,18 +194,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             }
         }
         /* Audio Add */
-
-        // audio reset btn 클릭 시
-//        binding.audioResetBtn.setOnClickListener {
-//            Log.d("AudioModule", "reset btn click")
-//            if(isAbleReset){
-//                Log.d("AudioModule", "reset in btn click")
-//                tempAudioFile =  audioResolver.getOutputMediaFilePath("original")
-//                audioWithContent.cancel()
-//                setSeekBar()
-//
-//            }
-//        }
         // audio btn 클릭 시
         binding.audioAddBtn.setOnClickListener {
             if(!isAudioOn){
@@ -237,14 +220,12 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 isAudioOn = false
                 binding.contentLayout.visibility = View.GONE
             }
-
         }
 
         binding.recordingImageView.setOnClickListener {
             if(isPlayingMode){
                 /* 녹음 시작 */
                 binding.playAudioBarLaydout.visibility = View.GONE
-                //binding.audioResetBtn.visibility = View.GONE
                 Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
                 timerUIStart()
 
@@ -276,10 +257,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 dialog.isCancelable = false
                 dialog.show(activity.supportFragmentManager, "ConfirmDialog")
 
-
             }
         }
-
         // 오디오 seek bar
         binding.seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -433,7 +412,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         Log.d("AudioModule", time.toString())
                         binding.playingTextView.setText(string)
                         time -= 1
-                        if(time <=0){
+                        if(time < 0){
                             playinAudioUIStop()
                         }
                     }

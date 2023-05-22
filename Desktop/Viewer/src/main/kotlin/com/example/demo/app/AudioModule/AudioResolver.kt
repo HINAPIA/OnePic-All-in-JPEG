@@ -2,6 +2,7 @@ package com.goldenratio.onepic.AudioModule
 
 import com.example.demo.view.SubImagesView
 import com.goldenratio.onepic.PictureModule.Contents.Audio
+import javafx.scene.layout.StackPane
 import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.scene.media.MediaView
@@ -9,7 +10,7 @@ import javafx.util.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import tornadofx.DefaultScope
+import tornadofx.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -33,11 +34,14 @@ class AudioResolver() {
 
     val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
 
+    var audioView : StackPane = StackPane()
+
     companion object{
         var isOn = false
     }
 
     fun prepare(){
+
         CoroutineScope(Dispatchers.Default).launch {
             println("audio : prepare()")
             var filePath: String? =  null
@@ -51,12 +55,14 @@ class AudioResolver() {
             mediaPlayer.setOnEndOfMedia {
                 CoroutineScope(Dispatchers.Default).launch {
                     println("재생 끝")
+                    isPlaying = false
                     mediaPlayer.stop()
-                    mediaPlayer = MediaPlayer(media)
-                    mediaPlayer.setOnReady {
-                        println("Audio: Ready to play")
-                        isPlaying = false
-                        currentTime = (mediaPlayer.totalDuration.toMillis()).toInt() / 1000
+                    audioView.apply{
+                        audioView.style{
+                            borderWidth += box(0.px)
+                            borderColor += box(c("#EA2424"))
+                        }
+
                     }
                 }
             }
@@ -117,20 +123,6 @@ class AudioResolver() {
         }
     }
 
-//    fun play() {
-//        //prepare()
-//        if (!isPlaying) {
-//            println("audio : 오디오 재생 시작")
-//            mediaPlayer.play()
-//            // mediaPlayer.run { play() }
-//            //isPlaying = true
-//        }
-//    }
-
-
-    fun savedFileDelete(){
-        savedFile?.delete()
-    }
 
     fun getByteArrayInFile(audioFile : File) : ByteArray{
         var audioBytes : ByteArray = audioFile.readBytes()
@@ -165,21 +157,10 @@ class AudioResolver() {
     }
 
 
-    fun pause() {
-        if (isPlaying) {
-            mediaPlayer.pause()
-            isPlaying = false
-        }
-    }
+//
 
-    fun stop() {
-        mediaPlayer.stop()
-        isPlaying = false
-    }
 
-    fun seekTo(time: Duration) {
-        mediaPlayer.seek(time)
-    }
+
 
     //fun getMediaView() = mediaView
 

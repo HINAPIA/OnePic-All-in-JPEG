@@ -63,9 +63,8 @@ class SubImagesView(val centerView : CenterView) : View() {
     val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
 
     var animationTime = 0.5
-
-
     var mediaPlayer : MediaPlayer? = null
+
     override val root = stackpane {
         audioResolver.subImagesView = this@SubImagesView
         // 흰색
@@ -109,13 +108,12 @@ class SubImagesView(val centerView : CenterView) : View() {
                     audioView.style{
                         borderWidth += box(4.px)
                         borderColor += box(c("#EA2424"))
-                        borderRadius  += box(10.px)
+                        borderRadius += box(10.px)
                     }
                 }
                 audioView.setOnMouseExited { e ->
-                    println("setOnMouseExited")
+                    println("setOnMouseExited ${audioResolver.isPlaying}")
                     if(!audioResolver.isPlaying){
-                       // println("setOnMouseExited")
                         centerView.unfocusView("audio", 0)
                         audioView.style{
                             borderWidth += box(0.px)
@@ -126,10 +124,10 @@ class SubImagesView(val centerView : CenterView) : View() {
                 }
                 audioView.setOnMouseClicked { e->
                     audioResolver.play()
+                    audioResolver.audioView = audioView
                 }
 
                 add(audioView)
-
                 textView.isVisible = false
                 audioView.isVisible = false
             }
@@ -239,6 +237,7 @@ class SubImagesView(val centerView : CenterView) : View() {
         }
     }
     fun prepareAudio(){
+
         audioResolver.prepare()
     }
     fun addTextView() : StackPane{

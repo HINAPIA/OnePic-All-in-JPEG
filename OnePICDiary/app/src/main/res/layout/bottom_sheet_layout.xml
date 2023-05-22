@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
-    android:background="#FFFFFF"
+    android:layout_height="wrap_content"
+    android:background="#2C1D1D"
     android:backgroundTint="#FFFFFF">
 
     <androidx.constraintlayout.widget.Guideline
@@ -15,8 +15,16 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".03" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_centerline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFB8B8"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".97" />
+
     <ImageView
-        android:id="@+id/back"
+        android:id="@+id/backBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="10dp"
@@ -24,30 +32,40 @@
         app:layout_constraintStart_toStartOf="@+id/vertical_centerline1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/horizontal_centerline1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#FFB8B8"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".25" />
+    <ImageView
+        android:id="@+id/checkBtn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/check" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/horizontal_centerline2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#FFB8B8"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="95dp" />
+<!--    <androidx.constraintlayout.widget.Guideline-->
+<!--        android:id="@+id/horizontal_centerline1"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="#FFB8B8"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintGuide_percent=".25" />-->
+
+<!--    <androidx.constraintlayout.widget.Guideline-->
+<!--        android:id="@+id/horizontal_centerline2"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="#FFB8B8"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintGuide_begin="95dp" -->
+<!--        />-->
 
     <ImageView
         android:id="@+id/recordingImageView"
-        android:layout_width="93dp"
-        android:layout_height="68dp"
+        android:layout_width="108dp"
+        android:layout_height="79dp"
         app:layout_constraintBottom_toBottomOf="@+id/horizontal_centerline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1"
+        app:layout_constraintTop_toBottomOf="@+id/recordingView"
         tools:src="@tools:sample/avatars" />
 
     <TextView
@@ -62,18 +80,18 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/playAudioBarLaydout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/horizontal_centerline2">
+        app:layout_constraintTop_toBottomOf="@+id/recordingImageView">
 
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:max="20"
             android:progressDrawable="@drawable/seekbar"
             android:thumb="@drawable/seekbar_seekbar1_thumb"
@@ -86,16 +104,27 @@
             android:id="@+id/playingTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:paddingBottom="0dp"
             android:text="00 : 00"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/black"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/seekBar"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.526" />
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/recordingView"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/dialog_rounded_background" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

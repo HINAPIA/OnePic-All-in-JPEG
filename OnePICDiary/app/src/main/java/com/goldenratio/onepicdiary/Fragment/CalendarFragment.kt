@@ -39,7 +39,13 @@ class CalendarFragment : Fragment() {
     private lateinit var calendar: Calendar
     private lateinit var adapter: CalendarAdapter
 
+
     @SuppressLint("ClickableViewAccessibility")
+    override fun onResume() {
+        super.onResume()
+        jpegViewModel.jpegMCContainer.value!!.init()
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

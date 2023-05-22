@@ -34,6 +34,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     var preferences: SharedPreferences =
         context.getSharedPreferences("image_file_path", Context.MODE_PRIVATE)
 
+    var isAddedAudio = MutableLiveData<Boolean>(false)
+
     private var loadResolver : LoadResolver = LoadResolver()
 
     private lateinit var pictureByteArrayList: MutableList<ByteArray> // pictureByteArrayList
