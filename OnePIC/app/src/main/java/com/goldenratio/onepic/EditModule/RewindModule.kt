@@ -387,9 +387,13 @@ class RewindModule() {
 
                             }
                             analysisResults[j] = sum / facesResult.size.toDouble()
-                            if((sum / facesResult.size).isNaN()) {
+                            if(analysisResults[j].isNaN()) {
                                 analysisResults[j] = 0.0
+                                Log.d("anaylsis", "isNan")
                             }
+
+                            Log.d("anaylsis", "[$j] = faceDetection rewindModule = ${analysisResults[j]}")
+
 
                             if (j != 0)
                                 if (analysisResults[faceMaxIndex] < sum) {

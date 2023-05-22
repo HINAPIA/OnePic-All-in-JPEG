@@ -1,10 +1,15 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.SeekBar
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
+import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -18,22 +23,23 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
-import com.goldenratio.onepic.databinding.FragmentBurstModeEditBinding
+import com.goldenratio.onepic.databinding.FragmentMainChangeBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class BurstModeEditFragment : Fragment() {
+class MainChangeFragment : Fragment() {
 
 
-    private lateinit var binding: FragmentBurstModeEditBinding
+    private lateinit var binding: FragmentMainChangeBinding
     lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
 
     private var pictureList = arrayListOf<Picture>()
+    private var bitmapList = arrayListOf<Bitmap>()
     private lateinit var mainPicture : Picture
 
     private lateinit var imageToolModule: ImageToolModule
@@ -45,11 +51,16 @@ class BurstModeEditFragment : Fragment() {
 
     private var infoLevel = MutableLiveData<InfoLevel>()
 
+    val max = 5
+    val min = 0.1.toFloat()
+    val step = 0.1.toFloat()
+
     enum class InfoLevel {
         BeforeMainSelect,
         AfterMainSelect
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -61,7 +72,7 @@ class BurstModeEditFragment : Fragment() {
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
 
         // 뷰 바인딩 설정
-        binding = FragmentBurstModeEditBinding.inflate(inflater, container, false)
+        binding = FragmentMainChangeBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
@@ -70,6 +81,13 @@ class BurstModeEditFragment : Fragment() {
         pictureList = imageContent.pictureList
 
         checkFinish = BooleanArray(pictureList.size)
+
+        CoroutineScope(Dispatchers.Default).launch {
+            while(!imageContent.checkPictureList) {}
+            val bitmap = imageContent.getBitmapList()
+            if(bitmap!=null)
+                bitmapList = bitmap
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
@@ -164,6 +182,52 @@ class BurstModeEditFragment : Fragment() {
             }
         }
 
+        binding.seekBar.max = pictureList.size -1
+        binding.seekBar.progressDrawable = resources.getDrawable(R.drawable.custom_seekbar_progress, requireContext().theme)
+        binding.seekBar.thumb = resources.getDrawable(R.drawable.custom_seekbar_thumb, requireContext().theme)
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
+                // progress 변수는 현재 SeekBar의 값입니다.
+                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
+                if(fromUser) {
+                    val index = progress % pictureList.size
+                    mainPicture = pictureList[index]
+
+
+                    if(binding.candidateLayout.size > index) {
+                        val view = binding.candidateLayout[index]
+                        imageToolModule.showView(mainSubView, false)
+                        mainSubView = view.findViewById<ImageView>(R.id.checkMainIcon)
+                        imageToolModule.showView(mainSubView, true)
+                    }
+
+                    if (bitmapList.size > index) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            binding.burstMainView.setImageBitmap(bitmapList[index])
+                        }
+                    } else {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Log.d("error 잡기", "$progress 번째 이미지 띄우기")
+                            Glide.with(binding.burstMainView)
+                                .load(imageContent.getJpegBytes(pictureList[index]))
+                                .into(binding.burstMainView)
+                        }
+                    }
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // 사용자가 SeekBar를 터치하여 드래그를 시작할 때 호출되는 메서드입니다.
+                // 필요한 작업을 수행하면 됩니다.
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 사용자가 SeekBar에서 터치를 멈추었을 때 호출되는 메서드입니다.
+                // 필요한 작업을 수행하면 됩니다.
+            }
+        })
+
         return binding.root
     }
 
@@ -253,8 +317,7 @@ class BurstModeEditFragment : Fragment() {
 
                 for(i in 0 until bitmapList.size) {
                     Log.d("anaylsis", "[$i] = ${checkFinish[i]} |  faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
-                    analysisResults.add(faceDetectionResult[i].toDouble() + shakeDetectionResult[i])
-                    Log.d("anaylsis", "[$i] = ${analysisResults[i]}")
+                    analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
                     if(!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]){
                         bestImageIndex = i
                         checkFinish[i] = true
