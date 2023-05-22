@@ -206,6 +206,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     activity,
                     android.R.style.Theme_DeviceDefault_Light_Dialog
                 )
+            // 메인 변경만 헀거나 ADD만 한 경우
                 if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute ||
                     !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
@@ -226,7 +227,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     if(result == "another"){
                         singleSave()
                         CoroutineScope(Dispatchers.Default).launch {
-                            Log.d("save_test", "여기 들어옴")
                             Thread.sleep(1000)
                             setButtonDeactivation()
                             setCurrentPictureByteArrList()
@@ -242,25 +242,17 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         }
                     }
 
+                    // 매직 픽쳐 저장
                 } else if (imageContent.checkMagicAttribute) {
                     imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
-
-
                     // magic으로 변경했을 경우 모든 파일 저장
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
                     //ViewerFragment.currentFilePath = savedFilePath.toString()
                     Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
-
-
                     CoroutineScope(Dispatchers.Default).launch {
-                        Thread.sleep(2000)
+                        Thread.sleep(3000)
                         setButtonDeactivation()
                         setCurrentPictureByteArrList()
-
-                        withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar2 , false)
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                        }
                     }
                 } else {
                     imageTool.showView(binding.progressBar2, false)
@@ -274,7 +266,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                     // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                                     imageContent.insertPicture(0, mainPicture)
                                 }
-
                                 jpegViewModel.jpegMCContainer.value?.save()
                                 CoroutineScope(Dispatchers.Default).launch {
                                     Thread.sleep(2000)
