@@ -1,8 +1,11 @@
 package com.goldenratio.onepicdiary.Fragment
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.JpegViewModel
@@ -40,7 +45,6 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
     var isRecordedMode : Boolean = false
     var isPlaying : Boolean = false
     var isPlayingEnd : Boolean = false
-    var isAbleReset : Boolean = false
     private var isDestroy : Boolean = false
     private  var tempAudioFile : File? = null
     private  var preTempAudioFile : File? = null
@@ -58,18 +62,13 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         activity = context as MainActivity
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme) // 커스텀 테마 적용
-    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = BottomSheetLayoutBinding.inflate(inflater)
+        binding = BottomSheetLayoutBinding.inflate(inflater, container, false)
         audioResolver = AudioResolver(activity)
         mediaPlayer = audioResolver.mediaPlayer
 
         if(!isAudioOn){
             isAudioOn = true
-
             binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
 
             if(tempAudioFile != null){
@@ -88,16 +87,35 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         }
         if(savedFile != null){
             tempAudioFile = savedFile
+            setSeekBar()
         }else{
             tempAudioFile = null
+        }
+
+        // 확인 버튼 클릭시
+        binding.checkBtn.setOnClickListener {
+            if(tempAudioFile != null)
+                saveAudioInMCContainer(tempAudioFile!!)
+            audioResolver.audioStop()
+        }
+
+        // 백 버튼 클릭 시
+        binding.backBtn.setOnClickListener {
+            dialog?.dismiss() // 현재 다이얼로그를 닫음
+           // findNavController().navigate(R.id.action_audioAddFragment_to_addDiaryFragment)
         }
 
         binding.recordingImageView.setOnClickListener {
             if(isPlayingMode){
                 /* 녹음 시작 */
-                binding.playAudioBarLaydout.visibility = View.GONE
-                //binding.audioResetBtn.visibility = View.GONE
-                Glide.with(this).load(R.drawable.giphy).into(binding.recordingImageView);
+                binding.playAudioBarLaydout.visibility = View.INVISIBLE
+                audioResolver.mediaPlayer.seekTo(0)
+                tempAudioFile = null
+
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.stopbutton))
+
+                binding.recordingView.visibility = View.VISIBLE
+                Glide.with(this).load(R.raw.audio_wave2).into(binding.recordingView);
                 timerUIStart()
 
                 // 녹음 시작
@@ -109,12 +127,15 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
             else if(isRecordingMode) {
                 /* 녹음 중단 */
                 // UI
+                binding.recordingView.visibility = View.INVISIBLE
+
                 binding.playAudioBarLaydout.visibility = View.VISIBLE
-                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh_icon))
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh_icon3))
                 timerUIStop()
                 // 녹음 중단
                 preTempAudioFile = tempAudioFile
                 tempAudioFile = audioStop()
+
 
                 if(tempAudioFile!= null)
                     setSeekBar()
@@ -127,8 +148,6 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
                 // 알림창이 띄워져있는 동안 배경 클릭 막기
                 dialog.isCancelable = false
                 dialog.show(activity.supportFragmentManager, "ConfirmDialog")
-
-
             }
         }
 
@@ -164,6 +183,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         return binding.root
     }
 
+
     override fun onYesButtonClick(id: Int) {
         binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
         tempAudioFile = preTempAudioFile
@@ -195,6 +215,19 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
             audioResolver.mediaPlayer.release()
         }
     }
+
+    fun saveAudioInMCContainer(savedFile : File){
+        jpegViewModel.isAddedAudio.value = true
+        Log.d("save_audio", "isAddedAudio True")
+        //MC Container에 추가
+        var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
+        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.RecordingTextView.setText("")
+            Toast.makeText(activity, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     fun setSeekBar(){
         isPlaying = true
         audioWithContent = CoroutineScope(Dispatchers.IO).launch {
@@ -251,11 +284,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         isRecordingMode = false
         return savedFile
     }
-    fun saveAudioInMCContainer(savedFile : File){
-        //MC Container에 추가
-        var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
-        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
-    }
+
     fun playinAudioUIStart(_time : Int){
         if(playingTimerTask != null)
             playingTimerTask!!.cancel()
@@ -269,7 +298,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
                         Log.d("AudioModule", time.toString())
                         binding.playingTextView.setText(string)
                         time -= 1
-                        if(time <=0){
+                        if(time < 0){
                             playinAudioUIStop()
                         }
                     }
@@ -290,17 +319,19 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
 
     fun timerUIStart(){
         if(!isRecordingMode){
+            binding.RecordingTextView.setTextColor(Color.BLACK)
+            binding.RecordingTextView.setTypeface(null, Typeface.BOLD)
             timerTask = object : TimerTask() {
                 var cnt = 0
                 override fun run() {
                     CoroutineScope(Dispatchers.Main).launch {
-
                         var string : String = String.format("%02d:%02d", cnt/60, cnt)
+                        Log.d("AudioModule", string)
                         binding.RecordingTextView.setText(string)
                         cnt++
-
                         if(cnt > 30){
                             timerUIStop()
+                            audioStop()
                         }
                     }
                 }
@@ -315,7 +346,8 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
             timerTask.cancel()
             CoroutineScope(Dispatchers.Main).launch {
                 binding.RecordingTextView.setText("")
-                Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+
             }
         }
     }
@@ -327,7 +359,6 @@ class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFrag
     // 뷰 바인딩 정의
     private var _binding: AudioDialogBinding? = null
     private val binding get() = _binding!!
-
     private var confirmDialogInterface: ConfirmDialogInterface? = null
 
     init {

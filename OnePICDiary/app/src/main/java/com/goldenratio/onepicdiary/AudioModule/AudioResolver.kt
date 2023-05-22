@@ -82,6 +82,7 @@ class AudioResolver(val context : Context) {
         return audioBytes
     }
 
+    // 파일 생성
     fun getOutputMediaFilePath(fileName : String): File {
         //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)

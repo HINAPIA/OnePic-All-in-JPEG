@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.JpegViewModel
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var jpegViewModelFactory: JpegViewModelFactory
     lateinit var jpegViewModels: JpegViewModel
 
-    private val REQUEST_EXTERNAL_STORAGE_PERMISSION = 1
+    private val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,26 +38,27 @@ class MainActivity : AppCompatActivity() {
         val MCContainer = MCContainer(this)
         jpegViewModels.setContainer(MCContainer)
 
-       // checkPermissions()
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            ActivityCompat.requestPermissions(
-//                this,
-//               // arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-//               arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
-//                1
-//            )
-//        } else {
-//            // Android 10 이하 버전에서는 WRITE_EXTERNAL_STORAGE 권한만 요청하면 됨
-//            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                == PackageManager.PERMISSION_GRANTED) {
-//                // 권한이 이미 허용됨
-//
-//            } else {
-//                ActivityCompat.requestPermissions(this,
-//                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-//            }
-//        }
+
+        checkRecordAudioPermission()
     }
+
+    // RECORD_AUDIO 권한을 체크하고 요청하는 함수
+    private fun checkRecordAudioPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // 권한이 없는 경우 권한을 요청
+            requestPermissions(
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                RECORD_AUDIO_PERMISSION_REQUEST_CODE
+            )
+        } else {
+
+        }
+    }
+
     private fun checkPermissions() {
 //        val permission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 //        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {

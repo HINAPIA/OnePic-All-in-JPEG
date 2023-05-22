@@ -206,7 +206,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     activity,
                     android.R.style.Theme_DeviceDefault_Light_Dialog
                 )
-
+            // 메인 변경만 헀거나 ADD만 한 경우
                 if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
                     !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute ||
                     !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
@@ -231,78 +231,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             setButtonDeactivation()
                             setCurrentPictureByteArrList()
                         }
-//                        try {
-//                            imageTool.showView(binding.progressBar2, true)
-//                            val newImageContent =
-//                                jpegViewModel.jpegMCContainer.value?.imageContent!!
-//                            val singlePictureList: ArrayList<Picture> =
-//                                ArrayList<Picture>(1)
-//                            singlePictureList.add(newImageContent.mainPicture)
-//                            newImageContent.setContent(singlePictureList)
-//
-//                            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-//                            //ViewerFragment.currentFilePath = savedFilePath.toString()
-//
-//                        } catch (e: IOException) {
-//                            Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-//                                .show()
-//                        }
-//                        CoroutineScope(Dispatchers.Default).launch {
-//                            setButtonDeactivation()
-//                            Thread.sleep(1000)
-//                            withContext(Dispatchers.Main) {
-//                                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                            }
-//                        }
-//                        imageTool.showView(binding.progressBar2, false)
-//                        oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-//                            .setPositiveButton(
-//                                "모두 저장",
-//                                DialogInterface.OnClickListener { dialog, which ->
-//                                    imageTool.showView(binding.progressBar2, true)
-//                                    if (!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute) {
-//                                        val mainPicture = imageContent.mainPicture
-//                                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-//                                        imageContent.insertPicture(0, mainPicture)
-//                                    }
-//                                    jpegViewModel.jpegMCContainer.value?.save()
-//                                    CoroutineScope(Dispatchers.Default).launch {
-//                                        setButtonDeactivation()
-//                                        Thread.sleep(2000)
-//                                        withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar2 , false)
-//                                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                                        }
-//                                    }
-//                                })
-//                            .setNeutralButton("예",
-//                                DialogInterface.OnClickListener { dialog, which ->
-//                                    try {
-//                                        imageTool.showView(binding.progressBar2, true)
-//                                        val newImageContent =
-//                                            jpegViewModel.jpegMCContainer.value?.imageContent!!
-//                                        val singlePictureList: ArrayList<Picture> =
-//                                            ArrayList<Picture>(1)
-//                                        singlePictureList.add(newImageContent.mainPicture)
-//                                        newImageContent.setContent(singlePictureList)
-//
-//                                        jpegViewModel.jpegMCContainer.value?.save()
-//                                        //ViewerFragment.currentFilePath = savedFilePath.toString()
-//
-//                                    } catch (e: IOException) {
-//                                        Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-//                                            .show()
-//                                    }
-//                                    CoroutineScope(Dispatchers.Default).launch {
-//                                        setButtonDeactivation()
-//                                        Thread.sleep(1000)
-//                                        withContext(Dispatchers.Main) {
-//                                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                                        }
-//                                    }
-//                                })
-//                            .show()
-
                     }
                     else{
                         CoroutineScope(Dispatchers.Default).launch {
@@ -314,25 +242,17 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         }
                     }
 
+                    // 매직 픽쳐 저장
                 } else if (imageContent.checkMagicAttribute) {
                     imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
-
-
                     // magic으로 변경했을 경우 모든 파일 저장
                     var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
                     //ViewerFragment.currentFilePath = savedFilePath.toString()
                     Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
-
-
                     CoroutineScope(Dispatchers.Default).launch {
-                        Thread.sleep(2000)
+                        Thread.sleep(3000)
                         setButtonDeactivation()
                         setCurrentPictureByteArrList()
-
-                        withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar2 , false)
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                        }
                     }
                 } else {
                     imageTool.showView(binding.progressBar2, false)
@@ -346,7 +266,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                     // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                                     imageContent.insertPicture(0, mainPicture)
                                 }
-
                                 jpegViewModel.jpegMCContainer.value?.save()
                                 CoroutineScope(Dispatchers.Default).launch {
                                     Thread.sleep(2000)
@@ -493,13 +412,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
                 .show()
         }
-        CoroutineScope(Dispatchers.Default).launch {
-            setButtonDeactivation()
-            Thread.sleep(1000)
-            withContext(Dispatchers.Main) {
-                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-            }
-        }
+//        CoroutineScope(Dispatchers.Default).launch {
+//            setButtonDeactivation()
+//            Thread.sleep(1000)
+//            withContext(Dispatchers.Main) {
+//                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//            }
+//        }
     }
 
 }

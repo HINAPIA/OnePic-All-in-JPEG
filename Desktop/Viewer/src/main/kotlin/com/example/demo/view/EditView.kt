@@ -199,7 +199,7 @@ class EditView (val centerView : CenterView) : View(){
         }
 
         // Ai meta Label
-        val aiMeataImageUrl =File("src/main/kotlin/com/example/demo/resource/anal.png").toURI().toURL()
+        val aiMeataImageUrl =File("src/main/kotlin/com/example/demo/resource/analsys.png").toURI().toURL()
         if(aiMeataImageUrl != null){
             var image = Image(aiMeataImageUrl.toExternalForm())
             aiMetaDataImageView.image = image

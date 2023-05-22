@@ -27,9 +27,6 @@
             app:destination="@id/calendarFragment"
             app:popUpTo="@id/calendarFragment"
             app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_addDiaryFragment_to_audioAddFragment"
-            app:destination="@id/audioAddFragment" />
     </fragment>
     <fragment
         android:id="@+id/viewDiaryFragment"
@@ -47,13 +44,12 @@
             app:popUpTo="@id/addDiaryFragment"
             app:popUpToInclusive="true" />
     </fragment>
-    <fragment
-        android:id="@+id/audioAddFragment"
-        android:name="com.goldenratio.onepicdiary.Fragment.AudioAddFragment"
-        android:label="fragment_audio_add"
-        tools:layout="@layout/fragment_audio_add" >
+    <dialog
+        android:id="@+id/audioBottomSheet"
+        android:name="com.goldenratio.onepicdiary.Fragment.AudioBottomSheet"
+        android:label="AudioBottomSheet" >
         <action
-            android:id="@+id/action_audioAddFragment_to_addDiaryFragment"
+            android:id="@+id/action_audioBottomSheet_to_addDiaryFragment2"
             app:destination="@id/addDiaryFragment" />
-    </fragment>
+    </dialog>
 </navigation>
