@@ -14,7 +14,7 @@
 .cxx
 local.properties
 
-+OnePIC/opencv/build/outputs/logs/manifest-merger-debug-report.txt
+OnePIC/opencv/build/outputs/logs/manifest-merger-debug-report.txt
 OnePIC/opencv/build/kotlin/compileDebugKotlin/local-state/build-history.bin
 OnePIC/opencv/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
 OnePIC/opencv/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
@@ -46,19 +46,11 @@ OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_1230_timing.txt
 OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_287_timing.txt
 OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_406_timing.txt
 OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_978_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1075_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1194_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1312_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1325_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_133_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1429_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_385_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_504_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_615_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_735_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_845_timing.txt
-OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_954_timing.txt
-OnePIC/opencv/build/outputs/logs/manifest-merger-debug-report.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/*
+OnePIC/opencv/build/outputs/logs/*
+
+OnePIC/opencv/build/intermediates/cxx/*
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/*
 
 # Created by https://www.toptal.com/developers/gitignore/api/opencv
 # Edit at https://www.toptal.com/developers/gitignore?templates=opencv

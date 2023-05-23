@@ -337,6 +337,7 @@ class MainChangeFragment : Fragment() {
     }
 
     fun setSeekBar(){
+        while(!imageContent.checkPictureList) {}
         Log.d("seekBar","#####")
         imageToolModule.showView(binding.seekBar, true)
 

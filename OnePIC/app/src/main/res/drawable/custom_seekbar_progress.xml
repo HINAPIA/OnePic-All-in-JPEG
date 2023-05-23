@@ -3,20 +3,16 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- seekbar 배경 1 -->
     <item android:id="@android:id/background">
-        <!-- 선 : 길이 -->
-
-<!--        <corners android:radius="10dp"/>-->
         <shape android:shape="line">
-            <stroke android:width="5dp" android:color="@color/main_color" />
+            <stroke android:width="8dp" android:color="@color/main_color" />
         </shape>
     </item>
 
     <!-- seekbar 프로그래스 바 -->
     <item android:id="@android:id/progress" >
         <clip>
-<!--            <corners android:radius="10dp"/>-->
             <shape android:shape="line">
-                <stroke android:width="6dp" android:color="@color/point_color" />
+                <stroke android:width="8dp" android:color="@color/point_color" />
             </shape>
         </clip>
     </item>
