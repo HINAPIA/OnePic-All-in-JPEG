@@ -104,7 +104,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
             checkMagic = false
 
-            if(!imageContent.checkAttribute(ContentAttribute.focus)) {
+            if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
                 binding.rewindBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
                 binding.rewindBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.rewind_deactivation_icon_resize, 0, 0)
                 checkRewind = false

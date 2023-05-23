@@ -826,7 +826,7 @@ class CameraFragment : Fragment() {
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(
                         previewByteArrayList,
                         ContentType.Image,
-                        ContentAttribute.focus
+                        ContentAttribute.object_focus
                     )
 
                     withContext(Dispatchers.Main) {
@@ -909,7 +909,7 @@ class CameraFragment : Fragment() {
                     jpegViewModel.jpegMCContainer.value!!.setImageContent(
                         previewByteArrayList,
                         ContentType.Image,
-                        ContentAttribute.focus
+                        ContentAttribute.object_focus
                     )
 
                     withContext(Dispatchers.Main) {
