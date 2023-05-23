@@ -22,9 +22,9 @@
     </fragment>
     <fragment
         android:id="@+id/burstModeEditFragment"
-        android:name="com.goldenratio.onepic.EditModule.Fragment.BurstModeEditFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.MainChangeFragment"
         android:label="fragment_burst_mode_edit"
-        tools:layout="@layout/fragment_burst_mode_edit" >
+        tools:layout="@layout/fragment_main_change" >
         <action
             android:id="@+id/action_burstModeEditFragment_to_Fragment"
             app:destination="@id/cameraFragment"

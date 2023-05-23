@@ -25,6 +25,8 @@
     <color name="background">#FAF8FF</color>
     <color name="preview_color">#FFFADE</color>
     <color name="info_color">#B3B3B3</color>
+    <color name="seekBarProgressColor">#FF0000</color>
+    <color name="seekBarTrackColor">#FFFFFF</color>
 
     <color name="dark_purple">#9177D0</color>
     <color name="middle_gray">#6B6B6B</color>

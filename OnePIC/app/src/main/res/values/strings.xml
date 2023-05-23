@@ -6,13 +6,14 @@
     <string name="add">컨텐츠 추가</string>
     <string name="main_change">메인 변경</string>
     <string name="save_text">저장</string>
+    <string name="edit_text">편집</string>
     <string name="cancle_text">취소</string>
     <string name="basic_option">Basic</string>
     <string name="object_focus_option">Object Focus</string>
     <string name="distance_focus_option">Distance Focus</string>
     <string name="auto_rewind_option">Auto Rewind</string>
     <string name="auto_option">Auto</string>
-    <string name="choise_button">Choise Best</string>
+    <string name="choise_button">Best Choise</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="burst_mode_edit">Burst Mode</string>
 
