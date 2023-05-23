@@ -7,23 +7,25 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.RectF
-import android.graphics.Typeface
+import android.content.res.Configuration
+import android.graphics.*
 import android.hardware.camera2.*
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
 import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -42,8 +44,12 @@ import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
 import kotlinx.coroutines.*
+import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.support.image.ops.Rot90Op
+import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
+import java.io.ByteArrayOutputStream
 import java.lang.reflect.InvocationTargetException
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
@@ -55,7 +61,7 @@ import kotlin.coroutines.suspendCoroutine
 
 
 @OptIn(ExperimentalCamera2Interop::class)
-class CameraFragment : Fragment() {
+class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
 
@@ -103,6 +109,14 @@ class CameraFragment : Fragment() {
 
     private val burstSize = 5
 
+    private var imageAnalyzer: ImageAnalysis? = null
+    private lateinit var bitmapBuffer: Bitmap
+    private lateinit var objectDetectorHelper: ObjectDetectorHelper
+
+
+    private var analyzeImageWidth : Int = 0
+    private var analyzeImageHeight : Int = 0
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
@@ -140,16 +154,16 @@ class CameraFragment : Fragment() {
         /**
          * Shutter 버튼 눌렸을 때 360도 애니메이션 적용
          */
-        binding.shutterButton.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        binding.shutterBtn.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                binding.shutterButton.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                binding.shutterBtn.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
                 // 뷰의 중심점을 계산합니다.
-                val centerX = binding.shutterButton.width / 2f
-                val centerY = binding.shutterButton.height / 2f
+                val centerX = binding.shutterBtn.width / 2f
+                val centerY = binding.shutterBtn.height / 2f
 
                 // 뷰를 회전시키는 애니메이션을 생성합니다.
-                rotation = ObjectAnimator.ofFloat(binding.shutterButton, View.ROTATION, 0f, 360f)
+                rotation = ObjectAnimator.ofFloat(binding.shutterBtn, View.ROTATION, 0f, 360f)
                 rotation.apply {
                     duration = 1000 // 애니메이션 시간 (밀리초)
                     interpolator = AccelerateDecelerateInterpolator() // 가속도 감속도 애니메이션 인터폴레이터
@@ -166,23 +180,23 @@ class CameraFragment : Fragment() {
          * shutterButton.setOnClickListener{ }
          *      - 셔터 버튼 눌렀을 때 Option에 따른 촬영
          */
-        binding.shutterButton.setOnClickListener {
+        binding.shutterBtn.setOnClickListener {
 
             previewByteArrayList.clear() // previewByteArrayList 초기화
 
             isShutterClick = true
-            binding.shutterButton.isEnabled = !isShutterClick
+            binding.shutterBtn.isEnabled = !isShutterClick
 //            binding.shutterButton.setImageDrawable(resources.getDrawable(R.drawable.shutter_block))
             rotation.start()
 
             /**
-             * Basic Mode
+             * Basic Mode색
              */
-            if(binding.basicRadio.isChecked){
+            if(binding.basicRadioBtn.isChecked){
                 /**
                  * Single Mode
                  */
-                if(!(binding.basicToggle.isChecked)){
+                if(!(binding.basicToggleBtn.isChecked)){
                     CoroutineScope(Dispatchers.IO).launch {
                         mediaPlayer.start()
                         val result = takePicture(0)
@@ -205,7 +219,7 @@ class CameraFragment : Fragment() {
                         )
                         withContext(Dispatchers.Main) {
                             isShutterClick = false
-                            binding.shutterButton.isEnabled = !isShutterClick
+                            binding.shutterBtn.isEnabled = !isShutterClick
                             rotation.cancel()
                         }
 
@@ -250,7 +264,7 @@ class CameraFragment : Fragment() {
 
                             withContext(Dispatchers.Main) {
                                 isShutterClick = false
-                                binding.shutterButton.isEnabled = !isShutterClick
+                                binding.shutterBtn.isEnabled = !isShutterClick
                                 rotation.cancel()
                             }
 
@@ -280,16 +294,18 @@ class CameraFragment : Fragment() {
             /**
              * Object Focus Mode
              */
-            else if(binding.objectFocusRadio.isChecked){
+            else if(binding.objectFocusRadioBtn.isChecked){
                 pointArrayList.clear()
                 isFocusSuccess = false
-                startObjectFocusMode()
+                saveObjectCenterPoint()
+//                takeObjectFocusMode(0)
+//                startObjectFocusMode()
                 audioResolver.startRecording("camera_record")
             }
             /**
              * Distance Focus Mode
              */
-            else if(binding.distanceFocusRadio.isChecked){
+            else if(binding.distanceFocusRadioBtn.isChecked){
                 audioResolver.startRecording("camera_record")
                 controlLensFocusDistance(0)
 
@@ -297,7 +313,7 @@ class CameraFragment : Fragment() {
             /**
              * Auto Rewind Mode
              */
-            else if(binding.autoRewindRadio.isChecked){
+            else if(binding.autoRewindRadioBtn.isChecked){
                 turnOnBurstMode()
                 audioResolver.startRecording("camera_record")
 
@@ -333,7 +349,7 @@ class CameraFragment : Fragment() {
 
                         withContext(Dispatchers.Main) {
                             isShutterClick = false
-                            binding.shutterButton.isEnabled = !isShutterClick
+                            binding.shutterBtn.isEnabled = !isShutterClick
                             rotation.cancel()
                         }
 
@@ -349,7 +365,7 @@ class CameraFragment : Fragment() {
             } // end of auto rewind ...
         }
 
-        binding.galleryButton.setOnClickListener{
+        binding.galleryBtn.setOnClickListener{
 
             val intent =
                 Intent(activity, ViewerEditorActivity::class.java) //fragment라서 activity intent와는 다른 방식
@@ -377,6 +393,8 @@ class CameraFragment : Fragment() {
 
                     // Create a MeteringPoint from the tap coordinates
                     val point = factory.createPoint(event.x, event.y)
+
+                    Log.v("chaewon", "point: ${event.x}, ${event.y}")
 
                     // Create a MeteringAction from the MeteringPoint, you can configure it to specify the metering mode
                     val action = FocusMeteringAction.Builder(point)
@@ -422,24 +440,32 @@ class CameraFragment : Fragment() {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
             when (selectedRadioIndexShare) {
                 0 -> {
-                    binding.basicRadio.isChecked = true
-                    binding.basicRadio.setTypeface(null, Typeface.BOLD)
-                    binding.basicToggle.visibility = View.VISIBLE
+                    binding.basicRadioBtn.isChecked = true
+                    binding.basicRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.basicToggleBtn.visibility = View.VISIBLE
+
+                    binding.overlay.visibility = View.GONE
                 }
                 1 -> {
-                    binding.objectFocusRadio.isChecked = true
-                    binding.objectFocusRadio.setTypeface(null, Typeface.BOLD)
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.objectFocusRadioBtn.isChecked = true
+                    binding.objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
+
+                    binding.overlay.visibility = View.VISIBLE
                 }
                 2 -> {
-                    binding.distanceFocusRadio.isChecked = true
-                    binding.distanceFocusRadio.setTypeface(null, Typeface.BOLD)
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.distanceFocusRadioBtn.isChecked = true
+                    binding.distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
+
+                    binding.overlay.visibility = View.GONE
                 }
                 3 -> {
-                    binding.autoRewindRadio.isChecked = true
-                    binding.autoRewindRadio.setTypeface(null, Typeface.BOLD)
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.autoRewindRadioBtn.isChecked = true
+                    binding.autoRewindRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
+
+                    binding.overlay.visibility = View.GONE
                 }
             }
         }
@@ -447,8 +473,8 @@ class CameraFragment : Fragment() {
         val isToggleCheckedShare = sharedPref?.getBoolean("isToggleChecked", false)
         if(isToggleCheckedShare != null){
             when(isToggleCheckedShare){
-                false -> binding.basicToggle.isChecked = false
-                true -> binding.basicToggle.isChecked = true
+                false -> binding.basicToggleBtn.isChecked = false
+                true -> binding.basicToggleBtn.isChecked = true
             }
         }
 
@@ -459,50 +485,58 @@ class CameraFragment : Fragment() {
          *      2. Basic 버튼 안 누르면 사라지게 하기
          *      3. Option에 따른 카메라 설정
          */
-        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+        binding.modeRadioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId){
-                binding.basicRadio.id -> {
+                binding.basicRadioBtn.id -> {
                     selectedRadioIndex = 0
-                    binding.basicToggle.visibility = View.VISIBLE
+                    binding.basicToggleBtn.visibility = View.VISIBLE
                     turnOnAEMode()
 
-                    binding.basicRadio.setTypeface(null, Typeface.BOLD)
-                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.basicRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
+
+                    binding.overlay.visibility = View.GONE
                 }
 
-                binding.objectFocusRadio.id -> {
+                binding.objectFocusRadioBtn.id -> {
                     selectedRadioIndex = 1
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
                     turnOnAEMode()
 
-                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.objectFocusRadio.setTypeface(null, Typeface.BOLD)
-                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.basicRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
+
+                    binding.overlay.visibility = View.VISIBLE
                 }
 
-                binding.distanceFocusRadio.id -> {
+                binding.distanceFocusRadioBtn.id -> {
                     selectedRadioIndex = 2
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
                     turnOffAFMode(0F)
 
-                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.distanceFocusRadio.setTypeface(null, Typeface.BOLD)
-                    binding.autoRewindRadio.setTypeface(null, Typeface.NORMAL)
+                    binding.basicRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
+                    binding.autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
+
+                    binding.overlay.visibility = View.GONE
                 }
 
-                binding.autoRewindRadio.id -> {
+                binding.autoRewindRadioBtn.id -> {
                     selectedRadioIndex = 3
-                    binding.basicToggle.visibility = View.INVISIBLE
+                    binding.basicToggleBtn.visibility = View.INVISIBLE
                     turnOnAEMode()
 
-                    binding.basicRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.objectFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.distanceFocusRadio.setTypeface(null, Typeface.NORMAL)
-                    binding.autoRewindRadio.setTypeface(null, Typeface.BOLD)
+                    binding.basicRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    binding.autoRewindRadioBtn.setTypeface(null, Typeface.BOLD)
+
+                    binding.overlay.visibility = View.GONE
                 }
             }
         }
@@ -511,69 +545,69 @@ class CameraFragment : Fragment() {
          * ToggleButton 눌렸을 떄
          */
 
-        // AlphaAnimation 객체를 미리 생성합니다.
-        val fadeOutAnimation = AlphaAnimation(1f, 0f).apply {
-            duration = 500 // 0.5초 동안 서서히 사라지게 합니다.
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                    // 애니메이션이 시작될 때 호출됩니다.
-                }
-                override fun onAnimationEnd(animation: Animation?) {
-                    // 애니메이션이 종료될 때 호출됩니다.
-                    if(isToggleChecked) {
-                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
-                        binding.burstToast.visibility = View.GONE
-                    } else{
-                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
-                        binding.singleToast.visibility = View.GONE
-                    }
-                }
-                override fun onAnimationRepeat(animation: Animation?) {
-                    // 애니메이션이 반복될 때 호출됩니다.
-                }
-            })
-        }
-        val fadeInAnimation = AlphaAnimation(0f, 1f).apply {
-            duration = 500 // 0.5초 동안 서서히 나타나게 합니다.
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                    // 애니메이션이 시작될 때 호출됩니다.
-                }
-                override fun onAnimationEnd(animation: Animation?) {
-                    Log.v("basicToggle", "fadeInAnimation : onAnimationEnd()")
-                    // 애니메이션이 종료될 때 호출됩니다.
-                    if(isToggleChecked) {
-                        binding.burstToast.postDelayed({
-                            // 1초 후에 textView1을 서서히 사라지게 합니다.
-                            binding.burstToast.startAnimation(fadeOutAnimation)
-                        }, 1000)
-                    } else {
-                        binding.singleToast.postDelayed({
-                            // 1초 후에 textView1을 서서히 사라지게 합니다.
-                            binding.singleToast.startAnimation(fadeOutAnimation)
-                        }, 1000)
-                    }
-                }
-                override fun onAnimationRepeat(animation: Animation?) {
-                    // 애니메이션이 반복될 때 호출됩니다.
-                }
-            })
-        }
+//        // AlphaAnimation 객체를 미리 생성합니다.
+//        val fadeOutAnimation = AlphaAnimation(1f, 0f).apply {
+//            duration = 500 // 0.5초 동안 서서히 사라지게 합니다.
+//            setAnimationListener(object : Animation.AnimationListener {
+//                override fun onAnimationStart(animation: Animation?) {
+//                    // 애니메이션이 시작될 때 호출됩니다.
+//                }
+//                override fun onAnimationEnd(animation: Animation?) {
+//                    // 애니메이션이 종료될 때 호출됩니다.
+//                    if(isToggleChecked) {
+//                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
+//                        binding.burstToast.visibility = View.GONE
+//                    } else{
+//                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
+//                        binding.singleToast.visibility = View.GONE
+//                    }
+//                }
+//                override fun onAnimationRepeat(animation: Animation?) {
+//                    // 애니메이션이 반복될 때 호출됩니다.
+//                }
+//            })
+//        }
+//        val fadeInAnimation = AlphaAnimation(0f, 1f).apply {
+//            duration = 500 // 0.5초 동안 서서히 나타나게 합니다.
+//            setAnimationListener(object : Animation.AnimationListener {
+//                override fun onAnimationStart(animation: Animation?) {
+//                    // 애니메이션이 시작될 때 호출됩니다.
+//                }
+//                override fun onAnimationEnd(animation: Animation?) {
+//                    Log.v("basicToggle", "fadeInAnimation : onAnimationEnd()")
+//                    // 애니메이션이 종료될 때 호출됩니다.
+//                    if(isToggleChecked) {
+//                        binding.burstToast.postDelayed({
+//                            // 1초 후에 textView1을 서서히 사라지게 합니다.
+//                            binding.burstToast.startAnimation(fadeOutAnimation)
+//                        }, 1000)
+//                    } else {
+//                        binding.singleToast.postDelayed({
+//                            // 1초 후에 textView1을 서서히 사라지게 합니다.
+//                            binding.singleToast.startAnimation(fadeOutAnimation)
+//                        }, 1000)
+//                    }
+//                }
+//                override fun onAnimationRepeat(animation: Animation?) {
+//                    // 애니메이션이 반복될 때 호출됩니다.
+//                }
+//            })
+//        }
 
-        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
-            isToggleChecked = isChecked
-            if (isChecked) {
-                binding.burstToast.clearAnimation()
-                binding.singleToast.clearAnimation()
-                binding.burstToast.visibility = View.VISIBLE
-                binding.burstToast.startAnimation(fadeInAnimation)
-            } else {
-                binding.singleToast.clearAnimation()
-                binding.burstToast.clearAnimation()
-                binding.singleToast.visibility = View.VISIBLE
-                binding.singleToast.startAnimation(fadeInAnimation)
-            }
-        }
+//        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
+//            isToggleChecked = isChecked
+//            if (isChecked) {
+//                binding.burstToast.clearAnimation()
+//                binding.singleToast.clearAnimation()
+//                binding.burstToast.visibility = View.VISIBLE
+//                binding.burstToast.startAnimation(fadeInAnimation)
+//            } else {
+//                binding.singleToast.clearAnimation()
+//                binding.burstToast.clearAnimation()
+//                binding.singleToast.visibility = View.VISIBLE
+//                binding.singleToast.startAnimation(fadeInAnimation)
+//            }
+//        }
 
     }
 
@@ -639,7 +673,7 @@ class CameraFragment : Fragment() {
         // Step 2: Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()
             .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
-            .setScoreThreshold(0.2f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .setScoreThreshold(0.4f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
             .build()
         customObjectDetector = ObjectDetector.createFromFileAndOptions(
             activity,
@@ -683,28 +717,6 @@ class CameraFragment : Fragment() {
                 }.build()
     }
 
-    private fun previewToByteArray(){
-        val imageCapture = imageCapture
-
-        imageCapture!!.takePicture(cameraExecutor, object :
-            ImageCapture.OnImageCapturedCallback() {
-            override fun onCaptureSuccess(image: ImageProxy) {
-
-                val buffer = image.planes[0].buffer
-                buffer.rewind()
-                val bytes = ByteArray(buffer.capacity())
-                buffer.get(bytes)
-                previewByteArrayList.add(bytes)
-
-                image.close()
-                super.onCaptureSuccess(image)
-            }
-
-            override fun onError(exception: ImageCaptureException) {
-                super.onError(exception)
-            }
-        })
-    }
 
     /**
      * startObjectFocusMode()
@@ -725,7 +737,7 @@ class CameraFragment : Fragment() {
                 runObjectDetection(resizedBitmap)
 
                 // 객체 별로 초점 맞춰서 저장
-                takeObjectFocusMode(0)
+//                takeObjectFocusMode(0)
 
                 image.close()
                 super.onCaptureSuccess(image)
@@ -761,9 +773,9 @@ class CameraFragment : Fragment() {
         for (obj in detectedList) {
             try {
                 var pointX: Float =
-                    (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) / 2))
+                    (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) * 0.5f))
                 var pointY: Float =
-                    (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) / 2))
+                    (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) * 0.5f))
 
                 pointArrayList.add(pointData(pointX, pointY))
 
@@ -798,17 +810,80 @@ class CameraFragment : Fragment() {
         return resultToDisplay
     }
 
+    private fun previewToByteArray(){
+//        val stream = ByteArrayOutputStream()
+//        binding.viewFinder.bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+//        val bytearray = stream.toByteArray()
+//        previewByteArrayList.add(bytearray)
+//        stream.close()
+
+        val imageCapture = imageCapture
+
+        imageCapture!!.takePicture(cameraExecutor, object :
+            ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+
+                val buffer = image.planes[0].buffer
+                buffer.rewind()
+                val bytes = ByteArray(buffer.capacity())
+                buffer.get(bytes)
+                previewByteArrayList.add(bytes)
+
+                image.close()
+                super.onCaptureSuccess(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+            }
+        })
+    }
+
+    private fun saveObjectCenterPoint(){
+        val detectObjectList = detectedList
+        var i = 0
+
+        val scaleFactor = (binding.viewFinder.width.toFloat()) / analyzeImageWidth.toFloat()
+        Log.v("chaewon", "viewFinder :: ${binding.viewFinder.width}, analyze :: ${analyzeImageWidth}")
+        Log.v("chaewon", "scaleFactor : ${scaleFactor}")
+
+        for (obj in detectObjectList) {
+            Log.v("chaewon", "i ${i}")
+            try {
+
+                var pointX: Float =
+                    (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) * 0.5f)) * scaleFactor
+                var pointY: Float =
+                    (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) * 0.5f)) * scaleFactor
+
+                Log.v("chaewon", "point x x y : ${pointX} x ${pointY}")
+
+                pointArrayList.add(pointData(pointX, pointY))
+                i+=1
+
+            } catch (e: IllegalAccessException) {
+                e.printStackTrace();
+            } catch (e: InvocationTargetException) {
+                e.targetException.printStackTrace(); //getTargetException
+            }
+        }
+        Log.v("chaewon", "detectObjectList.size : ${detectObjectList.size}, pointArrayList.size : ${pointArrayList.size}")
+        takeObjectFocusMode(0, detectObjectList)
+    }
+
     /**
      * takeObjectFocusMode(index: Int)
      *      - 감지된 객체 별로 초점을 맞추고
      *          Preview를 ByteArray로 저장
      */
-    private fun takeObjectFocusMode(index: Int) {
-        if(index >= detectedList.size){
+    private fun takeObjectFocusMode(index: Int, detectedObjectList : List<DetectionResult>) {
+//        if(index >= 2){
+        if(index >= detectedObjectList.size){
+            Log.v("chaewon","previewByteArrayList :: ${previewByteArrayList.size}, detectedObjectList :: ${detectedObjectList.size} ")
             CoroutineScope(Dispatchers.IO).launch {
-                while (previewByteArrayList.size < detectedList.size) { }
+                while (previewByteArrayList.size < detectedObjectList.size) { }
 
-                if (previewByteArrayList.size == detectedList.size) {
+                if (previewByteArrayList.size == detectedObjectList.size) {
                     mediaPlayer.start()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
@@ -829,7 +904,7 @@ class CameraFragment : Fragment() {
 
                     withContext(Dispatchers.Main) {
                         isShutterClick = false
-                        binding.shutterButton.isEnabled = !isShutterClick
+                        binding.shutterBtn.isEnabled = !isShutterClick
                         rotation.cancel()
                     }
 
@@ -842,23 +917,33 @@ class CameraFragment : Fragment() {
                     }
                 }
             }
-
             return
-        }
-        Log.v("index cnt", "index : ${index}, detectedList.size : ${detectedList.size}, pointArrayList.size : ${pointArrayList.size}")
+        } // end of if ...
+        Log.v("index cnt", "index : ${index}, detectedObjectList.size : ${detectedObjectList.size}, pointArrayList.size : ${pointArrayList.size}")
 
 
-        GlobalScope.launch(Dispatchers.Default){
-            withContext(Dispatchers.Main){
-//                val factory = binding.viewFinder.meteringPointFactory
+//        GlobalScope.launch(Dispatchers.Default){
+//            withContext(Dispatchers.Main){
+        //TEST
+//                pointArrayList[0].x = 335f
+//                pointArrayList[0].y = 1000f
+//
+//                pointArrayList[1].x = 800f
+//                pointArrayList[1].y = 1000f
+
                 val point = factory.createPoint(pointArrayList[index].x, pointArrayList[index].y)
+
+        Log.v("chaewon", "pointArray x x y : ${pointArrayList[index].x} x ${pointArrayList[index].y}")
+
                 val action = FocusMeteringAction.Builder(point)
                     .build()
 
                 val result = cameraController?.startFocusAndMetering(action)
+
                 result?.addListener({
                     try {
                         isFocusSuccess = result.get().isFocusSuccessful
+                        Log.v("chaewon", "hi")
                     } catch (e: IllegalAccessException) {
                         Log.e("Error", "IllegalAccessException")
                     } catch (e: InvocationTargetException) {
@@ -866,21 +951,22 @@ class CameraFragment : Fragment() {
                     }
 
                     if (isFocusSuccess == true) {
-//                takePhoto()
+                        mediaPlayer.start()
+                        Log.v("chaewon", "success")
                         previewToByteArray()
-                        Log.v("list size", "${previewByteArrayList.size}")
-                        takeObjectFocusMode(index + 1)
                         isFocusSuccess = false
+                        Log.v("list size", "${previewByteArrayList.size}")
+                        takeObjectFocusMode(index + 1, detectedObjectList)
                     } else {
                         // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
                         Log.v("Focus", "false")
-                        takeObjectFocusMode(index)
+                        takeObjectFocusMode(index, detectedObjectList)
                     }
                 }, ContextCompat.getMainExecutor(activity))
-            }
-        }
+//            }
+//        }
 
-    }
+    } // end of takeObjectFocusMode()...
 
 
     /**
@@ -912,7 +998,7 @@ class CameraFragment : Fragment() {
 
                     withContext(Dispatchers.Main) {
                         isShutterClick = false
-                        binding.shutterButton.isEnabled = !isShutterClick
+                        binding.shutterBtn.isEnabled = !isShutterClick
                         rotation.cancel()
                     }
 
@@ -1023,9 +1109,85 @@ class CameraFragment : Fragment() {
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
                 .build()
-                .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-                }
+//                .also {
+//                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+//                }
+
+
+            imageAnalyzer =
+                ImageAnalysis.Builder()
+                    .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                    .build()
+                    // The analyzer can then be assigned to the instance
+                    .also {
+                        it.setAnalyzer(cameraExecutor) { image ->
+
+                            analyzeImageWidth = image.height
+//                            analyzeImageHeight = image.height
+
+                            if (!::bitmapBuffer.isInitialized) {
+                                // The image rotation and RGB image buffer are initialized only once
+                                // the analyzer has started running
+                                bitmapBuffer = Bitmap.createBitmap(
+                                    image.width,
+                                    image.height,
+                                    Bitmap.Config.ARGB_8888
+                                )
+                            }
+
+//                            Log.v("chaewon", "analysis image width x hieght : ${image.width} x ${image.height}")
+
+                            val imageRotation = image.imageInfo.rotationDegrees
+                            image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
+
+                            val imageProcessor =
+                                ImageProcessor.Builder()
+                                    .add(Rot90Op(-imageRotation / 90))
+                                    .build()
+
+                            // Preprocess the image and convert it into a TensorImage for detection.
+                            val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmapBuffer))
+
+                            val results = customObjectDetector?.detect(tensorImage)
+
+                            detectedList = results!!.map {
+                                // Get the top-1 category and craft the display text
+                                val category = it.categories.first()
+                                val text = "${category.label}"
+
+                                // Create a data object to display the detection result
+                                DetectionResult(it.boundingBox, text)
+                            }
+
+                            for (obj in detectedList) {
+                                try {
+                                    var pointX: Float =
+                                        (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) * 0.5f))
+                                    var pointY: Float =
+                                        (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) * 0.5f))
+
+//                                    Log.v("chaewon", "analysis point x x y : ${pointX} x ${pointY}")
+
+                                } catch (e: IllegalAccessException) {
+                                    e.printStackTrace();
+                                } catch (e: InvocationTargetException) {
+                                    e.targetException.printStackTrace(); //getTargetException
+                                }
+                            }
+
+                            var inferenceTime = SystemClock.uptimeMillis()
+                            inferenceTime = SystemClock.uptimeMillis() - inferenceTime
+
+                            onResults(
+                                results,
+                                inferenceTime,
+                                tensorImage.height,
+                                tensorImage.width)
+                        }
+                    }
+
 
             imageCapture = ImageCapture.Builder()
                 .setTargetRotation(Surface.ROTATION_0)
@@ -1053,22 +1215,14 @@ class CameraFragment : Fragment() {
 
                 // 3-3. use case와 카메라를 생명 주기에 binding
                 camera = cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
 
                 cameraController = camera!!.cameraControl
                 camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
 
-
                 // 지원되는 MeteringPoints 가져오기
                 val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
-                if (meteringPoints == null || meteringPoints == 0) {
-                    // 사용자에게 에러 메시지를 표시하거나 다른 처리를 수행합니다.
-                    Log.v("meteringPoints", "해당 기기는 meteringPoints를 지원하지 않습니다.")
-                } else {
-                    // 지원되는 MeteringPoints를 사용하여 카메라 기능을 사용합니다.
-                    Log.v("meteringPoints", "해당 기기는 meteringPoints를 지원합니다.")
-                }
 
                 // 스마트폰 기기 별 min Focus Distance 알아내기 ( 가장 `가까운` 곳에 초점을 맞추기 위한 렌즈 초점 거리 )
                 // 대부분 10f
@@ -1077,12 +1231,74 @@ class CameraFragment : Fragment() {
                 // 연속 사진 촬영 장수에 따른 Step 거리
                 lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
 
+                setBottomMenuHeight()
+
+                preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
 
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
         }, ContextCompat.getMainExecutor(activity))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        imageAnalyzer?.targetRotation = binding.viewFinder.display.rotation
+    }
+
+    // Update UI after objects have been detected. Extracts original image height/width
+    // to scale and place bounding boxes properly through OverlayView
+    override fun onResults(
+        results: MutableList<Detection>?,
+        inferenceTime: Long,
+        imageHeight: Int,
+        imageWidth: Int
+    ) {
+        activity?.runOnUiThread {
+            // Pass necessary information to OverlayView for drawing on the canvas
+            binding.overlay.setResults(
+                results ?: LinkedList<Detection>(),
+                imageHeight,
+                imageWidth
+            )
+
+            // Force a redraw
+            binding.overlay.invalidate()
+        }
+    }
+
+    override fun onError(error: String) {
+        activity?.runOnUiThread {
+            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun getStatusBarHeightDP(context: Context): Int {
+        var result = 0
+        val resourceId: Int = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            result = context.resources.getDimension(resourceId).toInt()
+        }
+        return result
+    }
+
+    fun setBottomMenuHeight(){
+        val statusBarHeight = getStatusBarHeightDP(requireContext())
+        val params: ViewGroup.LayoutParams = binding.bottomMenu.getLayoutParams()
+        val topMenuParams: ViewGroup.LayoutParams = binding.topMenu.getLayoutParams()
+        val displaySize = Point()
+        activity.windowManager.defaultDisplay.getSize(displaySize)
+
+        if(binding.viewFinder.height == 0){
+            params.height =
+                displaySize.y - topMenuParams.height - (displaySize.x.toFloat() * (4f / 3f)).toInt() - statusBarHeight
+        }else {
+            Log.v("chaewon", "viewFinder ${binding.viewFinder.width} x ${binding.viewFinder.height}")
+            params.height =
+                displaySize.y - topMenuParams.height - binding.viewFinder.height - statusBarHeight
+        }
+        binding.bottomMenu.setLayoutParams(params)
     }
 
     /**
