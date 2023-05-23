@@ -198,24 +198,26 @@ class ViewerFragment : Fragment() {
             }
         }
 
+        binding.allInJpegTextView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                // 텍스트뷰의 로딩이 완료된 후에 호출될 작업을 여기에 작성합니다.
 
-        val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
+                val width = binding.allInJpegTextView.width
 
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val displayHeight = displayMetrics.heightPixels
-        val displayWidth = displayMetrics.widthPixels
+                val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
 
-        Log.d("width width",""+binding.allInJpegTextView.width)
+                val leftMarginInDp = 0
+                val topMarginInDp =  spToDp(context,10f).toInt()
+                val rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
+                val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
-        val leftMarginInDp = 0 // 왼쪽 마진(dp)
-        val topMarginInDp =  pxToDp((displayHeight*0.15/1.75).toFloat()).toInt()
-        val rightMarginInDp =  -pxToDp((displayWidth/24).toFloat()).toInt()// 오른쪽 마진(dp)
-        val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+                textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+                binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
-        textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-        binding.allInJpegTextView.layoutParams = textViewlayoutParams
+                // 작업을 수행한 후 리스너를 제거할 수도 있습니다.
+                binding.allInJpegTextView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
 
 
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
@@ -595,6 +597,11 @@ class ViewerFragment : Fragment() {
             px,
             resources.displayMetrics
         )
+    }
+
+    fun spToDp(context: Context, sp: Float): Float {
+        val scale = context.resources.displayMetrics.density
+        return sp * scale
     }
 
     fun getFilePathFromUri(context: Context, uri: Uri): String? {

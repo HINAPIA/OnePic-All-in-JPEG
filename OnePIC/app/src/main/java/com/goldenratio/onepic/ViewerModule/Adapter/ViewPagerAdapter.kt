@@ -293,7 +293,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             isFirstResource: Boolean
                         ): Boolean {
                             setFitCenterPaddingValue(resource)
-
+                            setTopMarginValue(resource)
                             return false
                         }
                     })
