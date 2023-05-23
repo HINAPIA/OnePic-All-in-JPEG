@@ -13,10 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
 import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.R
+import com.goldenratio.onepic.ViewerModule.Fragment.BasicViewerFragment
+import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.databinding.ActivityViewerEditorBinding
 
 

@@ -40,6 +40,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
     lateinit var viewHolder: PagerViewHolder // Viewholder
     lateinit var galleryMainimage:List<String>// gallery에 있는 이미지 리스트
+
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
     private var checkMagicPicturePlay = false // magic picture 재생 or stop
     private var isMainChanged = false
@@ -292,6 +293,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             isFirstResource: Boolean
                         ): Boolean {
                             setFitCenterPaddingValue(resource)
+
                             return false
                         }
                     })
@@ -319,6 +321,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             isFirstResource: Boolean
                         ): Boolean {
                             setFitCenterPaddingValue(resource)
+                            setTopMarginValue(resource)
                             return false
                         }
                     })
@@ -360,6 +363,19 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             else { // 세로에 맞춰짐
                    ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 60//viewHeight
             }
+        }
+
+        fun setTopMarginValue(resource:Drawable?){
+
+            if(resource == null) {
+                Log.d("여기에서 나가버림",": here")
+                return
+            }
+
+            val bitmap: Bitmap = resource.toBitmap()
+            val bitmapHeight = bitmap.height
+
+            ViewerFragment.seekBarMargin.value = bitmapHeight * 3 / 8
         }
 
 

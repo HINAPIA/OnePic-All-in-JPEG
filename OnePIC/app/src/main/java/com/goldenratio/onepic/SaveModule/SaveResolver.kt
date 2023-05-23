@@ -142,6 +142,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 null
             )
 
+
         // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
         if (cursor != null && cursor.moveToFirst()) {
             result =  deleteImage(fileName)

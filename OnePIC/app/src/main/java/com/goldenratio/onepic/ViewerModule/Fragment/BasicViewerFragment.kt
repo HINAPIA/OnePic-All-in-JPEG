@@ -10,10 +10,12 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,12 +25,15 @@ import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.BasicViewerAdapter
 import com.goldenratio.onepic.ViewerModule.Adapter.RecyclerViewAdapter
+import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentBasicViewerBinding
 
 
 @SuppressLint("LongLogTag")
 @RequiresApi(Build.VERSION_CODES.M)
 class BasicViewerFragment : Fragment() {
+
+    private lateinit var callback: OnBackPressedCallback
 
     private lateinit var binding: FragmentBasicViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
@@ -47,12 +52,23 @@ class BasicViewerFragment : Fragment() {
         var isPictureClicked: MutableLiveData<Boolean> = MutableLiveData(true)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentBasicViewerBinding.inflate(inflater, container, false)
         currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
+
         return binding.root
     }
 
@@ -103,6 +119,11 @@ class BasicViewerFragment : Fragment() {
         super.onStop()
         var currentPosition: Int = binding.viewPager2.currentItem
         currentFilePath = mainViewPagerAdapter.galleryMainimages[currentPosition]
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     /** ViewPager Adapter 및 swipe callback 설정 & Button 이벤트 처리 */
@@ -202,7 +223,7 @@ class BasicViewerFragment : Fragment() {
 
         binding.backBtn.setOnClickListener{
             Glide.get(requireContext()).clearMemory()
-            findNavController().navigate(R.id.action_basicViewerFragment_to_galleryFragment)
+            backPressed()
         }
 
         isPictureClicked.observe(requireActivity()){
@@ -224,4 +245,9 @@ class BasicViewerFragment : Fragment() {
         )
     }
 
+    fun backPressed(){
+        findNavController().navigate(R.id.galleryFragment,null, NavOptions.Builder()
+            .setPopUpTo(R.id.basicViewerFragment, true)
+            .build())
+    }
 }

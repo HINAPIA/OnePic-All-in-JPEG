@@ -19,6 +19,8 @@ import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
+import android.widget.SeekBar
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -30,8 +32,10 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
+import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
+import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -41,10 +45,12 @@ import java.io.InputStream
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
 
+    private lateinit var callback: OnBackPressedCallback
+
     private lateinit var binding: FragmentViewerBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
-    private var loadResolver : LoadResolver = LoadResolver()
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
+
 
     private var isContainerChanged = MutableLiveData<Boolean>()
     private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
@@ -61,9 +67,20 @@ class ViewerFragment : Fragment() {
         var isAudioPlaying = MutableLiveData<Boolean>()
         var audioTopMargin = MutableLiveData<Int>()
         var audioEndMargin = MutableLiveData<Int>()
+        var seekBarMargin = MutableLiveData<Int>()
     }
 
     private lateinit var context: Context
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,11 +156,11 @@ class ViewerFragment : Fragment() {
         }
     }
 
-    override fun onResume(){
-        super.onResume()
-
-
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
+
 
     override fun onStop() {
         super.onStop()
@@ -190,7 +207,7 @@ class ViewerFragment : Fragment() {
         val displayHeight = displayMetrics.heightPixels
         val displayWidth = displayMetrics.widthPixels
 
-        Log.d("width width",""+displayWidth)
+        Log.d("width width",""+binding.allInJpegTextView.width)
 
         val leftMarginInDp = 0 // 왼쪽 마진(dp)
         val topMarginInDp =  pxToDp((displayHeight*0.15/1.75).toFloat()).toInt()
@@ -241,7 +258,6 @@ class ViewerFragment : Fragment() {
             binding.savedTextView.visibility = View.INVISIBLE
         }
 
-
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
         mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
         binding.viewPager2.setUserInputEnabled(false);
@@ -273,20 +289,15 @@ class ViewerFragment : Fragment() {
                     binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isMagicBtnClicked = false
                     mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-
                 }
-                // setCurrentMCContainer(position)
             }
         })
 
-        // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
-        isContainerChanged.observe(requireActivity()){ value ->
-            if (value == true){
-                //setCurrentOtherImage()
-                setMagicPicture()
-                isFinished.value = true
-                isContainerChanged.value = false
-            }
+        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
+            setMagicPicture()
+        }
+        else {
+            binding.magicBtn.visibility = View.INVISIBLE
         }
 
         /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
@@ -349,6 +360,18 @@ class ViewerFragment : Fragment() {
             binding.audioBtn.layoutParams = layoutParams
         }
 
+        seekBarMargin.observe(requireActivity()) { value ->
+
+            val layoutParams = binding.seekBar.layoutParams as ViewGroup.MarginLayoutParams
+            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
+            val rightMarginInDp = 0 // 오른쪽 마진(dp)
+            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+
+            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+            binding.seekBar.layoutParams = layoutParams
+        }
+
 //        setMagicPicture()
 
         binding.editBtn.setOnClickListener{
@@ -356,10 +379,7 @@ class ViewerFragment : Fragment() {
         }
 
         binding.backBtn.setOnClickListener{
-            Glide.get(requireContext()).clearMemory()
-            val bundle = Bundle()
-            bundle.putInt("currentPosition",binding.viewPager2.currentItem)
-            findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment,bundle)
+            backPressed()
         }
     }
 
@@ -422,31 +442,44 @@ class ViewerFragment : Fragment() {
     }
 
 
-    /** MCContainer 변경 */
-//    @RequiresApi(Build.VERSION_CODES.Q)
-//    fun setCurrentMCContainer(position:Int){
-//        CoroutineScope(Dispatchers.IO).launch {
-//            Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-//            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
-//
-//
-//            val iStream: InputStream? = requireContext().contentResolver.openInputStream(getUriFromPath(sourcePhotoUri))
-//            var sourceByteArray = getBytes(iStream!!)
-//            var jop = async {
-//                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
-//            jop.await()
-//            jpegViewModel.setCurrentImageFilePath(position) // edit 위한 처리
-//        }
-//    }
-
     /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
     fun setCurrentOtherImage(){
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
 
+
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
 
+
         if (pictureList != null) {
+
+            if (jpegViewModel.getPictureByteArrList().size != 1) {
+
+                binding.seekBar.visibility = View.VISIBLE
+                binding.seekBar.progress = 0
+                binding.seekBar.max = jpegViewModel.getPictureByteArrList().size - 1
+
+                binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                        // 시크바의 값이 변경될 때 호출되는 메서드입니다.
+                        // 여기서 필요한 작업을 수행하세요.
+                        Log.d("progress : ",""+progress)
+                        mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress % binding.seekBar.max])
+                        jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max ])
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar) {
+                        // 사용자가 시크바를 터치하여 움직이기 시작할 때 호출되는 메서드입니다.
+                        // 여기서 필요한 작업을 수행하세요.
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar) {
+                        // 사용자가 시크바 터치를 멈추었을 때 호출되는 메서드입니다.
+                        // 여기서 필요한 작업을 수행하세요.
+                    }
+                })
+            }
+
             binding.linear.removeAllViews()
             Log.d("picture list size: ",""+pictureList.size)
 
@@ -480,6 +513,9 @@ class ViewerFragment : Fragment() {
                                     // 포커스를 얻었을 때의 동작 처리
                                     scrollImageView.setBackgroundResource(R.drawable.chosen_image_border)
                                     scrollImageView.setPadding(6,6,6,6)
+                                    if (binding.seekBar.visibility == View.VISIBLE) {
+                                        binding.seekBar.progress = i
+                                    }
 //                                    mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
 //                                    jpegViewModel.setselectedSubImage(picture)
                                 } else {
@@ -505,6 +541,7 @@ class ViewerFragment : Fragment() {
                             }
 
                             binding.linear.addView(scollItemLayout)
+
                         }
                     } catch (e: IllegalStateException) {
                         println(e.message)
@@ -641,5 +678,12 @@ class ViewerFragment : Fragment() {
             }
         }
         return path
+    }
+
+    fun backPressed(){
+        Glide.get(requireContext()).clearMemory()
+        val bundle = Bundle()
+        bundle.putInt("currentPosition",binding.viewPager2.currentItem)
+        findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment,bundle)
     }
 }
