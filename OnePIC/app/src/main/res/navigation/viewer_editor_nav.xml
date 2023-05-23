@@ -145,5 +145,8 @@
         <action
             android:id="@+id/action_analyzeFragment_to_viewerFragment"
             app:destination="@id/viewerFragment" />
+        <action
+            android:id="@+id/action_analyzeFragment_to_basicViewerFragment"
+            app:destination="@id/basicViewerFragment" />
     </fragment>
 </navigation>

@@ -2,6 +2,7 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,11 +17,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import android.widget.ProgressBar
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -44,6 +48,8 @@ import java.io.InputStream
 @SuppressLint("LongLogTag")
 @RequiresApi(Build.VERSION_CODES.Q)
 class AnalyzeFragment : Fragment() {
+
+    private lateinit var callback: OnBackPressedCallback
 
     private lateinit var binding: FragmentAnalyzeBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
@@ -172,6 +178,18 @@ class AnalyzeFragment : Fragment() {
         var isPictureClicked: MutableLiveData<Boolean> = MutableLiveData(true)
     }
 
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -199,7 +217,6 @@ class AnalyzeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         setCurrentMCContainer(currentPosition!!)
 
         // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
@@ -215,7 +232,7 @@ class AnalyzeFragment : Fragment() {
             if (value == true){
                 handler.post(runnable)
 
-
+                isFinished.value = false
 
 //                CoroutineScope(Dispatchers.Default).launch {
 //                    Thread.sleep(1500)
@@ -232,7 +249,12 @@ class AnalyzeFragment : Fragment() {
 
 
         // 전환 시에 애니메이션 적용
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+//        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     @SuppressLint("Range")
@@ -309,32 +331,20 @@ class AnalyzeFragment : Fragment() {
             CoroutineScope(Dispatchers.Main).launch{
                 val bundle = Bundle()
                 bundle.putInt("currentPosition",currentPosition!!)
-                findNavController().navigate(R.id.action_analyzeFragment_to_viewerFragment,bundle)
-                isFinished.value = false
+//                findNavController().popBackStack(R.id.analyzeFragment,false)
+//                findNavController().navigate(R.id.viewerFragment,bundle)
+
+                findNavController().navigate(R.id.viewerFragment, bundle, NavOptions.Builder()
+                    .setPopUpTo(R.id.analyzeFragment, true)
+                    .build())
+
+
+                 //findNavController().navigate(R.id.action_analyzeFragment_to_viewerFragment,bundle)
+                //isFinished.value = false
             }
 
         }
-       // binding.progressBar.visibility = View.GONE
-
-//        binding.resultLinear.visibility = View.VISIBLE
-//        binding.analyzeDataTextView.visibility = View.VISIBLE
-//
-//        var curr = binding.analyzeDataTextView.text
-//        var container = jpegViewModel.jpegMCContainer.value!!
-//
-//        CoroutineScope(Dispatchers.Default).launch {
-//            Thread.sleep(1500)
-//            var imageCount = container.imageContent.pictureCount
-//            CoroutineScope(Dispatchers.Main).launch{
-//                binding.analyzeDataTextView.text = "담긴 사진 ${imageCount}장 발견!"
-//            }
-//        }
-
-
-
-
     }
-
 
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
@@ -348,6 +358,14 @@ class AnalyzeFragment : Fragment() {
         byteBuffer.close()
         inputStream.close()
         return byteBuffer.toByteArray()
+    }
+
+    fun backPressed(){
+        jpegViewModel.jpegMCContainer.value!!.init()
+        handler.removeCallbacksAndMessages(null)
+        val bundle = Bundle()
+        bundle.putInt("currentPosition",currentPosition!!)
+        findNavController().navigate(R.id.action_analyzeFragment_to_basicViewerFragment,bundle)
     }
 
 }

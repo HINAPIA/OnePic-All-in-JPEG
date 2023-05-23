@@ -13,6 +13,7 @@ import androidx.navigation.findNavController
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.R
+import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity.Companion.LAUNCH_ACTIVITY
 import com.goldenratio.onepic.databinding.FragmentPermissionBinding
 
@@ -34,6 +35,7 @@ class PermissionFragment : Fragment(){ // 권한 허용을 받는 동안 머무�
                 navController.navigate(R.id.galleryFragment) // Gallery Fragment 로 전환
             }
         }
+
         return binding.root
     }
 

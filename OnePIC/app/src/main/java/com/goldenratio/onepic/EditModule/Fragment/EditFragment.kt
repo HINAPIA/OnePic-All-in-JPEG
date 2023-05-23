@@ -215,6 +215,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                     // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
                     val currentFilePath = jpegViewModel.currentImageUri
+
                     var fileName : String = ""
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
                         fileName = jpegViewModel.getFileNameFromUri(currentFilePath!!.toUri())
@@ -295,8 +296,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                     Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
                                         .show()
                                 }
+
                                CoroutineScope(Dispatchers.Default).launch {
                                    Thread.sleep(1000)
+
                                     setButtonDeactivation()
                                     setCurrentPictureByteArrList()
                                 }
@@ -412,13 +415,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
                 .show()
         }
-//        CoroutineScope(Dispatchers.Default).launch {
-//            setButtonDeactivation()
-//            Thread.sleep(1000)
-//            withContext(Dispatchers.Main) {
-//                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//            }
-//        }
+
     }
 
 }
