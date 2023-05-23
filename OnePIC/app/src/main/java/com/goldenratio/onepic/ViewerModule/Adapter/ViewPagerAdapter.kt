@@ -42,6 +42,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     lateinit var galleryMainimage:List<String>// gallery에 있는 이미지 리스트
 
     private var externalImage: ByteArray? = null // ScrollView로 부터 선택된 embedded image
+    private var externalImageBitmap:Bitmap? = null
+
     private var checkMagicPicturePlay = false // magic picture 재생 or stop
     private var isMainChanged = false
 
@@ -74,6 +76,10 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             holder.bindEmbeddedImage(externalImage!!)
             externalImage = null // 초기화
         }
+        else if (externalImageBitmap != null) {
+            holder.bindBitmapImage(externalImageBitmap!!)
+            externalImageBitmap = null // 초기화
+        }
         else if (checkMagicPicturePlay){ //magic picture 재생
             holder.magicPictureRun(overlayImg)
         }
@@ -99,6 +105,11 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
     fun setExternalImage(byteArray: ByteArray){
         externalImage = byteArray
+        notifyDataSetChanged()
+    }
+
+    fun setExternalImageBitmap(bitmap:Bitmap){
+        externalImageBitmap = bitmap
         notifyDataSetChanged()
     }
 
@@ -293,7 +304,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             isFirstResource: Boolean
                         ): Boolean {
                             setFitCenterPaddingValue(resource)
-
+                            setTopMarginValue(resource)
                             return false
                         }
                     })
@@ -338,6 +349,13 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                 .load(embeddedImage)
                 .into(externalImageView)
         }
+
+        fun bindBitmapImage(embeddedImage: Bitmap){ // ScrollView로 부터 선택된 embedded image 보여 주기
+            externalImageView.visibility = View.VISIBLE
+            imageView.visibility = View.INVISIBLE
+            externalImageView.setImageBitmap(embeddedImage)
+        }
+
 
         fun setFitCenterPaddingValue(resource:Drawable?) {
 

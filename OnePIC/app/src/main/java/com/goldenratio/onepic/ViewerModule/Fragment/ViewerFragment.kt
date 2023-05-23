@@ -45,36 +45,33 @@ import java.io.InputStream
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
 
-    private lateinit var callback: OnBackPressedCallback
-
     private lateinit var binding: FragmentViewerBinding
-    private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
+    private val jpegViewModel by activityViewModels<JpegViewModel>()
+
+    private lateinit var context: Context
+    private lateinit var callback: OnBackPressedCallback // back 버튼 처리 콜백
+    private var currentPosition:Int? = null // galㅣery fragmentd 에서 넘어올 때
+    private var bitmapList = arrayListOf<Bitmap>()
 
 
-    private var isContainerChanged = MutableLiveData<Boolean>()
-    private var currentPosition:Int? = null // galery fragmentd 에서 넘어올 때
-
-
-    /* text, audio, magic 선택 여부 */
+    /* audio, magic 클릭 여부 */
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
 
     companion object {
-        var currentFilePath:String = ""
-        var isFinished: MutableLiveData<Boolean> = MutableLiveData(false)
-        var isEditStoraged:Boolean = false
-        var isAudioPlaying = MutableLiveData<Boolean>()
-        var audioTopMargin = MutableLiveData<Int>()
-        var audioEndMargin = MutableLiveData<Int>()
-        var seekBarMargin = MutableLiveData<Int>()
+        var currentFilePath:String = "" // 현재 파일 path(or uri)
+        var isFinished: MutableLiveData<Boolean> = MutableLiveData(false) // 매직픽쳐 관련
+        var isEditStoraged:Boolean = false // 편집된 사진인지 여부 - 텍스트, 오디오 scrollView update
+        var isAudioPlaying = MutableLiveData<Boolean>() // 오디오 재생중 표시
+        var audioTopMargin = MutableLiveData<Int>() // 오디오 버튼 top margin
+        var audioEndMargin = MutableLiveData<Int>() // 오디오 버튼 end margin
+        var seekBarMargin = MutableLiveData<Int>() // seek bar margin
     }
-
-    private lateinit var context: Context
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callback = object : OnBackPressedCallback(true) {
+        callback = object : OnBackPressedCallback(true) { // 백버튼 처리 콜백
             override fun handleOnBackPressed() {
                 backPressed()
             }
@@ -108,7 +105,6 @@ class ViewerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         init()
 
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
@@ -124,7 +120,6 @@ class ViewerFragment : Fragment() {
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
                 path = getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
-                Log.d("filepath .jpeg 있나요 : ",path)
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
@@ -135,6 +130,7 @@ class ViewerFragment : Fragment() {
 
 
         setCurrentOtherImage()
+
         binding.scrollView.visibility = View.VISIBLE
 
 
@@ -198,24 +194,26 @@ class ViewerFragment : Fragment() {
             }
         }
 
+        binding.allInJpegTextView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                // 텍스트뷰의 로딩이 완료된 후에 호출될 작업을 여기에 작성합니다.
 
-        val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
+                val width = binding.allInJpegTextView.width
 
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val displayHeight = displayMetrics.heightPixels
-        val displayWidth = displayMetrics.widthPixels
+                val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
 
-        Log.d("width width",""+binding.allInJpegTextView.width)
+                val leftMarginInDp = 0
+                val topMarginInDp =  spToDp(context,10f).toInt()
+                val rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
+                val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
-        val leftMarginInDp = 0 // 왼쪽 마진(dp)
-        val topMarginInDp =  pxToDp((displayHeight*0.15/1.75).toFloat()).toInt()
-        val rightMarginInDp =  -pxToDp((displayWidth/24).toFloat()).toInt()// 오른쪽 마진(dp)
-        val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+                textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+                binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
-        textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-        binding.allInJpegTextView.layoutParams = textViewlayoutParams
+                // 작업을 수행한 후 리스너를 제거할 수도 있습니다.
+                binding.allInJpegTextView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
 
 
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
@@ -372,7 +370,6 @@ class ViewerFragment : Fragment() {
             binding.seekBar.layoutParams = layoutParams
         }
 
-//        setMagicPicture()
 
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -432,7 +429,6 @@ class ViewerFragment : Fragment() {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
                     ImageToolModule().showView(binding.progressBar, false)
-                    isContainerChanged.value = false
                 }
             }
         } catch (e: IllegalStateException) {
@@ -446,10 +442,16 @@ class ViewerFragment : Fragment() {
     fun setCurrentOtherImage(){
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
-
-
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
 
+        // bitmap list (seek bar 속도 개선)
+        val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        CoroutineScope(Dispatchers.Default).launch {
+            while(!imageContent.checkPictureList) {}
+            val bitmap = imageContent.getBitmapList()
+            if(bitmap!=null)
+                bitmapList = bitmap
+        }
 
         if (pictureList != null) {
 
@@ -460,12 +462,20 @@ class ViewerFragment : Fragment() {
                 binding.seekBar.max = jpegViewModel.getPictureByteArrList().size - 1
 
                 binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                        // 시크바의 값이 변경될 때 호출되는 메서드입니다.
-                        // 여기서 필요한 작업을 수행하세요.
+                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) { // 시크바의 값이 변경될 때 호출되는 메서드
+
                         Log.d("progress : ",""+progress)
-                        mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress % binding.seekBar.max])
-                        jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max ])
+
+                        jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max])
+
+                        if (bitmapList.size >= progress + 1) { // bitmap으로 사진 띄우기
+                            mainViewPagerAdapter.setExternalImageBitmap(bitmapList[progress])
+                        } else {
+                            // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌으면 글라이드로
+                            CoroutineScope(Dispatchers.Main).launch {
+                                mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress % binding.seekBar.max])
+                            }
+                        }
                     }
 
                     override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -595,6 +605,11 @@ class ViewerFragment : Fragment() {
             px,
             resources.displayMetrics
         )
+    }
+
+    fun spToDp(context: Context, sp: Float): Float {
+        val scale = context.resources.displayMetrics.density
+        return sp * scale
     }
 
     fun getFilePathFromUri(context: Context, uri: Uri): String? {

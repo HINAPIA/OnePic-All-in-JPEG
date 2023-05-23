@@ -33,4 +33,6 @@
     <color name="purple_gray">#B5B2CA</color>
 
     <color name="intro_color">#846BBF</color>
+    <color name="focus">#FFEA00</color>
+
 </resources>
