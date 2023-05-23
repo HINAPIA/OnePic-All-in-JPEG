@@ -176,65 +176,30 @@ class MainChangeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.Default).launch {
             if (imageContent.activityType == ActivityType.Camera) {
-                withContext(Dispatchers.Main) {
+                if(imageContent.checkAttribute(ContentAttribute.burst)) {
                     imageToolModule.showView(binding.progressBar, true)
+                    imageToolModule.showView(binding.choiseMainBtn, true)
+                    viewBestImage()
                 }
-                viewBestImage()
+                else {
+                    if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+                        setSeekBar()
+                    }
+                }
+            } else {
+                imageToolModule.showView(binding.choiseMainBtn, true)
+                if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
+                    setSeekBar()
+                }
             }
         }
 
-        if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
-            binding.seekBar.max = pictureList.size - 1
-            binding.seekBar.progressDrawable =
-                resources.getDrawable(R.drawable.custom_seekbar_progress, requireContext().theme)
-            binding.seekBar.thumb =
-                resources.getDrawable(R.drawable.custom_seekbar_thumb, requireContext().theme)
-            binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
-                    // progress 변수는 현재 SeekBar의 값입니다.
-                    // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
-                    if (fromUser) {
-                        val index = progress % pictureList.size
-                        mainPicture = pictureList[index]
+        Log.d("seekBar", "${!(imageContent.activityType == ActivityType.Camera && imageContent.checkAttribute(ContentAttribute.burst))
+                } && ${!imageContent.checkAttribute(ContentAttribute.object_focus)}")
+        Log.d("seekBar", "~~~~ ${!(imageContent.activityType == ActivityType.Camera && imageContent.checkAttribute(ContentAttribute.burst))
+                && !imageContent.checkAttribute(ContentAttribute.object_focus)}")
 
 
-                        if (binding.candidateLayout.size > index) {
-                            val view = binding.candidateLayout[index]
-                            imageToolModule.showView(mainSubView, false)
-                            mainSubView = view.findViewById<ImageView>(R.id.checkMainIcon)
-                            imageToolModule.showView(mainSubView, true)
-                        }
-
-                        // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
-                        if (bitmapList.size > index) {
-                            // 만들어 졌으면 비트맵으로 띄웠어
-                            CoroutineScope(Dispatchers.Main).launch {
-                                binding.burstMainView.setImageBitmap(bitmapList[index])
-                            }
-                        } else {
-                            // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Log.d("error 잡기", "$progress 번째 이미지 띄우기")
-                                Glide.with(binding.burstMainView)
-                                    .load(imageContent.getJpegBytes(pictureList[index]))
-                                    .into(binding.burstMainView)
-                            }
-                        }
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    // 사용자가 SeekBar를 터치하여 드래그를 시작할 때 호출되는 메서드입니다.
-                    // 필요한 작업을 수행하면 됩니다.
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    // 사용자가 SeekBar에서 터치를 멈추었을 때 호출되는 메서드입니다.
-                    // 필요한 작업을 수행하면 됩니다.
-                }
-            })
-        }
 
         return binding.root
     }
@@ -369,6 +334,62 @@ class MainChangeFragment : Fragment() {
             }
             else -> {}
         }
+    }
+
+    fun setSeekBar(){
+        Log.d("seekBar","#####")
+        imageToolModule.showView(binding.seekBar, true)
+
+        binding.seekBar.max = pictureList.size - 1
+        binding.seekBar.progressDrawable =
+            resources.getDrawable(R.drawable.custom_seekbar_progress, requireContext().theme)
+        binding.seekBar.thumb =
+            resources.getDrawable(R.drawable.custom_seekbar_thumb, requireContext().theme)
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
+                // progress 변수는 현재 SeekBar의 값입니다.
+                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
+                if (fromUser) {
+                    val index = progress % pictureList.size
+                    mainPicture = pictureList[index]
+
+
+                    if (binding.candidateLayout.size > index) {
+                        val view = binding.candidateLayout[index]
+                        imageToolModule.showView(mainSubView, false)
+                        mainSubView = view.findViewById<ImageView>(R.id.checkMainIcon)
+                        imageToolModule.showView(mainSubView, true)
+                    }
+
+                    // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
+                    if (bitmapList.size > index) {
+                        // 만들어 졌으면 비트맵으로 띄웠어
+                        CoroutineScope(Dispatchers.Main).launch {
+                            binding.burstMainView.setImageBitmap(bitmapList[index])
+                        }
+                    } else {
+                        // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Log.d("error 잡기", "$progress 번째 이미지 띄우기")
+                            Glide.with(binding.burstMainView)
+                                .load(imageContent.getJpegBytes(pictureList[index]))
+                                .into(binding.burstMainView)
+                        }
+                    }
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // 사용자가 SeekBar를 터치하여 드래그를 시작할 때 호출되는 메서드입니다.
+                // 필요한 작업을 수행하면 됩니다.
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 사용자가 SeekBar에서 터치를 멈추었을 때 호출되는 메서드입니다.
+                // 필요한 작업을 수행하면 됩니다.
+            }
+        })
     }
 
 

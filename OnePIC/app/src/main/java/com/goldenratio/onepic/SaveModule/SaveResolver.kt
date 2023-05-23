@@ -21,6 +21,7 @@ import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.*
 
@@ -52,10 +53,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
                 if (writePermission == PackageManager.PERMISSION_GRANTED) {
-
                     savedFile = saveImageOnUnderAndroidQ(resultByteArray)
 
-                    // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     val requestExternalStorageCode = 1
 
@@ -97,9 +96,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     )
                 }
                 if (writePermission == PackageManager.PERMISSION_GRANTED) {
-
                     savedFile = saveImageOnUnderAndroidQ(resultByteArray)
-
                     // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     val requestExternalStorageCode = 1
@@ -145,8 +142,11 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
         // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
         if (cursor != null && cursor.moveToFirst()) {
+            //result가 false이면 우리 앱의 사진이 아니여서 삭제를 못함
             result =  deleteImage(fileName)
         }
+
+        // 같은 파일이 없거나 덮어쓰기가 가능할 때
         if(result){
             val values = ContentValues()
             values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
@@ -166,12 +166,12 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             if (outputStream != null) {
                 outputStream.write(byteArray)
                 outputStream.close()
+               // waitForFileSaved(fileName)
             }
 
         }
-//
+
 //            try {
-//
 //                // 파일이 완전히 저장되었는지 확인합니다.
 //                val contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 //                val selectionClause = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
@@ -180,7 +180,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 //                mainActivity.contentResolver.query(queryUri, null, selectionClause, selectionArgs, null)?.use { cursor ->
 //                    if (cursor.moveToFirst()) {
 //                        val isPending = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING))
-//                        if (isPending == 0 ) {
+//                        if (isPending == 0) {
 //                            Log.d("error 잡기", "파일 저장 완료")
 //                            CoroutineScope(Dispatchers.Main).launch {
 //                                Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()
@@ -197,12 +197,35 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 //            } catch (e: Exception) {
 //                e.printStackTrace()
 //            }
-//       // }
+       // }
 
         if(result){
             return ""
         } else{
             return "another"
+        }
+    }
+
+    @SuppressLint("Range")
+    private suspend fun waitForFileSaved(fileName: String) {
+        val contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val selectionClause = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+        val selectionArgs = arrayOf(fileName)
+        val queryUri = contentUri.buildUpon().appendQueryParameter("limit", "1").build()
+        var fileSaved = false
+        while (!fileSaved) {
+            mainActivity.contentResolver.query(queryUri, null, selectionClause, selectionArgs, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val isPending = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING))
+                    if (isPending == 0) {
+                        Log.d("error 잡기", "파일 저장 완료")
+                        fileSaved = true
+                    } else {
+                        Log.d("error 잡기", "파일 저장 중")
+                    }
+                }
+            }
+            delay(1000) // 1초 대기 후 다시 확인
         }
     }
     @RequiresApi(Build.VERSION_CODES.Q)

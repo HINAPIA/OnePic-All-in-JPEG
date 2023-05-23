@@ -178,6 +178,7 @@
                     android:text="@string/choise_button"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@+id/seekBar"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -189,8 +190,7 @@
                     android:layout_marginBottom="16dp"
                     android:max="4"
                     android:progress="0"
-                    android:progressDrawable="@drawable/custom_seekbar_progress"
-                    android:thumb="@drawable/custom_seekbar_thumb"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />

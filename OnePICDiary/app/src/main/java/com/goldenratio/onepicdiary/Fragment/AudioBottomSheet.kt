@@ -136,7 +136,6 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
                 preTempAudioFile = tempAudioFile
                 tempAudioFile = audioStop()
 
-
                 if(tempAudioFile!= null)
                     setSeekBar()
                 isRecordingMode = false
