@@ -363,6 +363,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     try {
                     Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                         .show()
+                        imageToolModule.showView(binding.progressBar, false)
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }

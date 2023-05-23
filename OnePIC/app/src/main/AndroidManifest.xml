@@ -10,8 +10,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-
-
     <queries>
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
@@ -32,10 +30,8 @@
         android:theme="@style/Theme.OnePic"
         tools:targetApi="31">
         <activity
-            android:name=".CameraModule.CameraEditorActivity"
-            android:screenOrientation="portrait"
-            android:windowTranslucentStatus="true"
-            android:exported="true">
+            android:name=".IntroActivity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,9 +39,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:windowTranslucentStatus="true"
+            android:name=".CameraModule.CameraEditorActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowTranslucentStatus="true">
+
+        </activity>
+        <activity
             android:name=".ViewerModule.ViewerEditorActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowTranslucentStatus="true">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
