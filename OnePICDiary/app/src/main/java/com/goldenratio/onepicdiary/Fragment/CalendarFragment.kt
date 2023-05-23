@@ -44,6 +44,9 @@ class CalendarFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         jpegViewModel.jpegMCContainer.value!!.init()
+
+        jpegViewModel.isAudioPlay.value = 0
+        jpegViewModel.isAddedAudio.value = false
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
