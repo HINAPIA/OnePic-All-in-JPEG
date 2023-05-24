@@ -349,6 +349,16 @@
             app:layout_constraintStart_toStartOf="@+id/bottomMenu_ver1"
             app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
 
+        <ImageView
+            android:id="@+id/convertBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/convert"
+            app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
+            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/bottomMenu_hor1"
             android:layout_width="wrap_content"
