@@ -82,16 +82,164 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.camera.view.PreviewView
-            android:id="@+id/viewFinder"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:scaleType="fitStart"/>
+            android:layout_height="match_parent">
 
-        <com.goldenratio.onepic.CameraModule.OverlayView
-            android:id="@+id/overlay"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            <androidx.camera.view.PreviewView
+                android:id="@+id/viewFinder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:scaleType="fitStart"/>
+
+            <com.goldenratio.onepic.CameraModule.OverlayView
+                android:id="@+id/overlay"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"/>
+
+            <LinearLayout
+                android:id="@+id/distanceOptionLinearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:foregroundGravity="center"
+                app:layout_constraintBottom_toTopOf="@+id/frameLayout_hor2"
+                app:layout_constraintEnd_toStartOf="@+id/frameLayout_ver2"
+                app:layout_constraintStart_toStartOf="@+id/frameLayout_ver1"
+                app:layout_constraintTop_toTopOf="@+id/frameLayout_hor1"
+                android:visibility="visible">
+
+                <RadioGroup
+                    android:id="@+id/distanceOptionRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/distanceManualRadioBtn"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:checked="true"
+                        android:background="@drawable/distance_option_background_selector"
+                        android:button="@drawable/null_radio_button"
+                        android:gravity="center"
+                        android:text="@string/distance_manual_initial"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:textSize="15dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="5dp"/>
+
+                    <RadioButton
+                        android:id="@+id/distanceAutoRadioBtn"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/distance_option_background_selector"
+                        android:text="@string/distance_auto_initial"
+                        android:button="@drawable/null_radio_button"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="5dp"/>
+
+                </RadioGroup>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/distanceManualTv"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance_manual"
+                        android:textColor="@color/white"
+                        android:textSize="12dp"
+                        android:gravity="center"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="5dp"/>
+
+                    <TextView
+                        android:id="@+id/distanceAutoTv"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance_auto"
+                        android:textColor="@color/middle_gray_80"
+                        android:textSize="12dp"
+                        android:gravity="center"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="5dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/seekBarLinearLayout"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/frameLayout_ver3"
+                android:visibility="visible">
+
+                <SeekBar
+                    android:id="@+id/distanceFocusSeekBar"
+                    android:layout_width="300dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:rotation="270"
+                    android:progress="10"
+                    android:max="20"
+                    android:progressDrawable="@drawable/distance_seekbar_progress"
+                    android:thumb="@drawable/distance_seekbar_thumb"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.88" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_ver1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.35" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_ver2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.65" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_ver3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.85" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     </FrameLayout>
 
