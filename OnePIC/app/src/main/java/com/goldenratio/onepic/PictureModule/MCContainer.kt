@@ -18,8 +18,6 @@ class MCContainer(_activity: Activity) {
     private lateinit var activity : Activity
     var header : Header
 
-
-
     var imageContent : ImageContent = ImageContent()
     var audioContent : AudioContent = AudioContent()
     var textContent: TextContent = TextContent()
@@ -115,7 +113,6 @@ class MCContainer(_activity: Activity) {
         if(audio != null){
             audioResolver.audioPlay(audio)
         }
-
     }
 
     fun audioStop(){
@@ -134,7 +131,6 @@ class MCContainer(_activity: Activity) {
     fun setJpegMetaBytes(_jpegMetaData : ByteArray){
         imageContent.jpegMetaData = _jpegMetaData
     }
-
 
 }
 

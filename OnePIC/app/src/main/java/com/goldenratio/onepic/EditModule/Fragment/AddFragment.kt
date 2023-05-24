@@ -106,15 +106,15 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         }
 
         // save btn 클릭 시
-        binding.addSaveBtn.setOnClickListener {
-           // if(isRecording){
-            if(tempAudioFile != null)
-                saveAudioInMCContainer(tempAudioFile!!)
-           // }
-            audioResolver.audioStop()
-            imageContent.checkAddAttribute = true
-            findNavController().navigate(R.id.action_addFragment_to_editFragment)
-        }
+//        binding.addSaveBtn.setOnClickListener {
+//           // if(isRecording){
+//            if(tempAudioFile != null)
+//                saveAudioInMCContainer(tempAudioFile!!)
+//           // }
+//            audioResolver.audioStop()
+//            imageContent.checkAddAttribute = true
+//            findNavController().navigate(R.id.action_addFragment_to_editFragment)
+//        }
 
         // close btn 클릭 시
         binding.addCloseBtn.setOnClickListener {
@@ -165,14 +165,14 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         binding.editText.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
                 //method
-                binding.checkButton.visibility = View.VISIBLE
+                binding.textCheckButton .visibility = View.VISIBLE
             } else{
-                binding.checkButton.visibility = View.INVISIBLE
+                binding.textCheckButton.visibility = View.INVISIBLE
             }
         }
 
-        // text의 수정 클릭 시
-        binding.checkButton.setOnClickListener {
+        // text의 "확인" 클릭 시
+        binding.textCheckButton.setOnClickListener {
             var textMessage: String = binding.editText.text.toString()
             var textList: ArrayList<String> = arrayListOf()
             textList.add(textMessage)
@@ -181,6 +181,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                     ContentAttribute.basic,
                     textList
                 )
+                imageContent.checkAddAttribute = true
                 CoroutineScope(Dispatchers.Main).launch {
                     // 키보드 내리기
                     val imm: InputMethodManager? =
@@ -189,7 +190,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         imm.hideSoftInputFromWindow(binding.editText.getWindowToken(), 0)
                     }
                     binding.editText.clearFocus()
-                    Toast.makeText(activity, "수정 되었습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -205,13 +206,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 binding.contentLayout.visibility = View.VISIBLE
-//                if(!isAbleReset){
-//                    binding.audioResetBtn.visibility = View.GONE
-//                } else{
-//                    binding.audioResetBtn.visibility = View.VISIBLE
-//                }
-
-                //binding.seekBar.visibility = View.VISIBLE
                 // 재생 바
                 if(tempAudioFile != null){
                     setSeekBar()
@@ -222,12 +216,37 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             }
         }
 
+        // 오디오 녹음 내역 저장
+        binding.audioCheckButton.setOnClickListener {
+            // 녹음 내역 저장
+            if(tempAudioFile != null){
+                saveAudioInMCContainer(tempAudioFile!!)
+                jpegViewModel.jpegMCContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
+                    audioResolver.saveByteArrToAacFile(
+                        it1, "viewer_record")
+                }
+            }
+
+           // audioResolver.audioStop()
+            imageContent.checkAddAttribute = true
+
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.RecordingTextView.setText("")
+                Toast.makeText(activity, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
         binding.recordingImageView.setOnClickListener {
             if(isPlayingMode){
                 /* 녹음 시작 */
-                binding.playAudioBarLaydout.visibility = View.GONE
-                Glide.with(this).load(R.raw.giphy).into(binding.recordingImageView);
+                binding.playAudioBarLaydout.visibility = View.INVISIBLE
+                binding.rawImageView.visibility = View.VISIBLE
+                binding.RecordingTextView.visibility = View.VISIBLE
+
+                Glide.with(this).load(R.raw.giphy).into(binding.rawImageView);
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.stop))
                 timerUIStart()
+
 
                 // 녹음 시작
                 audioResolver.audioStop()
@@ -237,9 +256,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             }
             else if(isRecordingMode) {
                 /* 녹음 중단 */
-                // UI
                 binding.playAudioBarLaydout.visibility = View.VISIBLE
-                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh_icon))
+                binding.rawImageView.visibility = View.GONE
+                binding.RecordingTextView.visibility = View.INVISIBLE
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh))
                 timerUIStop()
                 // 녹음 중단
                 preTempAudioFile = tempAudioFile
@@ -249,6 +269,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                     setSeekBar()
                 isRecordingMode = false
                 isRecordedMode = true
+
+                binding.audioCheckButton.visibility = View.VISIBLE
+
+
             }
             else if(isRecordedMode){
                 // dialog
@@ -256,9 +280,9 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 // 알림창이 띄워져있는 동안 배경 클릭 막기
                 dialog.isCancelable = false
                 dialog.show(activity.supportFragmentManager, "ConfirmDialog")
-
             }
         }
+
         // 오디오 seek bar
         binding.seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -300,13 +324,18 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
     override fun onYesButtonClick(id: Int) {
         binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
+        binding.audioCheckButton.visibility = View.INVISIBLE
         tempAudioFile = preTempAudioFile
         isRecordedMode = false
         isPlayingMode = true
+
         if(tempAudioFile == null)
             audioResolver.mediaPlayer.seekTo(0)
-        else
+        else{
             setSeekBar()
+            audioResolver.mediaPlayer.seekTo(0)
+        }
+
     }
     override fun onStop() {
         super.onStop()
@@ -456,10 +485,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     fun timerUIStop(){
         if(isRecordingMode){
             timerTask.cancel()
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.RecordingTextView.setText("")
-                Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
-            }
+//            CoroutineScope(Dispatchers.Main).launch {
+//                binding.RecordingTextView.setText("")
+//                Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+//            }
         }
     }
 }
@@ -472,8 +501,10 @@ class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFrag
 
     private var confirmDialogInterface: ConfirmDialogInterface? = null
 
+
     init {
         this.confirmDialogInterface = confirmDialogInterface
+
     }
     override fun onCreateView(
         inflater: LayoutInflater,

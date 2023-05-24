@@ -27,6 +27,11 @@ class AudioResolver(val context : Context) {
     var savedFile: File?  = null
    // private var inputStream : ByteArrayInputStream? = null
    var mediaPlayer = MediaPlayer()
+
+    init{
+        savedFile = getOutputMediaFilePath("viewer_record")
+
+    }
     
     fun startRecording(fileName: String) : File? {
         if(isRecording){
@@ -71,10 +76,6 @@ class AudioResolver(val context : Context) {
         return savedFile
     }
 
-    fun savedFileDelete(){
-        savedFile?.delete()
-    }
-
     fun getByteArrayInFile(audioFile : File) : ByteArray{
         var audioBytes : ByteArray = audioFile.readBytes()
         while (!(audioBytes != null)) {
@@ -100,7 +101,7 @@ class AudioResolver(val context : Context) {
     fun saveByteArrToAacFile(byteArr: ByteArray, fileName: String) : File{
         savedFile = getOutputMediaFilePath(fileName)
         val outputStream = FileOutputStream(savedFile)
-        Log.d("AudioModule", "${fileName}에 오디오 저장 완료")
+        Log.d("Audio_test", "${fileName}에 오디오 저장 완료")
         outputStream.write(byteArr)
         outputStream.flush()
         outputStream.close()
@@ -110,6 +111,9 @@ class AudioResolver(val context : Context) {
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(_audio : Audio){
         var audio = _audio
+        Log.d("audio_test", "오디오 크기 ${audio.size}")
+        Log.d("audio_test", "savedFile!!.path : ${savedFile!!.path}")
+
         mediaPlayer.reset()
         var byteData = audio._audioByteArray
         if (byteData == null || byteData.isEmpty()) {
@@ -136,6 +140,9 @@ class AudioResolver(val context : Context) {
                      // IOException을 처리하는 코드를 추가한다.
                      Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
                      e.printStackTrace()
+                 } catch (e: IllegalStateException){
+                    Log.e("AudioModule", "no prepare: ${e.message}")
+                    e.printStackTrace()
                  }
              }
          }
