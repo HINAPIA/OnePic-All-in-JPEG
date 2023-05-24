@@ -131,6 +131,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     private var analyzeImageWidth : Int = 0
 
+    // Lens Flag
+    private var isBackLens : Boolean = true
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -235,6 +238,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
         })
 
+        binding.convertBtn.setOnClickListener {
+
+            isBackLens = !isBackLens
+            startCamera(isBackLens)
+
+        }
+
         binding.galleryBtn.setOnClickListener{
 
             val intent =
@@ -289,7 +299,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         // 카메라 권한 확인 후 카메라 시작하기
         if(allPermissionsGranted()){
-            startCamera()
+            startCamera(isBackLens)
         } else {
             ActivityCompat.requestPermissions(
                 activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
@@ -1078,7 +1088,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
      * startCamera()
      *      - 카메라 세팅하기
      */
-    private fun startCamera() {
+    private fun startCamera(isBackLens : Boolean) {
         // 1. CameraProvider 요청
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
 
@@ -1174,9 +1184,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
             orientationEventListener.enable()
 
-            // 3-2. 카메라 세팅
-            // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
-            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            if(isBackLens){
+                // 3-2. 카메라 세팅
+                // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
+                cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            } else {
+                cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+            }
 
             try{
                 // binding 전에 binding 초기화
@@ -1190,6 +1204,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 cameraController = camera!!.cameraControl
                 camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
 
+                preview.setSurfaceProvider(viewFinder.surfaceProvider)
+
                 // 지원되는 MeteringPoints 가져오기
                 val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
 
@@ -1202,14 +1218,149 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 setBottomMenuHeight()
 
-                preview.setSurfaceProvider(viewFinder.surfaceProvider)
-
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
         }, ContextCompat.getMainExecutor(activity))
     }
+
+//    /**
+//     * startCamera()
+//     *      - 카메라 세팅하기
+//     */
+//    private fun startCamera() {
+//        // 1. CameraProvider 요청
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
+//
+//        cameraProviderFuture.addListener({
+//
+//            // 2. CameraProvider 사용 가능 여부 확인
+//            // 생명주기에 binding 할 수 있는 ProcessCameraProvider 객체 가져옴
+//            val cameraProvider = cameraProviderFuture.get()
+//
+//            // 3. 카메라를 선택하고 use case를 같이 생명주기에 binding
+//
+//            // 3-1. Preview를 생성 → Preview를 통해서 카메라 미리보기 화면을 구현.
+//            // surfaceProvider는 데이터를 받을 준비가 되었다는 신호를 카메라에게 보내준다.
+//            // setSurfaceProvider는 PreviewView에 SurfaceProvider를 제공해준다.
+//            val preview = Preview.Builder()
+//                .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
+//                .build()
+////                .also {
+////                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+////                }
+//
+//
+//            imageAnalyzer =
+//                ImageAnalysis.Builder()
+//                    .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                    .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
+//                    .build()
+//                    // The analyzer can then be assigned to the instance
+//                    .also {
+//                        it.setAnalyzer(cameraExecutor) { image ->
+//
+//                            analyzeImageWidth = image.height
+////                            analyzeImageHeight = image.height
+//
+//                            if (!::bitmapBuffer.isInitialized) {
+//                                // The image rotation and RGB image buffer are initialized only once
+//                                // the analyzer has started running
+//                                bitmapBuffer = Bitmap.createBitmap(
+//                                    image.width,
+//                                    image.height,
+//                                    Bitmap.Config.ARGB_8888
+//                                )
+//                            }
+//
+//                            val imageRotation = image.imageInfo.rotationDegrees
+//                            image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
+//
+//                            val imageProcessor =
+//                                ImageProcessor.Builder()
+//                                    .add(Rot90Op(-imageRotation / 90))
+//                                    .build()
+//
+//                            // Preprocess the image and convert it into a TensorImage for detection.
+//                            val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmapBuffer))
+//
+//                            val results = customObjectDetector?.detect(tensorImage)
+//
+//                            detectedList = results!!.map {
+//                                // Get the top-1 category and craft the display text
+//                                val category = it.categories.first()
+//                                val text = "${category.label}"
+//
+//                                // Create a data object to display the detection result
+//                                DetectionResult(it.boundingBox, text)
+//                            }
+//
+//                            var inferenceTime = SystemClock.uptimeMillis()
+//                            inferenceTime = SystemClock.uptimeMillis() - inferenceTime
+//
+//                            onResults(
+//                                results,
+//                                inferenceTime,
+//                                tensorImage.height,
+//                                tensorImage.width)
+//                        }
+//                    }
+//
+//
+//            imageCapture = ImageCapture.Builder()
+//                .setTargetRotation(Surface.ROTATION_0)
+//                .build()
+//
+//            val orientationEventListener = object : OrientationEventListener(context) {
+//                override fun onOrientationChanged(orientation: Int) {
+//                    when (orientation) {
+//                        0 -> imageCapture.setTargetRotation(Surface.ROTATION_0)
+//                        90 -> imageCapture.setTargetRotation(Surface.ROTATION_270)
+//                        180 -> imageCapture.setTargetRotation(Surface.ROTATION_180)
+//                        270 -> imageCapture.setTargetRotation(Surface.ROTATION_90)
+//                    }
+//                }
+//            }
+//            orientationEventListener.enable()
+//
+//            // 3-2. 카메라 세팅
+//            // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
+//            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+//
+//            try{
+//                // binding 전에 binding 초기화
+//                cameraProvider.unbindAll()
+//
+//                // 3-3. use case와 카메라를 생명 주기에 binding
+//                camera = cameraProvider.bindToLifecycle(
+//                    this, cameraSelector, preview, imageCapture, imageAnalyzer
+//                )
+//
+//                cameraController = camera!!.cameraControl
+//                camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
+//
+//                preview.setSurfaceProvider(viewFinder.surfaceProvider)
+//
+//                // 지원되는 MeteringPoints 가져오기
+//                val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
+//
+//                // 스마트폰 기기 별 min Focus Distance 알아내기 ( 가장 `가까운` 곳에 초점을 맞추기 위한 렌즈 초점 거리 )
+//                // 대부분 10f
+//                minFocusDistance =
+//                    camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)!!
+//                // 연속 사진 촬영 장수에 따른 Step 거리
+//                lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
+//
+//                setBottomMenuHeight()
+//
+//            } catch (exc: Exception) {
+//                Log.e(TAG, "Use case binding failed", exc)
+//            }
+//
+//        }, ContextCompat.getMainExecutor(activity))
+//    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
