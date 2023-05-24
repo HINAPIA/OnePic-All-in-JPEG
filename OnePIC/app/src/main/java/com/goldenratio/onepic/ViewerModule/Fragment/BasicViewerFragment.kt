@@ -204,14 +204,14 @@ class BasicViewerFragment : Fragment() {
                     isUserScrolling = true
                 } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     isUserScrolling = false
-                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
-                    if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
-                        val imageView = viewHolder.imageView
-                        if ( viewHolder.adapterPosition == centerItemPosition) {
-                            // TODO: 포커스 주는 코드
-                            imageView.requestFocus()
-                        }
-                    }
+//                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
+//                    if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
+//                        val imageView = viewHolder.imageView
+//                        if ( viewHolder.adapterPosition == centerItemPosition) {
+//                            // TODO: 포커스 주는 코드
+//                            imageView.requestFocus()
+//                        }
+//                    }
                 }
                 super.onScrollStateChanged(recyclerView, newState)
             }
