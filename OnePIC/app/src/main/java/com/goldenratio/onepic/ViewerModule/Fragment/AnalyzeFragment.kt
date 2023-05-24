@@ -34,6 +34,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
+import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
 import kotlinx.coroutines.CoroutineScope
@@ -80,6 +81,24 @@ class AnalyzeFragment : Fragment() {
                 var imageCount = container.imageContent.pictureCount
                 CoroutineScope(Dispatchers.Main).launch{
                     binding.analyzeDataTextView.text = "사진 ${imageCount}장 발견!\n"
+                }
+
+            }
+
+            if (progress == 31) {
+
+                if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
+
+                    var curr = binding.analyzeDataTextView.text
+                    var container = jpegViewModel.jpegMCContainer.value!!
+
+                    if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0){
+
+                        CoroutineScope(Dispatchers.Main).launch{
+                            binding.analyzeDataTextView.text = "${curr}매직 사진 발견!\n"
+                        }
+                    }
+
                 }
 
             }
