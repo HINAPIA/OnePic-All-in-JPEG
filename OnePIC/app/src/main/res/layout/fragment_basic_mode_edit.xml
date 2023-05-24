@@ -19,8 +19,8 @@
 
         <ImageButton
             android:id="@+id/basicCloseBtn"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:background="@color/transparent_color"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
@@ -35,26 +35,27 @@
 
         <TextView
             android:id="@+id/basicOption"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/basic_mode_edit"
+            android:text="@string/basic_mode_option"
             android:textColor="@color/point_color"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/basicSaveBtn"
+            app:layout_constraintHorizontal_bias="0.46"
             app:layout_constraintStart_toEndOf="@+id/basicCloseBtn"
             app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
         <ImageButton
             android:id="@+id/basicSaveBtn"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:background="@color/transparent_color"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
+            android:paddingStart="7dp"
+            android:paddingEnd="7dp"
             android:scaleType="fitCenter"
             android:src="@drawable/check_icon"
             android:textAlignment="textEnd"
@@ -63,7 +64,8 @@
             app:layout_constraintStart_toStartOf="@+id/guideline9"
             app:layout_constraintTop_toTopOf="@+id/guideline4"
             app:tint="@color/main_color" />
- <androidx.constraintlayout.widget.Guideline
+
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -106,7 +108,6 @@
             app:layout_constraintGuide_percent="0.87" />
 
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -114,8 +115,7 @@
         android:layout_height="0dp"
         android:layout_weight="7"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/basicMainView"

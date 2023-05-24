@@ -197,7 +197,7 @@ class ImageContent {
                 for (i in 0 until pictureListSize) {
 
                     CoroutineScope(Dispatchers.Default).launch {
-                        try {
+//                        try {
                             Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
                             val bitmap =
                                 ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
@@ -205,12 +205,13 @@ class ImageContent {
                             bitmapList[i] = bitmap
                             checkFinish[i] = true
 //                    }
-                        } catch (e: IndexOutOfBoundsException) {
-                            e.printStackTrace() // 예외 정보 출력
-                            Log.d("burst", "error : $pictureListSize")
-                            bitmapList.clear()
-                            checkFinish[i] = true
-                        }
+//                        } catch (e: IndexOutOfBoundsException) {
+//                            e.printStackTrace() // 예외 정보 출력
+//                            Log.d("burst", "error : $pictureListSize")
+//                            Log.d("burst", e.printStackTrace().toString())
+//                            bitmapList.clear()
+//                            checkFinish[i] = true
+//                        }
                     }
                 }
                 while (!checkFinish.all { it }) {
@@ -218,6 +219,7 @@ class ImageContent {
                 }
             }
             checkGetBitmapList = true
+            Log.d("faceRewind","getBitmap end!!!")
 //        checkTransformBitmap = false
             return bitmapList
         }catch (e: IndexOutOfBoundsException) {
@@ -252,8 +254,11 @@ class ImageContent {
             null
         }
     }
-    fun resetMainBitmap() {
+    fun resetBitmap() {
         mainBitmap = null
+        bitmapList.clear()
+        bitmapListAttribute = null
+        attributeBitmapList.clear()
     }
 
     fun setMainBitmap(bitmap: Bitmap) {

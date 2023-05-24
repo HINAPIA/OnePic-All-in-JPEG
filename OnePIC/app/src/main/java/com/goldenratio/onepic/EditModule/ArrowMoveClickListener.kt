@@ -11,8 +11,8 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     private var runnable: Runnable? = null
 
     // 초기 위치 설정
-    private var prevX = 0f
-    private var prevY = 0f
+    private var prevX : Float? = null
+    private var prevY : Float? = null
 
     private val minX: Float
     private val minY: Float
@@ -26,7 +26,7 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     init {
 //        minX = -(maxView.width/2).toFloat()
 //        minY = -(maxView.height/2).toFloat()
-//
+
 //        maxX = (maxView.width/2).toFloat()
 //        maxY = (maxView.height/2).toFloat()
 
@@ -35,7 +35,6 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
 
         maxX = (maxView.width/2 - (view.width/2)).toFloat()
         maxY = (maxView.height/2 - (view.height/2)).toFloat()
-
 
         checkPointF = PointF(view.x+(view.width/2), view.y+(view.height/2))
         basicPointF = PointF(view.x, view.y)
@@ -64,45 +63,54 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
 
                 v.x = basicPointF.x // 버튼의 위치 변경
                 v.y = basicPointF.y
+
+                prevX = null
+                prevY = null
+
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
                 println("point(${v.translationX}, ${v.translationY}) - x($minX, $maxX) y($minY, $maxY)  ")
 
-                var dx = event.rawX - prevX
-                var dy = event.rawY - prevY
+                if(prevX != null && prevY != null) {
 
-                var moveX = v.translationX + dx // 버튼의 위치 변경
-                var moveY = v.translationY + dy
+                    var dx = event.rawX - prevX!!
+                    var dy = event.rawY - prevY!!
 
-                if (moveX > maxX)
-                    moveX = maxX
-                else if (moveX < minX)
-                    moveX = minX
+                    var moveX = v.translationX + dx // 버튼의 위치 변경
+                    var moveY = v.translationY + dy
 
-                if (moveY > maxY)
-                    moveY = maxY
-                else if (moveY < minY)
-                    moveY = minY
+                    if (moveX > maxX)
+                        moveX = maxX
+                    else if (moveX < minX)
+                        moveX = minX
 
-                v.translationX = moveX
-                v.translationY = moveY
+                    if (moveY > maxY)
+                        moveY = maxY
+                    else if (moveY < minY)
+                        moveY = minY
 
-                println("D point (${dx}, ${dy})")
+                    v.translationX = moveX
+                    v.translationY = moveY
+
+                    println("D point (${dx}, ${dy})")
 //                myFunction(moveX.toInt(), moveY.toInt())
 
-                if(dx>0)
-                    dx = 4f
-                else if(dx<0)
-                    dx = -4f
+                    if (dx > 0)
+                        dx = 4f
+                    else if (dx < 0)
+                        dx = -4f
 
-                if(dy>0)
-                    dy = 4f
-                else if(dy<0)
-                    dy = -4f
+                    if (dy > 0)
+                        dy = 4f
+                    else if (dy < 0)
+                        dy = -4f
 
-                myFunction(dx.toInt(), dy.toInt())
-                return true
+                    myFunction(dx.toInt(), dy.toInt())
+
+                    return true
+                }
+                return false
             }
             else -> return false
         }

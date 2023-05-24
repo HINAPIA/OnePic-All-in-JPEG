@@ -199,11 +199,13 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             var basicIndex = 0
             var checkEmbedded = false
             for (i in 0 until pictureList.size) {
-                if (pictureList[basicIndex].embeddedData?.size!! > 0) {
-                    checkEmbedded = true
-                    break
+                if (pictureList[i].embeddedData?.size != null) {
+                    if (pictureList[i].embeddedData?.size!! > 0) {
+                        checkEmbedded = true
+                        break
+                    }
+                    basicIndex++
                 }
-                basicIndex++
             }
 //             Log.d("checkEmbedded", "!!!!!!!! $basicIndex")
 //             Log.d("!!!!!","!!!!!!pictureList ${pictureList[basicIndex].embeddedData}")

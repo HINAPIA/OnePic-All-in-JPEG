@@ -54,8 +54,8 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@color/transparent_color"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
+            android:paddingStart="7dp"
+            android:paddingEnd="7dp"
             android:scaleType="fitCenter"
             android:src="@drawable/check_icon"
             android:textAlignment="textEnd"
@@ -144,7 +144,7 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:id="@+id/rewindMainView"
+                    android:id="@+id/mainView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="7"
@@ -152,7 +152,7 @@
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
@@ -168,6 +168,18 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/loadingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/loading_text"
+                    android:textColor="@color/white"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
                 <Button
                     android:id="@+id/autoRewindBtn"
                     android:layout_width="wrap_content"
@@ -178,7 +190,7 @@
                     android:text="@string/auto_option"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:layout_constraintBottom_toBottomOf="@+id/rewindMainView"
+                    app:layout_constraintBottom_toBottomOf="@+id/mainView"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
@@ -320,8 +332,8 @@
 
                 <ImageButton
                     android:id="@+id/maxArrowBtn"
-                    android:layout_width="98dp"
-                    android:layout_height="98dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@color/transparent_color"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -334,8 +346,8 @@
 
                 <ImageButton
                     android:id="@+id/circleArrowBtn"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:background="@color/transparent_color"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toTopOf="@+id/guideline3"

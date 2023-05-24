@@ -21,7 +21,6 @@ import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
-import com.goldenratio.onepic.ViewerModule.Fragment.AnalyzeFragment
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
@@ -46,6 +45,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     private var isSaved = false
     private var isFinished = MutableLiveData<Boolean>()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -73,7 +73,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        imageContent.resetMainBitmap()
+        imageContent.resetBitmap()
         imageContent.activityType = ActivityType.Viewer
 
         while (!imageContent.checkPictureList) {}
@@ -81,6 +81,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         if(imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
             imageContent.checkMagicAttribute || imageContent.checkAddAttribute) {
             imageTool.showView(binding.saveBtn, true)
+        }
+        else {
+            jpegViewModel.preEditMainPicture = imageContent.mainPicture
         }
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -98,6 +101,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
 //            binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
 //            checkFocus = false
+            if(imageContent.checkAttribute(ContentAttribute.magic)) {
+                binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+                binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
+                checkMagic = false
+            }
         }
         else {
             binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
@@ -179,9 +187,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 oDialog.setMessage("편집한 내용을 저장하지 않고 나가시겠습니까?")
                     .setPositiveButton(
                         "취소",
-                        DialogInterface.OnClickListener { dialog, which -> })
+                        DialogInterface.OnClickListener { _, _ -> })
                     .setNeutralButton("확인",
-                        DialogInterface.OnClickListener { dialog, which ->
+                        DialogInterface.OnClickListener { _, _ ->
+                            imageContent.resetBitmap()
+                            val pre = jpegViewModel.preEditMainPicture
+                            if(pre != null) {
+                                imageContent.mainPicture = pre
+                                jpegViewModel.preEditMainPicture = null
+                            }
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         }).show()
             }

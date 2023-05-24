@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 
 
 class MagicPictureFragment : RewindFragment() {
-    private lateinit var binding: FragmentMagicPictureBinding
+    protected lateinit var binding: FragmentMagicPictureBinding
 
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
 
@@ -90,9 +90,9 @@ class MagicPictureFragment : RewindFragment() {
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Main) {
-                Glide.with(binding.magicMainView)
+                Glide.with(binding.mainView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
-                    .into(binding.magicMainView)
+                    .into(binding.mainView)
             }
         }
 
@@ -103,6 +103,7 @@ class MagicPictureFragment : RewindFragment() {
             }
             if (imageContent.activityType == ActivityType.Viewer) {
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+
                 setMainImageBoundingBox()
             }
 
@@ -149,7 +150,9 @@ class MagicPictureFragment : RewindFragment() {
                         addBoundingBox.add(changeFaceStartX)
                         addBoundingBox.add(changeFaceStartY)
 
-                        pictureList[boundingBox[i][0]].insertEmbeddedData(addBoundingBox)
+                        if(pictureList.size > boundingBox[i][0]) {
+                            pictureList[boundingBox[i][0]].insertEmbeddedData(addBoundingBox)
+                        }
                     }
                 }
 
@@ -172,19 +175,18 @@ class MagicPictureFragment : RewindFragment() {
         }
 
         // 이미지 뷰 클릭 시
-        binding.magicMainView.setOnTouchListener { view, event ->
+        binding.mainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
                 imageToolModule.showView(binding.progressBar, true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
-                    binding.magicMainView
+                    binding.mainView
                 )
                 Log.d("magic", "click point:$touchPoint")
 
                 if (touchPoint != null) {
-
                     CoroutineScope(Dispatchers.IO).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
                         while (!rewindModule.getCheckFaceDetection()) {
@@ -249,6 +251,19 @@ class MagicPictureFragment : RewindFragment() {
 
     override fun setMainImageBoundingBox() {
 
+        if (checkMagicPicturePlay) {
+            handler.removeCallbacksAndMessages(null)
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+            }
+            checkMagicPicturePlay = false
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.bottomLayout.visibility = View.INVISIBLE
+            binding.magicPlayBtn.visibility = View.INVISIBLE
+        }
+
         //showView(binding.faceListView, false)
         if (!binding.magicCandidateLayout.isEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
@@ -276,13 +291,13 @@ class MagicPictureFragment : RewindFragment() {
                 }
             } else {
                 try {
-                    val resultBitmap = imageToolModule.drawDetectionResult(requireContext(), mainBitmap, faceResult)
+                    val resultBitmap = imageToolModule.drawDetectionResult(mainBitmap, faceResult, requireContext().resources.getColor(R.color.white))
 
                     Log.d("magic", "!!!!!!!!!!!!!!!!!!! end drawDetectionResult")
 
                     // imageView 변환
                     withContext(Dispatchers.Main) {
-                        binding.magicMainView.setImageBitmap(resultBitmap)
+                        binding.mainView.setImageBitmap(resultBitmap)
                     }
                 } catch (e: IllegalStateException) {
                     // 예외가 발생한 경우 처리할 코드
@@ -301,12 +316,17 @@ class MagicPictureFragment : RewindFragment() {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.magicCandidateLayout.removeAllViews()
+
+
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
             imageToolModule.showView(binding.progressBar , false)
             return
         }
+
+        imageToolModule.showView(binding.bottomLayout, true)
+        imageToolModule.showView(binding.magicPlayBtn, true)
 
         for (i in 0 until boundingBox.size) {
             println(i.toString() + " || " + boundingBox[i])
@@ -320,6 +340,8 @@ class MagicPictureFragment : RewindFragment() {
                 //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
                 Rect(rect[1], rect[2], rect[3], rect[4])
             )
+
+            Log.d("magicPictue", "rect[0] = ${rect[0]}")
 
             try {
                 // 넣고자 하는 layout 불러오기
@@ -375,7 +397,7 @@ class MagicPictureFragment : RewindFragment() {
             val runnable = object : Runnable {
                 override fun run() {
                     if (ovelapBitmap.size > 0) {
-                        binding.magicMainView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                        binding.mainView.setImageBitmap(ovelapBitmap[currentImageIndex])
                         //currentImageIndex++
 
                         currentImageIndex += increaseIndex
@@ -415,7 +437,7 @@ class MagicPictureFragment : RewindFragment() {
                 mainBitmap, newImage!!, changeFaceStartX, changeFaceStartY
             )
 
-            binding.magicMainView.setImageBitmap(ovelapBitmap[0])
+            binding.mainView.setImageBitmap(ovelapBitmap[0])
         }
     }
 
@@ -433,5 +455,9 @@ class MagicPictureFragment : RewindFragment() {
             }
             else -> {}
         }
+    }
+
+    override fun changeMainView(bitmap: Bitmap) {
+        binding.mainView.setImageBitmap(bitmap)
     }
 }

@@ -394,7 +394,7 @@ class ViewerFragment : Fragment() {
 
     fun setMagicPicture() {
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        imageContent.resetMainBitmap()
+        imageContent.resetBitmap()
         mainViewPagerAdapter.resetMagicPictureList()
 
         ImageToolModule().showView(binding.magicBtn, true)

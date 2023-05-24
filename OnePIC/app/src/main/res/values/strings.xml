@@ -12,8 +12,8 @@
     <string name="object_focus_option">Object Focus</string>
     <string name="distance_focus_option">Distance Focus</string>
     <string name="auto_rewind_option">Auto Rewind</string>
-    <string name="auto_option">Auto</string>
-    <string name="choise_button">Best Choise</string>
+    <string name="auto_option">자동 얼굴 변경</string>
+    <string name="choise_button">메인 사진 추천</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="burst_mode_edit">Burst Mode</string>
     <string name="basic_mode_edit">Basic Mode</string>
@@ -22,4 +22,6 @@
     <string name="distance_auto">자동</string>
     <string name="distance_manual_initial">M</string>
     <string name="distance_auto_initial">A</string>
+    <string name="basic_mode_option">사진 확인</string>
+    <string name="loading_text">얼굴 인식 중 입니다</string>
 </resources>

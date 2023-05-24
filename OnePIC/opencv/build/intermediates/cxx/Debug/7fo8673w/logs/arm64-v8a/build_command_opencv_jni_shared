@@ -1,4 +1,4 @@
-/Users/songyeon/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+/Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/ninja \
   -C \
-  /Users/songyeon/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/arm64-v8a \
+  /Users/hscomputerengineering/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/arm64-v8a \
   opencv_jni_shared

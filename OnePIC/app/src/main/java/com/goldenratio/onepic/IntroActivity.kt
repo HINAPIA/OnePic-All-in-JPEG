@@ -37,6 +37,6 @@ class IntroActivity : AppCompatActivity() {
             val intent = Intent(applicationContext, CameraEditorActivity::class.java)
             startActivity(intent)
             finish()
-        }, 3500)
+        }, 2800)
     }
 }

@@ -1,6 +1,5 @@
 package com.goldenratio.onepic
 
-import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
 import android.util.Log
@@ -205,27 +204,37 @@ class ImageToolModule {
      *                              List<DetectionResult>인 경우는 객체 분석 결과를 그림 )
      */
     fun drawDetectionResult(
-        context: Context,
         bitmap: Bitmap,
-        detectionResults: ArrayList<Face>
+        detectionResults: ArrayList<Face>,
+        customColor: Int
+    ): Bitmap {
+        var outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+
+        detectionResults.forEach {
+            outputBitmap = drawDetectionResult(outputBitmap, it.boundingBox.toRectF(), customColor)
+        }
+        return outputBitmap
+    }
+
+    fun drawDetectionResult(
+        bitmap: Bitmap,
+        box: RectF,
+        customColor: Int
     ): Bitmap {
         val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(outputBitmap)
         val pen = Paint()
         pen.textAlign = Paint.Align.LEFT
 
-        detectionResults.forEach {
             // draw bounding box
-            pen.color = context.resources.getColor(R.color.white)
+//            pen.color = context.resources.getColor(R.color.white)
+            pen.color = customColor
             pen.strokeWidth = floatToDp(8F).toFloat()
             pen.style = Paint.Style.STROKE
-            val box = it.boundingBox.toRectF()
             canvas.drawArc(box, -30f, 70f, false, pen)
             canvas.drawArc(box, 140f, 70f, false, pen)
-        }
         return outputBitmap
     }
-
 
     /**
      * getBitmapClickPoint( clickPoint: PointF, imageView: ImageView): Point

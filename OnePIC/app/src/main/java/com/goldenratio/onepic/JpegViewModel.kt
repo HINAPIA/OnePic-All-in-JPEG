@@ -30,6 +30,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     private lateinit var pictureByteArrayList:MutableList<ByteArray> // pictureByteArrayList
 
+    var preEditMainPicture: Picture? = null
 
     /* Edit에서 필요 */
     var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)

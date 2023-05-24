@@ -101,7 +101,7 @@ class MainChangeFragment : Fragment() {
         }
 
         binding.burstSaveBtn.setOnClickListener {
-            imageContent.resetMainBitmap()
+            imageContent.resetBitmap()
             imageToolModule.showView(binding.progressBar , true)
             CoroutineScope(Dispatchers.Default).launch {
                 // 1. main으로 지정된 picture를 picturelist에서 삭제
@@ -188,7 +188,7 @@ class MainChangeFragment : Fragment() {
                 }
             } else {
                 imageToolModule.showView(binding.choiseMainBtn, true)
-                if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
+                if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
                     setSeekBar()
                 }
             }
@@ -205,61 +205,61 @@ class MainChangeFragment : Fragment() {
     }
 
     fun setSubImage() {
-        CoroutineScope(Dispatchers.Default).launch{
+//        CoroutineScope(Dispatchers.Default).launch{
 //            val checkFinish = BooleanArray(pictureList.size)
 //            for (i in 0 until pictureList.size) {
 //                checkFinish[i] = false
 //            }
 
-            for(i in 0 until pictureList.size) {
+        for (i in 0 until pictureList.size) {
 //                CoroutineScope(Dispatchers.Main).launch {
-                    // 넣고자 하는 layout 불러오기
-                    val subLayout =
-                        layoutInflater.inflate(R.layout.sub_image_array, null)
+            // 넣고자 하는 layout 불러오기
+            val subLayout =
+                layoutInflater.inflate(R.layout.sub_image_array, null)
 
-                    // 위 불러온 layout에서 변경을 할 view가져오기
-                    val cropImageView: ImageView =
-                        subLayout.findViewById(R.id.cropImageView)
+            // 위 불러온 layout에서 변경을 할 view가져오기
+            val cropImageView: ImageView =
+                subLayout.findViewById(R.id.cropImageView)
 
-                    // 이미지뷰에 붙이기
-                    withContext(Dispatchers.Main) {
-                        Log.d("error 잡기", "$i 번째 이미지 띄우기")
-                        Glide.with(cropImageView)
-                            .load(imageContent.getJpegBytes(pictureList[i]))
-                            .into(cropImageView)
-                    }
+            // 이미지뷰에 붙이기
+            CoroutineScope(Dispatchers.Main).launch {
+                Log.d("error 잡기", "$i 번째 이미지 띄우기")
+                Glide.with(cropImageView)
+                    .load(imageContent.getJpegBytes(pictureList[i]))
+                    .into(cropImageView)
+            }
 
-                    if (mainIndex == i) {
-                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                    }
+            if (mainIndex == i) {
+                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                mainSubView = subLayout.findViewById(R.id.checkMainIcon)
+            }
 
-                    cropImageView.setOnClickListener {
-                        mainPicture = pictureList[i]
-                        imageToolModule.showView(mainSubView, false)
-                        CoroutineScope(Dispatchers.Main).launch {
-                            infoLevel.value = InfoLevel.AfterMainSelect
-                            // 메인 이미지 설정
-                                Glide.with(binding.burstMainView)
-                                    .load(imageContent.getJpegBytes(mainPicture))
-                                    .into(binding.burstMainView)
-                        }
-                        imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                        mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                        //binding.burstMainView.setImageBitmap(mainBitmap)
-                    }
+            cropImageView.setOnClickListener {
+                mainPicture = pictureList[i]
+                imageToolModule.showView(mainSubView, false)
+                CoroutineScope(Dispatchers.Main).launch {
+                    infoLevel.value = InfoLevel.AfterMainSelect
+                    // 메인 이미지 설정
+                    Glide.with(binding.burstMainView)
+                        .load(imageContent.getJpegBytes(mainPicture))
+                        .into(binding.burstMainView)
+                }
+                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                mainSubView = subLayout.findViewById(R.id.checkMainIcon)
+                //binding.burstMainView.setImageBitmap(mainBitmap)
+            }
 
-                    withContext(Dispatchers.Main) {
-                        // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                        binding.candidateLayout.addView(subLayout)
-                    }
+            CoroutineScope(Dispatchers.Main).launch {
+                // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                binding.candidateLayout.addView(subLayout)
+            }
 //                    checkFinish[i] = true
 
 //                }
-            }
+        }
 //            while (!checkFinish.all { it }) { }
 //            imageToolModule.showView(binding.progressBar, false)
-        }
+//        }
     }
     fun viewBestImage() {
         imageToolModule.showView(binding.progressBar, true)
@@ -381,17 +381,8 @@ class MainChangeFragment : Fragment() {
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // 사용자가 SeekBar를 터치하여 드래그를 시작할 때 호출되는 메서드입니다.
-                // 필요한 작업을 수행하면 됩니다.
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // 사용자가 SeekBar에서 터치를 멈추었을 때 호출되는 메서드입니다.
-                // 필요한 작업을 수행하면 됩니다.
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
     }
-
-
 }
