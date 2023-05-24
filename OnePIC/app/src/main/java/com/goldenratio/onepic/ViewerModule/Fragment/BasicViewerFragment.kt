@@ -199,6 +199,8 @@ class BasicViewerFragment : Fragment() {
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
+            var previousCenterItemPosition: Int = -1
+
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     isUserScrolling = true
@@ -223,6 +225,30 @@ class BasicViewerFragment : Fragment() {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                 centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
+
+                if (centerItemPosition != previousCenterItemPosition) {
+                    // 중앙 아이템이 변경되었을 때의 처리
+                    val previousViewHolder =
+                        recyclerView.findViewHolderForAdapterPosition(previousCenterItemPosition)
+                    if (previousViewHolder != null && previousViewHolder is RecyclerViewAdapter.ViewHolder) {
+                        val previousImageView = previousViewHolder.imageView
+                        // 중앙 아이템이 아닌 경우의 처리
+                        previousImageView.background = null
+                        previousImageView.setPadding(0, 0, 0, 0)
+                    }
+
+                    val currentViewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
+                    if (currentViewHolder != null && currentViewHolder is RecyclerViewAdapter.ViewHolder) {
+                        val currentImageView = currentViewHolder.imageView
+                        // 중앙 아이템에 대한 처리
+                        currentImageView.setBackgroundResource(R.drawable.chosen_image_border)
+                        currentImageView.setPadding(6, 6, 6, 6)
+                    }
+
+                    previousCenterItemPosition = centerItemPosition!!
+                }
+
+
                 if (isUserScrolling){
                     binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
                 }
