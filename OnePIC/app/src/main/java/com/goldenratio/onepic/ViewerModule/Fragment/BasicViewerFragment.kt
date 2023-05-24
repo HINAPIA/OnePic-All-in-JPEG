@@ -204,6 +204,14 @@ class BasicViewerFragment : Fragment() {
                     isUserScrolling = true
                 } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     isUserScrolling = false
+                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
+                    if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
+                        val imageView = viewHolder.imageView
+                        if ( viewHolder.adapterPosition == centerItemPosition) {
+                            // TODO: 포커스 주는 코드
+                            imageView.requestFocus()
+                        }
+                    }
                 }
                 super.onScrollStateChanged(recyclerView, newState)
             }
@@ -217,15 +225,6 @@ class BasicViewerFragment : Fragment() {
                 centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
                 if (isUserScrolling){
                     binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
-                }
-
-                val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
-                if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
-                    val imageView = viewHolder.imageView
-                    if ( viewHolder.adapterPosition == centerItemPosition) {
-                        // TODO: 포커스 주는 코드
-                        imageView.requestFocus()
-                    }
                 }
 
                 super.onScrolled(recyclerView, dx, dy)
