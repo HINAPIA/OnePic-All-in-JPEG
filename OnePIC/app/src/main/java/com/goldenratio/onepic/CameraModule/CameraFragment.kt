@@ -107,6 +107,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     // Distance Focus
     private var lensDistanceSteps: Float = 0F
     private var minFocusDistance: Float = 0F
+    private var focusDistance : Float = 0F
 
     // Object Focus
     private lateinit var factory: MeteringPointFactory
@@ -126,10 +127,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     private var imageAnalyzer: ImageAnalysis? = null
     private lateinit var bitmapBuffer: Bitmap
-    private lateinit var objectDetectorHelper: ObjectDetectorHelper
+
 
     private var analyzeImageWidth : Int = 0
-    private var analyzeImageHeight : Int = 0
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -207,11 +208,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // distance 수동 Seek Bar 조절
         binding.distanceFocusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val focusDistance = (minFocusDistance/binding.distanceFocusSeekBar.max.toFloat())*progress.toFloat()
+                focusDistance = (minFocusDistance/binding.distanceFocusSeekBar.max.toFloat())*progress.toFloat()
                 Log.v("chaewon", "focusDistance : $focusDistance")
-//                turnOffAFMode(focusDistance)
+                if(fromUser)
+                    turnOffAFMode(focusDistance)
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -306,8 +307,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
             when (selectedRadioIndexShare) {
                 0 -> {
-//                    turnOnAFMode()
-
                     basicRadioBtn.isChecked = true
                     basicRadioBtn.setTypeface(null, Typeface.BOLD)
                     basicToggleBtn.visibility = View.VISIBLE
@@ -318,8 +317,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     seekBarLinearLayout.visibility = View.GONE
                 }
                 1 -> {
-//                    turnOnAFMode()
-
                     objectFocusRadioBtn.isChecked = true
                     objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
                     basicToggleBtn.visibility = View.INVISIBLE
@@ -330,8 +327,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     seekBarLinearLayout.visibility = View.GONE
                 }
                 2 -> {
-//                    turnOffAFMode(0F)
-
                     distanceFocusRadioBtn.isChecked = true
                     distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
                     basicToggleBtn.visibility = View.INVISIBLE
@@ -342,8 +337,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     seekBarLinearLayout.visibility = View.VISIBLE
                 }
                 3 -> {
-//                    turnOnAFMode()
-
                     autoRewindRadioBtn.isChecked = true
                     autoRewindRadioBtn.setTypeface(null, Typeface.BOLD)
                     basicToggleBtn.visibility = View.INVISIBLE
@@ -375,7 +368,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 basicRadioBtn.id -> {
                     selectedRadioIndex = 0
                     basicToggleBtn.visibility = View.VISIBLE
-//                    turnOnAFMode()
 
                     basicRadioBtn.setTypeface(null, Typeface.BOLD)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -386,12 +378,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     distanceOptionLinearLayout.visibility = View.GONE
                     seekBarLinearLayout.visibility = View.GONE
+
+                    viewFinder.isEnabled = true
                 }
 
                 objectFocusRadioBtn.id -> {
                     selectedRadioIndex = 1
                     basicToggleBtn.visibility = View.INVISIBLE
-//                    turnOnAFMode()
 
                     basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
@@ -402,12 +395,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     distanceOptionLinearLayout.visibility = View.GONE
                     seekBarLinearLayout.visibility = View.GONE
+
+                    viewFinder.isEnabled = true
                 }
 
                 distanceFocusRadioBtn.id -> {
                     selectedRadioIndex = 2
                     basicToggleBtn.visibility = View.INVISIBLE
-//                    turnOffAFMode(0F)
 
                     basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -418,12 +412,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     distanceOptionLinearLayout.visibility = View.VISIBLE
                     seekBarLinearLayout.visibility = View.VISIBLE
+
+                    viewFinder.isEnabled = false
                 }
 
                 autoRewindRadioBtn.id -> {
                     selectedRadioIndex = 3
                     basicToggleBtn.visibility = View.INVISIBLE
-//                    turnOnAFMode()
 
                     basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -434,6 +429,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     distanceOptionLinearLayout.visibility = View.GONE
                     seekBarLinearLayout.visibility = View.GONE
+
+                    viewFinder.isEnabled = true
+
                 }
             }
         }
@@ -560,10 +558,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
             // Distance Focus 모드
             else if(distanceFocusRadioBtn.isChecked){
-                turnOffAFMode(0f)
+
                 audioResolver.startRecording("camera_record")
 
                 if(binding.distanceManualRadioBtn.isChecked){
+                    turnOffAFMode(focusDistance)
                     CoroutineScope(Dispatchers.IO).launch {
                         mediaPlayer.start()
                         val result = takePicture(0)
@@ -601,6 +600,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     }
                 }
                 else if(binding.distanceAutoRadioBtn.isChecked) {
+                    turnOffAFMode(0f)
                     controlLensFocusDistance(0)
                 }
             }
