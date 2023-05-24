@@ -28,9 +28,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline8"
             app:layout_constraintStart_toStartOf="@+id/guideline6"
             app:layout_constraintTop_toTopOf="@+id/guideline4"
-            app:tint="@color/point_color" />
-
-
+            app:tint="@color/point_color"/>
 
 
         <Button
@@ -133,18 +131,6 @@
                 android:src="@drawable/audio"
                 />
 
-
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:visibility="invisible"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:splitTrack="false"
-                android:progressDrawable="@drawable/seekbar_progress"
-                android:thumb="@drawable/seekbar_thumb"/>
-
-
             <LinearLayout
                 android:id="@+id/textLinear"
                 android:layout_width="match_parent"
@@ -169,6 +155,7 @@
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
+
 
             </LinearLayout>
 
@@ -210,6 +197,26 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/magic"
                 app:tint="@color/point_color" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/seekBarLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp"
+            android:gravity="center|top"
+            android:padding="3dp">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:splitTrack="false"
+                android:progressDrawable="@drawable/seekbar_progress"
+                android:thumb="@drawable/seekbar_thumb"/>
 
         </LinearLayout>
 

@@ -358,17 +358,17 @@ class ViewerFragment : Fragment() {
             binding.audioBtn.layoutParams = layoutParams
         }
 
-        seekBarMargin.observe(requireActivity()) { value ->
-
-            val layoutParams = binding.seekBar.layoutParams as ViewGroup.MarginLayoutParams
-            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
-            val rightMarginInDp = 0 // 오른쪽 마진(dp)
-            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-
-            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-            binding.seekBar.layoutParams = layoutParams
-        }
+//        seekBarMargin.observe(requireActivity()) { value ->
+//
+//            val layoutParams = binding.seekBar.layoutParams as ViewGroup.MarginLayoutParams
+//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+//            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
+//            val rightMarginInDp = 0 // 오른쪽 마진(dp)
+//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+//
+//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+//            binding.seekBar.layoutParams = layoutParams
+//        }
 
 
         binding.editBtn.setOnClickListener{

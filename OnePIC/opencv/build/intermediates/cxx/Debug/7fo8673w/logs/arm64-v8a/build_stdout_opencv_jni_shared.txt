@@ -1,2 +1,2 @@
-ninja: Entering directory `/Users/yujin/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/arm64-v8a'
+ninja: Entering directory `/Users/songyeon/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/arm64-v8a'
 ninja: no work to do.

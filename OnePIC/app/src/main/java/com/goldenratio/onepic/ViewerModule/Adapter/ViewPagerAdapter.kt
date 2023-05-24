@@ -84,7 +84,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             holder.magicPictureRun(overlayImg)
         }
         else { // 사용자가 스와이프로 화면 넘길 때
-
             holder.bind(galleryMainimage[position]) // binding
         }
     }
@@ -393,7 +392,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             val bitmap: Bitmap = resource.toBitmap()
             val bitmapHeight = bitmap.height
 
-            ViewerFragment.seekBarMargin.value = bitmapHeight * 3 / 8
+            ViewerFragment.seekBarMargin.value = bitmapHeight / 2 + 25//20 //bitmapHeight * 3 / 8
         }
 
 

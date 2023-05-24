@@ -19,7 +19,7 @@
                 <!-- 시크바 선 굵기 : 길이 10dp -->
                 <!--                <stroke android:width="2dp" android:color="#525252" />-->
                 <!-- 시크바 내용 색상 -->
-                <stroke android:width="5dp" android:color="@color/white"/>
+                <stroke android:width="5dp" android:color="@color/point_color"/>
                 <!-- 테두리 둥글게 설정 -->
                 <corners android:radius="10dp"/>
             </shape>

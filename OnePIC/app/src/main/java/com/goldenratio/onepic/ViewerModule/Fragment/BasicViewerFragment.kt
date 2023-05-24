@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -200,20 +201,28 @@ class BasicViewerFragment : Fragment() {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             var previousCenterItemPosition: Int = -1
-
+            var isDragging:Boolean = false
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     isUserScrolling = true
+                    isDragging = true
                 } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     isUserScrolling = false
-//                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
-//                    if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
-//                        val imageView = viewHolder.imageView
-//                        if ( viewHolder.adapterPosition == centerItemPosition) {
-//                            // TODO: 포커스 주는 코드
-//                            imageView.requestFocus()
+                    if (isDragging){
+                        Log.d("사용자의 스크롤",": 드래그 있었었음")
+
+//                        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+//                        val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+//                        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+//                        centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
+//
+//                        val currentViewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
+//                        if (currentViewHolder != null && currentViewHolder is RecyclerViewAdapter.ViewHolder) {
+//                            binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
 //                        }
-//                    }
+
+                        isDragging = false
+                    }
                 }
                 super.onScrollStateChanged(recyclerView, newState)
             }
