@@ -40,8 +40,8 @@ class BasicViewerFragment : Fragment() {
     private lateinit var mainViewPagerAdapter: BasicViewerAdapter
     private lateinit var recyclerViewAdapter:RecyclerViewAdapter
 
-    private var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
-    private var centerItemPosition:Int? = null // recyclerView의 중앙 item idx
+
+    var centerItemPosition:Int? = null // recyclerView의 중앙 item idx
 
 
     // 순환적으로 스크롤 동작하는것 제어 하는 변수
@@ -50,6 +50,8 @@ class BasicViewerFragment : Fragment() {
     companion object {
         var currentFilePath:String = ""
         var isPictureClicked: MutableLiveData<Boolean> = MutableLiveData(true)
+        var isClickedRecyclerViewImage:MutableLiveData<Boolean> = MutableLiveData(false)
+        var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
     }
 
     override fun onAttach(context: Context) {
@@ -79,6 +81,15 @@ class BasicViewerFragment : Fragment() {
         ViewerFragment.currentFilePath = ""
 
         init()
+
+        isClickedRecyclerViewImage.observe(requireActivity()){ value ->
+            if (value){
+                binding.viewPager2.setCurrentItem(currentPosition!!, false)
+                binding.recyclerView.scrollToPosition(currentPosition!!)
+                isClickedRecyclerViewImage.value = false
+                currentPosition = null
+            }
+        }
 
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
@@ -167,10 +178,12 @@ class BasicViewerFragment : Fragment() {
 
         })
 
-        recyclerViewAdapter = RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerViewAdapter = RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!,
+            recyclerView.layoutManager as LinearLayoutManager
+        )
         recyclerView.adapter = recyclerViewAdapter//RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)
 
 
@@ -206,9 +219,17 @@ class BasicViewerFragment : Fragment() {
                     binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
                 }
 
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
+                if (viewHolder != null && viewHolder is RecyclerViewAdapter.ViewHolder) {
+                    val imageView = viewHolder.imageView
+                    if ( viewHolder.adapterPosition == centerItemPosition) {
+                        // TODO: 포커스 주는 코드
+                        imageView.requestFocus()
+                    }
+                }
+
                 super.onScrolled(recyclerView, dx, dy)
             }
-
         })
 
 
