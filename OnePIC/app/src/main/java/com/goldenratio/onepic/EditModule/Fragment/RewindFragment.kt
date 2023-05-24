@@ -93,6 +93,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 //        imageToolModule.showView(binding.progressBar, true)
 //        imageToolModule.showView(binding.loadingText, true)
         showProgressBar(true, LoadingText.FaceDetection)
+        imageToolModule.showView(binding.rewindMenuLayout, false)
 
         // main Picture의 byteArray를 bitmap 제작
         mainPicture = imageContent.mainPicture
@@ -201,7 +202,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
 //            imageToolModule.showView(binding.progressBar, true)
             imageToolModule.showView(binding.arrowBar, false)
-            showProgressBar(false, null)
+            imageToolModule.showView(binding.rewindMenuLayout, false)
+            showProgressBar(true, LoadingText.AutoRewind)
             binding.candidateLayout.removeAllViews()
 
             if (bitmapList.size != 0) {
@@ -212,8 +214,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     setMainImageBoundingBox()
                     newImage = null
 //                    imageToolModule.showView(binding.progressBar, false)
+                    imageToolModule.showView(binding.rewindMenuLayout, true)
                     showProgressBar(false, null)
                 }
+            }
+            else {
+                imageToolModule.showView(binding.rewindMenuLayout, true)
+                showProgressBar(false, null)
             }
         }
 
@@ -269,6 +276,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             if (event!!.action == MotionEvent.ACTION_UP) {
 //                imageToolModule.showView(binding.progressBar, true)
                 showProgressBar(true, LoadingText.Change)
+                imageToolModule.showView(binding.rewindMenuLayout, false)
 
                 if (preMainBitmap != null) {
                     mainBitmap = preMainBitmap!!
@@ -341,6 +349,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                         .show()
 //                        imageToolModule.showView(binding.progressBar, false)
                         showProgressBar(false, null)
+                        imageToolModule.showView(binding.rewindMenuLayout, true)
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }
@@ -360,6 +369,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
 //            imageToolModule.showView(binding.progressBar, false)
             showProgressBar(false, null)
+            imageToolModule.showView(binding.rewindMenuLayout, true)
+
         }
     }
 
@@ -409,7 +420,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             } else {
 
                 val rect = Rect(basicRect[0], basicRect[1], basicRect[2], basicRect[3])
-                val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, rect.toRectF(), requireContext().resources.getColor(R.color.white))
+                val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, rect.toRectF(), requireContext().resources.getColor(R.color.select_face))
 
                 changeMainView(newBitmap)
 
@@ -455,6 +466,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      *         - 이미지를 자르고 화면에 띄어줌
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
+
+        binding.faceRewindMenuLayout.visibility = View.VISIBLE
+
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
         binding.candidateLayout.removeAllViews()
@@ -568,7 +582,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 binding.infoText.text = "변경된 얼굴의 위치는\n조정 바를 통해 수정할 수 있습니다."
             }
             InfoLevel.BasicLevelEnd -> {
-                binding.infoText.text = "Auto 버튼을 통해 모두가 잘나온 얼굴로\n자동 얼굴 변경을 할 수 있습니다."
+                binding.infoText.text = "자동 얼굴 변경 버튼을 누르면 자동으로\n 모든 사람이 잘나온 얼굴로 변경됩니다."
             }
             else -> {}
         }
@@ -579,6 +593,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
+        if(boolean) {
+            imageToolModule.showView(binding.infoDialogLayout, false)
+        }
+        else {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+        }
+
         CoroutineScope(Dispatchers.Main).launch {
             binding.loadingText.text = when (loadingText) {
                 LoadingText.FaceDetection -> {

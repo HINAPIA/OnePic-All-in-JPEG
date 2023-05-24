@@ -112,6 +112,7 @@ class RewindModule() {
         }
         Log.d("magic", "ok getFaces $index")
         //faces = runFaceContourDetection(bitmap)
+        //TODO: Error 발생 NullPointerException
         return faceArraylist[index]!!
     }
 

@@ -20,6 +20,9 @@
     <string name="save_text">저장</string>
     <string name="edit_text">편집</string>
     <string name="cancle_text">취소</string>
+
+    <string name="face_save">수정</string>
+    <string name="face_cancle">취소</string>
     <!-- ____________________________________ -->
 
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/guideline11"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/rewind"
+            android:text="@string/in_rewind"
             android:textColor="@color/point_color"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -126,6 +126,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -147,7 +148,7 @@
                     android:id="@+id/mainView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="7"
+                    android:layout_weight="6.5"
                     android:background="@color/edit_bar_color"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -155,7 +156,8 @@
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:srcCompat="@tools:sample/avatars" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -180,74 +182,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
-                <Button
-                    android:id="@+id/autoRewindBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="30dp"
-                    android:backgroundTint="@color/rewind_button_color"
-                    android:includeFontPadding="false"
-                    android:text="@string/auto_option"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    app:layout_constraintBottom_toBottomOf="@+id/mainView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <ImageButton
-                    android:id="@+id/imageResetBtn"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="30dp"
-                    android:backgroundTint="@color/transparent_color"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/reset_icon"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/guideline20"
-                    app:layout_constraintStart_toStartOf="@+id/guideline19"
-                    app:tint="@color/white" />
-
-                <ImageButton
-                    android:id="@+id/imageCompareBtn"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="30dp"
-                    android:backgroundTint="@color/transparent_color"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/compare_icon"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/guideline21"
-                    app:layout_constraintStart_toStartOf="@+id/guideline22"
-                    app:tint="@color/white" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline20"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.25" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline21"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.85" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline22"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.75" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline19"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.15" />
-
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -255,7 +189,7 @@
                 android:id="@+id/infoDialogLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <View
                     android:id="@+id/infoDialogView"
@@ -298,6 +232,113 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rewindMenuLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/autoRewindBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/rewind_button_color"
+                android:includeFontPadding="false"
+                android:text="@string/auto_option"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/imageResetBtn"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/transparent_color"
+                android:scaleType="centerInside"
+                android:src="@drawable/reset_icon"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline20"
+                app:layout_constraintStart_toStartOf="@+id/guideline19"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+            <ImageButton
+                android:id="@+id/imageCompareBtn"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/transparent_color"
+                android:scaleType="fitCenter"
+                android:src="@drawable/compare_icon"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline21"
+                app:layout_constraintStart_toStartOf="@+id/guideline22"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.25" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.85" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.75" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.15" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/faceRewindMenuLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.7"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <Button
+                android:id="@+id/faceSaveBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/transparent_color"
+                android:text="@string/face_save"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/faceCancleBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/transparent_color"
+                android:text="@string/face_cancle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/faceListView"
@@ -346,7 +387,7 @@
 
                 <ImageButton
                     android:id="@+id/circleArrowBtn"
-                    android:layout_width="60dp"
+                    android:layout_width="55dp"
                     android:layout_height="60dp"
                     android:background="@color/transparent_color"
                     android:scaleType="fitCenter"

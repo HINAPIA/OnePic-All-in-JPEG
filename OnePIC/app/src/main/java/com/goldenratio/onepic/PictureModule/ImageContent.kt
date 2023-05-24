@@ -188,7 +188,7 @@ class ImageContent {
     }
 
 
-    fun  setBitmapList() {
+    private fun setBitmapList() {
         isSetBitmapListStart = true
 
         Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
