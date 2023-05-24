@@ -8,10 +8,10 @@
         android:color="@color/point_color"/>
 `    <!-- 테두리 -->
     <stroke
-        android:width="10dp"
+        android:width="1dp"
         android:color="@color/point_color" />`
     <!-- 크기 -->
     <size
-        android:width="15dp"
-        android:height="15dp"/>
+        android:width="17dp"
+        android:height="17dp"/>
 </shape>

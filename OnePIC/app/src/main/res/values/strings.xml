@@ -16,6 +16,10 @@
     <string name="choise_button">Best Choise</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="burst_mode_edit">Burst Mode</string>
-
     <string name="basic_mode_edit">Basic Mode</string>
+
+    <string name="distance_manual">수동</string>
+    <string name="distance_auto">자동</string>
+    <string name="distance_manual_initial">M</string>
+    <string name="distance_auto_initial">A</string>
 </resources>

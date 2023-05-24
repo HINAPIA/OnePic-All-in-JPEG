@@ -185,12 +185,14 @@
 
                 <SeekBar
                     android:id="@+id/seekBar"
-                    android:layout_width="wrap_content"
+                    android:layout_width="230dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:max="4"
                     android:progress="0"
-                    android:visibility="gone"
+                    android:progressDrawable="@drawable/custom_seekbar_progress"
+                    android:thumb="@drawable/custom_seekbar_thumb"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
