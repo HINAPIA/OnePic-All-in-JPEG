@@ -19,7 +19,6 @@ import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.widget.*
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
@@ -51,9 +50,7 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.Rot90Op
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
-import java.io.ByteArrayOutputStream
 import java.lang.reflect.InvocationTargetException
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -659,7 +656,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
                             withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
+                                findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
                             }
                         }
                     }
@@ -701,7 +698,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             ContentAttribute.burst
                         )
 
-                        imageContent.getBitmapList()
+//                        imageContent.getBitmapList()
 
                         //jpegViewModel.jpegMCContainer.value?.save()
 
@@ -1004,7 +1001,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
-                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
                         }
                     }
                 }
@@ -1093,7 +1090,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
-                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
                         }
                     }
                 }

@@ -195,6 +195,13 @@ class ImageToolModule {
      */
     fun floatToDp(f : Float):Int {
         return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
+
+//        val resources = context.resources
+//        return TypedValue.applyDimension(
+//            TypedValue.COMPLEX_UNIT_PX,
+//            px,
+//            resources.displayMetrics
+//        )
     }
 
     /**

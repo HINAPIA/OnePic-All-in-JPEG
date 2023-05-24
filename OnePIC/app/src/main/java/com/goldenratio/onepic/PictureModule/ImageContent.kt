@@ -25,10 +25,10 @@ class ImageContent {
     lateinit var mainPicture : Picture
     private var mainBitmap: Bitmap? = null
     private var bitmapList: ArrayList<Bitmap> = arrayListOf()
-    private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
+    private var attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
     var activityType: ActivityType? = null
-    private var checkGetBitmapList = false
+    private var checkBitmapList = false
     var checkPictureList = false
     var checkMain = false
 //    private var checkTransformBitmap = false
@@ -40,10 +40,12 @@ class ImageContent {
     var checkAddAttribute = false
     var checkMainChangeAttribute = false
 
+    var isSetBitmapListStart = false
+
     fun init() {
         Log.d("burst", "==================")
         Log.d("burst", "imageContnet 초기화")
-        checkGetBitmapList = false
+        checkBitmapList = false
         checkPictureList = false
         checkMain = false
 //        checkTransformBitmap = false
@@ -59,7 +61,12 @@ class ImageContent {
         attributeBitmapList.clear()
         bitmapListAttribute = null
         activityType = null
+        isSetBitmapListStart = false
         //jpegMetaData = ByteArray(0)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            setBitmapList()
+        }
     }
 
     fun setCheckAttribute() {
@@ -132,18 +139,20 @@ class ImageContent {
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
 //        checkTransformAttributeBitmap = true
         Log.d("faceRewind","")
+        val newBitmapList = arrayListOf<Bitmap>()
         try {
             if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
                 attributeBitmapList.clear()
                 bitmapListAttribute = attribute
             }
             if (attributeBitmapList.size == 0) {
+
                 Log.d("faceRewind","!!!! getBitmapList while start")
-                while (!checkGetBitmapList || !checkPictureList) {
+                while (!checkBitmapList || !checkPictureList) {
 //                if(!checkTransformAttributeBitmap)
 //                    return null
-                    Log.d("faceRewind","!!!! $checkGetBitmapList || $checkPictureList")
-                    Thread.sleep(1000)
+                    Log.d("faceRewind","!!!! $checkBitmapList || $checkPictureList")
+                    Thread.sleep(200)
                 }
                 Log.d("faceRewind","!!!! getBitmapList while end")
 
@@ -151,9 +160,10 @@ class ImageContent {
 //                if(!checkTransformAttributeBitmap)
 //                    return null
                     if (pictureList[i].contentAttribute != attribute)
-                        attributeBitmapList.add(bitmapList[i])
+                        newBitmapList.add(bitmapList[i])
                 }
             }
+            attributeBitmapList = newBitmapList
 //        checkTransformAttributeBitmap = false
             return attributeBitmapList
         }catch (e: IndexOutOfBoundsException) {
@@ -168,66 +178,77 @@ class ImageContent {
      *      - bitmapList가 없다면 Picture의 ArrayList를 모두 Bitmap으로 전환해서 제공
      *          있다면 bitmapList 전달
      */
-    @Synchronized
+
     fun  getBitmapList() : ArrayList<Bitmap>? {
+        while (!checkBitmapList || !checkPictureList) {
+            Log.d("faceRewind","!!!! $checkBitmapList || $checkPictureList")
+            Thread.sleep(200)
+        }
+        return bitmapList
+    }
+
+
+    fun  setBitmapList() {
+        isSetBitmapListStart = true
+
         Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         Log.d("faceRewind", "getBitmapList 호출")
 
-//        checkTransformBitmap = true
+        val newBitmapList = arrayListOf<Bitmap>()
+
         try {
-            Log.d("faceRewind", "checkPictureList bitmapList.size ${bitmapList.size}")
-            if (bitmapList.size == 0) {
-                Log.d("faceRewind", "checkPictureList while start")
-                while (!checkPictureList) {
-//                if(!checkTransformBitmap)
-//                    return null
-                }
-                Log.d("faceRewind", "checkPictureList $checkPictureList")
-                val pictureListSize = pictureList.size
-                Log.d("faceRewind", "pictureListSize : $pictureListSize")
-                val checkFinish = BooleanArray(pictureListSize)
+//            Log.d("faceRewind", "checkPictureList bitmapList.size ${bitmapList.size}")
+//
+//            Log.d("faceRewind", "checkPictureList while start")
+//
+            while (!checkPictureList) { }
 
-                val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
-                for (i in 0 until pictureListSize) {
+//            Log.d("faceRewind", "checkPictureList $checkPictureList")
+            val pictureListSize = pictureList.size
+//            Log.d("faceRewind", "pictureListSize : $pictureListSize")
+            val checkFinish = BooleanArray(pictureListSize)
 
-                    checkFinish[i] = false
-                    bitmapList.add(exBitmap)
-                }
-                Log.d("faceRewind", "==============================")
-                for (i in 0 until pictureListSize) {
+            val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
+            for (i in 0 until pictureListSize) {
 
-                    CoroutineScope(Dispatchers.Default).launch {
-//                        try {
-                            Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
-                            val bitmap =
-                                ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
-//                    if(checkTransformBitmap) {
-                            bitmapList[i] = bitmap
-                            checkFinish[i] = true
-//                    }
-//                        } catch (e: IndexOutOfBoundsException) {
-//                            e.printStackTrace() // 예외 정보 출력
-//                            Log.d("burst", "error : $pictureListSize")
-//                            Log.d("burst", e.printStackTrace().toString())
-//                            bitmapList.clear()
-//                            checkFinish[i] = true
-//                        }
+                checkFinish[i] = false
+                newBitmapList.add(exBitmap)
+            }
+            Log.d("faceRewind", "==============================")
+            for (i in 0 until pictureListSize) {
+
+                CoroutineScope(Dispatchers.Default).launch {
+                    try {
+                        Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
+                        val bitmap =
+                            ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
+
+                        newBitmapList[i] = bitmap
+                        checkFinish[i] = true
+
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace() // 예외 정보 출력
+                        Log.d("burst", "error : $pictureListSize")
+                        Log.d("burst", e.printStackTrace().toString())
+                        bitmapList.clear()
+                        checkFinish[i] = true
                     }
                 }
-                while (!checkFinish.all { it }) {
-
+            }
+            while (!checkFinish.all { it }) {
+                if (!isSetBitmapListStart) {
+                    // 특정 조건을 만족할 때 함수를 강제로 종료시킴
+                    throw Exception("Function forcibly terminated")
                 }
             }
-            checkGetBitmapList = true
-            Log.d("faceRewind","getBitmap end!!!")
-//        checkTransformBitmap = false
-            return bitmapList
-        }catch (e: IndexOutOfBoundsException) {
+            bitmapList = newBitmapList
+            checkBitmapList = true
+            isSetBitmapListStart = false
+            Log.d("faceRewind", "getBitmap end!!!")
+//        checkTransformBitmap = fals
+        } catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드
-            e.printStackTrace() // 예외 정보 출력
-            Log.d("burst", "error ")
             bitmapList.clear()
-            return null
         }
     }
 
@@ -259,9 +280,11 @@ class ImageContent {
         bitmapList.clear()
         bitmapListAttribute = null
         attributeBitmapList.clear()
+        isSetBitmapListStart = false
+        setBitmapList()
     }
 
-    fun setMainBitmap(bitmap: Bitmap) {
+    fun setMainBitmap(bitmap: Bitmap?) {
         mainBitmap = bitmap
     }
 

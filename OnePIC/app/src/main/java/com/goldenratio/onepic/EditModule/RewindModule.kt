@@ -61,9 +61,11 @@ class RewindModule() {
         CoroutineScope(Dispatchers.IO).launch {
             Log.d("RewindModule", "start = 0")
             // j 번째 사진 faces 정보 얻기
-            faceArraylist[0] = runFaceContourDetection(bitmapList[0])
-            Log.d("RewindModule", "end = 0")
-            checkFinish[0] = true
+            if(bitmapList.size > 0) {
+                faceArraylist[0] = runFaceContourDetection(bitmapList[0])
+                Log.d("RewindModule", "end = 0")
+                checkFinish[0] = true
+            }
 
             for (j in 1 until bitmapList.size) {
                 modelCoroutine.add(CoroutineScope(Dispatchers.IO).launch {
@@ -348,7 +350,7 @@ class RewindModule() {
         return overlayImg
     }
 
-    suspend fun choiseBestImage(bitmapList: ArrayList<Bitmap>): ArrayList<Double> =
+    suspend fun choiceBestImage(bitmapList: ArrayList<Bitmap>): ArrayList<Double> =
         suspendCoroutine { continuation ->
 
             var analysisResults = arrayListOf<Double>()

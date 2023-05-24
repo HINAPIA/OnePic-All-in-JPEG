@@ -1,5 +1,6 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -39,6 +40,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var imageTool = ImageToolModule()
 
     private var checkFocus = true
+    private var checkChange = true
     private var checkRewind = true
     private var checkMagic = true
     private var checkAdd = true
@@ -50,6 +52,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
     }
+    @SuppressLint("UseCompatLoadingForDrawables")
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,7 +76,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 뷰 바인딩 설정
         binding = FragmentEditBinding.inflate(inflater, container, false)
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        imageContent.resetBitmap()
+        imageContent.setMainBitmap(null)
         imageContent.activityType = ActivityType.Viewer
 
         while (!imageContent.checkPictureList) {}
@@ -100,7 +103,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         if(imageContent.checkAttribute(ContentAttribute.burst)){
 //            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
 //            binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
-//            checkFocus = false
+            checkFocus = false
             if(imageContent.checkAttribute(ContentAttribute.magic)) {
                 binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
                 binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
@@ -108,6 +111,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
         else {
+            // focus 변경 아이콘 텍스트로 수정
+            checkChange = false
+            binding.changeBtn.text = getString(R.string.focus)
+            val drawable = resources.getDrawable(R.drawable.focus_icon_resize)
+            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            binding.changeBtn.setCompoundDrawables(null, drawable, null, null)
+
+
             binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
             binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
             checkMagic = false
@@ -138,14 +149,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // focus - > mainChange
-        binding.focusBtn.setOnClickListener {
-            if(checkFocus) {
+        binding.changeBtn.setOnClickListener {
+            if(checkChange) {
                 imageContent.activityType = ActivityType.Viewer
                 findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
+            }
+            else if(checkFocus) {
+                imageContent.activityType = ActivityType.Viewer
+                findNavController().navigate(R.id.action_editFragment_to_focusChangeFragment)
             }
         }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
@@ -191,11 +207,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .setNeutralButton("확인",
                         DialogInterface.OnClickListener { _, _ ->
                             imageContent.resetBitmap()
+                            setButtonDeactivation()
+
                             val pre = jpegViewModel.preEditMainPicture
                             if(pre != null) {
                                 imageContent.mainPicture = pre
                                 jpegViewModel.preEditMainPicture = null
                             }
+
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         }).show()
             }
@@ -326,10 +345,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     }
 
     fun setButtonDeactivation() {
-        checkFocus = false
-        checkRewind = false
-        checkMagic = false
-        checkAdd = false
+        imageContent.checkAddAttribute = false
+        imageContent.checkRewindAttribute = false
+        imageContent.checkMagicAttribute = false
+        imageContent.checkMainChangeAttribute = false
     }
 
     fun setCurrentPictureByteArrList(){

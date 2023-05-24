@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
-import android.widget.SeekBar
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -52,10 +49,6 @@ class MainChangeFragment : Fragment() {
 
     private var infoLevel = MutableLiveData<InfoLevel>()
 
-    val max = 5
-    val min = 0.1.toFloat()
-    val step = 0.1.toFloat()
-
     enum class InfoLevel {
         BeforeMainSelect,
         AfterMainSelect
@@ -78,15 +71,16 @@ class MainChangeFragment : Fragment() {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
 
-        mainPicture = imageContent.mainPicture
-        pictureList = imageContent.pictureList
+            while(!imageContent.checkPictureList) {}
 
-        checkFinish = BooleanArray(pictureList.size)
+            mainPicture = imageContent.mainPicture
+            pictureList = imageContent.pictureList
+
+            checkFinish = BooleanArray(pictureList.size)
 
         CoroutineScope(Dispatchers.Default).launch {
-            while(!imageContent.checkPictureList) {}
             val bitmap = imageContent.getBitmapList()
-            if(bitmap!=null)
+            if (bitmap != null)
                 bitmapList = bitmap
         }
 
@@ -94,14 +88,15 @@ class MainChangeFragment : Fragment() {
             // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
             // 메인 이미지 설정
             withContext(Dispatchers.Main) {
-                Glide.with(binding.burstMainView)
+                Glide.with(binding.changeMainView)
                     .load(imageContent.getJpegBytes(mainPicture))
-                    .into(binding.burstMainView)
+                    .into(binding.changeMainView)
             }
         }
 
-        binding.burstSaveBtn.setOnClickListener {
+        binding.changeSaveBtn.setOnClickListener {
             imageContent.resetBitmap()
+
             imageToolModule.showView(binding.progressBar , true)
             CoroutineScope(Dispatchers.Default).launch {
                 // 1. main으로 지정된 picture를 picturelist에서 삭제
@@ -116,44 +111,45 @@ class MainChangeFragment : Fragment() {
                 }
 
 
-                if(imageContent.activityType == ActivityType.Camera) {
-                    withContext(Dispatchers.Main){
+                if (imageContent.activityType == ActivityType.Camera) {
+                    withContext(Dispatchers.Main) {
                         Log.d("error 잡기", "바로 편집에서 save() 호출 전")
                         jpegViewModel.jpegMCContainer.value?.save()
                         Log.d("error 잡기", "바로 편집에서 save() 호출후")
                         imageContent.checkMainChangeAttribute = true
                         Thread.sleep(2000)
-                        imageToolModule.showView(binding.progressBar , false)
+                        imageToolModule.showView(binding.progressBar, false)
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
-                }
-                else{
-                    withContext(Dispatchers.Main){
+                } else {
+                    withContext(Dispatchers.Main) {
                         Log.d("error 잡기", "바로 편집에서 navigate호출 전")
                         imageContent.checkMainChangeAttribute = true
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
-                    imageToolModule.showView(binding.progressBar , false)
+                    imageToolModule.showView(binding.progressBar, false)
 
                 }
-
             }
         }
-        binding.burstCloseBtn.setOnClickListener {
+        binding.changeCloseBtn.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
                 withContext(Dispatchers.Main) {
                     findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                 }
             }
         }
-        binding.choiseMainBtn.setOnClickListener {
+        binding.choiceMainBtn.setOnClickListener {
+            imageToolModule.showView(binding.choiceMainBtn, false)
+            imageToolModule.showView(binding.infoDialogLayout, false)
+            imageToolModule.showView(binding.progressBar, true)
             viewBestImage()
         }
 
 //        Thread.sleep(3000)
         Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
         if(imageContent.activityType == ActivityType.Viewer) {
-            infoLevel.value = InfoLevel.BeforeMainSelect
+            infoLevel.value = InfoLevel.AfterMainSelect
             setSubImage()
             infoLevel.observe(viewLifecycleOwner){ _ ->
                 infoTextView()
@@ -165,7 +161,7 @@ class MainChangeFragment : Fragment() {
         }
 
         // info 확인
-        binding.burstInfoBtn.setOnClickListener {
+        binding.changeInfoBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, true)
         }
 
@@ -176,30 +172,13 @@ class MainChangeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.Default).launch {
             if (imageContent.activityType == ActivityType.Camera) {
-                if(imageContent.checkAttribute(ContentAttribute.burst)) {
+                if (imageContent.checkAttribute(ContentAttribute.burst)) {
                     imageToolModule.showView(binding.progressBar, true)
-                    imageToolModule.showView(binding.choiseMainBtn, true)
+                    imageToolModule.showView(binding.choiceMainBtn, true)
                     viewBestImage()
-                }
-                else {
-                    if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                        setSeekBar()
-                    }
-                }
-            } else {
-                imageToolModule.showView(binding.choiseMainBtn, true)
-                if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                    setSeekBar()
                 }
             }
         }
-
-        Log.d("seekBar", "${!(imageContent.activityType == ActivityType.Camera && imageContent.checkAttribute(ContentAttribute.burst))
-                } && ${!imageContent.checkAttribute(ContentAttribute.object_focus)}")
-        Log.d("seekBar", "~~~~ ${!(imageContent.activityType == ActivityType.Camera && imageContent.checkAttribute(ContentAttribute.burst))
-                && !imageContent.checkAttribute(ContentAttribute.object_focus)}")
-
-
 
         return binding.root
     }
@@ -238,15 +217,17 @@ class MainChangeFragment : Fragment() {
                 mainPicture = pictureList[i]
                 imageToolModule.showView(mainSubView, false)
                 CoroutineScope(Dispatchers.Main).launch {
-                    infoLevel.value = InfoLevel.AfterMainSelect
+//                    infoLevel.value = InfoLevel.AfterMainSelect
+                    imageToolModule.showView(binding.infoDialogLayout, false)
+                    
                     // 메인 이미지 설정
-                    Glide.with(binding.burstMainView)
+                    Glide.with(binding.changeMainView)
                         .load(imageContent.getJpegBytes(mainPicture))
-                        .into(binding.burstMainView)
+                        .into(binding.changeMainView)
                 }
                 imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                 mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                //binding.burstMainView.setImageBitmap(mainBitmap)
+                //binding.changeMainView.setImageBitmap(mainBitmap)
             }
 
             CoroutineScope(Dispatchers.Main).launch {
@@ -262,15 +243,14 @@ class MainChangeFragment : Fragment() {
 //        }
     }
     fun viewBestImage() {
-        imageToolModule.showView(binding.progressBar, true)
+
         val bitmapList = imageContent.getBitmapList()
         if (bitmapList != null) {
-
             val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
 
                 rewindModule.allFaceDetection(bitmapList)
-                val faceDetectionResult = rewindModule.choiseBestImage(bitmapList)
+                val faceDetectionResult = rewindModule.choiceBestImage(bitmapList)
                 Log.d("anaylsis", "end faceDetection")
 
                 val shakeDetectionResult = ShakeLevelModule().shakeLevelDetection(bitmapList)
@@ -279,7 +259,7 @@ class MainChangeFragment : Fragment() {
 
                 var bestImageIndex = 0
                 if (checkFinish.all { it }) {
-                    checkFinish = BooleanArray(pictureList.size)
+                    checkFinish = BooleanArray(bitmapList.size)
                 }
                 for(i in 0 until bitmapList.size) {
                     if(!checkFinish[i]) {
@@ -289,7 +269,12 @@ class MainChangeFragment : Fragment() {
                 }
 
                 for(i in 0 until bitmapList.size) {
-                    Log.d("anaylsis", "[$i] = ${checkFinish[i]} |  faceDetectio ${faceDetectionResult[i]} | shake ${shakeDetectionResult[i]}")
+
+                    Log.d("anaylsis", "[$i] = ${checkFinish[i]} | ")
+                    Log.d("anaylsis", "[$i] =  faceDetectio ${faceDetectionResult[i]} ")
+                    Log.d("anaylsis", "[$i] =  shake ${shakeDetectionResult[i]}")
+
+
                     analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
                     if(!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]){
                         bestImageIndex = i
@@ -305,9 +290,9 @@ class MainChangeFragment : Fragment() {
 
                 withContext(Dispatchers.Main) {
                     // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                    Glide.with(binding.burstMainView)
+                    Glide.with(binding.changeMainView)
                         .load(imageContent.getJpegBytes(mainPicture))
-                        .into(binding.burstMainView)
+                        .into(binding.changeMainView)
 
                     if(imageContent.activityType == ActivityType.Viewer) {
                         imageToolModule.showView(mainSubView, false)
@@ -317,6 +302,8 @@ class MainChangeFragment : Fragment() {
                         imageToolModule.showView(mainSubView, true)
                     }
                     imageToolModule.showView(binding.progressBar, false)
+//                    imageToolModule.showView(binding.choiceMainBtn, true)
+                    infoLevel.value = InfoLevel.BeforeMainSelect
                 }
 
             }
@@ -327,62 +314,12 @@ class MainChangeFragment : Fragment() {
         Log.d("infoTextView","infoTextView call")
         when (infoLevel.value) {
             InfoLevel.BeforeMainSelect -> {
-                binding.infoText.text = "아래 사진을 선택해\n메인 이미지를 변경할 수 있습니다."
+                binding.infoText.text = "아래 사진을 선택해\n대표 사진을 변경할 수 있습니다."
             }
             InfoLevel.AfterMainSelect -> {
-                binding.infoText.text = "Choise Best버튼을 클릭해\n메인 이미지를 추천 받을 수 있습니다."
+                binding.infoText.text = "대표사진 추천 버튼을 클릭해\n대표 사진을 추천 받을 수 있습니다."
             }
             else -> {}
         }
-    }
-
-    fun setSeekBar(){
-        while(!imageContent.checkPictureList) {}
-        Log.d("seekBar","#####")
-        imageToolModule.showView(binding.seekBar, true)
-
-        binding.seekBar.max = pictureList.size - 1
-        binding.seekBar.progressDrawable =
-            resources.getDrawable(R.drawable.custom_seekbar_progress, requireContext().theme)
-        binding.seekBar.thumb =
-            resources.getDrawable(R.drawable.custom_seekbar_thumb, requireContext().theme)
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
-                // progress 변수는 현재 SeekBar의 값입니다.
-                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
-                if (fromUser) {
-                    val index = progress % pictureList.size
-                    mainPicture = pictureList[index]
-
-
-                    if (binding.candidateLayout.size > index) {
-                        val view = binding.candidateLayout[index]
-                        imageToolModule.showView(mainSubView, false)
-                        mainSubView = view.findViewById<ImageView>(R.id.checkMainIcon)
-                        imageToolModule.showView(mainSubView, true)
-                    }
-
-                    // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
-                    if (bitmapList.size > index) {
-                        // 만들어 졌으면 비트맵으로 띄웠어
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.burstMainView.setImageBitmap(bitmapList[index])
-                        }
-                    } else {
-                        // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Log.d("error 잡기", "$progress 번째 이미지 띄우기")
-                            Glide.with(binding.burstMainView)
-                                .load(imageContent.getJpegBytes(pictureList[index]))
-                                .into(binding.burstMainView)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
     }
 }

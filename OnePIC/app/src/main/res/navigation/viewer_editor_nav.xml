@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_editFragment_to_burstModeEditFragment"
             app:destination="@id/burstModeEditFragment2" />
+        <action
+            android:id="@+id/action_editFragment_to_focusChangeFragment"
+            app:destination="@id/focusChangeFragment2" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -148,5 +151,16 @@
         <action
             android:id="@+id/action_analyzeFragment_to_basicViewerFragment"
             app:destination="@id/basicViewerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/focusChangeFragment2"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.FocusChangeFragment"
+        android:label="fragment_focus_change"
+        tools:layout="@layout/fragment_focus_change" >
+        <action
+            android:id="@+id/action_focusChangeFragment_to_Fragment"
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

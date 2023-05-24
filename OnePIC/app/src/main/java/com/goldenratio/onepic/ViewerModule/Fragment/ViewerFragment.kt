@@ -10,10 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
@@ -31,11 +27,9 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
-import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -394,7 +388,7 @@ class ViewerFragment : Fragment() {
 
     fun setMagicPicture() {
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-        imageContent.resetBitmap()
+        imageContent.setMainBitmap(null)
         mainViewPagerAdapter.resetMagicPictureList()
 
         ImageToolModule().showView(binding.magicBtn, true)
@@ -448,6 +442,7 @@ class ViewerFragment : Fragment() {
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         CoroutineScope(Dispatchers.Default).launch {
             while(!imageContent.checkPictureList) {}
+
             val bitmap = imageContent.getBitmapList()
             if(bitmap!=null)
                 bitmapList = bitmap

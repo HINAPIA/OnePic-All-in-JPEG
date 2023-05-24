@@ -20,7 +20,6 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.EditModule.RewindModule
-import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
@@ -91,13 +90,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         imageToolModule = ImageToolModule()
         rewindModule = RewindModule()
 
-        if (imageContent.activityType == ActivityType.Camera) {
-//            imageToolModule.showView(binding.faceListView, false)
-//            imageToolModule.showView(binding.imageResetBtn, false)
-            imageToolModule.showView(binding.autoRewindBtn, false)
-//            imageToolModule.showView(binding.imageCompareBtn, false)
-
-        }
 //        imageToolModule.showView(binding.progressBar, true)
 //        imageToolModule.showView(binding.loadingText, true)
         showProgressBar(true, LoadingText.FaceDetection)
@@ -120,10 +112,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 mainBitmap = newMainBitmap
             }
             originalMainBitmap = mainBitmap
-            if (imageContent.activityType == ActivityType.Viewer) {
-                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                setMainImageBoundingBox()
-            }
+            // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+            setMainImageBoundingBox()
         }
         CoroutineScope(Dispatchers.IO).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
@@ -134,21 +124,24 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 bitmapList = newBitmapList
 
                 rewindModule.allFaceDetection(bitmapList)
-
-                if (imageContent.activityType == ActivityType.Camera) {
-
-                    mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
-
-                    withContext(Dispatchers.Main) {
-                        binding.mainView.setImageBitmap(mainBitmap)
-                    }
-
-//                    imageToolModule.showView(binding.progressBar, false)
-//                    imageToolModule.showView(binding.loadingText, false)
-                    showProgressBar(false, null)
-                }
             }
         }
+
+        SetClickEvent()
+
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+            imageToolModule.showView(binding.arrowBar, false)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun SetClickEvent() {
         // save btn 클릭 시
         binding.rewindSaveBtn.setOnClickListener {
 
@@ -178,21 +171,12 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 imageContent.mainPicture.waitForByteArrayInitialized()
 
                 imageContent.setMainBitmap(mainBitmap)
-                if (imageContent.activityType == ActivityType.Camera) {
-                    imageContent.insertPicture(0, imageContent.mainPicture)
-                    withContext(Dispatchers.Main) {
-                        jpegViewModel.jpegMCContainer.value?.save()
-                        Thread.sleep(2000)
-                        //jpegViewModel.jpegMCContainer.value?.save()
-                        findNavController().navigate(R.id.action_fregemnt_to_editFragment)
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        //jpegViewModel.jpegMCContainer.value?.save()
-                        imageContent.checkRewindAttribute = true
-                        findNavController().navigate(R.id.action_fregemnt_to_editFragment)
-                    }
+                withContext(Dispatchers.Main) {
+                    //jpegViewModel.jpegMCContainer.value?.save()
+                    imageContent.checkRewindAttribute = true
+                    findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
+
 //                imageToolModule.showView(binding.progressBar, false)
                 showProgressBar(false, null)
             }
@@ -225,14 +209,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     rewindModule.allFaceDetection(bitmapList)
                     mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
-                    if(imageContent.activityType == ActivityType.Camera) {
-                        withContext(Dispatchers.Main) {
-                            binding.mainView.setImageBitmap(mainBitmap)
-                        }
-                    }
-                    else {
-                        setMainImageBoundingBox()
-                    }
+                    setMainImageBoundingBox()
                     newImage = null
 //                    imageToolModule.showView(binding.progressBar, false)
                     showProgressBar(false, null)
@@ -270,9 +247,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             mainBitmap = originalMainBitmap
             preMainBitmap = null
             newImage = null
-            // faceDetection 하고 결과가 표시된 사진을 받아 imageView에 띄우기
-            if(imageContent.activityType == ActivityType.Camera)
-                setMainImageBoundingBox()
         }
 
         // info 확인
@@ -285,31 +259,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
-        if(imageContent.activityType == ActivityType.Viewer) {
-            viewerToEditViewSetting()
-            infoLevel.value = InfoLevel.EditFaceSelect
-            infoLevel.observe(viewLifecycleOwner){ _ ->
-                infoTextView()
-            }
-        }
-        else {
-            infoLevel.value = InfoLevel.BasicLevelEnd
+        infoLevel.value = InfoLevel.EditFaceSelect
+        infoLevel.observe(viewLifecycleOwner) { _ ->
             infoTextView()
         }
 
-        return binding.root
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
-            imageToolModule.showView(binding.arrowBar, false)
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    fun viewerToEditViewSetting() {
         // 이미지 뷰 클릭 시
         binding.mainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
@@ -421,7 +375,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         val checkFinish = BooleanArray(bitmapList.size)
         for (i in 0 until bitmapList.size) {
             checkFinish[i] = false
-            boundingBox.add(arrayListOf(0,0,0,0,0,0,0,0,0))
+//            boundingBox.add(arrayListOf(0,0,0,0,0,0,0,0,0))
         }
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -468,10 +422,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     basicRect[0], basicRect[1], basicRect[2], basicRect[3],
                     basicRect[4], basicRect[5], basicRect[6], basicRect[7]
                 )
-                boundingBox[0] = arrayBounding
+                boundingBox.add(arrayBounding)
                 checkFinish[0] = true
                 for (i in 1 until bitmapList.size) {
-                    CoroutineScope(Dispatchers.Default).launch {
+//                    CoroutineScope(Dispatchers.Default).launch {
 
                         // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
                         val rect =
@@ -483,11 +437,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                                 rect[0], rect[1], rect[2], rect[3],
                                 rect[4], rect[5], rect[6], rect[7]
                             )
-                            boundingBox[i] = arrayBounding
+                            boundingBox.add(arrayBounding)
                         }
                         checkFinish[i] = true
                     }
-                }
+//                }
             }
             while (!checkFinish.all { it }) {
             }

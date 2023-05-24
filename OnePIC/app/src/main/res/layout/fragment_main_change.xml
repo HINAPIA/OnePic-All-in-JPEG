@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/burstCloseBtn"
+            android:id="@+id/changeCloseBtn"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@color/transparent_color"
@@ -34,22 +34,22 @@
 
 
         <TextView
-            android:id="@+id/burstOption"
+            android:id="@+id/mainOption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/main_change"
+            android:text="@string/in_main_change"
             android:textColor="@color/point_color"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
-            app:layout_constraintEnd_toStartOf="@+id/burstSaveBtn"
-            app:layout_constraintStart_toEndOf="@+id/burstCloseBtn"
+            app:layout_constraintEnd_toStartOf="@+id/changeSaveBtn"
+            app:layout_constraintStart_toEndOf="@+id/changeCloseBtn"
             app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
         <ImageButton
-            android:id="@+id/burstSaveBtn"
+            android:id="@+id/changeSaveBtn"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@color/transparent_color"
@@ -65,7 +65,7 @@
             app:tint="@color/main_color" />
 
         <ImageButton
-            android:id="@+id/burstInfoBtn"
+            android:id="@+id/changeInfoBtn"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="8dp"
@@ -74,7 +74,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline9"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/burstOption"
+            app:layout_constraintStart_toEndOf="@+id/mainOption"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/info_icon"
             app:tint="@color/info_color" />
@@ -144,7 +144,7 @@
                 android:layout_weight="7">
 
                 <ImageView
-                    android:id="@+id/burstMainView"
+                    android:id="@+id/changeMainView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:adjustViewBounds="true"
@@ -155,7 +155,8 @@
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:srcCompat="@tools:sample/avatars" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -168,42 +169,12 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
-                    android:id="@+id/choiseMainBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="17dp"
-                    android:backgroundTint="@color/rewind_button_color"
-                    android:includeFontPadding="false"
-                    android:text="@string/choise_button"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toTopOf="@+id/seekBar"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <SeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="230dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="17dp"
-                    android:max="4"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/custom_seekbar_progress"
-                    android:thumb="@drawable/custom_seekbar_thumb"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/infoDialogLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone">
+                android:layout_height="match_parent">
 
                 <View
                     android:id="@+id/infoDialogView"
@@ -246,6 +217,28 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/choiceMainBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/rewind_button_color"
+                android:includeFontPadding="false"
+                android:text="@string/choice_button"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <HorizontalScrollView
             android:layout_width="match_parent"

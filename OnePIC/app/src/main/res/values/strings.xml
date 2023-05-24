@@ -1,20 +1,35 @@
 <resources>
-    <string name="app_name">OnePIC</string>
-    <string name="rewind">얼굴 변경</string>
-    <string name="magicPicture">매직 사진</string>
-    <string name="focus">Focus</string>
+    <!-- _____________ 편집 문구 _____________ -->
+    <string name="main_change">대표 사진\n변경</string>
+    <string name="focus">사진 초점\n변경</string>
+    <string name="rewind">잘나온 얼굴로\n변경</string>
+    <string name="magicPicture">움직이는\n매직 사진</string>
     <string name="add">컨텐츠 추가</string>
-    <string name="main_change">메인 변경</string>
+
+    <string name="in_main_change">대표 사진 변경</string>
+    <string name="in_focus">사진 초점 변경</string>
+    <string name="in_rewind">잘나온 얼굴로 변경</string>
+    <string name="in_magicPicture">움직이는 매직 사진</string>
+    <string name="in_add">컨텐츠 추가</string>
+
+
+    <string name="auto_option">자동 얼굴 변경</string>
+    <string name="choice_button">대표 사진 추천</string>
+    <string name="basic_mode_option">사진 확인</string>
+
     <string name="save_text">저장</string>
     <string name="edit_text">편집</string>
     <string name="cancle_text">취소</string>
+    <!-- ____________________________________ -->
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="app_name">OnePIC</string>
+
     <string name="basic_option">Basic</string>
     <string name="object_focus_option">Object Focus</string>
     <string name="distance_focus_option">Distance Focus</string>
     <string name="auto_rewind_option">Auto Rewind</string>
-    <string name="auto_option">자동 얼굴 변경</string>
-    <string name="choise_button">메인 사진 추천</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="burst_mode_edit">Burst Mode</string>
     <string name="basic_mode_edit">Basic Mode</string>
 
@@ -22,6 +37,5 @@
     <string name="distance_auto">자동</string>
     <string name="distance_manual_initial">M</string>
     <string name="distance_auto_initial">A</string>
-    <string name="basic_mode_option">사진 확인</string>
-    <string name="loading_text">얼굴 인식 중 입니다</string>
+
 </resources>
