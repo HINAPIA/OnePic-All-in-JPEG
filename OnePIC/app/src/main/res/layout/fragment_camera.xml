@@ -22,7 +22,7 @@
             android:fontFamily="@font/abril_fatface"
             android:text="@string/app_name"
             android:textColor="@color/dark_purple"
-            android:textSize="15sp"
+            android:textSize="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/topMenuVer2"
             app:layout_constraintStart_toStartOf="@+id/topMenuVer1"
@@ -278,11 +278,11 @@
                         android:id="@+id/basicRadioBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="5dp"
+                        android:layout_marginHorizontal="10dp"
                         android:button="@drawable/null_radio_button"
                         android:checked="true"
                         android:gravity="center"
-                        android:paddingHorizontal="8dp"
+                        android:paddingHorizontal="10dp"
                         android:stateListAnimator="@null"
                         android:text="@string/basic_option"
                         android:textColor="@drawable/radio_text_selector" />
@@ -291,10 +291,10 @@
                         android:id="@+id/objectFocusRadioBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="5dp"
+                        android:layout_marginHorizontal="10dp"
                         android:button="@drawable/null_radio_button"
                         android:gravity="center"
-                        android:paddingHorizontal="8dp"
+                        android:paddingHorizontal="10dp"
                         android:stateListAnimator="@null"
                         android:text="@string/object_focus_option"
                         android:textColor="@drawable/radio_text_selector" />
@@ -303,10 +303,10 @@
                         android:id="@+id/distanceFocusRadioBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="5dp"
+                        android:layout_marginHorizontal="10dp"
                         android:button="@drawable/null_radio_button"
                         android:gravity="center"
-                        android:paddingHorizontal="8dp"
+                        android:paddingHorizontal="10dp"
                         android:stateListAnimator="@null"
                         android:text="@string/distance_focus_option"
                         android:textColor="@drawable/radio_text_selector" />
@@ -318,7 +318,7 @@
                         android:layout_marginHorizontal="5dp"
                         android:button="@drawable/null_radio_button"
                         android:gravity="center"
-                        android:paddingHorizontal="8dp"
+                        android:paddingHorizontal="10dp"
                         android:stateListAnimator="@null"
                         android:text="@string/auto_rewind_option"
                         android:textColor="@drawable/radio_text_selector" />
@@ -327,12 +327,11 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <ImageView
             android:id="@+id/galleryBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/gallery_button"
-            android:elevation="2dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/gallery_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"
             app:layout_constraintStart_toStartOf="parent"
@@ -351,8 +350,8 @@
 
         <ImageView
             android:id="@+id/convertBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/convert"
             app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
             app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"

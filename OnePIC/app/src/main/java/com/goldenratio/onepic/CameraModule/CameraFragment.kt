@@ -28,6 +28,7 @@ import androidx.camera.core.Camera
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -75,7 +76,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var overlay : OverlayView
     private lateinit var seekBarLinearLayout : LinearLayout
     private lateinit var  distanceOptionLinearLayout : LinearLayout
-
+    private lateinit var bottomMenu : ConstraintLayout
+    private lateinit var galleryBtn : ImageView
+    private lateinit var convertBtn : ImageView
+    private lateinit var modeRadioGroup : RadioGroup
 
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
@@ -85,11 +89,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
-    private var isShutterClick : Boolean = false
-    private var isToggleChecked : Boolean = false
+    private var isToggleChecked : Boolean? = false
     private lateinit var mediaPlayer : MediaPlayer
     private lateinit var rotation: ObjectAnimator
-    private var selectedRadioIndex : Int = 0
+    private var selectedRadioIndex : Int? = 0
 
     // Camera
     private lateinit var camera: Camera
@@ -132,7 +135,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private var analyzeImageWidth : Int = 0
 
     // Lens Flag
-    private var isBackLens : Boolean = true
+    private var isBackLens : Boolean? = true
 
 
     override fun onAttach(context: Context) {
@@ -172,6 +175,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         overlay = binding.overlay
         seekBarLinearLayout = binding.seekBarLinearLayout
         distanceOptionLinearLayout = binding.distanceOptionLinearLayout
+        bottomMenu = binding.bottomMenu
+        galleryBtn = binding.galleryBtn
+        convertBtn = binding.convertBtn
+        modeRadioGroup = binding.modeRadioGroup
 
         factory = viewFinder.meteringPointFactory
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
@@ -238,14 +245,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
         })
 
-        binding.convertBtn.setOnClickListener {
+        convertBtn.setOnClickListener {
 
-            isBackLens = !isBackLens
+            isBackLens = !isBackLens!!
             startCamera(isBackLens)
 
         }
 
-        binding.galleryBtn.setOnClickListener{
+        galleryBtn.setOnClickListener{
 
             val intent =
                 Intent(activity, ViewerEditorActivity::class.java) //fragment라서 activity intent와는 다른 방식
@@ -297,6 +304,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     override fun onResume() {
         super.onResume()
 
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
+
+        isBackLens = sharedPref?.getBoolean("isBackLens", true)
+
+        Log.v("chaewon", "$isBackLens")
+
         // 카메라 권한 확인 후 카메라 시작하기
         if(allPermissionsGranted()){
             startCamera(isBackLens)
@@ -306,16 +319,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             )
         }
 
-        // SharedPreferences 객체를 가져옵니다.
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-
         // 저장된 값을 가져옵니다.
-        val selectedRadioIndexShare = sharedPref?.getInt("selectedRadioIndex", 0)
+        selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", 0)
+
+        Log.v("chaewon", "$selectedRadioIndex")
 
         // 가져온 값을 사용합니다.
-        if (selectedRadioIndexShare != null && selectedRadioIndexShare >= 0) {
+        if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
-            when (selectedRadioIndexShare) {
+            when (selectedRadioIndex) {
                 0 -> {
                     basicRadioBtn.isChecked = true
                     basicRadioBtn.setTypeface(null, Typeface.BOLD)
@@ -359,13 +371,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
         }
 
-        val isToggleCheckedShare = sharedPref?.getBoolean("isToggleChecked", false)
-        if(isToggleCheckedShare != null){
-            when(isToggleCheckedShare){
+        val isToggleChecked = sharedPref?.getBoolean("isToggleChecked", false)
+        if(isToggleChecked != null){
+            when(isToggleChecked){
                 false -> basicToggleBtn.isChecked = false
                 true -> basicToggleBtn.isChecked = true
             }
         }
+
 
         /**
          * radioGroup.setOnCheckedChangeListener
@@ -373,7 +386,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
          *      2. Basic 버튼 안 누르면 사라지게 하기
          *      3. Option에 따른 카메라 설정
          */
-        binding.modeRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+        modeRadioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId){
                 basicRadioBtn.id -> {
                     selectedRadioIndex = 0
@@ -450,8 +463,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         shutterBtn.setOnClickListener {
 
             rotation.start()
-            isShutterClick = true
-            shutterBtn.isEnabled = !isShutterClick
+
+            shutterBtn.isEnabled = false
+            galleryBtn.isEnabled = false
+            convertBtn.isEnabled = false
+            basicRadioBtn.isEnabled = false
+            objectFocusRadioBtn.isEnabled = false
+            distanceFocusRadioBtn.isEnabled = false
+            autoRewindRadioBtn.isEnabled = false
+            basicToggleBtn.isEnabled = false
+            binding.distanceManualRadioBtn.isEnabled = false
+            binding.distanceAutoRadioBtn.isEnabled = false
+
 
             // previewByteArrayList 초기화
             previewByteArrayList.clear()
@@ -461,7 +484,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 // Single 모드
                 if(!(basicToggleBtn.isChecked)){
+
                     turnOnAFMode()
+
                     CoroutineScope(Dispatchers.IO).launch {
                         mediaPlayer.start()
                         val result = takePicture(0)
@@ -484,8 +509,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         )
 
                         withContext(Dispatchers.Main) {
-                            isShutterClick = false
-                            shutterBtn.isEnabled = !isShutterClick
+
+                            shutterBtn.isEnabled = true
+                            galleryBtn.isEnabled = true
+                            convertBtn.isEnabled = true
+                            basicRadioBtn.isEnabled = true
+                            objectFocusRadioBtn.isEnabled = true
+                            distanceFocusRadioBtn.isEnabled = true
+                            autoRewindRadioBtn.isEnabled = true
+                            basicToggleBtn.isEnabled = true
+                            binding.distanceManualRadioBtn.isEnabled = true
+                            binding.distanceAutoRadioBtn.isEnabled = true
+
                             rotation.cancel()
                         }
 
@@ -528,8 +563,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             Log.d("burst", "setImageContent 호출 전")
 
                             withContext(Dispatchers.Main) {
-                                isShutterClick = false
-                                shutterBtn.isEnabled = !isShutterClick
+
+                                shutterBtn.isEnabled = true
+                                galleryBtn.isEnabled = true
+                                convertBtn.isEnabled = true
+                                basicRadioBtn.isEnabled = true
+                                objectFocusRadioBtn.isEnabled = true
+                                distanceFocusRadioBtn.isEnabled = true
+                                autoRewindRadioBtn.isEnabled = true
+                                basicToggleBtn.isEnabled = true
+                                binding.distanceManualRadioBtn.isEnabled = true
+                                binding.distanceAutoRadioBtn.isEnabled = true
+
                                 rotation.cancel()
                             }
 
@@ -595,8 +640,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         )
 
                         withContext(Dispatchers.Main) {
-                            isShutterClick = false
-                            shutterBtn.isEnabled = !isShutterClick
+
+                            shutterBtn.isEnabled = true
+                            galleryBtn.isEnabled = true
+                            convertBtn.isEnabled = true
+                            basicRadioBtn.isEnabled = true
+                            objectFocusRadioBtn.isEnabled = true
+                            distanceFocusRadioBtn.isEnabled = true
+                            autoRewindRadioBtn.isEnabled = true
+                            basicToggleBtn.isEnabled = true
+                            binding.distanceManualRadioBtn.isEnabled = true
+                            binding.distanceAutoRadioBtn.isEnabled = true
+
                             rotation.cancel()
                         }
 
@@ -651,8 +706,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         //jpegViewModel.jpegMCContainer.value?.save()
 
                         withContext(Dispatchers.Main) {
-                            isShutterClick = false
-                            shutterBtn.isEnabled = !isShutterClick
+
+                            shutterBtn.isEnabled = true
+                            galleryBtn.isEnabled = true
+                            convertBtn.isEnabled = true
+                            basicRadioBtn.isEnabled = true
+                            objectFocusRadioBtn.isEnabled = true
+                            distanceFocusRadioBtn.isEnabled = true
+                            autoRewindRadioBtn.isEnabled = true
+                            basicToggleBtn.isEnabled = true
+                            binding.distanceManualRadioBtn.isEnabled = true
+                            binding.distanceAutoRadioBtn.isEnabled = true
+
                             rotation.cancel()
                         }
 
@@ -748,8 +813,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         // SharedPreferences.Editor를 사용하여 상태 값을 저장합니다.
         with (sharedPref?.edit()) {
-            this?.putInt("selectedRadioIndex", selectedRadioIndex)
-            this?.putBoolean("isToggleChecked", isToggleChecked)
+            this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
+            this?.putBoolean("isToggleChecked", isToggleChecked!!)
+            this?.putBoolean("isBackLens", isBackLens!!)
             this?.apply()
         }
     }
@@ -919,8 +985,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     )
 
                     withContext(Dispatchers.Main) {
-                        isShutterClick = false
-                        shutterBtn.isEnabled = !isShutterClick
+
+                        shutterBtn.isEnabled = true
+                        galleryBtn.isEnabled = true
+                        convertBtn.isEnabled = true
+                        basicRadioBtn.isEnabled = true
+                        objectFocusRadioBtn.isEnabled = true
+                        distanceFocusRadioBtn.isEnabled = true
+                        autoRewindRadioBtn.isEnabled = true
+                        basicToggleBtn.isEnabled = true
+                        binding.distanceManualRadioBtn.isEnabled = true
+                        binding.distanceAutoRadioBtn.isEnabled = true
+
                         rotation.cancel()
                     }
 
@@ -998,8 +1074,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     )
 
                     withContext(Dispatchers.Main) {
-                        isShutterClick = false
-                        shutterBtn.isEnabled = !isShutterClick
+
+                        shutterBtn.isEnabled = true
+                        galleryBtn.isEnabled = true
+                        convertBtn.isEnabled = true
+                        basicRadioBtn.isEnabled = true
+                        objectFocusRadioBtn.isEnabled = true
+                        distanceFocusRadioBtn.isEnabled = true
+                        autoRewindRadioBtn.isEnabled = true
+                        basicToggleBtn.isEnabled = true
+                        binding.distanceManualRadioBtn.isEnabled = true
+                        binding.distanceAutoRadioBtn.isEnabled = true
+
                         rotation.cancel()
                     }
 
@@ -1088,7 +1174,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
      * startCamera()
      *      - 카메라 세팅하기
      */
-    private fun startCamera(isBackLens : Boolean) {
+    private fun startCamera(isBackLens : Boolean?) {
         // 1. CameraProvider 요청
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
 
@@ -1106,9 +1192,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
                 .build()
-//                .also {
-//                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-//                }
 
 
             imageAnalyzer =
@@ -1184,7 +1267,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
             orientationEventListener.enable()
 
-            if(isBackLens){
+            if(isBackLens!!){
                 // 3-2. 카메라 세팅
                 // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
                 cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -1225,142 +1308,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         }, ContextCompat.getMainExecutor(activity))
     }
 
-//    /**
-//     * startCamera()
-//     *      - 카메라 세팅하기
-//     */
-//    private fun startCamera() {
-//        // 1. CameraProvider 요청
-//        val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
-//
-//        cameraProviderFuture.addListener({
-//
-//            // 2. CameraProvider 사용 가능 여부 확인
-//            // 생명주기에 binding 할 수 있는 ProcessCameraProvider 객체 가져옴
-//            val cameraProvider = cameraProviderFuture.get()
-//
-//            // 3. 카메라를 선택하고 use case를 같이 생명주기에 binding
-//
-//            // 3-1. Preview를 생성 → Preview를 통해서 카메라 미리보기 화면을 구현.
-//            // surfaceProvider는 데이터를 받을 준비가 되었다는 신호를 카메라에게 보내준다.
-//            // setSurfaceProvider는 PreviewView에 SurfaceProvider를 제공해준다.
-//            val preview = Preview.Builder()
-//                .setTargetAspectRatio(AspectRatio.RATIO_4_3) // Preview 4:3 비율
-//                .build()
-////                .also {
-////                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-////                }
-//
-//
-//            imageAnalyzer =
-//                ImageAnalysis.Builder()
-//                    .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-//                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//                    .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
-//                    .build()
-//                    // The analyzer can then be assigned to the instance
-//                    .also {
-//                        it.setAnalyzer(cameraExecutor) { image ->
-//
-//                            analyzeImageWidth = image.height
-////                            analyzeImageHeight = image.height
-//
-//                            if (!::bitmapBuffer.isInitialized) {
-//                                // The image rotation and RGB image buffer are initialized only once
-//                                // the analyzer has started running
-//                                bitmapBuffer = Bitmap.createBitmap(
-//                                    image.width,
-//                                    image.height,
-//                                    Bitmap.Config.ARGB_8888
-//                                )
-//                            }
-//
-//                            val imageRotation = image.imageInfo.rotationDegrees
-//                            image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
-//
-//                            val imageProcessor =
-//                                ImageProcessor.Builder()
-//                                    .add(Rot90Op(-imageRotation / 90))
-//                                    .build()
-//
-//                            // Preprocess the image and convert it into a TensorImage for detection.
-//                            val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmapBuffer))
-//
-//                            val results = customObjectDetector?.detect(tensorImage)
-//
-//                            detectedList = results!!.map {
-//                                // Get the top-1 category and craft the display text
-//                                val category = it.categories.first()
-//                                val text = "${category.label}"
-//
-//                                // Create a data object to display the detection result
-//                                DetectionResult(it.boundingBox, text)
-//                            }
-//
-//                            var inferenceTime = SystemClock.uptimeMillis()
-//                            inferenceTime = SystemClock.uptimeMillis() - inferenceTime
-//
-//                            onResults(
-//                                results,
-//                                inferenceTime,
-//                                tensorImage.height,
-//                                tensorImage.width)
-//                        }
-//                    }
-//
-//
-//            imageCapture = ImageCapture.Builder()
-//                .setTargetRotation(Surface.ROTATION_0)
-//                .build()
-//
-//            val orientationEventListener = object : OrientationEventListener(context) {
-//                override fun onOrientationChanged(orientation: Int) {
-//                    when (orientation) {
-//                        0 -> imageCapture.setTargetRotation(Surface.ROTATION_0)
-//                        90 -> imageCapture.setTargetRotation(Surface.ROTATION_270)
-//                        180 -> imageCapture.setTargetRotation(Surface.ROTATION_180)
-//                        270 -> imageCapture.setTargetRotation(Surface.ROTATION_90)
-//                    }
-//                }
-//            }
-//            orientationEventListener.enable()
-//
-//            // 3-2. 카메라 세팅
-//            // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
-//            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-//
-//            try{
-//                // binding 전에 binding 초기화
-//                cameraProvider.unbindAll()
-//
-//                // 3-3. use case와 카메라를 생명 주기에 binding
-//                camera = cameraProvider.bindToLifecycle(
-//                    this, cameraSelector, preview, imageCapture, imageAnalyzer
-//                )
-//
-//                cameraController = camera!!.cameraControl
-//                camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
-//
-//                preview.setSurfaceProvider(viewFinder.surfaceProvider)
-//
-//                // 지원되는 MeteringPoints 가져오기
-//                val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
-//
-//                // 스마트폰 기기 별 min Focus Distance 알아내기 ( 가장 `가까운` 곳에 초점을 맞추기 위한 렌즈 초점 거리 )
-//                // 대부분 10f
-//                minFocusDistance =
-//                    camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)!!
-//                // 연속 사진 촬영 장수에 따른 Step 거리
-//                lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
-//
-//                setBottomMenuHeight()
-//
-//            } catch (exc: Exception) {
-//                Log.e(TAG, "Use case binding failed", exc)
-//            }
-//
-//        }, ContextCompat.getMainExecutor(activity))
-//    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
