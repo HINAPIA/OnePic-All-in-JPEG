@@ -384,10 +384,9 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             }
         }
 
-        fun setTopMarginValue(resource:Drawable?){
+        fun setTopMarginValue(resource:Drawable?){ // seekBar top-margin
 
             if(resource == null) {
-                Log.d("여기에서 나가버림",": here")
                 return
             }
 
@@ -396,7 +395,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
             ViewerFragment.seekBarMargin.value = bitmapHeight / 2 + 25//20 //bitmapHeight * 3 / 8
         }
-
 
         fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
             externalImageView.visibility = View.VISIBLE

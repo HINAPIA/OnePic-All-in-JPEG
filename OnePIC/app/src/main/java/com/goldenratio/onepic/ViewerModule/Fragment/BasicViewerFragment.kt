@@ -95,7 +95,6 @@ class BasicViewerFragment : Fragment() {
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
             binding.viewPager2.setCurrentItem(currentPosition!!,false)
 
-
             val targetIndex = currentPosition!! // 이동하고자 하는 인덱스
             binding.recyclerView.layoutManager?.scrollToPosition(targetIndex)
             binding.recyclerView.postDelayed({
@@ -270,6 +269,7 @@ class BasicViewerFragment : Fragment() {
         /** Button 이벤트 리스너 - editBtn, backBtn, textBtn*/
         binding.analyzeBtn.setOnClickListener{
             binding.viewPager2.setUserInputEnabled(false);
+
             it.visibility = View.INVISIBLE
             val bundle = Bundle()
             bundle.putInt("currentPosition",centerItemPosition!!)

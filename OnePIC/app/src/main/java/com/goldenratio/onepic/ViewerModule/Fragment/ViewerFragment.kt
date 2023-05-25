@@ -16,6 +16,7 @@ import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -30,6 +31,7 @@ import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
+
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -39,7 +41,7 @@ import java.io.InputStream
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
 
-    private lateinit var binding: FragmentViewerBinding
+    private lateinit var binding: FragmentViewerBinding//FragmentViewerBinding
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
@@ -54,10 +56,15 @@ class ViewerFragment : Fragment() {
     private var isMagicBtnClicked = false
 
     companion object {
+
         var currentFilePath:String = "" // 현재 파일 path(or uri)
-        var isFinished: MutableLiveData<Boolean> = MutableLiveData(false) // 매직픽쳐 관련
+
+        /* 사진 및 오디오 상태 표시 */
+        var isFinished: MutableLiveData<Boolean> = MutableLiveData(false) // 매직픽쳐 관련 작업 수행 완료
         var isEditStoraged:Boolean = false // 편집된 사진인지 여부 - 텍스트, 오디오 scrollView update
         var isAudioPlaying = MutableLiveData<Boolean>() // 오디오 재생중 표시
+
+        /* 동적 margin 설정 변수 */
         var audioTopMargin = MutableLiveData<Int>() // 오디오 버튼 top margin
         var audioEndMargin = MutableLiveData<Int>() // 오디오 버튼 end margin
         var seekBarMargin = MutableLiveData<Int>() // seek bar margin
@@ -285,11 +292,20 @@ class ViewerFragment : Fragment() {
             }
         })
 
-        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
+        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) { // 매직 픽처인 경우 - 버튼 보이기
             setMagicPicture()
         }
+
         else {
-            binding.magicBtn.visibility = View.INVISIBLE
+            binding.magicBtnlinearLayout.visibility = View.GONE
+        }
+
+        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.distance_focus)){ // 거리별 초점 사진인 경우 - seekBar 보이기
+
+            binding.seekBarLinearLayout.visibility = View.VISIBLE
+        }
+        else {
+            binding.seekBarLinearLayout.visibility = View.GONE
         }
 
         /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
@@ -450,50 +466,49 @@ class ViewerFragment : Fragment() {
 
         if (pictureList != null) {
 
-            if (jpegViewModel.getPictureByteArrList().size != 1) {
+            if (jpegViewModel.getPictureByteArrList().size != 1 ) {
 
-                binding.seekBar.visibility = View.VISIBLE
-                binding.seekBar.progress = 0
-                binding.seekBar.max = jpegViewModel.getPictureByteArrList().size - 1
+                /* seekBar 처리 - 스크롤뷰 아이템 개수에 따라, progress와 max 지정 */
+                if (binding.seekBar.visibility == View.VISIBLE) {
 
-                binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) { // 시크바의 값이 변경될 때 호출되는 메서드
+                    binding.seekBar.progress = 0
+                    binding.seekBar.max = jpegViewModel.getPictureByteArrList().size - 1
+                    binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) { // 시크바의 값이 변경될 때 호출되는 메서드
 
-                        Log.d("progress : ",""+progress)
+                            Log.d("progress : ",""+progress)
 
-                        jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max])
+                            jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max])
 
-                        if (bitmapList.size >= progress + 1) { // bitmap으로 사진 띄우기
-                            mainViewPagerAdapter.setExternalImageBitmap(bitmapList[progress])
-                        } else {
-                            // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌으면 글라이드로
-                            CoroutineScope(Dispatchers.Main).launch {
-                                mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress % binding.seekBar.max])
+                            if (bitmapList.size >= progress + 1) { // bitmap으로 사진 띄우기
+                                mainViewPagerAdapter.setExternalImageBitmap(bitmapList[progress])
+                            } else {
+                                // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌으면 글라이드로
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress % binding.seekBar.max])
+                                }
                             }
                         }
-                    }
 
-                    override fun onStartTrackingTouch(seekBar: SeekBar) {
-                        // 사용자가 시크바를 터치하여 움직이기 시작할 때 호출되는 메서드입니다.
-                        // 여기서 필요한 작업을 수행하세요.
-                    }
+                        override fun onStartTrackingTouch(seekBar: SeekBar) {
+                            // 사용자가 시크바를 터치하여 움직이기 시작할 때 호출되는 메서드입니다.
+                        }
 
-                    override fun onStopTrackingTouch(seekBar: SeekBar) {
-                        // 사용자가 시크바 터치를 멈추었을 때 호출되는 메서드입니다.
-                        // 여기서 필요한 작업을 수행하세요.
-                    }
-                })
+                        override fun onStopTrackingTouch(seekBar: SeekBar) {
+                            // 사용자가 시크바 터치를 멈추었을 때 호출되는 메서드입니다.
+                        }
+                    })
+                }
             }
 
-            binding.linear.removeAllViews()
-            Log.d("picture list size: ",""+pictureList.size)
+            binding.linear.removeAllViews() // 뷰 초기화
 
             CoroutineScope(Dispatchers.IO).launch {
 
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
                 for(i in 0..pictureList.size-1){
                     val picture = pictureList[i]
-                    val pictureByteArr = pictureByteArrList[i]//jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+                    val pictureByteArr = pictureByteArrList[i]
 
                     // 넣고자 하는 layout 불러오기
                     try {
@@ -503,6 +518,11 @@ class ViewerFragment : Fragment() {
                         // 위 불러온 layout에서 변경을 할 view가져오기
                         val scrollImageView: ImageView =
                             scollItemLayout.findViewById(R.id.scrollImageView)
+
+                        var mainMark: TextView = scollItemLayout.findViewById(R.id.mainMark)
+                        if (i == 0){
+                            mainMark.visibility = View.VISIBLE
+                        }
 
                         CoroutineScope(Dispatchers.Main).launch {
                             // 이미지 바인딩
@@ -521,19 +541,21 @@ class ViewerFragment : Fragment() {
                                     if (binding.seekBar.visibility == View.VISIBLE) {
                                         binding.seekBar.progress = i
                                     }
-//                                    mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-//                                    jpegViewModel.setselectedSubImage(picture)
+
                                 } else {
                                     // 포커스를 잃었을 때의 동작 처리
                                     scrollImageView.background = null
                                     scrollImageView.setPadding(0,0,0,0)
-
                                 }
                             }
 
                             scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
                                 mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
                                 jpegViewModel.setselectedSubImage(picture)
+                                if (i != 0)
+                                    binding.editBtn.visibility = View.GONE
+                                else
+                                    binding.editBtn.visibility = View.VISIBLE
                             }
 
                             scrollImageView.setOnTouchListener { _, event ->
