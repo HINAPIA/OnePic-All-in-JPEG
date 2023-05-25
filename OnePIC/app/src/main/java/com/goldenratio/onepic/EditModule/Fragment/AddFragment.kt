@@ -493,45 +493,45 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     }
 }
 
-class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
-
-    // 뷰 바인딩 정의
-    private var _binding: AudioDialogBinding? = null
-    private val binding get() = _binding!!
-
-    private var confirmDialogInterface: ConfirmDialogInterface? = null
-
-
-    init {
-        this.confirmDialogInterface = confirmDialogInterface
-
-    }
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = AudioDialogBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        // 취소 버튼 클릭
-        binding.noButton.setOnClickListener {
-            dismiss()
-        }
-
-        // 확인 버튼 클릭
-        binding.yesButton.setOnClickListener {
-            this.confirmDialogInterface?.onYesButtonClick(id!!)
-            dismiss()
-        }
-        return view
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-}
-interface ConfirmDialogInterface {
-    fun onYesButtonClick(id: Int)
-}
+//class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
+//
+//    // 뷰 바인딩 정의
+//    private var _binding: AudioDialogBinding? = null
+//    private val binding get() = _binding!!
+//
+//    private var confirmDialogInterface: ConfirmDialogInterface? = null
+//
+//
+//    init {
+//        this.confirmDialogInterface = confirmDialogInterface
+//
+//    }
+//    override fun onCreateView(
+//        inflater: LayoutInflater,
+//        container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        _binding = AudioDialogBinding.inflate(inflater, container, false)
+//        val view = binding.root
+//
+//        // 취소 버튼 클릭
+//        binding.noButton.setOnClickListener {
+//            dismiss()
+//        }
+//
+//        // 확인 버튼 클릭
+//        binding.yesButton.setOnClickListener {
+//            this.confirmDialogInterface?.onYesButtonClick(id!!)
+//            dismiss()
+//        }
+//        return view
+//    }
+//
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        _binding = null
+//    }
+//}
+//interface ConfirmDialogInterface {
+//    fun onYesButtonClick(id: Int)
+//}

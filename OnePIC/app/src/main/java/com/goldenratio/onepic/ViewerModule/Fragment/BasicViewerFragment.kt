@@ -80,7 +80,7 @@ class BasicViewerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         ViewerFragment.currentFilePath = ""
-
+2
         init()
 
         isClickedRecyclerViewImage.observe(requireActivity()){ value ->

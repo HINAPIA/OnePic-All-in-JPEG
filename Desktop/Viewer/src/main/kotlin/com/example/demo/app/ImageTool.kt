@@ -6,18 +6,23 @@ import com.drew.metadata.Directory
 import com.drew.metadata.Metadata
 import com.drew.metadata.MetadataException
 import com.drew.metadata.exif.ExifIFD0Directory
+import com.drew.metadata.exif.GpsDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
+import sun.misc.Request
 import java.awt.geom.AffineTransform
 import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
 import javax.imageio.stream.FileImageOutputStream
+import kotlin.collections.ArrayList
 
 
 class ImageTool {
@@ -53,6 +58,64 @@ class ImageTool {
      }
      return 0
  }
+
+    fun getDetailInfo(bytes: ByteArray): ArrayList<String> {
+        var StringList = arrayListOf<String>()
+        val imageFile = File("file.jpg")
+        imageFile.writeBytes(bytes)
+
+        val metadata: Metadata
+        var timeInfo = ""
+        var locationInfo = ""
+        try {
+            metadata = ImageMetadataReader.readMetadata(imageFile)
+
+            // 사진의 시간 정보 읽기
+            val exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)
+            if (exifIFD0Directory != null) {
+                val dateTime = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)
+                if (dateTime != null) {
+                    timeInfo = dateTime.toString()
+                    println("시간 ${convertToKoreaTime(timeInfo)}")
+                }
+            }
+
+            // 사진의 위치 정보 읽기
+            val gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory::class.java)
+            if (gpsDirectory != null) {
+                val latitude = gpsDirectory.getString(GpsDirectory.TAG_LATITUDE)
+                val longitude = gpsDirectory.getString(GpsDirectory.TAG_LONGITUDE)
+                if (latitude != null && longitude != null) {
+                    locationInfo = "Latitude: $latitude, Longitude: $longitude"
+                    println("위치 ${locationInfo}")
+                } else{
+
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: MetadataException) {
+            e.printStackTrace()
+        }
+        return StringList
+    }
+
+
+
+    fun convertToKoreaTime(dateTime: String): String {
+        val inputFormat = SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+        inputFormat.timeZone = TimeZone.getTimeZone("Asia/Seoul")
+
+        try {
+            val date = inputFormat.parse(dateTime)
+            return outputFormat.format(date)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return ""
+    }
     fun rotaionImage(image : Image, rotation : Int) : Image{
         var angle : Int = 360 - rotation
         var bufferedImage = SwingFXUtils.fromFXImage(image, null)
@@ -73,4 +136,6 @@ class ImageTool {
         graphics2D.dispose()
         return rotatedImage
     }
+
+
 }

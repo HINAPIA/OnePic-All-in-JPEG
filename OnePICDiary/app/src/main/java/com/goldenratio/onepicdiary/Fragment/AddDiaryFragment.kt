@@ -77,12 +77,6 @@ class AddDiaryFragment : Fragment() {
             }
         }
 
-//       val calendar = Calendar.getInstance()
-//
-//        month.value = calendar.get(Calendar.MONTH) + 1
-//        day.value = calendar.get(Calendar.DATE)
-
-
         layoutToolModule = LayoutToolModule()
 
         //오디오 버튼 클릭 시

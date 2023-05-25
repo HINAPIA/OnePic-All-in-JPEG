@@ -206,14 +206,20 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
 
-        // ADD
-        binding.addBtn.setOnClickListener {
-            // 일반 사진이면 안 넘어가도록
-            if (checkAdd) {
-                // MagicPictureFragment로 이동
-                findNavController().navigate(R.id.action_editFragment_to_addFragment)
-            }
-        }
+//        // audio ADD
+//        binding.audioAddBtn.setOnClickListener {
+//            // 일반 사진이면 안 넘어가도록
+//            if (checkAdd) {
+//                // MagicPictureFragment로 이동
+//                findNavController().navigate(R.id.action_editFragment_to_audioAddFragment)
+//            }
+//        }
+//
+//        // text ADD
+//        binding.textAddBtn.setOnClickListener {
+//            findNavController().navigate(R.id.action_editFragment_to_addFragment)
+//        }
+
 
         // 메인 변경
         binding.mainChangeBtn.setOnClickListener {
@@ -240,7 +246,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 imageToolModule.showView(binding.mainChangeBtn, false)
             }
         }
-
 
         // Viewer
         binding.backBtn.setOnClickListener {
