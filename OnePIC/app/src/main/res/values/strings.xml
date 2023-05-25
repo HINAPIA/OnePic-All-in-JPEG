@@ -1,10 +1,11 @@
 <resources>
     <!-- _____________ 편집 문구 _____________ -->
-    <string name="main_change">대표 사진\n변경</string>
-    <string name="focus">사진 초점\n변경</string>
-    <string name="rewind">잘나온 얼굴로\n변경</string>
-    <string name="magicPicture">움직이는\n매직 사진</string>
-    <string name="add">컨텐츠 추가</string>
+    <string name="main_change"> 대표 사진 변경</string>
+    <string name="focus"> 사진 초점 변경</string>
+    <string name="rewind"> &#160;&#160;잘나온 얼굴로 변경&#160; </string>
+    <string name="magicPicture"> &#160;&#160;움직이는 사진 제작&#160; </string>
+    <string name="add"> &#160;&#160;컨텐츠 추가&#160; </string>
+    <string name="choice_button"> &#160;&#160;대표 사진 추천&#160; </string>
 
     <string name="in_main_change">대표 사진 변경</string>
     <string name="in_focus">사진 초점 변경</string>
@@ -14,7 +15,7 @@
 
 
     <string name="auto_option">자동 얼굴 변경</string>
-    <string name="choice_button">대표 사진 추천</string>
+
     <string name="basic_mode_option">사진 확인</string>
 
     <string name="save_text">저장</string>

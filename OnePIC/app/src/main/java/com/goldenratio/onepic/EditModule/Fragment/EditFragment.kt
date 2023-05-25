@@ -35,6 +35,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
+
     private lateinit var binding: FragmentEditBinding
     private lateinit var activity: ViewerEditorActivity
     lateinit var fragment: Fragment
@@ -52,6 +53,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var isFinished = MutableLiveData<Boolean>()
 
     private lateinit var mainSubView: View
+    private var mainTextView: TextView? = null
 
     private var pictureList = arrayListOf<Picture>()
     private var bitmapList = arrayListOf<Bitmap>()
@@ -60,6 +62,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private lateinit var imageToolModule: ImageToolModule
 
     private var mainPictureIndex = 0
+    private var currentMainViewIndex = 0
 
 
     override fun onAttach(context: Context) {
@@ -185,21 +188,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // focus - > mainChange
-        binding.changeBtn.setOnClickListener {
-            if(checkChange) {
-                imageContent.activityType = ActivityType.Viewer
-                findNavController().navigate(R.id.action_editFragment_to_burstModeEditFragment)
-            }
-            else if(checkFocus) {
-                imageContent.activityType = ActivityType.Viewer
-                findNavController().navigate(R.id.action_editFragment_to_focusChangeFragment)
-            }
-        }
         // "Rewind" 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
             // focus 가능한지 확인
-            if(checkRewind){
+            if (checkRewind) {
                 imageContent.activityType = ActivityType.Viewer
                 // RewindFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
@@ -208,7 +200,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // Magic
         binding.magicBtn.setOnClickListener {
             // magic 가능한지 확인
-            if(checkMagic) {
+            if (checkMagic) {
                 // MagicPictureFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
             }
@@ -217,16 +209,44 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // ADD
         binding.addBtn.setOnClickListener {
             // 일반 사진이면 안 넘어가도록
-            if(checkAdd) {
+            if (checkAdd) {
                 // MagicPictureFragment로 이동
                 findNavController().navigate(R.id.action_editFragment_to_addFragment)
             }
         }
 
+        // 메인 변경
+        binding.mainChangeBtn.setOnClickListener {
+            mainTextView?.visibility = View.INVISIBLE
+            val newMainSubView = binding.linear.getChildAt(currentMainViewIndex)
+                .findViewById<TextView>(R.id.mainMark)
+            newMainSubView.visibility = View.VISIBLE
+
+            mainTextView = newMainSubView
+            mainPicture = pictureList[currentMainViewIndex]
+
+            val result = imageContent.removePicture(mainPicture)
+            Log.d("error 잡기", "메인 바꾸고 save : ${result}")
+            if (result) {
+                Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
+
+                // 2. main 사진을 첫번 째로 삽입
+                imageContent.insertPicture(0, mainPicture)
+                imageContent.mainPicture = mainPicture
+
+                imageContent.checkMainChangeAttribute = true
+
+                imageToolModule.showView(binding.saveBtn, true)
+                imageToolModule.showView(binding.mainChangeBtn, false)
+            }
+        }
+
+
         // Viewer
         binding.backBtn.setOnClickListener {
-            if(imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
-                imageContent.checkMagicAttribute || imageContent.checkAddAttribute) {
+            if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
+                imageContent.checkMagicAttribute || imageContent.checkAddAttribute
+            ) {
                 val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                     activity,
                     android.R.style.Theme_DeviceDefault_Light_Dialog
@@ -242,136 +262,51 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             setButtonDeactivation()
 
                             val pre = jpegViewModel.preEditMainPicture
-                            if(pre != null) {
+                            if (pre != null) {
                                 imageContent.mainPicture = pre
                                 jpegViewModel.preEditMainPicture = null
                             }
 
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         }).show()
-            }
-            else {
+            } else {
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
             }
         }
 
         // Save
-        binding.saveBtn.setOnClickListener{
+        binding.saveBtn.setOnClickListener {
+            ViewerFragment.isEditStoraged = true
+            imageTool.showView(binding.progressBar2, true)
 
-              ViewerFragment.isEditStoraged = true
-//            if(!imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-//                !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute) {
-//                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//            }
-//            else {
-                imageTool.showView(binding.progressBar2, true)
+            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
-                imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-                val oDialog: AlertDialog.Builder = AlertDialog.Builder(
-                    activity,
-                    android.R.style.Theme_DeviceDefault_Light_Dialog
-                )
-            // 메인 변경만 헀거나 ADD만 한 경우
-                if (imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                    !imageContent.checkMagicAttribute && !imageContent.checkAddAttribute ||
-                    !imageContent.checkMainChangeAttribute && !imageContent.checkRewindAttribute &&
-                        !imageContent.checkMagicAttribute && imageContent.checkAddAttribute
-                 ) {
+            // 덮어쓰기
+            val currentFilePath = jpegViewModel.currentImageUri
 
-                    // 편집 중 mina만 변경했을 경우 해당 파일 덮어쓰기
-                    val currentFilePath = jpegViewModel.currentImageUri
-
-                    var fileName : String = ""
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
-                        fileName = jpegViewModel.getFileNameFromUri(currentFilePath!!.toUri())
-                    }else{
-                        fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
-                    }
-                    //val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
-                    var result = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    // 우리 앱의 사진이 아닐 때
-                    if(result == "another"){
-                        singleSave()
-                        CoroutineScope(Dispatchers.Default).launch {
-                            Thread.sleep(1000)
-                            setButtonDeactivation()
-                            setCurrentPictureByteArrList()
-                        }
-                    }
-                    else{
-                        CoroutineScope(Dispatchers.Default).launch {
-                            setButtonDeactivation()
-                            Thread.sleep(2000)
-                            withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                            }
-                        }
-                    }
-
-                    // 매직 픽쳐 저장
-                } else if (imageContent.checkMagicAttribute) {
-                    imageContent.pictureList[0].contentAttribute = ContentAttribute.magic
-                    // magic으로 변경했을 경우 모든 파일 저장
-                    var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-                    //ViewerFragment.currentFilePath = savedFilePath.toString()
-                    Log.d("savedFilePath", "savedFilePath : ${savedFilePath.toString()}")
-                    CoroutineScope(Dispatchers.Default).launch {
-                        Thread.sleep(3000)
-                        setButtonDeactivation()
-                        setCurrentPictureByteArrList()
-                    }
-                } else {
-                    imageTool.showView(binding.progressBar2, false)
-                    oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-                        .setPositiveButton(
-                            "모두 저장",
-                            DialogInterface.OnClickListener { dialog, which ->
-                                imageTool.showView(binding.progressBar2, true)
-                                if (!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute) {
-                                    val mainPicture = imageContent.mainPicture
-                                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                                    imageContent.insertPicture(0, mainPicture)
-                                }
-                                jpegViewModel.jpegMCContainer.value?.save()
-                                CoroutineScope(Dispatchers.Default).launch {
-                                    Thread.sleep(2000)
-                                    setButtonDeactivation()
-                                    setCurrentPictureByteArrList()
-
-//                                    withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar2 , false)
-//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                                }
-//                                CoroutineScope(Dispatchers.Default).launch {
-//                                    setButtonDeactivation()
-//                                    setCurrentPictureByteArrList()
-//
-//                                    withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar2 , false)
-//                                        Thread.sleep(3000)
-//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                                    }
-//                                }
-                            })
-                        .setNeutralButton("예",
-                            DialogInterface.OnClickListener { dialog, which ->
-                                try {
-                                    singleSave()
-                                } catch (e: IOException) {
-                                    Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-
-                               CoroutineScope(Dispatchers.Default).launch {
-                                   Thread.sleep(1000)
-
-                                    setButtonDeactivation()
-                                    setCurrentPictureByteArrList()
-                                }
-                            })
-                        .show()
+            var fileName: String = ""
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                fileName = jpegViewModel.getFileNameFromUri(currentFilePath!!.toUri())
+            } else {
+                fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+            }
+            //val fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
+            var result = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+            // 우리 앱의 사진이 아닐 때
+            if (result == "another") {
+                singleSave()
+                CoroutineScope(Dispatchers.Default).launch {
+                    Thread.sleep(1000)
+                    setButtonDeactivation()
+                    setCurrentPictureByteArrList()
                 }
-//            }
+            } else {
+                CoroutineScope(Dispatchers.Default).launch {
+                    setButtonDeactivation()
+                    Thread.sleep(2000)
+                    setCurrentPictureByteArrList()
+                }
+            }
             imageContent.setCheckAttribute()
         }
     }
@@ -489,7 +424,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         for (i in 0 until pictureList.size) {
             // 넣고자 하는 layout 불러오기
             val subLayout =
-                layoutInflater.inflate(R.layout.scroll_item_layout, null)
+                layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
 
             // 위 불러온 layout에서 변경을 할 view가져오기
             val imageView: ImageView =
@@ -503,7 +438,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .into(imageView)
             }
 
-            if (i == 0) {
+            if (i == mainPictureIndex) {
 //                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                 mainSubView = imageView
 
@@ -511,7 +446,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
                     mainSubView.setPadding(6,6,6,6)
 
-                    imageToolModule.showView(subLayout.findViewById<TextView>(R.id.mainMark), true)
+                    mainTextView = subLayout.findViewById<TextView>(R.id.mainMark)
+                    if(mainTextView != null)
+                        imageToolModule.showView(mainTextView!!, true)
                 }
             }
 
@@ -528,13 +465,21 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         .into(binding.mainImageView)
                     imageView.setBackgroundResource(R.drawable.chosen_image_border)
                     imageView.setPadding(6,6,6,6)
+
+                    if(mainPictureIndex != i) {
+                        imageToolModule.showView(binding.mainChangeBtn, true)
+                    }
+                    else {
+                        imageToolModule.showView(binding.mainChangeBtn, false)
+                    }
                 }
+                currentMainViewIndex = i
                 mainSubView = imageView
             }
 
             CoroutineScope(Dispatchers.Main).launch {
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                binding.candidateLayout.addView(subLayout)
+                binding.linear.addView(subLayout)
             }
         }
     }

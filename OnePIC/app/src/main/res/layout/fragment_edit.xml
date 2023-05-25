@@ -2,18 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
+    android:background="#000000"
     android:orientation="vertical">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintBottom_toTopOf="@+id/guideline12"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -33,7 +33,6 @@
             app:layout_constraintStart_toStartOf="@+id/guideline6"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
@@ -44,7 +43,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline6"
@@ -74,73 +74,10 @@
         app:layout_constraintTop_toTopOf="@+id/guideline12">
 
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-
-            android:layout_weight="1.5"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <Button
-                android:id="@+id/changeBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent_color"
-                android:drawableTop="@drawable/main_change_icon_resize"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/main_change"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/rewindBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent_color"
-                android:drawableTop="@drawable/rewind_icon_resize"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/rewind"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/magicBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent_color"
-                android:drawableTop="@drawable/magic_icon_resize"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/magicPicture"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/addBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent_color"
-                android:drawableTop="@drawable/add_icon_resize"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/add"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-        </LinearLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginBottom="15dp"
             android:layout_weight="7">
 
             <ImageView
@@ -153,10 +90,87 @@
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.0"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/rewindBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/menu_round"
+                android:drawableLeft="@drawable/rewind_icon_resize"
+                android:paddingStart="14dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp"
+                android:text="@string/rewind"
+                android:textAllCaps="false"
+                android:textColor="@color/menu_color"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/magicBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/menu_round"
+                android:drawableLeft="@drawable/magic_icon_resize"
+                android:paddingStart="14dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp"
+                android:text="@string/magicPicture"
+                android:textAllCaps="false"
+                android:textColor="@color/menu_color"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/addBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/menu_round"
+                android:drawableLeft="@drawable/add_icon_resize"
+                android:paddingStart="14dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp"
+                android:text="@string/add"
+                android:textAllCaps="false"
+                android:textColor="@color/menu_color"
+                android:textSize="11sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
+
+            <TextView
+                android:id="@+id/bestMainBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/menu_round"
+                android:drawableLeft="@drawable/best_main_icon_resize"
+                android:paddingStart="14dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp"
+                android:text="@string/choice_button"
+                android:textAllCaps="false"
+                android:textColor="@color/menu_color"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toTopOf="@+id/magicBtn"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <ProgressBar
                 android:id="@+id/progressBar2"
@@ -172,104 +186,163 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/seekBarLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:gravity="center|top"
-            android:orientation="horizontal"
-            android:padding="3dp"
-            android:visibility="invisible">
+            android:padding="3dp">
+
+            <Button
+                android:id="@+id/mainChangeBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#434343"
+                android:text="대표 사진으로"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <SeekBar
                 android:id="@+id/seekBar"
                 android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_height="0dp"
                 android:progressDrawable="@drawable/seekbar_progress"
                 android:splitTrack="false"
-                android:thumb="@drawable/seekbar_thumb" />
+                android:thumb="@drawable/seekbar_thumb"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
             android:layout_weight="1.5"
             android:scaleType="fitCenter">
 
             <ImageView
                 android:id="@+id/containerImageView"
                 android:layout_width="match_parent"
-                android:layout_height="105dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="-1dp"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/container" />
+                app:srcCompat="@drawable/edit_container" />
 
-
-            <TextView
-                android:id="@+id/allInJpegTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|end"
-                android:rotation="90"
-                android:text="All in JPEG"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-
-
-            <LinearLayout
-                android:id="@+id/datalinearLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal"
-                android:padding="3dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="-1dp">
 
                 <ImageView
-                    android:id="@+id/imageView3"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="3dp"
-                    app:srcCompat="@drawable/gallery_icon" />
-
-                <TextView
-                    android:id="@+id/imageCntTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="TextView"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <HorizontalScrollView
-                android:id="@+id/scrollView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="40dp">
+                    android:id="@+id/imageView5"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/edit_container_item" />
 
                 <LinearLayout
-                    android:id="@+id/candidateLayout"
+                    android:id="@+id/datalinearLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
-                    android:orientation="horizontal"></LinearLayout>
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal"
+                    android:padding="3dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-            </HorizontalScrollView>
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="3dp"
+                        app:srcCompat="@drawable/gallery_icon" />
+
+                    <TextView
+                        android:id="@+id/imageCntTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="TextView"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/allInJpegTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="-10dp"
+                    android:gravity="bottom"
+                    android:rotation="90"
+                    android:text="All in JPEG"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="35dp"
+                    android:layout_marginEnd="50dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/datalinearLayout">
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="-8dp"
+                        android:foregroundGravity="center">
+
+                        <LinearLayout
+                            android:id="@+id/linear"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:orientation="horizontal"/>
+
+                    </HorizontalScrollView>
+                </FrameLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/menu"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+
+            android:layout_weight="1"
+            android:background="#3C3C3C"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+        </LinearLayout>
 
 
     </LinearLayout>
@@ -279,6 +352,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="75dp" />
+        app:layout_constraintGuide_begin="60dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

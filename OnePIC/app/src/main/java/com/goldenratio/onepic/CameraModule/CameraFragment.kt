@@ -32,7 +32,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
@@ -522,12 +521,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         }
 
                         imageContent.activityType = ActivityType.Camera
-                        CoroutineScope(Dispatchers.Default).launch {
-                            // RewindFragment로 이동
-                            withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
-                            }
-                        }
+//                        CoroutineScope(Dispatchers.Default).launch {
+//                            // RewindFragment로 이동
+//                            withContext(Dispatchers.Main) {
+//                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
+//                            }
+//                        }
+                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                        jpegViewModel.jpegMCContainer.value?.save()
+                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
                     }
                 }
 
@@ -588,8 +590,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                     }
                                     jop.await()
                                     Log.d("error 잡기", "넘어가기 전")
-                                    imageContent.activityType = ActivityType.Camera
-                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+//                                    imageContent.activityType = ActivityType.Camera
+//                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                                    jpegViewModel.jpegMCContainer.value?.save()
+                                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
                                 }
                             }
 
@@ -655,9 +660,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         imageContent.activityType = ActivityType.Camera
                         CoroutineScope(Dispatchers.Default).launch {
                             // RewindFragment로 이동
-                            withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-                            }
+//                            withContext(Dispatchers.Main) {
+//                                findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
+//                            }
+                            Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                            jpegViewModel.jpegMCContainer.value?.save()
+                            Log.d("error 잡기", "바로 편집에서 save() 호출후")
                         }
                     }
                 }
@@ -719,12 +727,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         }
 
                         imageContent.activityType = ActivityType.Camera
-                        CoroutineScope(Dispatchers.Default).launch {
-                            // RewindFragment로 이동
-                            withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_cameraFragment_to_rewindFragment)
-                            }
-                        }
+//                        CoroutineScope(Dispatchers.Default).launch {
+//                            // RewindFragment로 이동
+//                            withContext(Dispatchers.Main) {
+//                                findNavController().navigate(R.id.action_cameraFragment_to_rewindFragment)
+//                            }
+//                        }
+                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                        jpegViewModel.jpegMCContainer.value?.save()
+                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
                     }
                 } // end of Coroutine ...
             } // end of auto rewind ...
@@ -999,11 +1010,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
 //                    jpegViewModel.jpegMCContainer.value!!.save()
                     imageContent.activityType = ActivityType.Camera
-                    CoroutineScope(Dispatchers.Default).launch {
-                        withContext(Dispatchers.Main) {
-                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-                        }
-                    }
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        withContext(Dispatchers.Main) {
+//                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
+//                        }
+//                    }
+                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                    jpegViewModel.jpegMCContainer.value?.save()
+                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
                 }
             }
             return
@@ -1087,12 +1101,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     }
 
 //                    jpegViewModel.jpegMCContainer.value!!.save()
-                    imageContent.activityType = ActivityType.Camera
-                    CoroutineScope(Dispatchers.Default).launch {
-                        withContext(Dispatchers.Main) {
-                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-                        }
-                    }
+//                    imageContent.activityType = ActivityType.Camera
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        withContext(Dispatchers.Main) {
+//                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
+//                        }
+//                    }
+                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+                    jpegViewModel.jpegMCContainer.value?.save()
+                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
                 }
             }
             return

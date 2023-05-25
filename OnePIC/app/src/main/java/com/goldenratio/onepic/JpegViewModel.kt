@@ -62,7 +62,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         pictureByteArrayList = byteArrayList
     }
 
-    fun getPictureByteArrList():MutableList<ByteArray>{
+    fun getPictureByteArrList():MutableList<ByteArray> {
         return pictureByteArrayList
     }
 
@@ -133,8 +133,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         }
     }
 
-    fun getFilePathIdx(key:String):Int?{
-        if (urlHashMap.containsKey(key)){
+    fun getFilePathIdx(key:String):Int? {
+        if (urlHashMap.containsKey(key)) {
             return urlHashMap.get(key)
         }
         return null
