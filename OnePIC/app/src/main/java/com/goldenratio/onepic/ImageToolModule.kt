@@ -1,8 +1,9 @@
 package com.goldenratio.onepic
 
-import android.content.res.Resources
+import android.content.Context
 import android.graphics.*
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
@@ -193,16 +194,17 @@ class ImageToolModule {
      * floatToDp(f : Float):
      *        float 값을 dp값으로 변화해서 반환
      */
-    fun floatToDp(f : Float):Int {
-        return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
+    fun floatToDp(context: Context, px : Float): Float {
+//        return (f * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
 
-//        val resources = context.resources
-//        return TypedValue.applyDimension(
-//            TypedValue.COMPLEX_UNIT_PX,
-//            px,
-//            resources.displayMetrics
-//        )
+        val resources = context.resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_PX,
+            px,
+            resources.displayMetrics
+        )
     }
+
 
     /**
      * drawDetectionResult(bitmap: Bitmap, detectionResults: ArrayList<Face>, customColor: Int) : Bitmap
@@ -236,7 +238,7 @@ class ImageToolModule {
             // draw bounding box
 //            pen.color = context.resources.getColor(R.color.white)
             pen.color = customColor
-            pen.strokeWidth = floatToDp(8F).toFloat()
+            pen.strokeWidth = 30f
             pen.style = Paint.Style.STROKE
             canvas.drawArc(box, -30f, 70f, false, pen)
             canvas.drawArc(box, 140f, 70f, false, pen)

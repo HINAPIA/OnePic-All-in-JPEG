@@ -9,36 +9,25 @@
         android:id="@+id/cropImageView"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginTop="7dp"
+        android:padding="2dp"
         android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkMainIcon"
-        tools:ignore="MissingConstraints" />
+        tools:srcCompat="@tools:sample/avatars" />
 
-    <ImageView
+    <TextView
         android:id="@+id/checkMainIcon"
         android:layout_width="100dp"
         android:layout_height="20dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
+        android:gravity="center"
         android:scaleType="fitCenter"
+        android:text="추천"
+        android:textColor="@color/white"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/cropImageView"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/crown"
-        app:tint="@color/point_color"
-        tools:ignore="MissingConstraints" />
-
-    <ImageView
-        android:id="@+id/viewerIcon"
-        android:layout_width="100dp"
-        android:layout_height="20dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/cropImageView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/crown"
-        app:tint="@color/point_color"
-        tools:ignore="MissingConstraints" />
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

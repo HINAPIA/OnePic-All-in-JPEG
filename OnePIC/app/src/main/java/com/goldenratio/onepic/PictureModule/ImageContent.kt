@@ -238,7 +238,11 @@ class ImageContent {
             while (!checkFinish.all { it }) {
                 if (!isSetBitmapListStart) {
                     // 특정 조건을 만족할 때 함수를 강제로 종료시킴
-                    throw Exception("Function forcibly terminated")
+                    try {
+                        throw Exception("Function forcibly terminated")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
             bitmapList = newBitmapList
