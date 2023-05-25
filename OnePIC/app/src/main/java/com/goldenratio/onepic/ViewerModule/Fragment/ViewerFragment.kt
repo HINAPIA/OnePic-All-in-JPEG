@@ -13,7 +13,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
-import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -89,13 +88,14 @@ class ViewerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        binding = FragmentViewerBinding.inflate(inflater, container, false)
+
         // 상태바 색상 변경
         val window: Window = activity?.window
             ?: throw IllegalStateException("Fragment is not attached to an activity")
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-
-        binding = FragmentViewerBinding.inflate(inflater, container, false)
 
         currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
 
@@ -115,25 +115,21 @@ class ViewerFragment : Fragment() {
 
         if (isEditStoraged && currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
 
-            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+            isEditStoraged = false // 초기화
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // ViewPager Update
 
+            /* 편집 후, 바로 편집된 이미지로 넘어감 */
             var path = currentFilePath
-
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
                 path = getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
             jpegViewModel.setCurrentImageUri(binding.viewPager2.currentItem)
-
-            isEditStoraged = false
         }
 
-
-        setCurrentOtherImage()
-
-        binding.scrollView.visibility = View.VISIBLE
-
+        setCurrentOtherImage() // 스크롤뷰 이미지 채우기
+//        binding.scrollView.visibility = View.VISIBLE
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
@@ -161,7 +157,7 @@ class ViewerFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        var currentPosition: Int = binding.viewPager2.currentItem
+        var currentPosition: Int = binding.viewPager2.currentItem // 현재 파일 path or uri 저장해두기
         currentFilePath = mainViewPagerAdapter.galleryMainimage[currentPosition]
     }
 
@@ -173,8 +169,7 @@ class ViewerFragment : Fragment() {
 
         binding.viewPager2.setOnClickListener {
 
-            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
-
+            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){ // text가 존재할 때
                 if (binding.savedTextView.visibility == View.VISIBLE){
                     binding.savedTextView.visibility = View.INVISIBLE
                 }
@@ -184,7 +179,7 @@ class ViewerFragment : Fragment() {
             }
         }
 
-        binding.savedTextView.setOnClickListener {
+        binding.savedTextView.setOnClickListener { // Text view 클릭했을 때
             if (binding.savedTextView.text != null && binding.savedTextView.text != ""){
                 if (it.visibility == View.VISIBLE){
                     it.visibility = View.INVISIBLE
@@ -196,13 +191,9 @@ class ViewerFragment : Fragment() {
         }
 
         binding.allInJpegTextView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                // 텍스트뷰의 로딩이 완료된 후에 호출될 작업을 여기에 작성합니다.
-
+            override fun onGlobalLayout() { // all in jpeg 로고 텍스트뷰의 로딩이 완료된 후에 호출될 작업 - 마진 조절
                 val width = binding.allInJpegTextView.width
-
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
-
                 val leftMarginInDp = 0
                 val topMarginInDp =  spToDp(context,10f).toInt()
                 val rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
@@ -220,21 +211,17 @@ class ViewerFragment : Fragment() {
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
         if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
             binding.audioBtn.visibility = View.VISIBLE
-            // margin 계산
-
         }
         else {
             binding.audioBtn.visibility = View.GONE
         }
 
         /*  Text 있을 경우 - 표시 */
-
         if (container.textContent.textCount != 0){
 
             binding.savedTextView.visibility = View.VISIBLE
 
             var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-
             if(textList != null && textList.size !=0){
 
                 val text = textList.get(0).data
@@ -246,7 +233,6 @@ class ViewerFragment : Fragment() {
 
                 binding.savedTextView.setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
                 binding.savedTextView.setText(text)
-
 
             }
             else {
@@ -266,13 +252,9 @@ class ViewerFragment : Fragment() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                CoroutineScope(Dispatchers.Default).launch {
-//                    setMagicPicture()
-                }
 
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
                 mainViewPagerAdapter.notifyDataSetChanged()
-
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
@@ -292,16 +274,16 @@ class ViewerFragment : Fragment() {
             }
         })
 
-        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) { // 매직 픽처인 경우 - 버튼 보이기
+        // 매직 픽처인 경우 - 버튼 보이기
+        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
             setMagicPicture()
         }
-
         else {
             binding.magicBtnlinearLayout.visibility = View.GONE
         }
 
-        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.distance_focus)){ // 거리별 초점 사진인 경우 - seekBar 보이기
-
+        // 거리별 초점 사진인 경우 - seekBar 보이기
+        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.distance_focus)){
             binding.seekBarLinearLayout.visibility = View.VISIBLE
         }
         else {
@@ -342,7 +324,6 @@ class ViewerFragment : Fragment() {
             }
         }
 
-
         audioTopMargin.observe(requireActivity()){ value ->
 
             val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
@@ -368,19 +349,6 @@ class ViewerFragment : Fragment() {
             binding.audioBtn.layoutParams = layoutParams
         }
 
-//        seekBarMargin.observe(requireActivity()) { value ->
-//
-//            val layoutParams = binding.seekBar.layoutParams as ViewGroup.MarginLayoutParams
-//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-//            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
-//            val rightMarginInDp = 0 // 오른쪽 마진(dp)
-//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-//
-//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-//            binding.seekBar.layoutParams = layoutParams
-//        }
-
-
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
@@ -388,18 +356,6 @@ class ViewerFragment : Fragment() {
         binding.backBtn.setOnClickListener{
             backPressed()
         }
-    }
-
-    fun scrollAnimation(){
-        binding.scrollView.visibility = View.VISIBLE
-
-        val startPosition = - binding.scrollView.width - 10
-        val endPosition = 1.0F//binding.scrollView.x //binding.pullRightView.x
-
-        val animation = TranslateAnimation(startPosition.toFloat(), endPosition,0f, 0f)
-        animation.duration = 600
-        binding.scrollView.startAnimation(animation)
-
     }
 
     fun setMagicPicture() {
@@ -454,6 +410,7 @@ class ViewerFragment : Fragment() {
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
 
+
         // bitmap list (seek bar 속도 개선)
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         CoroutineScope(Dispatchers.Default).launch {
@@ -470,16 +427,11 @@ class ViewerFragment : Fragment() {
 
                 /* seekBar 처리 - 스크롤뷰 아이템 개수에 따라, progress와 max 지정 */
                 if (binding.seekBar.visibility == View.VISIBLE) {
-
                     binding.seekBar.progress = 0
                     binding.seekBar.max = jpegViewModel.getPictureByteArrList().size - 1
                     binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) { // 시크바의 값이 변경될 때 호출되는 메서드
-
-                            Log.d("progress : ",""+progress)
-
                             jpegViewModel.setselectedSubImage(pictureList[progress % binding.seekBar.max])
-
                             if (bitmapList.size >= progress + 1) { // bitmap으로 사진 띄우기
                                 mainViewPagerAdapter.setExternalImageBitmap(bitmapList[progress])
                             } else {
@@ -552,10 +504,6 @@ class ViewerFragment : Fragment() {
                             scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
                                 mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
                                 jpegViewModel.setselectedSubImage(picture)
-                                if (i != 0)
-                                    binding.editBtn.visibility = View.GONE
-                                else
-                                    binding.editBtn.visibility = View.VISIBLE
                             }
 
                             scrollImageView.setOnTouchListener { _, event ->
