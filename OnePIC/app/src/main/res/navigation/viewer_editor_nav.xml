@@ -33,6 +33,9 @@
         <action
             android:id="@+id/action_editFragment_to_focusChangeFragment"
             app:destination="@id/focusChangeFragment2" />
+        <action
+            android:id="@+id/action_editFragment_to_audioAddFragment"
+            app:destination="@id/audioAddFragment" />
     </fragment>
     <fragment
         android:id="@+id/rewindFragment"
@@ -162,5 +165,14 @@
             app:destination="@id/editFragment"
             app:popUpTo="@id/editFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/audioAddFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.AudioAddFragment"
+        android:label="fragment_audio_add"
+        tools:layout="@layout/fragment_audio_add" >
+        <action
+            android:id="@+id/action_audioAddFragment_to_editFragment"
+            app:destination="@id/editFragment" />
     </fragment>
 </navigation>

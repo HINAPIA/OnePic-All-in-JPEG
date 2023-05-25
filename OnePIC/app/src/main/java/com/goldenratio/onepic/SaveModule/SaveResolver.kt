@@ -57,7 +57,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
                 } else {
                     val requestExternalStorageCode = 1
-
                     val permissionStorage = arrayOf(
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
                         android.Manifest.permission.WRITE_EXTERNAL_STORAGE

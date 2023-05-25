@@ -63,6 +63,11 @@ class ImageViewer : View() {
                             var orientation = imageTool.getOrientation(firstImageBytes)
                             aiContainer.imageContent.orientation = orientation
 
+                            // 상세 정보 갱신
+                            // 현재 사진의 상세 정보 얻어오기
+                            var stringList = imageTool.getDetailInfo(firstImageBytes)
+                            centerView.updateDetailView(stringList)
+
                             val image = Image(selectedFile.toURI().toString())
 
                             // Main Image 바꾸기

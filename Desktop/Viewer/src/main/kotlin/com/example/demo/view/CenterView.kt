@@ -8,6 +8,7 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Label
+import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
@@ -51,13 +52,40 @@ class CenterView : View() {
     var fileImageView = ImageView()
     var fileNameLabel = Label()
 
+    var detailImage : ImageView = ImageView()
+    var detailView : VBox = VBox()
+
     var textContentLabel = Label()
     var textContentStackPane= StackPane()
 
     var animationTime = 0.5
 
+    var calenderLabel : Label = Label()
+    var imageLabel : Label = Label()
+    var loacionLabel : Label = Label()
+
     override val root = stackpane{
-        // '분석하기' 버튼
+
+        // 상세보기
+        setDetailView()
+        StackPane.setAlignment(detailView, Pos.TOP_RIGHT)
+        StackPane.setMargin(detailView, Insets(45.0, 95.0, 0.0, 50.0))
+
+        // 상세 보기 버튼
+        detailImage = ImageView(Image(File(imageSourcePath +"book.png").toURI().toURL().toExternalForm()))
+        detailImage.fitWidth = 50.0 // 이미지의 가로 크기를 50으로 지정
+        detailImage.isPreserveRatio = true // 이미지의 비율을 유지하도록 설정
+
+        detailImage.setOnMouseEntered { e -> //analysisButton.setImage(analsImage)
+             }
+            detailImage.setOnMouseExited { e ->
+                // analysisButton.setImage(preAnalsImage)
+            }
+            StackPane.setAlignment(detailImage, Pos.TOP_RIGHT)
+            StackPane.setMargin(detailImage, Insets(20.0, 70.0, 0.0, 50.0))
+
+
+            // '분석하기' 버튼
         addAnalysisButton()
         StackPane.setAlignment(analysisButton, Pos.BOTTOM_RIGHT)
         StackPane.setMargin(analysisButton, Insets(0.0, 70.0, 100.0, 50.0))
@@ -89,6 +117,9 @@ class CenterView : View() {
 //                backgroundColor = MultiValue(arrayOf(Color.web("#FF0000")))
 //            }
         }
+
+
+
 
 
         // gifImageView
@@ -159,6 +190,8 @@ class CenterView : View() {
         children.add(editView.root)
         children.add(analysisLabels)
         children.add(textContentStackPane)
+        children.add(detailImage)
+        children.add(detailView)
 
 
         style {
@@ -196,6 +229,82 @@ class CenterView : View() {
         var aspectRatio = mainImageView.image.width / mainImageView.image.height
         mainImageView.fitHeight = mainImageView.fitWidth / aspectRatio
 
+    }
+
+    fun updateDetailView(stringList : ArrayList<String>){
+        if(stringList.size > 3){
+            calenderLabel.text = stringList.get(0)
+            imageLabel.text = stringList.get(1)
+            loacionLabel.text = stringList.get(2)
+        }
+    }
+    fun setDetailView(){
+        detailView.apply {
+            // spacing = 10.0
+            setPrefSize(190.0, 170.0)
+            setMaxSize(190.0, 170.0)
+            style{
+                // 둥글게
+                paddingAll = 5.0
+                background = Background(BackgroundFill(Color.web("#EAEAEADD"), CornerRadii(15.0), Insets.EMPTY))
+            }
+            add(
+                label {
+                    text = "상세 정보"
+                    style{
+                        textFill = c("#000000") // 글자 색상 흰색
+                        font = Font.font("궁서체", FontWeight.EXTRA_BOLD, 11.0)
+                    }
+                    padding = insets(10)
+                })
+            add(
+                hbox {
+                    spacing = 10.0
+                    // 아이콘 이미지
+                    vbox {
+                        spacing = 20.0
+                        padding = insets(10,0)
+                        add(ImageView(Image(File(imageSourcePath +"calender.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                        add(ImageView(Image(File(imageSourcePath +"image.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                        add(ImageView(Image(File(imageSourcePath +"location.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                    }
+                    vbox {
+                        spacing = 26.0
+                        padding = insets(5,10,0,0)
+                        calenderLabel =  label {
+                            text = "상세 정보"
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("나눔 고딕", FontWeight.EXTRA_BOLD, 11.0)
+                            }
+                        }
+                        imageLabel =  label {
+                            text = "상세 정보"
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("나눔 고딕", FontWeight.EXTRA_BOLD, 11.0)
+                            }
+                        }
+                        loacionLabel = label {
+                            text = "상세 정보"
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("나눔 고딕", FontWeight.EXTRA_BOLD, 11.0)
+                            }
+                        }
+                    }
+                }
+            )
+        }
     }
     fun setMainImage(image : Image, rotation : Int){
 
@@ -275,6 +384,12 @@ class CenterView : View() {
         }
         // 이미지 리스트 뷰 바꾸기
         subImagesView.setPictureList(aiContainer.imageContent.pictureList)
+    }
+
+    private fun getDetailInfo(): ArrayList<String> {
+        var stringList = arrayListOf<String>()
+
+        return stringList
     }
 
     fun analyzingImageAnimation(){

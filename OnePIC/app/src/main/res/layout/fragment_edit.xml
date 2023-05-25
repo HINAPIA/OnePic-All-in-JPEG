@@ -124,7 +124,7 @@
                 android:textSize="12sp" />
 
             <Button
-                android:id="@+id/addBtn"
+                android:id="@+id/audioAddBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -132,7 +132,20 @@
                 android:drawableTop="@drawable/add_icon_resize"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:text="@string/add"
+                android:text="audio 추가"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/textAddBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent_color"
+                android:drawableTop="@drawable/add_icon_resize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="text 추가"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 

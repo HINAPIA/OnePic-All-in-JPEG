@@ -214,13 +214,18 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
 
-        // ADD
-        binding.addBtn.setOnClickListener {
+        // audio ADD
+        binding.audioAddBtn.setOnClickListener {
             // 일반 사진이면 안 넘어가도록
             if(checkAdd) {
                 // MagicPictureFragment로 이동
-                findNavController().navigate(R.id.action_editFragment_to_addFragment)
+                findNavController().navigate(R.id.action_editFragment_to_audioAddFragment)
             }
+        }
+
+        // text ADD
+        binding.textAddBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_editFragment_to_addFragment)
         }
 
         // Viewer
@@ -292,6 +297,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     // 우리 앱의 사진이 아닐 때
                     if(result == "another"){
                         singleSave()
+                        Log.d("save_test", "another")
                         CoroutineScope(Dispatchers.Default).launch {
                             Thread.sleep(1000)
                             setButtonDeactivation()
@@ -300,11 +306,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     }
                     else{
                         CoroutineScope(Dispatchers.Default).launch {
-                            setButtonDeactivation()
+                            Log.d("save_test", "우리 앱 사진")
                             Thread.sleep(2000)
-                            withContext(Dispatchers.Main) {
-                                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                            }
+                            setButtonDeactivation()
+                            setCurrentPictureByteArrList()
+//                            withContext(Dispatchers.Main) {
+//                                findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//                            }
                         }
                     }
 
@@ -322,54 +330,64 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     }
                 } else {
                     imageTool.showView(binding.progressBar2, false)
-                    oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-                        .setPositiveButton(
-                            "모두 저장",
-                            DialogInterface.OnClickListener { dialog, which ->
-                                imageTool.showView(binding.progressBar2, true)
-                                if (!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute) {
-                                    val mainPicture = imageContent.mainPicture
-                                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                                    imageContent.insertPicture(0, mainPicture)
-                                }
-                                jpegViewModel.jpegMCContainer.value?.save()
-                                CoroutineScope(Dispatchers.Default).launch {
-                                    Thread.sleep(2000)
-                                    setButtonDeactivation()
-                                    setCurrentPictureByteArrList()
-
-//                                    withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar2 , false)
-//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                                }
+                    try {
+                        singleSave()
+                    } catch (e: IOException) {
+                        Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    CoroutineScope(Dispatchers.Default).launch {
+                        Thread.sleep(1000)
+                        setButtonDeactivation()
+                        setCurrentPictureByteArrList()
+                    }
+//                    oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
+//                        .setPositiveButton(
+//                            "모두 저장",
+//                            DialogInterface.OnClickListener { dialog, which ->
+//                                imageTool.showView(binding.progressBar2, true)
+//                                if (!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute) {
+//                                    val mainPicture = imageContent.mainPicture
+//                                    // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+//                                    imageContent.insertPicture(0, mainPicture)
+//                                }
+//                                jpegViewModel.jpegMCContainer.value?.save()
 //                                CoroutineScope(Dispatchers.Default).launch {
+//                                    Thread.sleep(2000)
 //                                    setButtonDeactivation()
 //                                    setCurrentPictureByteArrList()
 //
-//                                    withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar2 , false)
-//                                        Thread.sleep(3000)
-//                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                                    }
+////                                    withContext(Dispatchers.Main) {
+//////                        imageTool.showView(binding.progressBar2 , false)
+////                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
 //                                }
-                            })
-                        .setNeutralButton("예",
-                            DialogInterface.OnClickListener { dialog, which ->
-                                try {
-                                    singleSave()
-                                } catch (e: IOException) {
-                                    Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-
-                               CoroutineScope(Dispatchers.Default).launch {
-                                   Thread.sleep(1000)
-
-                                    setButtonDeactivation()
-                                    setCurrentPictureByteArrList()
-                                }
-                            })
-                        .show()
+////                                CoroutineScope(Dispatchers.Default).launch {
+////                                    setButtonDeactivation()
+////                                    setCurrentPictureByteArrList()
+////
+////                                    withContext(Dispatchers.Main) {
+//////                        imageTool.showView(binding.progressBar2 , false)
+////                                        Thread.sleep(3000)
+////                                        findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+////                                    }
+////                                }
+//                            })
+//                        .setNeutralButton("예",
+//                            DialogInterface.OnClickListener { dialog, which ->
+//                                try {
+//                                    singleSave()
+//                                } catch (e: IOException) {
+//                                    Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
+//                                        .show()
+//                                }
+//
+//                               CoroutineScope(Dispatchers.Default).launch {
+//                                   Thread.sleep(1000)
+//                                    setButtonDeactivation()
+//                                    setCurrentPictureByteArrList()
+//                                }
+//                            })
+//                        .show()
                 }
 //            }
             imageContent.setCheckAttribute()

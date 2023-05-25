@@ -11,7 +11,8 @@
     <string name="in_rewind">잘나온 얼굴로 변경</string>
     <string name="in_magicPicture">움직이는 매직 사진</string>
     <string name="in_add">컨텐츠 추가</string>
-
+    <string name="audio_add">Audio 추가</string>
+    <string name="text_add">Text 추가</string>
 
     <string name="auto_option">자동 얼굴 변경</string>
     <string name="choice_button">대표 사진 추천</string>

@@ -28,19 +28,20 @@ import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.AudioDialogBinding
 import com.goldenratio.onepic.databinding.FragmentAddBinding
+import com.goldenratio.onepic.databinding.FragmentAudioAddBinding
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
 import java.util.*
 
 
-class AddFragment : Fragment(), ConfirmDialogInterface {
-    var testCount = 0
+class AudioAddFragment : Fragment(), ConfirmDialogInterface {
+
 
     private lateinit var activity: ViewerEditorActivity
-    private lateinit var binding: FragmentAddBinding
+    private lateinit var binding: FragmentAudioAddBinding
     private lateinit var imageToolModule : ImageToolModule
-    private lateinit var mainPicture : Picture
+
 
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private lateinit var imageContent : ImageContent
@@ -65,9 +66,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     private var audioWithContent : Job = Job()
 
 
-    // text
-    var isTextOn : Boolean = false
-    var textList : ArrayList<String> = arrayListOf()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -81,11 +79,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentAddBinding.inflate(inflater, container, false)
+        binding = FragmentAudioAddBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
-        textInit()
 
         val mainBitmap = imageContent.getMainBitmap()
 
@@ -119,7 +116,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         // close btn 클릭 시
         binding.addCloseBtn.setOnClickListener {
             audioResolver.audioStop()
-            findNavController().navigate(R.id.action_addFragment_to_editFragment)
+            findNavController().navigate(R.id.action_audioAddFragment_to_editFragment)
         }
 
         // info 확인
@@ -132,89 +129,61 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
-        // text btn 클릭 시
-        binding.textAddBtn.setOnClickListener {
-            if(!isTextOn){
-                audioResolver.audioStop()
-                if(isAudioOn){
-                    if(isRecordingMode) {
-                        /* 녹음 중단 후 저장*/
-                        timerUIStop()
-                        tempAudioFile = audioStop()
-                        isRecordingMode = false
-                        isRecordedMode = true
-                    }
-                    isAudioOn = false
-                    binding.contentLayout.visibility = View.GONE
-                }
-                isTextOn = true
-                //binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
-                binding.textContentLayout.visibility = View.VISIBLE
-                // text 입력 UI에 기존의 텍스트 메시지 띄우기
-                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
-                if(textList != null && textList.size !=0){
-                    binding.editText.setText(textList.get(0).data)
-                }
-            }else{
-                textInit()
-                binding.textContentLayout.visibility = View.GONE
-            }
-
-        }
-        // Edit Text에 포커스가 갔을 시
-        binding.editText.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                //method
-                binding.textCheckButton .visibility = View.VISIBLE
-            } else{
-                binding.textCheckButton.visibility = View.INVISIBLE
-            }
-        }
-
-        // text의 "확인" 클릭 시
-        binding.textCheckButton.setOnClickListener {
-            var textMessage: String = binding.editText.text.toString()
-            var textList: ArrayList<String> = arrayListOf()
-            textList.add(textMessage)
-            if (textMessage != "") {
-                jpegViewModel.jpegMCContainer.value!!.setTextConent(
-                    ContentAttribute.basic,
-                    textList
-                )
-                imageContent.checkAddAttribute = true
-                CoroutineScope(Dispatchers.Main).launch {
-                    // 키보드 내리기
-                    val imm: InputMethodManager? =
-                        activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
-                    if (imm != null) {
-                        imm.hideSoftInputFromWindow(binding.editText.getWindowToken(), 0)
-                    }
-                    binding.editText.clearFocus()
-                    Toast.makeText(activity, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
         /* Audio Add */
-        // audio btn 클릭 시
-        binding.audioAddBtn.setOnClickListener {
-            if(!isAudioOn){
-                if(isTextOn){
-                    textInit()
-                    binding.textContentLayout.visibility = View.GONE
-                }
-                isAudioOn = true
-
-                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
-                binding.contentLayout.visibility = View.VISIBLE
-                // 재생 바
+        if(!isAudioOn){
+            isAudioOn = true
+            binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
+            binding.contentLayout.visibility = View.VISIBLE
+//            // 재생 바
+//            if(tempAudioFile != null){
+//                setSeekBar()
+//            }
+        }else{
+            isAudioOn = false
+            binding.contentLayout.visibility = View.GONE
+        }
+        binding.playBtn.setOnClickListener {
+            // 정지 -> 재생
+            if(jpegViewModel.isAudioPlay.value!! == 0){
+                jpegViewModel.isAudioPlay.value = 1
+                // 오디오 재생
                 if(tempAudioFile != null){
                     setSeekBar()
                 }
-            }else{
-                isAudioOn = false
-                binding.contentLayout.visibility = View.GONE
+
+            } else if(jpegViewModel.isAudioPlay.value!! == 1){
+                // 재생 -> 정지
+                if(isPlaying){
+                    jpegViewModel.isAudioPlay.value = 0
+                    if (mediaPlayer != null) {
+                        mediaPlayer.stop()
+                    }
+                // 재생 -> replay
+                }else
+                    jpegViewModel.isAudioPlay.value = 2
+            // replay -> 재생
+            } else{
+                jpegViewModel.isAudioPlay.value = 1
             }
         }
+        jpegViewModel.isAudioPlay.observe(viewLifecycleOwner) {
+            if(it == 0){
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play2))
+                // 재생 중인데 정지 버튼을 누를 때
+                if(isPlaying){
+                    if (mediaPlayer != null) {
+                        mediaPlayer.stop()
+                    }
+                }
+                // binding.back.visibility = View.VISIBLE
+            }else if(it ==1){
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.pause2))
+            }else{
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.replay))
+            }
+
+        }
+
 
         // 오디오 녹음 내역 저장
         binding.audioCheckButton.setOnClickListener {
@@ -226,8 +195,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         it1, "viewer_record")
                 }
             }
-
-           // audioResolver.audioStop()
+            // audioResolver.audioStop()
             imageContent.checkAddAttribute = true
 
             CoroutineScope(Dispatchers.Main).launch {
@@ -347,7 +315,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             //mediaPlayer = null
         }
     }
-     override fun onDestroy() {
+    override fun onDestroy() {
         super.onDestroy()
         if(audioWithContent != null){
             isDestroy = true
@@ -360,7 +328,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     }
     fun setSeekBar(){
         isPlaying = true
-        Log.d("AudioModule", "setSeekBar(${++testCount})")
         audioWithContent = CoroutineScope(Dispatchers.IO).launch {
             mediaPlayer.reset()
             mediaPlayer.apply {
@@ -409,13 +376,6 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         }
     }
 
-    fun textInit(){
-        isTextOn = false
-        textList.clear()
-        CoroutineScope(Dispatchers.Main).launch{
-            binding.editText.setText("")
-        }
-    }
 
     fun audioStop() : File? {
         // 녹음 중단, 저장
@@ -447,8 +407,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                     }
                 }
             }
-        val timer = Timer()
-        timer.schedule(playingTimerTask, 0, 1000)
+            val timer = Timer()
+            timer.schedule(playingTimerTask, 0, 1000)
         }
     }
 
@@ -493,45 +453,45 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     }
 }
 
-//class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
-//
-//    // 뷰 바인딩 정의
-//    private var _binding: AudioDialogBinding? = null
-//    private val binding get() = _binding!!
-//
-//    private var confirmDialogInterface: ConfirmDialogInterface? = null
-//
-//
-//    init {
-//        this.confirmDialogInterface = confirmDialogInterface
-//
-//    }
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View {
-//        _binding = AudioDialogBinding.inflate(inflater, container, false)
-//        val view = binding.root
-//
-//        // 취소 버튼 클릭
-//        binding.noButton.setOnClickListener {
-//            dismiss()
-//        }
-//
-//        // 확인 버튼 클릭
-//        binding.yesButton.setOnClickListener {
-//            this.confirmDialogInterface?.onYesButtonClick(id!!)
-//            dismiss()
-//        }
-//        return view
-//    }
-//
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        _binding = null
-//    }
-//}
-//interface ConfirmDialogInterface {
-//    fun onYesButtonClick(id: Int)
-//}
+class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
+
+    // 뷰 바인딩 정의
+    private var _binding: AudioDialogBinding? = null
+    private val binding get() = _binding!!
+
+    private var confirmDialogInterface: ConfirmDialogInterface? = null
+
+
+    init {
+        this.confirmDialogInterface = confirmDialogInterface
+
+    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = AudioDialogBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        // 취소 버튼 클릭
+        binding.noButton.setOnClickListener {
+            dismiss()
+        }
+
+        // 확인 버튼 클릭
+        binding.yesButton.setOnClickListener {
+            this.confirmDialogInterface?.onYesButtonClick(id!!)
+            dismiss()
+        }
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+interface ConfirmDialogInterface {
+    fun onYesButtonClick(id: Int)
+}

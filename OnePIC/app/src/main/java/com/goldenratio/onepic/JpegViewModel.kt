@@ -32,9 +32,12 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     var preEditMainPicture: Picture? = null
 
+
     /* Edit에서 필요 */
     var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)
     var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
+
+    var isAudioPlay = MutableLiveData<Int>(0)
 
     private val galleryObserver = object : ContentObserver(android.os.Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
