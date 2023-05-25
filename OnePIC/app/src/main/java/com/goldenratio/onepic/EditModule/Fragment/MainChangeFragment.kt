@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -31,6 +32,7 @@ import kotlinx.coroutines.withContext
 class MainChangeFragment : Fragment() {
 
 
+    private var bestImage: TextView? = null
     private lateinit var binding: FragmentMainChangeBinding
     lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
@@ -209,13 +211,21 @@ class MainChangeFragment : Fragment() {
             }
 
             if (mainIndex == i) {
-                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                mainSubView = subLayout.findViewById(R.id.checkMainIcon)
+//                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                mainSubView = cropImageView
+                CoroutineScope(Dispatchers.Main).launch {
+                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+                }
             }
 
             cropImageView.setOnClickListener {
+                mainSubView.background = null
+                CoroutineScope(Dispatchers.Main).launch {
+                    mainSubView.background = null
+                }
+
                 mainPicture = pictureList[i]
-                imageToolModule.showView(mainSubView, false)
+//                imageToolModule.showView(mainSubView, false)
                 CoroutineScope(Dispatchers.Main).launch {
 //                    infoLevel.value = InfoLevel.AfterMainSelect
                     imageToolModule.showView(binding.infoDialogLayout, false)
@@ -224,10 +234,11 @@ class MainChangeFragment : Fragment() {
                     Glide.with(binding.changeMainView)
                         .load(imageContent.getJpegBytes(mainPicture))
                         .into(binding.changeMainView)
+                    cropImageView.setBackgroundResource(R.drawable.chosen_image_border)
                 }
-                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-                mainSubView = subLayout.findViewById(R.id.checkMainIcon)
-                //binding.changeMainView.setImageBitmap(mainBitmap)
+//                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+
+                mainSubView = cropImageView
             }
 
             CoroutineScope(Dispatchers.Main).launch {
@@ -295,11 +306,20 @@ class MainChangeFragment : Fragment() {
                         .into(binding.changeMainView)
 
                     if(imageContent.activityType == ActivityType.Viewer) {
-                        imageToolModule.showView(mainSubView, false)
 
+                        bestImage = binding.candidateLayout.getChildAt(bestImageIndex)
+                            .findViewById<TextView>(R.id.checkMainIcon)
+
+                        mainSubView.background = null
                         mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
-                            .findViewById(R.id.checkMainIcon)
-                        imageToolModule.showView(mainSubView, true)
+                            .findViewById<TextView>(R.id.cropImageView)
+                        mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+
+                        if(bestImage != null) {
+                            imageToolModule.showView(bestImage!!, true)
+                            Log.d("mainChange","bestImage not null")
+                        }
+                        Log.d("mainChange","bestImage null")
                     }
                     imageToolModule.showView(binding.progressBar, false)
 //                    imageToolModule.showView(binding.choiceMainBtn, true)

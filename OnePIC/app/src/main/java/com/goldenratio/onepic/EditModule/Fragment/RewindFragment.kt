@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import androidx.core.view.isEmpty
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -55,6 +56,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     lateinit var fragment: Fragment
 
     private var infoLevel = MutableLiveData<InfoLevel>()
+
+    protected var selectFaceRect: Rect? = null
+    protected var isSelected = false
+
+    private lateinit var mainSubView: View
 
     private enum class InfoLevel {
         EditFaceSelect,
@@ -274,42 +280,69 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         // 이미지 뷰 클릭 시
         binding.mainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
+                if (!isSelected) {
 //                imageToolModule.showView(binding.progressBar, true)
-                showProgressBar(true, LoadingText.Change)
-                imageToolModule.showView(binding.rewindMenuLayout, false)
+                    showProgressBar(true, LoadingText.Change)
+                    imageToolModule.showView(binding.rewindMenuLayout, false)
 
-                if (preMainBitmap != null) {
-                    mainBitmap = preMainBitmap!!
-                    newImage = null
-                }
-                // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(
-                    PointF(event.x, event.y),
-                    binding.mainView
-                )
-                println("------- click point:$touchPoint")
+//                    if (preMainBitmap != null) {
+//                        mainBitmap = preMainBitmap!!
+//                        newImage = null
+//                    }
+                    // click 좌표를 bitmap에 해당하는 좌표로 변환
+                    val touchPoint = ImageToolModule().getBitmapClickPoint(
+                        PointF(event.x, event.y),
+                        binding.mainView
+                    )
+                    println("------- click point:$touchPoint")
 
-                if (touchPoint != null) {
+                    if (touchPoint != null) {
 
-                    CoroutineScope(Dispatchers.Default).launch {
-                        // Click 좌표가 포함된 Bounding Box 얻음
-                        while (!rewindModule.getCheckFaceDetection()) {
-                        }
-                        val boundingBox = getBoundingBox(touchPoint)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            // Click 좌표가 포함된 Bounding Box 얻음
+                            while (!rewindModule.getCheckFaceDetection()) {
+                            }
+                            val boundingBox = getBoundingBox(touchPoint)
 
-                        if (boundingBox.size > 0) {
-                            // Bounding Box로 이미지를 Crop한 후 보여줌
-                            withContext(Dispatchers.Main) {
-                                cropImgAndView(boundingBox)
+                            if (boundingBox.size > 0) {
+                                // Bounding Box로 이미지를 Crop한 후 보여줌
+                                withContext(Dispatchers.Main) {
+                                    cropImgAndView(boundingBox)
+                                }
                             }
                         }
-                    }
-                } else {
+                    } else {
 //                    imageToolModule.showView(binding.progressBar, false)
-                    showProgressBar(false, null)
+                        showProgressBar(false, null)
+                    }
                 }
             }
             return@setOnTouchListener true
+        }
+
+        binding.faceSaveBtn.setOnClickListener {
+            isSelected = false
+
+            if (preMainBitmap != null) {
+                mainBitmap = preMainBitmap!!
+                newImage = null
+                preMainBitmap = null
+            }
+
+            binding.mainView.setImageBitmap(mainBitmap)
+            imageToolModule.showView(binding.faceRewindMenuLayout, false)
+            setMainImageBoundingBox()
+        }
+
+        binding.faceCancleBtn.setOnClickListener {
+            isSelected = false
+
+            newImage = null
+            preMainBitmap = null
+
+            binding.mainView.setImageBitmap(mainBitmap)
+            imageToolModule.showView(binding.faceRewindMenuLayout, false)
+            setMainImageBoundingBox()
         }
     }
 
@@ -419,10 +452,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 checkFinish.fill(true) // 배열의 모든 요소를 true로 설정
             } else {
 
-                val rect = Rect(basicRect[0], basicRect[1], basicRect[2], basicRect[3])
-                val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, rect.toRectF(), requireContext().resources.getColor(R.color.select_face))
-
-                changeMainView(newBitmap)
+                selectFaceRect = Rect(basicRect[0], basicRect[1], basicRect[2], basicRect[3])
 
                 // 메인 사진일 경우 나중에 다른 사진을 겹칠 위치 지정
                 changeFaceStartX = basicRect[4]
@@ -437,7 +467,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 checkFinish[0] = true
                 for (i in 1 until bitmapList.size) {
 //                    CoroutineScope(Dispatchers.Default).launch {
-
                         // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
                         val rect =
                             rewindModule.getClickPointBoundingBox(bitmapList[i], i, touchPoint)
@@ -467,7 +496,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
-        binding.faceRewindMenuLayout.visibility = View.VISIBLE
+        imageToolModule.showView(binding.faceRewindMenuLayout, true)
+        isSelected = true
+        changeMainView()
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
@@ -505,6 +536,10 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 cropImageView.setImageBitmap(cropImage)
                 // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
                 cropImageView.setOnClickListener {
+
+                    cropImageView.setBackgroundResource(R.drawable.chosen_image_border)
+                    cropImageView.setPadding(imageToolModule.floatToDp(requireContext(),3.0f).toInt())
+
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
                         //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
@@ -588,8 +623,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-    open fun changeMainView(bitmap: Bitmap) {
-        binding.mainView.setImageBitmap(bitmap)
+    open fun changeMainView() {
+        if(selectFaceRect != null) {
+            val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+            binding.mainView.setImageBitmap(newBitmap)
+        }
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
@@ -620,6 +658,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         imageToolModule.showView(binding.progressBar, boolean)
         imageToolModule.showView(binding.loadingText, boolean)
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

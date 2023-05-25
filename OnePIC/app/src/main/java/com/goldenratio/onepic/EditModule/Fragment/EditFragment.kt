@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -48,6 +51,17 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var isSaved = false
     private var isFinished = MutableLiveData<Boolean>()
 
+    private lateinit var mainSubView: View
+
+    private var pictureList = arrayListOf<Picture>()
+    private var bitmapList = arrayListOf<Bitmap>()
+    private lateinit var mainPicture : Picture
+
+    private lateinit var imageToolModule: ImageToolModule
+
+    private var mainPictureIndex = 0
+
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
@@ -77,62 +91,80 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         binding = FragmentEditBinding.inflate(inflater, container, false)
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
-        imageContent.activityType = ActivityType.Viewer
+
+        imageToolModule = ImageToolModule()
 
         while (!imageContent.checkPictureList) {}
+        mainPicture = imageContent.mainPicture
+        pictureList = imageContent.pictureList
 
-        if(imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
-            imageContent.checkMagicAttribute || imageContent.checkAddAttribute) {
-            imageTool.showView(binding.saveBtn, true)
-        }
-        else {
-            jpegViewModel.preEditMainPicture = imageContent.mainPicture
-        }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
-            // 메인 이미지 설정
-
-            withContext(Dispatchers.Main) {
+        // 메인 이미지 설정
+            CoroutineScope(Dispatchers.Main).launch {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(imageContent.mainPicture))
                     .into(binding.mainImageView)
             }
+
+        if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+            binding.seekBar.visibility = View.VISIBLE
+        }
+        val textContent = jpegViewModel.jpegMCContainer.value!!.textContent
+        val audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
+
+        var imageCntText = "담긴 사진 ${imageContent.pictureList.size}장 "
+
+        if(textContent.textList.size > 0) {
+            imageCntText += "+ 텍스트"
+        }
+        if(audioContent.audio != null) {
+            imageCntText += "+ 오디오"
         }
 
-        if(imageContent.checkAttribute(ContentAttribute.burst)){
-//            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-//            binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
-            checkFocus = false
-            if(imageContent.checkAttribute(ContentAttribute.magic)) {
-                binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-                binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
-                checkMagic = false
-            }
-        }
-        else {
-            // focus 변경 아이콘 텍스트로 수정
-            checkChange = false
-            binding.changeBtn.text = getString(R.string.focus)
-            val drawable = resources.getDrawable(R.drawable.focus_icon_resize)
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            binding.changeBtn.setCompoundDrawables(null, drawable, null, null)
+        setSubImage()
 
+        binding.imageCntTextView.text =  imageCntText
 
-            binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-            binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
-            checkMagic = false
-
-            if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
-                binding.rewindBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-                binding.rewindBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.rewind_deactivation_icon_resize, 0, 0)
-                checkRewind = false
-
-//                binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
-//                binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
-//                checkFocus = false
-            }
-        }
+//        if(imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
+//            imageContent.checkMagicAttribute || imageContent.checkAddAttribute) {
+//            imageTool.showView(binding.saveBtn, true)
+//        }
+//        else {
+//            jpegViewModel.preEditMainPicture = imageContent.mainPicture
+//        }
+//        if(imageContent.checkAttribute(ContentAttribute.burst)){
+////            binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+////            binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
+//            checkFocus = false
+//            if(imageContent.checkAttribute(ContentAttribute.magic)) {
+//                binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//                binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
+//                checkMagic = false
+//            }
+//        }
+//        else {
+//            // focus 변경 아이콘 텍스트로 수정
+//            checkChange = false
+//            binding.changeBtn.text = getString(R.string.focus)
+//            val drawable = resources.getDrawable(R.drawable.focus_icon_resize)
+//            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+//            binding.changeBtn.setCompoundDrawables(null, drawable, null, null)
+//
+//
+//            binding.magicBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//            binding.magicBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.magic_deactivation_icon_resize, 0, 0)
+//            checkMagic = false
+//
+//            if(!imageContent.checkAttribute(ContentAttribute.object_focus)) {
+//                binding.rewindBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+//                binding.rewindBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.rewind_deactivation_icon_resize, 0, 0)
+//                checkRewind = false
+//
+////                binding.focusBtn.setTextColor(requireContext().resources.getColor(R.color.do_not_click_color))
+////                binding.focusBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.focus_deactivation_icon_resize, 0, 0)
+////                checkFocus = false
+//            }
+//        }
 
         CoroutineScope(Dispatchers.Default).launch{
              imageContent.getMainBitmap()
@@ -449,6 +481,62 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 .show()
         }
 
+    }
+
+    @SuppressLint("ResourceAsColor")
+    fun setSubImage() {
+
+        for (i in 0 until pictureList.size) {
+            // 넣고자 하는 layout 불러오기
+            val subLayout =
+                layoutInflater.inflate(R.layout.scroll_item_layout, null)
+
+            // 위 불러온 layout에서 변경을 할 view가져오기
+            val imageView: ImageView =
+                subLayout.findViewById(R.id.scrollImageView)
+
+            // 이미지뷰에 붙이기
+            CoroutineScope(Dispatchers.Main).launch {
+                Log.d("error 잡기", "$i 번째 이미지 띄우기")
+                Glide.with(imageView)
+                    .load(imageContent.getJpegBytes(pictureList[i]))
+                    .into(imageView)
+            }
+
+            if (i == 0) {
+//                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+                mainSubView = imageView
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+                    mainSubView.setPadding(6,6,6,6)
+
+                    imageToolModule.showView(subLayout.findViewById<TextView>(R.id.mainMark), true)
+                }
+            }
+
+            subLayout.setOnClickListener {
+                    mainSubView.background = null
+                    mainSubView.setPadding(0, 0, 0, 0)
+
+                mainPicture = pictureList[i]
+//                imageToolModule.showView(mainSubView, false)
+                CoroutineScope(Dispatchers.Main).launch {
+                    // 메인 이미지 설정
+                    Glide.with(binding.mainImageView)
+                        .load(imageContent.getJpegBytes(mainPicture))
+                        .into(binding.mainImageView)
+                    imageView.setBackgroundResource(R.drawable.chosen_image_border)
+                    imageView.setPadding(6,6,6,6)
+                }
+                mainSubView = imageView
+            }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+                binding.candidateLayout.addView(subLayout)
+            }
+        }
     }
 
 }

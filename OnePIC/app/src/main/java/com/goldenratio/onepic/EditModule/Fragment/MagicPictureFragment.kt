@@ -12,6 +12,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toRectF
 import androidx.core.view.isEmpty
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -354,7 +355,6 @@ class MagicPictureFragment : RewindFragment() {
                 // 자른 사진 이미지뷰에 붙이기
                 cropImageView.setImageBitmap(cropImage)
 
-                // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
 //                cropImageView.setOnClickListener {
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
@@ -457,7 +457,10 @@ class MagicPictureFragment : RewindFragment() {
         }
     }
 
-    override fun changeMainView(bitmap: Bitmap) {
-        binding.mainView.setImageBitmap(bitmap)
+    override fun changeMainView() {
+        if(selectFaceRect != null) {
+            val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+            binding.mainView.setImageBitmap(newBitmap)
+        }
     }
 }
