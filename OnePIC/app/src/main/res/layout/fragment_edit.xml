@@ -200,7 +200,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <ProgressBar
-                android:id="@+id/progressBar2"
+                android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:indeterminateTint="@color/progressive_color"

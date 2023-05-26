@@ -37,11 +37,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected lateinit var imageToolModule: ImageToolModule
     protected lateinit var rewindModule: RewindModule
 
-    protected lateinit var mainPicture: Picture
-    private lateinit var originalMainBitmap: Bitmap
-    protected lateinit var mainBitmap: Bitmap
+    protected lateinit var selectPicture: Picture
 
-    private var preMainBitmap: Bitmap? = null
+    private lateinit var originalSelectBitmap: Bitmap
+    protected lateinit var selectBitmap: Bitmap
+    private var PreSelectBitmap: Bitmap? = null
     protected var newImage: Bitmap? = null
 
     protected var changeFaceStartX = 0
@@ -101,24 +101,27 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         showProgressBar(true, LoadingText.FaceDetection)
         imageToolModule.showView(binding.rewindMenuLayout, false)
 
-        // main Picture의 byteArray를 bitmap 제작
-        mainPicture = imageContent.mainPicture
+        while(!imageContent.checkPictureList) {}
 
+        // main Picture의 byteArray를 bitmap 제작
+        selectPicture = imageContent.pictureList[jpegViewModel.selectPictureIndex]
+        
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainView)
-                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                    .load(imageContent.getJpegBytes(selectPicture))
                     .into(binding.mainView)
             }
         }
 
         CoroutineScope(Dispatchers.Default).launch {
-            val newMainBitmap = imageContent.getMainBitmap()
+            val allBitmapList = imageContent.getBitmapList()
+            val newMainBitmap = allBitmapList?.get(jpegViewModel.selectPictureIndex)
             if (newMainBitmap != null) {
-                mainBitmap = newMainBitmap
+                selectBitmap = newMainBitmap
             }
-            originalMainBitmap = mainBitmap
+            originalSelectBitmap = selectBitmap
             // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
             setMainImageBoundingBox()
         }
@@ -163,21 +166,25 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 //                imageToolModule.showView(binding.loadingText, true)
                 showProgressBar(true, LoadingText.Save)
 
-                if (preMainBitmap != null) {
-                    mainBitmap = preMainBitmap!!
+                if (PreSelectBitmap != null) {
+                    selectBitmap = PreSelectBitmap!!
                     newImage = null
                 }
 
                 val allBytes = imageToolModule.bitmapToByteArray(
-                    mainBitmap,
-                    imageContent.getJpegBytes(mainPicture)
+                    selectBitmap,
+                    imageContent.getJpegBytes(selectPicture)
                 )
 
-                imageContent.mainPicture =
-                    Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
-                imageContent.mainPicture.waitForByteArrayInitialized()
+                val selectIndex = jpegViewModel.selectPictureIndex
 
-                imageContent.setMainBitmap(mainBitmap)
+                imageContent.pictureList[selectIndex] =
+                    Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
+                imageContent.pictureList[selectIndex].waitForByteArrayInitialized()
+
+                jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)
+
+//                imageContent.setMainBitmap(selectBitmap)
                 withContext(Dispatchers.Main) {
                     //jpegViewModel.jpegMCContainer.value?.save()
                     imageContent.checkRewindAttribute = true
@@ -193,7 +200,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.rewindCloseBtn.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_fregemnt_to_editFragment)
-            } catch (e: IllegalStateException) {
+            } catch (e: IllegalArgumentException) {
                 e.printStackTrace()
             }
         }
@@ -215,7 +222,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
                     rewindModule.allFaceDetection(bitmapList)
-                    mainBitmap = rewindModule.autoBestFaceChange(bitmapList)
+                    selectBitmap = rewindModule.autoBestFaceChange(bitmapList)
 
                     setMainImageBoundingBox()
                     newImage = null
@@ -237,14 +244,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    binding.mainView.setImageBitmap(originalMainBitmap)
+                    binding.mainView.setImageBitmap(originalSelectBitmap)
                     return@setOnTouchListener true
                 }
                 MotionEvent.ACTION_UP -> {
                     if (newImage != null)
-                        binding.mainView.setImageBitmap(preMainBitmap)
+                        binding.mainView.setImageBitmap(PreSelectBitmap)
                     else
-                        binding.mainView.setImageBitmap(mainBitmap)
+                        binding.mainView.setImageBitmap(selectBitmap)
                     return@setOnTouchListener true
                 }
                 else -> return@setOnTouchListener false
@@ -256,9 +263,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
             }
-            binding.mainView.setImageBitmap(originalMainBitmap)
-            mainBitmap = originalMainBitmap
-            preMainBitmap = null
+            binding.mainView.setImageBitmap(originalSelectBitmap)
+            selectBitmap = originalSelectBitmap
+            PreSelectBitmap = null
             newImage = null
         }
 
@@ -285,8 +292,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     showProgressBar(true, LoadingText.Change)
                     imageToolModule.showView(binding.rewindMenuLayout, false)
 
-//                    if (preMainBitmap != null) {
-//                        mainBitmap = preMainBitmap!!
+//                    if (PreSelectBitmap != null) {
+//                        selectBitmap = PreSelectBitmap!!
 //                        newImage = null
 //                    }
                     // click 좌표를 bitmap에 해당하는 좌표로 변환
@@ -323,13 +330,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         binding.faceSaveBtn.setOnClickListener {
             isSelected = false
 
-            if (preMainBitmap != null) {
-                mainBitmap = preMainBitmap!!
+            if (PreSelectBitmap != null) {
+                selectBitmap = PreSelectBitmap!!
                 newImage = null
-                preMainBitmap = null
+                PreSelectBitmap = null
             }
 
-            binding.mainView.setImageBitmap(mainBitmap)
+            binding.mainView.setImageBitmap(selectBitmap)
             imageToolModule.showView(binding.faceRewindMenuLayout, false)
             setMainImageBoundingBox()
         }
@@ -338,9 +345,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             isSelected = false
 
             newImage = null
-            preMainBitmap = null
+            PreSelectBitmap = null
 
-            binding.mainView.setImageBitmap(mainBitmap)
+            binding.mainView.setImageBitmap(selectBitmap)
             imageToolModule.showView(binding.faceRewindMenuLayout, false)
             setMainImageBoundingBox()
         }
@@ -372,7 +379,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
             val faceResult = rewindModule.runFaceDetection(0)
-//            val faceResult = rewindModule.runMainFaceDetection(mainBitmap)
+//            val faceResult = rewindModule.runMainFaceDetection(selectBitmap)
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
             if (faceResult.size == 0) {
@@ -390,7 +397,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             } else {
                 try {
                     val resultBitmap =
-                        imageToolModule.drawDetectionResult(mainBitmap, faceResult, requireContext().resources.getColor(R.color.white))
+                        imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
 
                     // imageView 변환
                     withContext(Dispatchers.Main) {
@@ -550,14 +557,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     // 크롭이미지 배열에 값 추가
                     cropBitmapList.add(newImage!!)
 
-                    preMainBitmap = imageToolModule.overlayBitmap(
-                        mainBitmap,
+                    PreSelectBitmap = imageToolModule.overlayBitmap(
+                        selectBitmap,
                         newImage!!,
                         changeFaceStartX,
                         changeFaceStartY
                     )
 
-                    binding.mainView.setImageBitmap(preMainBitmap)
+                    binding.mainView.setImageBitmap(PreSelectBitmap)
                     imageToolModule.showView(binding.arrowBar, true)
                     infoLevel.value = InfoLevel.ArrowCheck
                 }
@@ -585,22 +592,22 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             println("!!!!!!!!!! change point (${changeFaceStartX}, ${changeFaceStartY})")
             if(changeFaceStartX < 0)
                 changeFaceStartX = 0
-            else if(changeFaceStartX > mainBitmap.width- newImage!!.width)
-                changeFaceStartX = mainBitmap.width - newImage!!.width
+            else if(changeFaceStartX > selectBitmap.width- newImage!!.width)
+                changeFaceStartX = selectBitmap.width - newImage!!.width
             if(changeFaceStartY < 0)
                 changeFaceStartY = 0
-            else if(changeFaceStartY > mainBitmap.height - newImage!!.height)
-                changeFaceStartY = mainBitmap.height - newImage!!.height
+            else if(changeFaceStartY > selectBitmap.height - newImage!!.height)
+                changeFaceStartY = selectBitmap.height - newImage!!.height
 
             println("==== change point (${changeFaceStartX}, ${changeFaceStartY})")
-            preMainBitmap = imageToolModule.overlayBitmap(
-                mainBitmap,
+            PreSelectBitmap = imageToolModule.overlayBitmap(
+                selectBitmap,
                 newImage!!,
                 changeFaceStartX,
                 changeFaceStartY
             )
 
-            binding.mainView.setImageBitmap(preMainBitmap)
+            binding.mainView.setImageBitmap(PreSelectBitmap)
         }
     }
 
@@ -625,7 +632,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     open fun changeMainView() {
         if(selectFaceRect != null) {
-            val newBitmap = imageToolModule.drawDetectionResult(mainBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+            val newBitmap = imageToolModule.drawDetectionResult(selectBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
             binding.mainView.setImageBitmap(newBitmap)
         }
     }

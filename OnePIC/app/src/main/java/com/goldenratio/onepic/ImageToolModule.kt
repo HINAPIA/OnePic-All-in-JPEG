@@ -105,19 +105,21 @@ class ImageToolModule {
      */
     fun cropBitmap(original: Bitmap, cropRect: Rect): Bitmap {
 
-            var width = (cropRect.right - cropRect.left)
-            var height = cropRect.bottom - cropRect.top
-            var startX = cropRect.left
-            var startY = cropRect.top
-            if (startX < 0)
-                startX = 0
-            else if (startX+width > original.width)
-                width = original.width-startX
-            if (startY < 0)
-                startY = 0
-            else if(startY+height > original.height)
-                height = original.height-startY
+        var width = (cropRect.right - cropRect.left)
+        var height = cropRect.bottom - cropRect.top
+        var startX = cropRect.left
+        var startY = cropRect.top
+        if (startX < 0)
+            startX = 0
+        if (startX + width > original.width)
+            width = original.width - startX
+        if (startY < 0)
+            startY = 0
+        if (startY + height > original.height)
+            height = original.height - startY
 
+
+        Log.d("imageTool", "~~~~~~!! $startX | $startY | $width | $height")
 
         val result = Bitmap.createBitmap(
             original

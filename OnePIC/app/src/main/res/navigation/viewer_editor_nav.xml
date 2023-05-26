@@ -22,9 +22,6 @@
             app:popUpTo="@id/viewerFragment"
             app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action_editFragment_to_playFragment"
-            app:destination="@id/playFragment" />
-        <action
             android:id="@+id/action_editFragment_to_addFragment"
             app:destination="@id/addFragment" />
         <action
@@ -86,17 +83,6 @@
         <action
             android:id="@+id/action_galleryFragment_to_basicViewerFragment"
             app:destination="@id/basicViewerFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/playFragment"
-        android:name="com.goldenratio.onepic.EditModule.Fragment.PlayFragment"
-        android:label="fragment_play"
-        tools:layout="@layout/fragment_play" >
-        <action
-            android:id="@+id/action_playFragment_to_editFragment"
-            app:destination="@id/editFragment"
-            app:popUpTo="@id/editFragment"
-            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/addFragment"

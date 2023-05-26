@@ -32,6 +32,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     var preEditMainPicture: Picture? = null
 
+    var mainPictureIndex: Int = 0
+    var selectPictureIndex: Int = 0
 
     /* Edit에서 필요 */
     var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)
@@ -55,6 +57,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             true,
             galleryObserver
         )
+        selectPictureIndex = 0
+        mainPictureIndex = 0
     }
 
     fun setContainer(MCContainer: MCContainer) {
@@ -63,6 +67,11 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     fun setpictureByteArrList(byteArrayList:MutableList<ByteArray>){
         pictureByteArrayList = byteArrayList
+    }
+
+    fun setPictureByteList(byteArray: ByteArray, index: Int) {
+        if(pictureByteArrayList.size > index)
+            pictureByteArrayList[index] = byteArray
     }
 
     fun getPictureByteArrList():MutableList<ByteArray> {
@@ -79,6 +88,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         if (selectedSubImage != null) // 초기화
             selectedSubImage = null
         this.selectedSubImage = picture
+        selectPictureIndex = jpegMCContainer.value!!.imageContent.pictureList.indexOf(picture)
     }
 
     fun updateImageUriData(uriList: MutableList<String>) {
