@@ -75,23 +75,30 @@ class ImageTool {
             if (exifIFD0Directory != null) {
                 val dateTime = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)
                 if (dateTime != null) {
-                    timeInfo = dateTime.toString()
-                    println("시간 ${convertToKoreaTime(timeInfo)}")
+                    timeInfo = convertToKoreaTime(dateTime.toString())
+                    println("시간 ${(timeInfo)}")
                 }
+            } else{
+                timeInfo = "2023-5-25 23:25:50"
             }
+            StringList.add(timeInfo)
 
             // 사진의 위치 정보 읽기
+            //TODO(문자 자르기)
             val gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory::class.java)
             if (gpsDirectory != null) {
                 val latitude = gpsDirectory.getString(GpsDirectory.TAG_LATITUDE)
                 val longitude = gpsDirectory.getString(GpsDirectory.TAG_LONGITUDE)
                 if (latitude != null && longitude != null) {
-                    locationInfo = "Latitude: $latitude, Longitude: $longitude"
+                    locationInfo = "Latitude: $latitude\n Longitude: $longitude"
                     println("위치 ${locationInfo}")
                 } else{
-
+                    locationInfo = "Latitude: 37/1 31/1\nLongitude: 127/1 6/1"
                 }
+            }else{
+                locationInfo = "Latitude: 37/1 31/1\nLongitude: 127/1 6/1"
             }
+            StringList.add(locationInfo)
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: MetadataException) {

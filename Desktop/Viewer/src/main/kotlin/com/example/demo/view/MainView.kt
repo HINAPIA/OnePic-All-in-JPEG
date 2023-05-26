@@ -65,7 +65,8 @@ class ImageViewer : View() {
 
                             // 상세 정보 갱신
                             // 현재 사진의 상세 정보 얻어오기
-                            var stringList = imageTool.getDetailInfo(firstImageBytes)
+                            var stringList : ArrayList<String> = imageTool.getDetailInfo(firstImageBytes)
+                            stringList.add(fileName)
                             centerView.updateDetailView(stringList)
 
                             val image = Image(selectedFile.toURI().toString())

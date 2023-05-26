@@ -174,26 +174,11 @@ class SubImagesView(val centerView : CenterView) : View() {
              maxHeight(130.0)
             style{
                 backgroundColor = MultiValue(arrayOf(Color.web("#020202")))
-                //backgroundColor = MultiValue(arrayOf(Color.web("#FFFFFF")))
                 effect = DropShadow(10.0, 0.0, 5.0, javafx.scene.paint.Color.GRAY).apply {
                     blurType = javafx.scene.effect.BlurType.ONE_PASS_BOX
                 }
             }
-            // setMargin(this@apply, Insets(0.0, 20.0, 20.0, 20.0))
-             //alignment = Pos.CENTER // StackPane의 자식 노드들을 중앙으로 정렬
          }
-
-//        subImageView.apply {
-//            style {
-//                //borderWidth += box(5.px)
-//                borderColor += box(Color.BLUE)
-//                backgroundColor += c("yellow")
-//                // 상하좌우 모서리 모두 10px 둥글게 처리
-//                borderRadius = multi(box(10.px))
-//                //paddingAll = 10.0
-//                //background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
-//            }
-//        }
     }
 
     init {
@@ -205,6 +190,7 @@ class SubImagesView(val centerView : CenterView) : View() {
         return stackpane{
             setMinSize(200.0, 50.0)
             setMaxSize(200.0, 50.0)
+            isVisible = false
             style{
                 paddingAll = 10.0
                 background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
@@ -244,6 +230,7 @@ class SubImagesView(val centerView : CenterView) : View() {
         return stackpane{
             setMinSize(200.0, 50.0)
             setMaxSize(200.0, 50.0)
+            isVisible = false
             style{
                 paddingAll = 10.0
                 background = Background(BackgroundFill(Color.web("#020202"), CornerRadii(15.0), Insets.EMPTY))
@@ -285,9 +272,8 @@ class SubImagesView(val centerView : CenterView) : View() {
 
     fun clear(){
         runLater {
-            root.isVisible = false
             picturesPane.children.clear()
-            //textLabel.text = ""
+            root.isVisible = false
             textView.isVisible = false
             audioView.isVisible = false
             audioTextLabel.text = "00 : 00"
@@ -353,9 +339,7 @@ class SubImagesView(val centerView : CenterView) : View() {
             scaleTransition.play()
         }
         fun selectView(imageView: ImageView ){
-            //imageView.maxHeight(imageView.fitWidth + 5)
             imageView.style{
-                println("스타일 지")
                 backgroundColor += c("yellow")
                 borderWidth += box(10.px)
                 borderColor += box(Color.BLUE)
@@ -374,7 +358,7 @@ class SubImagesView(val centerView : CenterView) : View() {
 
                         var orientation = AiContainerSingleton.aiContainer.imageContent.orientation
                         imageView.image = imageTool.rotaionImage(Image(pictureByte.inputStream()), orientation)
-                        imageView.fitHeightProperty().bind(picturesPane.heightProperty().multiply(0.8))
+                        imageView.fitHeightProperty().bind(picturesPane.heightProperty().multiply(0.7))
 
                         // 사진의 비율을 유지하도록 계산하여 설정
                         val aspectRatio = imageView.image.height / imageView.image.width

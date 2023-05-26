@@ -289,6 +289,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     var fileName : String = ""
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
                         fileName = jpegViewModel.getFileNameFromUri(currentFilePath!!.toUri())
+                        Log.d("file path test", currentFilePath!!.toUri().toString())
                     }else{
                         fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                     }

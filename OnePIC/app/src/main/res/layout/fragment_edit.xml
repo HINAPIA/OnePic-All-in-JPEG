@@ -41,7 +41,7 @@
             android:backgroundTint="@color/dark_purple"
             android:text="@string/save_text"
             android:textSize="18sp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toTopOf="parent" />
@@ -82,7 +82,7 @@
             android:layout_weight="1.5"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <Button
                 android:id="@+id/changeBtn"
