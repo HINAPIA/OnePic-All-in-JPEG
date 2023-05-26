@@ -48,7 +48,8 @@
         <activity
             android:name=".ViewerModule.ViewerEditorActivity"
             android:exported="true"
-            android:windowTranslucentStatus="true">
+            android:windowTranslucentStatus="true"
+            android:screenOrientation="portrait">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->

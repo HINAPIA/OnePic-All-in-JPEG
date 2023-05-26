@@ -66,7 +66,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     // binding 변수
     private lateinit var viewFinder : PreviewView
     private lateinit var shutterBtn : ImageView
-    private lateinit var basicRadioButton : RadioButton
+    private lateinit var basicRadioBtn : RadioButton
     private lateinit var burstRadioBtn : RadioButton
     private lateinit var objectFocusRadioBtn : RadioButton
     private lateinit var distanceFocusRadioBtn : RadioButton
@@ -87,7 +87,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     private lateinit var activity: CameraEditorActivity
     private lateinit var binding : FragmentCameraBinding
-    private var isToggleChecked : Boolean? = false
     private lateinit var mediaPlayer : MediaPlayer
     private lateinit var rotation: ObjectAnimator
     private var selectedRadioIndex : Int? = 0
@@ -163,7 +162,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         textureView = binding.textureView
         viewFinder = binding.viewFinder
         shutterBtn = binding.shutterBtn
-        basicRadioButton = binding.basicRadioBtn
+        basicRadioBtn = binding.basicRadioBtn
         burstRadioBtn = binding.burstRadioBtn
         objectFocusRadioBtn = binding.objectFocusRadioBtn
         distanceFocusRadioBtn = binding.distanceFocusRadioBtn
@@ -229,7 +228,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     Log.v("chaewon", "2222 isBackLens : $isBackLens")
                 }
 
-                basicRadioButton.id,
+                basicRadioBtn.id,
                 objectFocusRadioBtn.id,
                 distanceFocusRadioBtn.id -> {
                     isBackLens = !isBackLens!!
@@ -294,7 +293,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
 
         isBackLens = sharedPref?.getBoolean("isBackLens", true)
-        selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", 0)
+        selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", basicRadioBtn.id)
+
+        if(selectedRadioIndex == 0)
+            selectedRadioIndex = basicRadioBtn.id
 
         // '연사 촬영' 일때, Camera2 열기
         if(selectedRadioIndex!! == burstRadioBtn.id ){
@@ -313,12 +315,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             startCameraX()
         }
 
+        Log.v("burst error", "selected Radio Index : ${selectedRadioIndex}")
+
         // 가져온 값을 사용합니다.
         if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
             when (selectedRadioIndex) {
-                basicRadioButton.id -> {
-                    basicRadioButton.isChecked = true
+                basicRadioBtn.id -> {
+                    basicRadioBtn.isChecked = true
 
                     overlay.visibility = View.GONE
                     viewFinder.visibility = View.VISIBLE
@@ -374,7 +378,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
          */
         modeRadioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId){
-                basicRadioButton.id -> {
+                basicRadioBtn.id -> {
 
                     if( selectedRadioIndex == burstRadioBtn.id ) {
                         //Camera2 중단 > CameraX 실행
@@ -382,9 +386,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         startCameraX()
                     }
 
-                    selectedRadioIndex = basicRadioButton.id
+                    selectedRadioIndex = basicRadioBtn.id
 
-                    basicRadioButton.setTypeface(null, Typeface.BOLD)
+                    basicRadioBtn.setTypeface(null, Typeface.BOLD)
                     burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -400,7 +404,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 burstRadioBtn.id -> {
 
-                    if(selectedRadioIndex == basicRadioButton.id
+                    if(selectedRadioIndex == basicRadioBtn.id
                         || selectedRadioIndex == objectFocusRadioBtn.id
                         || selectedRadioIndex == distanceFocusRadioBtn.id) {
                         //CameraX 중단 > Camera2 실행
@@ -410,12 +414,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                         textureView.visibility = View.VISIBLE
                         camera2.startBackgroundThread()
+                        Log.v("burst error", "camera2 start")
                         camera2.startCamera2()
                     }
-
+                    Log.v("burst error", "1. Burst > selected Radio Index : ${selectedRadioIndex}")
                     selectedRadioIndex = burstRadioBtn.id
+                    Log.v("burst error", "2. Burst > selected Radio Index : ${selectedRadioIndex}")
 
-                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     burstRadioBtn.setTypeface(null, Typeface.BOLD)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -439,7 +445,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     selectedRadioIndex = objectFocusRadioBtn.id
 
-                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
@@ -464,7 +470,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     selectedRadioIndex = distanceFocusRadioBtn.id
 
-                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
@@ -488,7 +494,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             shutterBtn.isEnabled = false
             galleryBtn.isEnabled = false
             convertBtn.isEnabled = false
-            basicRadioButton.isEnabled = false
+            basicRadioBtn.isEnabled = false
             burstRadioBtn.isEnabled = false
             objectFocusRadioBtn.isEnabled = false
             distanceFocusRadioBtn.isEnabled = false
@@ -497,7 +503,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             previewByteArrayList.clear()
 
             //Basic 모드
-            if(basicRadioButton.isChecked){
+            if(basicRadioBtn.isChecked){
                 turnOnAFMode()
                 audioResolver.startRecording("camera_record")
 
@@ -522,7 +528,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
                         convertBtn.isEnabled = true
-                        basicRadioButton.isEnabled = true
+                        basicRadioBtn.isEnabled = true
                         burstRadioBtn.isEnabled = true
                         objectFocusRadioBtn.isEnabled = true
                         distanceFocusRadioBtn.isEnabled = true
@@ -571,7 +577,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                 shutterBtn.isEnabled = true
                                 galleryBtn.isEnabled = true
                                 convertBtn.isEnabled = true
-                                basicRadioButton.isEnabled = true
+                                basicRadioBtn.isEnabled = true
                                 burstRadioBtn.isEnabled = true
                                 objectFocusRadioBtn.isEnabled = true
                                 distanceFocusRadioBtn.isEnabled = true
@@ -809,7 +815,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
                         convertBtn.isEnabled = true
-                        basicRadioButton.isEnabled = true
+                        basicRadioBtn.isEnabled = true
                         burstRadioBtn.isEnabled = true
                         objectFocusRadioBtn.isEnabled = true
                         distanceFocusRadioBtn.isEnabled = true
@@ -893,7 +899,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
                         convertBtn.isEnabled = true
-                        basicRadioButton.isEnabled = true
+                        basicRadioBtn.isEnabled = true
                         burstRadioBtn.isEnabled = true
                         objectFocusRadioBtn.isEnabled = true
                         distanceFocusRadioBtn.isEnabled = true
