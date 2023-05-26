@@ -22,24 +22,10 @@
             android:fontFamily="@font/abril_fatface"
             android:text="@string/app_name"
             android:textColor="@color/dark_purple"
-            android:textSize="20dp"
+            android:textSize="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/topMenuVer2"
             app:layout_constraintStart_toStartOf="@+id/topMenuVer1"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ToggleButton
-            android:id="@+id/basicToggleBtn"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_centerInParent="true"
-            android:background="@drawable/basic_toggle_selector"
-            android:padding="0dp"
-            android:textOff=""
-            android:textOn=""
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/topMenuVer4"
-            app:layout_constraintStart_toStartOf="@+id/topMenuVer3"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -55,20 +41,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.66" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuVer3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.87" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuVer4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.97" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -92,154 +64,206 @@
                 android:layout_height="match_parent"
                 app:scaleType="fitStart"/>
 
+            <com.example.test_camera2.CameraHelper.AutoFitTexutreView
+                android:id="@+id/textureView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
             <com.goldenratio.onepic.CameraModule.OverlayView
                 android:id="@+id/overlay"
                 android:layout_height="match_parent"
-                android:layout_width="match_parent"/>
+                android:layout_width="match_parent"
+                android:visibility="gone"/>
 
-            <LinearLayout
-                android:id="@+id/distanceOptionLinearLayout"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/infoConstraintLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:foregroundGravity="center"
-                app:layout_constraintBottom_toTopOf="@+id/frameLayout_hor2"
-                app:layout_constraintEnd_toStartOf="@+id/frameLayout_ver2"
-                app:layout_constraintStart_toStartOf="@+id/frameLayout_ver1"
-                app:layout_constraintTop_toTopOf="@+id/frameLayout_hor1"
-                android:visibility="visible">
+                android:background="@drawable/camera_info_rounded"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor2">
 
-                <RadioGroup
-                    android:id="@+id/distanceOptionRadioGroup"
+                <TextView
+                    android:id="@+id/infoTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:text="@string/camera_burst_info"
+                    app:layout_constraintStart_toStartOf="@id/infoConstraintLayout_ver1"
+                    app:layout_constraintEnd_toStartOf="@id/infoCloseBtn"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-                    <RadioButton
-                        android:id="@+id/distanceManualRadioBtn"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:checked="true"
-                        android:background="@drawable/distance_option_background_selector"
-                        android:button="@drawable/null_radio_button"
-                        android:gravity="center"
-                        android:text="@string/distance_manual_initial"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:textSize="15dp"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginBottom="5dp"/>
+                <ImageButton
+                    android:id="@+id/infoCloseBtn"
+                    android:layout_width="35dp"
+                    android:layout_height="29dp"
+                    android:backgroundTint="@color/transparent_color"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/infoTextView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@drawable/close_icon"
+                    app:tint="@color/white" />
 
-                    <RadioButton
-                        android:id="@+id/distanceAutoRadioBtn"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/distance_option_background_selector"
-                        android:text="@string/distance_auto_initial"
-                        android:button="@drawable/null_radio_button"
-                        android:gravity="center"
-                        android:textSize="15dp"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginBottom="5dp"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/infoConstraintLayout_ver1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.1" />
 
-                </RadioGroup>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/infoConstraintLayout_ver2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.9" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/middle_gray_30"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <HorizontalScrollView
+                android:id="@+id/horizontalScrollView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:ignore="MissingConstraints">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/distanceManualTv"
-                        android:layout_width="30dp"
+                    <RadioGroup
+                        android:id="@+id/modeRadioGroup"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/distance_manual"
-                        android:textColor="@color/white"
-                        android:textSize="12dp"
-                        android:gravity="center"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginBottom="5dp"/>
+                        android:orientation="horizontal"
+                        android:layout_gravity="center"
+                        android:gravity="center">
 
-                    <TextView
-                        android:id="@+id/distanceAutoTv"
-                        android:layout_width="30dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance_auto"
-                        android:textColor="@color/middle_gray_80"
-                        android:textSize="12dp"
-                        android:gravity="center"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginBottom="5dp"/>
+                        <RadioButton
+                            android:id="@+id/basicRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:button="@drawable/null_radio_button"
+                            android:checked="true"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:textSize="12sp"
+                            android:textColor="@drawable/radio_text_selector"
+                            android:text="@string/basic_mode"
+                            android:lines="2"
+                            android:maxLines="2"/>
+
+                        <RadioButton
+                            android:id="@+id/burstRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:button="@drawable/null_radio_button"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:textSize="12sp"
+                            android:textColor="@drawable/radio_text_selector"
+                            android:text="@string/burst_mode"
+                            android:lines="2"
+                            android:maxLines="2"/>
+
+                        <RadioButton
+                            android:id="@+id/objectFocusRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:button="@drawable/null_radio_button"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:textSize="12sp"
+                            android:textColor="@drawable/radio_text_selector"
+                            android:text="@string/object_mode"
+                            android:lines="2"
+                            android:maxLines="2"/>
+
+                        <RadioButton
+                            android:id="@+id/distanceFocusRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:button="@drawable/null_radio_button"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:textSize="12sp"
+                            android:text="@string/distance_mode"
+                            android:textColor="@drawable/radio_text_selector"
+                            android:lines="2"
+                            android:maxLines="2"/>
+
+                    </RadioGroup>
 
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/seekBarLinearLayout"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/frameLayout_ver3"
-                android:visibility="visible">
-
-                <SeekBar
-                    android:id="@+id/distanceFocusSeekBar"
-                    android:layout_width="300dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:rotation="270"
-                    android:progress="10"
-                    android:max="20"
-                    android:progressDrawable="@drawable/distance_seekbar_progress"
-                    android:thumb="@drawable/distance_seekbar_thumb"/>
-
-            </LinearLayout>
+            </HorizontalScrollView>
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/frameLayout_hor1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.88" />
+                app:layout_constraintGuide_percent="0.02" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/frameLayout_hor2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_percent="1" />
+                app:layout_constraintGuide_percent="0.1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.9" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/frameLayout_ver1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.35" />
+                app:layout_constraintGuide_percent="0.27" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/frameLayout_ver2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.65" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/frameLayout_ver3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.85" />
+                app:layout_constraintGuide_percent="0.73" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 
     </FrameLayout>
 
@@ -253,89 +277,91 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/white">
 
-        <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/bottomMenu"
-            tools:ignore="MissingConstraints">
+<!--        <HorizontalScrollView-->
+<!--            android:id="@+id/horizontalScrollView"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:scrollbars="none"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="@id/bottomMenu"-->
+<!--            app:layout_constraintBottom_toTopOf="@+id/shutterBtn"-->
+<!--            tools:ignore="MissingConstraints">-->
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical">-->
 
-                <RadioGroup
-                    android:id="@+id/modeRadioGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+<!--                <RadioGroup-->
+<!--                    android:id="@+id/modeRadioGroup"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:layout_gravity="center">-->
 
-                    <RadioButton
-                        android:id="@+id/basicRadioBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:button="@drawable/null_radio_button"
-                        android:checked="true"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:stateListAnimator="@null"
-                        android:text="@string/basic_option"
-                        android:textColor="@drawable/radio_text_selector" />
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/burstRadioBtn"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginHorizontal="10dp"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:checked="true"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:textSize="13sp"-->
+<!--                        android:textColor="@drawable/radio_text_selector"-->
+<!--                        android:text="@string/burst_mode"-->
+<!--                        android:lines="2"-->
+<!--                        android:maxLines="2"/>-->
 
-                    <RadioButton
-                        android:id="@+id/objectFocusRadioBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:button="@drawable/null_radio_button"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:stateListAnimator="@null"
-                        android:text="@string/object_focus_option"
-                        android:textColor="@drawable/radio_text_selector" />
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/objectFocusRadioBtn"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginHorizontal="10dp"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:textSize="13sp"-->
+<!--                        android:textColor="@drawable/radio_text_selector"-->
+<!--                        android:text="@string/object_mode"-->
+<!--                        android:lines="2"-->
+<!--                        android:maxLines="2"/>-->
 
-                    <RadioButton
-                        android:id="@+id/distanceFocusRadioBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:button="@drawable/null_radio_button"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:stateListAnimator="@null"
-                        android:text="@string/distance_focus_option"
-                        android:textColor="@drawable/radio_text_selector" />
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/distanceFocusRadioBtn"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginHorizontal="10dp"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:textSize="13sp"-->
+<!--                        android:text="@string/distance_mode"-->
+<!--                        android:textColor="@drawable/radio_text_selector"-->
+<!--                        android:lines="2"-->
+<!--                        android:maxLines="2"/>-->
 
-                    <RadioButton
-                        android:id="@+id/autoRewindRadioBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="5dp"
-                        android:button="@drawable/null_radio_button"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:stateListAnimator="@null"
-                        android:text="@string/auto_rewind_option"
-                        android:textColor="@drawable/radio_text_selector" />
+<!--                </RadioGroup>-->
 
-                </RadioGroup>
-            </LinearLayout>
-        </HorizontalScrollView>
+<!--            </LinearLayout>-->
+
+<!--        </HorizontalScrollView>-->
 
         <ImageView
             android:id="@+id/galleryBtn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/gallery_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/camera_gallery_icon"
+            app:tint="@color/middle_gray"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
+            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1"
             tools:ignore="SpeakableTextPresentCheck"/>
 
         <ImageView
@@ -346,15 +372,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver2"
             app:layout_constraintStart_toStartOf="@+id/bottomMenu_ver1"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
+            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1" />
 
         <ImageView
             android:id="@+id/convertBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/convert"
+            app:srcCompat="@drawable/repost"
+            app:tint="@color/middle_gray"
             app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
+            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
@@ -363,7 +390,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.25" />
+            app:layout_constraintGuide_percent="0.2" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/bottomMenu_ver1"
