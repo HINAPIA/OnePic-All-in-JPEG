@@ -225,13 +225,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     camera2.startCamera2()
 
                     isBackLens = !isBackLens!!
-                    Log.v("chaewon", "2222 isBackLens : $isBackLens")
+                    Log.v("convert error", "click convert in CameraX $isBackLens")
                 }
 
                 basicRadioBtn.id,
                 objectFocusRadioBtn.id,
                 distanceFocusRadioBtn.id -> {
                     isBackLens = !isBackLens!!
+                    Log.v("convert error", "click convert in CameraX $isBackLens")
                     startCamera(isBackLens)
                 }
             }
@@ -295,13 +296,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         isBackLens = sharedPref?.getBoolean("isBackLens", true)
         selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", basicRadioBtn.id)
 
-        if(selectedRadioIndex == 0)
+        if(selectedRadioIndex == 0) {
             selectedRadioIndex = basicRadioBtn.id
+            isBackLens = true
+        }
 
         // '연사 촬영' 일때, Camera2 열기
         if(selectedRadioIndex!! == burstRadioBtn.id ){
-            Log.v("chaewon", "혹시 렌즈가 1이세요..? : $isBackLens")
-            // TODO: isBackLens로 cameraId 설정하기
             if(isBackLens!!)
                 camera2.cameraId = "0" // CAMERA_BACK
             else
@@ -314,8 +315,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         else {
             startCameraX()
         }
-
-        Log.v("burst error", "selected Radio Index : ${selectedRadioIndex}")
 
         // 가져온 값을 사용합니다.
         if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
@@ -414,12 +413,16 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                         textureView.visibility = View.VISIBLE
                         camera2.startBackgroundThread()
-                        Log.v("burst error", "camera2 start")
+
+                        if(isBackLens!!) {
+                            camera2.cameraId = "0" // CAMERA_FRONT
+                        } else {
+                            camera2.cameraId = "1" // CAMERA_BACK
+                        }
+
                         camera2.startCamera2()
                     }
-                    Log.v("burst error", "1. Burst > selected Radio Index : ${selectedRadioIndex}")
                     selectedRadioIndex = burstRadioBtn.id
-                    Log.v("burst error", "2. Burst > selected Radio Index : ${selectedRadioIndex}")
 
                     basicRadioBtn.setTypeface(null, Typeface.NORMAL)
                     burstRadioBtn.setTypeface(null, Typeface.BOLD)
@@ -521,7 +524,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         )
                         Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                     }
-                    Log.d("burst", "setImageContent 호출 전")
 
                     withContext(Dispatchers.Main) {
 
