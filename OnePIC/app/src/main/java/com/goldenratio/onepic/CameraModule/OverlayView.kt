@@ -51,8 +51,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //        textPaint.style = Paint.Style.FILL
 //        textPaint.textSize = 50f
 
-        boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
-        boxPaint.strokeWidth = 6F
+//        boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+        boxPaint.strokeWidth = 8F
         boxPaint.style = Paint.Style.STROKE
         rectLength = 120
     }
@@ -68,33 +68,100 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             val left = boundingBox.left * scaleFactor
             val right = boundingBox.right * scaleFactor
 
+
+
+            val width = right - left
+            val height = bottom - top
+            var lineLength = 50f
+
+//            if(width < height) lineLength = width / 5f
+//            else lineLength = height / 5f
+
+            var path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+            path.moveTo(left - boxPaint.strokeWidth/2f, top)
+            path.lineTo(left + lineLength, top)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus_30)
+            path.moveTo(left + lineLength, top)
+            path.lineTo(right - lineLength, top)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+            path.moveTo(right - lineLength, top)
+            path.lineTo(right, top)
+            path.lineTo(right, top + lineLength)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus_30)
+            path.moveTo(right, top + lineLength)
+            path.lineTo(right, bottom - lineLength)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+            path.moveTo(right, bottom - lineLength)
+            path.lineTo(right, bottom)
+            path.lineTo(right - lineLength, bottom)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus_30)
+            path.moveTo(right - lineLength, bottom)
+            path.lineTo(left + lineLength, bottom)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+            path.moveTo(left + lineLength, bottom)
+            path.lineTo(left, bottom)
+            path.lineTo(left, bottom - lineLength)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus_30)
+            path.moveTo(left, bottom - lineLength)
+            path.lineTo(left, top + lineLength)
+            canvas.drawPath(path, boxPaint);
+
+            path = Path()
+            boxPaint.color = ContextCompat.getColor(context!!, R.color.focus)
+            path.moveTo(left, top + lineLength)
+            path.lineTo(left, top)
+            canvas.drawPath(path, boxPaint);
+            path.close()
+
+            //********** Center 부분만 초점 표시 **********//
+
 //            val centerX = locations.get(x+1)*w + (locations.get(x+3)*w - locations.get(x+1)*w)/2
 //            val centerY = locations.get(x)*h + (locations.get(x+2)*h - locations.get(x)*h)/2
 //
-            val centerX = left + (right - left)/2
-            val centerY = top + (bottom - top)/2
+//            val centerX = left + (right - left)/2
+//            val centerY = top + (bottom - top)/2
+//
+//            path.moveTo(centerX - rectLength/2 - boxPaint.strokeWidth/2, centerY - rectLength/2)
+//            path.lineTo(centerX - rectLength/2 + rectLength/5, centerY - rectLength/2)
+//            path.moveTo(centerX - rectLength/2 + 4*(rectLength/5), centerY - rectLength/2)
+//            path.lineTo(centerX + rectLength/2, centerY - rectLength/2)
+//
+//            path.lineTo(centerX + rectLength/2, centerY - rectLength/2 + rectLength/5)
+//            path.moveTo(centerX + rectLength/2, centerY - rectLength/2 + 4*(rectLength/5))
+//            path.lineTo(centerX + rectLength/2, centerY + rectLength/2)
+//
+//            path.lineTo(centerX + rectLength/2 - rectLength/5, centerY + rectLength/2)
+//            path.moveTo(centerX + rectLength/2 - 4*(rectLength/5), centerY + rectLength/2)
+//            path.lineTo(centerX - rectLength/2, centerY + rectLength/2)
+//
+//            path.lineTo(centerX - rectLength/2, centerY + rectLength/2 - rectLength/5)
+//            path.moveTo(centerX - rectLength/2, centerY + rectLength/2 - 4*(rectLength/5))
+//            path.lineTo(centerX - rectLength/2, centerY - rectLength/2)
 
-            val path = Path()
 
-            path.moveTo(centerX - rectLength/2 - boxPaint.strokeWidth/2, centerY - rectLength/2)
-            path.lineTo(centerX - rectLength/2 + rectLength/5, centerY - rectLength/2)
-            path.moveTo(centerX - rectLength/2 + 4*(rectLength/5), centerY - rectLength/2)
-            path.lineTo(centerX + rectLength/2, centerY - rectLength/2)
-
-            path.lineTo(centerX + rectLength/2, centerY - rectLength/2 + rectLength/5)
-            path.moveTo(centerX + rectLength/2, centerY - rectLength/2 + 4*(rectLength/5))
-            path.lineTo(centerX + rectLength/2, centerY + rectLength/2)
-
-            path.lineTo(centerX + rectLength/2 - rectLength/5, centerY + rectLength/2)
-            path.moveTo(centerX + rectLength/2 - 4*(rectLength/5), centerY + rectLength/2)
-            path.lineTo(centerX - rectLength/2, centerY + rectLength/2)
-
-            path.lineTo(centerX - rectLength/2, centerY + rectLength/2 - rectLength/5)
-            path.moveTo(centerX - rectLength/2, centerY + rectLength/2 - 4*(rectLength/5))
-            path.lineTo(centerX - rectLength/2, centerY - rectLength/2)
-
-            path.close()
-            canvas.drawPath(path, boxPaint)
+//            canvas.drawPath(path, boxPaint)
 
         }
     }

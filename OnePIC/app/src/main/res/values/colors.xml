@@ -37,8 +37,11 @@
     <color name="purple_gray">#B5B2CA</color>
     <color name="intro_color">#846BBF</color>
     <color name="middle_gray_80">#CC6B6B6B</color>
+    <color name="middle_gray_30">#4D6B6B6B</color>
     <color name="focus">#FFEA00</color>
+    <color name="focus_30">#4DFFEA00</color>
     <color name="white_85">#D9FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
     <color name="dark_purple_85">#D99177D0</color>
 
 </resources>

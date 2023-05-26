@@ -49,10 +49,12 @@ class ViewerFragment : Fragment() {
     private var currentPosition:Int? = null // galㅣery fragmentd 에서 넘어올 때
     private var bitmapList = arrayListOf<Bitmap>()
 
-
     /* audio, magic 클릭 여부 */
     private var isAudioBtnClicked = false
     private var isMagicBtnClicked = false
+
+    /* 스크롤바 클릭 아이템 */
+    private var previousClickedItem:ImageView? = null
 
     companion object {
 
@@ -67,6 +69,7 @@ class ViewerFragment : Fragment() {
         var audioTopMargin = MutableLiveData<Int>() // 오디오 버튼 top margin
         var audioEndMargin = MutableLiveData<Int>() // 오디오 버튼 end margin
         var seekBarMargin = MutableLiveData<Int>() // seek bar margin
+        var isFocusingChange = false
     }
 
     override fun onAttach(context: Context) {
@@ -129,7 +132,7 @@ class ViewerFragment : Fragment() {
         }
 
         setCurrentOtherImage() // 스크롤뷰 이미지 채우기
-//        binding.scrollView.visibility = View.VISIBLE
+
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
@@ -169,7 +172,7 @@ class ViewerFragment : Fragment() {
 
         binding.viewPager2.setOnClickListener {
 
-            if (binding.savedTextView.text != null && binding.savedTextView.text != ""){ // text가 존재할 때
+            if (container.textContent.textCount != 0){ // text가 존재할 때
                 if (binding.savedTextView.visibility == View.VISIBLE){
                     binding.savedTextView.visibility = View.INVISIBLE
                 }
@@ -195,7 +198,7 @@ class ViewerFragment : Fragment() {
                 val width = binding.allInJpegTextView.width
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 val leftMarginInDp = 0
-                val topMarginInDp =  spToDp(context,10f).toInt()
+                val topMarginInDp =  spToDp(context,11f).toInt()
                 val rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
                 val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
@@ -207,14 +210,13 @@ class ViewerFragment : Fragment() {
             }
         })
 
-
         /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
-        if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
-            binding.audioBtn.visibility = View.VISIBLE
-        }
-        else {
-            binding.audioBtn.visibility = View.GONE
-        }
+//        if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
+//            binding.audioBtn.visibility = View.VISIBLE
+//        }
+//        else {
+//            binding.audioBtn.visibility = View.GONE
+//        }
 
         /*  Text 있을 경우 - 표시 */
         if (container.textContent.textCount != 0){
@@ -263,7 +265,7 @@ class ViewerFragment : Fragment() {
                 }
 
                 // 재생 중인 오디오 stop
-                jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
+                //jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
 
                 // 매직 버튼 초기화
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
@@ -292,62 +294,57 @@ class ViewerFragment : Fragment() {
 
         /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
 
-        binding.audioBtn.setOnClickListener{
+//        binding.audioBtn.setOnClickListener{
+//
+//            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
+//            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
+//
+//            if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
+//                /* layout 변경 */
+//                binding.audioBtn.setImageResource(R.drawable.sound4)
+//                isAudioBtnClicked = true
+//
+//                // 오디오 재생
+//                jpegViewModel.jpegMCContainer.value!!.audioPlay()
+//                isAudioPlaying.value = true
+//            }
+//
+//            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
+//            else { // 클릭 되어 있던 상태
+//
+//                /* layout 변경 */
+//                binding.audioBtn.setImageResource(R.drawable.audio)
+//                isAudioBtnClicked = false
+//
+//                jpegViewModel.jpegMCContainer.value!!.audioStop()
+//            }
+//        }
 
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
 
-            if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
-                /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.sound4)
-                isAudioBtnClicked = true
+//        audioTopMargin.observe(requireActivity()){ value ->
+//
+//            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
+//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+//            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
+//            val rightMarginInDp = pxToDp(20f).toInt() // 오른쪽 마진(dp)
+//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+//
+//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+//            binding.audioBtn.layoutParams = layoutParams
+//
+//        }
 
-                // 오디오 재생
-                jpegViewModel.jpegMCContainer.value!!.audioPlay()
-                isAudioPlaying.value = true
-            }
-
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-            else { // 클릭 되어 있던 상태
-
-                /* layout 변경 */
-                binding.audioBtn.setImageResource(R.drawable.audio)
-                isAudioBtnClicked = false
-
-                jpegViewModel.jpegMCContainer.value!!.audioStop()
-            }
-        }
-
-        isAudioPlaying.observe(requireActivity()){ value ->
-            if (value == false){
-                binding.audioBtn.performClick()
-            }
-        }
-
-        audioTopMargin.observe(requireActivity()){ value ->
-
-            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
-            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
-            val rightMarginInDp = pxToDp(20f).toInt() // 오른쪽 마진(dp)
-            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-
-            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-            binding.audioBtn.layoutParams = layoutParams
-
-        }
-
-        audioEndMargin.observe(requireActivity()) {value ->
-
-            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
-            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-            val topMarginInDp =  pxToDp(20f).toInt()// 위쪽 마진(dp)
-            val rightMarginInDp = pxToDp(value.toFloat()).toInt() // 오른쪽 마진(dp)
-            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-
-            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-            binding.audioBtn.layoutParams = layoutParams
-        }
+//        audioEndMargin.observe(requireActivity()) {value ->
+//
+//            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
+//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
+//            val topMarginInDp =  pxToDp(20f).toInt()// 위쪽 마진(dp)
+//            val rightMarginInDp = pxToDp(value.toFloat()).toInt() // 오른쪽 마진(dp)
+//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
+//
+//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+//            binding.audioBtn.layoutParams = layoutParams
+//        }
 
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -405,6 +402,7 @@ class ViewerFragment : Fragment() {
 
 
     /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
+    @RequiresApi(Build.VERSION_CODES.M)
     fun setCurrentOtherImage(){
 
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
@@ -458,6 +456,7 @@ class ViewerFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
 
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
+                var firstImageView:ImageView? = null
                 for(i in 0..pictureList.size-1){
                     val picture = pictureList[i]
                     val pictureByteArr = pictureByteArrList[i]
@@ -474,6 +473,7 @@ class ViewerFragment : Fragment() {
                         var mainMark: TextView = scollItemLayout.findViewById(R.id.mainMark)
                         if (i == 0){
                             mainMark.visibility = View.VISIBLE
+                            firstImageView = scrollImageView
                         }
 
                         CoroutineScope(Dispatchers.Main).launch {
@@ -482,64 +482,89 @@ class ViewerFragment : Fragment() {
                                 .load(pictureByteArr)
                                 .into(scrollImageView)
 
-                            scrollImageView.isFocusable = true // 포커스를 받을 수 있도록 설정
-                            scrollImageView.isFocusableInTouchMode = true // 터치 모드에서 포커스를 받을 수 있도록 설정
+                            scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
 
-                            scrollImageView.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-                                if (hasFocus) {
-                                    // 포커스를 얻었을 때의 동작 처리
+
+                                Log.d("click i : ",""+i)
+                                if (previousClickedItem != scrollImageView) {
+                                    if (previousClickedItem != null){ //초기 설정값이 아닐때
+                                        // 기존 아이템 UI 없애기
+                                        previousClickedItem!!.background = null
+                                        previousClickedItem!!.setPadding(0,0,0,0)
+                                    }
+
+                                    previousClickedItem = scrollImageView
                                     scrollImageView.setBackgroundResource(R.drawable.chosen_image_border)
                                     scrollImageView.setPadding(6,6,6,6)
                                     if (binding.seekBar.visibility == View.VISIBLE) {
                                         binding.seekBar.progress = i
                                     }
 
-                                } else {
-                                    // 포커스를 잃었을 때의 동작 처리
-                                    scrollImageView.background = null
-                                    scrollImageView.setPadding(0,0,0,0)
-                                }
-                            }
-
-                            scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-                                mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
-                                jpegViewModel.setselectedSubImage(picture)
-                            }
-
-                            scrollImageView.setOnTouchListener { _, event ->
-                                when (event.action) {
-                                    MotionEvent.ACTION_UP -> {
-                                        scrollImageView.performClick() // 클릭 이벤트 강제로 발생
+                                    CoroutineScope(Dispatchers.Main).launch{
+                                        mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
                                     }
+                                    jpegViewModel.setselectedSubImage(picture)
                                 }
-                                false
                             }
-
                             binding.linear.addView(scollItemLayout)
-
+                            firstImageView!!.performClick()
                         }
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }
+                } // end of for
+
+                var container = jpegViewModel.jpegMCContainer.value!!
+
+                // 오디오 있는 경우
+                if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0){
+                        CoroutineScope(Dispatchers.Main).launch {
+                        var currText = binding.imageCntTextView.text
+                        binding.imageCntTextView.text = "${currText} + 오디오"
+                        val scollItemLayout =
+                            layoutInflater.inflate(R.layout.scroll_item_audio, null)
+                        // 위 불러온 layout에서 변경을 할 view가져오기
+                        val scrollAudioView: ImageView =
+                            scollItemLayout.findViewById(R.id.scrollItemAudioView)
+                        scrollAudioView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                            if (scrollAudioView.background == null){
+                                // TODO: 음악 재생
+                                Log.d("song music: ","음악 재생")
+                                scrollAudioView.setBackgroundResource(R.drawable.chosen_scroll_menu_border)
+                                if(isAudioPlaying.value != true){
+                                    jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                                    isAudioPlaying.value = true
+                                }
+                            }
+                            else {
+                                // TODO: 음악 멈춤
+                                Log.d("song music: ","음악 멈춤")
+                                scrollAudioView.background = null
+                                jpegViewModel.jpegMCContainer.value!!.audioStop()
+                                isAudioPlaying.value = false
+                            }
+                        }
+
+                        isAudioPlaying.observe(requireActivity()){ value ->
+                            if (value == false){
+                                scrollAudioView.background = null
+                            }
+                        }
+                        binding.linear.addView(scollItemLayout,binding.linear.childCount)
+                    }
                 }
-                jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
+                // 텍스트 있는 경우
+                if (container.textContent.textCount != 0){
+                    CoroutineScope(Dispatchers.Main).launch {
+                        var currText = binding.imageCntTextView.text
+                        binding.imageCntTextView.text = "${currText} + 텍스트"
+                    }
+                }
+
             }
         }
     }
 
-    @Throws(IOException::class)
-    fun getBytes(inputStream: InputStream): ByteArray {
-        val byteBuffer = ByteArrayOutputStream()
-        val bufferSize = 1024
-        val buffer = ByteArray(bufferSize)
-        var len = 0
-        while (inputStream.read(buffer).also { len = it } != -1) {
-            byteBuffer.write(buffer, 0, len)
-        }
-        byteBuffer.close()
-        inputStream.close()
-        return byteBuffer.toByteArray()
-    }
 
     @SuppressLint("Range")
     fun getUriFromPath(filePath: String): Uri { // filePath String to Uri

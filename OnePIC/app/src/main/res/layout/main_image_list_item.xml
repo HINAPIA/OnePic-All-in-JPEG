@@ -10,11 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+<!--        <ImageView-->
+<!--            android:background="@drawable/shadow"-->
+<!--            android:id="@+id/shadow"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent" />-->
+
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
+            android:layout_margin="5dp"
             android:transitionName="imgTransition"/>
 
         <ImageView
@@ -23,6 +30,7 @@
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
             android:visibility="gone"
+            android:layout_margin="5dp"
             tools:srcCompat="@tools:sample/avatars" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

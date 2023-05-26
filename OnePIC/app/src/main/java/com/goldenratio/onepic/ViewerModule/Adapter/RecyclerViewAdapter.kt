@@ -1,6 +1,7 @@
 package com.goldenratio.onepic.ViewerModule.Adapter
 
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -42,37 +43,10 @@ class RecyclerViewAdapter(var imageList: List<String>, var layoutManager: Linear
             .into(holder.imageView)
 
         holder.imageView.setOnClickListener{
+            Log.d("여기로 들어오긴 함","")
             BasicViewerFragment.currentPosition = position
             BasicViewerFragment.isClickedRecyclerViewImage.value = true
         }
-//
-//        holder.imageView.background = null
-//        holder.imageView.setPadding(0,0,0,0)
-//
-//
-//        holder.imageView.isFocusable = true // 포커스를 받을 수 있도록 설정
-//        holder.imageView.isFocusableInTouchMode = true // 터치 모드에서 포커스를 받을 수 있도록 설정
-//
-//        holder.imageView.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-//            if (hasFocus) {
-//                // 포커스를 얻었을 때의 동작 처리
-//                holder.imageView.setBackgroundResource(R.drawable.chosen_image_border)
-//                holder.imageView.setPadding(6,6,6,6)
-//
-//            } else {
-//                holder.imageView.background = null
-//                holder.imageView.setPadding(0,0,0,0)
-//            }
-//        }
-//
-//        holder.imageView.setOnTouchListener { _, event ->
-//            when (event.action) {
-//                MotionEvent.ACTION_UP -> {
-//                    holder.imageView.performClick() // 클릭 이벤트 강제로 발생
-//                }
-//            }
-//            false
-//        }
 
     }
 
