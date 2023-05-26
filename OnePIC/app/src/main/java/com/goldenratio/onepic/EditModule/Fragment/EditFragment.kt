@@ -461,8 +461,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             setSubImage(pictureByteList[i], i)
         }
 
-        subImageSize = pictureList.size
-
         if (textContent.textList.size > 0) {
             setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = fun() {})
         } else {
@@ -644,6 +642,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 for(i in 0 until uriList.size) {
                     val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
                     val sourceByteArray = imageToolModule.getBytes(iStream!!)
+                    
                     pictureByteList.add(sourceByteArray)
                     newImageByteArrayList.add(sourceByteArray)
                     setSubImage(sourceByteArray, pictureByteList.size -1)
