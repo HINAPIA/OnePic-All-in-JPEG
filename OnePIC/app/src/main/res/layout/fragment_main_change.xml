@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/in_main_change"
+            android:text="@string/main_change"
             android:textColor="@color/point_color"
             android:textSize="20sp"
             android:textStyle="bold"

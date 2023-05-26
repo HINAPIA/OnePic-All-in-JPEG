@@ -56,6 +56,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     lateinit var fragment: Fragment
 
     private var infoLevel = MutableLiveData<InfoLevel>()
+    private var isInfoViewed = true
 
     protected var selectFaceRect: Rect? = null
     protected var isSelected = false
@@ -98,13 +99,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
 //        imageToolModule.showView(binding.progressBar, true)
 //        imageToolModule.showView(binding.loadingText, true)
-        showProgressBar(true, LoadingText.FaceDetection)
+//        showProgressBar(true, LoadingText.FaceDetection)
+        showProgressBar(true, LoadingText.AutoRewind)
         imageToolModule.showView(binding.rewindMenuLayout, false)
 
         while(!imageContent.checkPictureList) {}
 
         // main Picture의 byteArray를 bitmap 제작
-        selectPicture = imageContent.pictureList[jpegViewModel.selectPictureIndex]
+        selectPicture = jpegViewModel.selectedSubImage!!
         
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
@@ -117,13 +119,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         CoroutineScope(Dispatchers.Default).launch {
             val allBitmapList = imageContent.getBitmapList()
-            val newMainBitmap = allBitmapList?.get(jpegViewModel.selectPictureIndex)
+            val index = jpegViewModel.getSelectedSubImageIndex()
+            val newMainBitmap = allBitmapList?.get(index)
             if (newMainBitmap != null) {
                 selectBitmap = newMainBitmap
             }
             originalSelectBitmap = selectBitmap
-            // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-            setMainImageBoundingBox()
+
         }
         CoroutineScope(Dispatchers.IO).launch {
             // rewind 가능한 연속 사진 속성의 picture list 얻음
@@ -134,6 +136,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 bitmapList = newBitmapList
 
                 rewindModule.allFaceDetection(bitmapList)
+
+                selectBitmap = rewindModule.autoBestFaceChange(bitmapList)
+                
+                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+                setMainImageBoundingBox()
             }
         }
 
@@ -176,10 +183,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                     imageContent.getJpegBytes(selectPicture)
                 )
 
-                val selectIndex = jpegViewModel.selectPictureIndex
+                val selectIndex = jpegViewModel.getSelectedSubImageIndex()
 
-                imageContent.pictureList[selectIndex] =
-                    Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes))
+                imageContent.pictureList.add(selectIndex,
+                    Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes)))
+
                 imageContent.pictureList[selectIndex].waitForByteArrayInitialized()
 
                 jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)
@@ -211,6 +219,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
                 infoLevel.value = InfoLevel.EditFaceSelect
+                isInfoViewed = false
             }
 
 //            imageToolModule.showView(binding.progressBar, true)
@@ -271,11 +280,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         // info 확인
         binding.rewindInfoBtn.setOnClickListener {
+            isInfoViewed = true
             imageToolModule.showView(binding.infoDialogLayout, true)
         }
 
         // info 삭제
         binding.dialogCloseBtn.setOnClickListener {
+            isInfoViewed = false
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
@@ -363,6 +374,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         if(infoLevel.value != InfoLevel.EditFaceSelect) {
             CoroutineScope(Dispatchers.Main).launch {
                 infoLevel.value = InfoLevel.EditFaceSelect
+                isInfoViewed = false
+
+                imageToolModule.showView(binding.infoDialogLayout, false)
             }
         }
 
@@ -505,7 +519,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
         imageToolModule.showView(binding.faceRewindMenuLayout, true)
         isSelected = true
-        changeMainView()
+        changeMainView(selectBitmap)
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
@@ -544,8 +558,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
                 cropImageView.setOnClickListener {
 
-                    cropImageView.setBackgroundResource(R.drawable.chosen_image_border)
-                    cropImageView.setPadding(imageToolModule.floatToDp(requireContext(),3.0f).toInt())
+                    mainSubView.background = null
+                    mainSubView.setPadding(0)
 
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
@@ -564,9 +578,22 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                         changeFaceStartY
                     )
 
-                    binding.mainView.setImageBitmap(PreSelectBitmap)
+//                    binding.mainView.setImageBitmap(PreSelectBitmap)
+                    if(PreSelectBitmap != null)
+                        changeMainView(PreSelectBitmap!!)
+
+                    mainSubView = cropImageView
+                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+                    mainSubView.setPadding(6)
+
                     imageToolModule.showView(binding.arrowBar, true)
                     infoLevel.value = InfoLevel.ArrowCheck
+                }
+
+                if(i == jpegViewModel.getSelectedSubImageIndex()) {
+                    mainSubView = cropImageView
+                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+                    mainSubView.setPadding(6)
                 }
 
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
@@ -630,31 +657,31 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         }
     }
 
-    open fun changeMainView() {
+    open fun changeMainView(bitmap: Bitmap) {
         if(selectFaceRect != null) {
-            val newBitmap = imageToolModule.drawDetectionResult(selectBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+            val newBitmap = imageToolModule.drawDetectionResult(bitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
             binding.mainView.setImageBitmap(newBitmap)
         }
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
-        if(boolean) {
+        if(boolean && isInfoViewed) {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
-        else {
+        else if (isInfoViewed) {
             imageToolModule.showView(binding.infoDialogLayout, true)
         }
 
         CoroutineScope(Dispatchers.Main).launch {
             binding.loadingText.text = when (loadingText) {
-                LoadingText.FaceDetection -> {
-                    "얼굴을 분석 중..."
-                }
+//                LoadingText.FaceDetection -> {
+//                    "자동 Face Blending 중"
+//                }
                 LoadingText.Save -> {
                     "편집을 저장 중.."
                 }
                 LoadingText.AutoRewind -> {
-                    "얼굴을 추천 중입니다."
+                    "최적의 Blending 사진 제작 중.."
                 }
                 else -> {
                     ""

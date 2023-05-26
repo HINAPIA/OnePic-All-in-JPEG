@@ -64,7 +64,7 @@ class ImageContent {
         isSetBitmapListStart = false
         //jpegMetaData = ByteArray(0)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             setBitmapList()
         }
     }
@@ -285,7 +285,7 @@ class ImageContent {
         bitmapListAttribute = null
         attributeBitmapList.clear()
         isSetBitmapListStart = false
-        setBitmapList()
+//        setBitmapList()
     }
 
     fun setMainBitmap(bitmap: Bitmap?) {

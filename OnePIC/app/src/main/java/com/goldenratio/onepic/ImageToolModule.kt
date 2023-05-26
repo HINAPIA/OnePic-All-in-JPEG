@@ -1,7 +1,11 @@
 package com.goldenratio.onepic
 
+import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Context
 import android.graphics.*
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -83,6 +87,29 @@ class ImageToolModule {
         byteBuffer.close()
         inputStream.close()
         return byteBuffer.toByteArray()
+    }
+
+    @SuppressLint("Range")
+    fun getUriFromPath(context: Context ,filePath: String): Uri { // filePath String to Uri
+
+        val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null, "_data = '$filePath'", null, null)
+        var uri: Uri
+        if(cursor!=null) {
+            cursor!!.moveToNext()
+            val id = cursor.getInt(cursor.getColumnIndex("_id"))
+            uri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                id.toLong()
+            )
+            cursor.close()
+        }
+        else {
+            return Uri.parse("Invalid path")
+        }
+        return uri
+
     }
 
     fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{

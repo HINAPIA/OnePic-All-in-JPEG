@@ -30,14 +30,13 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     private lateinit var pictureByteArrayList:MutableList<ByteArray> // pictureByteArrayList
 
-    var preEditMainPicture: Picture? = null
-
-    var mainPictureIndex: Int = 0
-    var selectPictureIndex: Int = 0
+//    var mainPictureIndex: Int = 0
+//    var selectPictureIndex: Int = 0
 
     /* Edit에서 필요 */
     var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)
     var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
+    var mainSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
 
     var isAudioPlay = MutableLiveData<Int>(0)
 
@@ -57,8 +56,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             true,
             galleryObserver
         )
-        selectPictureIndex = 0
-        mainPictureIndex = 0
+//        selectPictureIndex = 0
+//        mainPictureIndex = 0
     }
 
     fun setContainer(MCContainer: MCContainer) {
@@ -88,7 +87,17 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         if (selectedSubImage != null) // 초기화
             selectedSubImage = null
         this.selectedSubImage = picture
-        selectPictureIndex = jpegMCContainer.value!!.imageContent.pictureList.indexOf(picture)
+//        selectPictureIndex = jpegMCContainer.value!!.imageContent.pictureList.indexOf(picture)
+    }
+
+    fun getSelectedSubImageIndex(): Int {
+        return jpegMCContainer.value!!.imageContent.pictureList.indexOf(selectedSubImage)
+    }
+
+    fun getMainSubImageIndex(): Int {
+        if(mainSubImage == null)
+            return 0
+        return jpegMCContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
     }
 
     fun updateImageUriData(uriList: MutableList<String>) {
