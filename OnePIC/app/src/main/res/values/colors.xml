@@ -23,7 +23,8 @@
     <color name="info_color">#B3B3B3</color>
     <color name="select_face">#FF0000</color>
     <color name="menu_color">#FFFFFF</color>
-    <color name="menu_background">#813C3C3C</color>
+    <color name="menu_background">#92A496FF</color>
+    <color name="edit_delete_back_color">#2D000000</color>
     <!-- ____________________________________ -->
 
     <color name="button_color">#6B8B7A</color>
