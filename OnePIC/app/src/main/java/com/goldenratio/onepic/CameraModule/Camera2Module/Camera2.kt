@@ -568,6 +568,7 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
     }
 
     fun startCamera2(){
+        Log.v("burst error", "startCamera2()")
 //        startBackgroundThread()
 
         // textureView가 사용 가능 여부
