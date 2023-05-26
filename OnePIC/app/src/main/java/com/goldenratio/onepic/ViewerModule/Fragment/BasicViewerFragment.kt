@@ -83,13 +83,17 @@ class BasicViewerFragment : Fragment() {
 2
         init()
 
-        isClickedRecyclerViewImage.observe(requireActivity()){ value ->
+        isClickedRecyclerViewImage.observe(viewLifecycleOwner){ value ->
             if (value){
+                Log.d("여기로도 들어","왔음 : currposition  - ${currentPosition}")
+
                 binding.viewPager2.setCurrentItem(currentPosition!!, false)
                 binding.recyclerView.scrollToPosition(currentPosition!!)
+
                 isClickedRecyclerViewImage.value = false
                 currentPosition = null
             }
+
         }
 
         if(currentPosition != null){ // GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음)
@@ -97,10 +101,10 @@ class BasicViewerFragment : Fragment() {
 
             val targetIndex = currentPosition!! // 이동하고자 하는 인덱스
             binding.recyclerView.layoutManager?.scrollToPosition(targetIndex)
-            binding.recyclerView.postDelayed({
-                val targetView = binding.recyclerView.layoutManager?.findViewByPosition(targetIndex)
-                targetView?.requestFocus()
-            }, 200) // 포커스 설정을 지연시키기 위해 postDelayed 사용 (필요에 따라 딜레이 시간 조정)
+//            binding.recyclerView.postDelayed({
+//                val targetView = binding.recyclerView.layoutManager?.findViewByPosition(targetIndex)
+//                targetView?.requestFocus()
+//            }, 200) // 포커스 설정을 지연시키기 위해 postDelayed 사용 (필요에 따라 딜레이 시간 조정)
 
             currentPosition = null
         }
@@ -149,8 +153,10 @@ class BasicViewerFragment : Fragment() {
 
             override fun onPageScrollStateChanged(state: Int) {
                 if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    Log.d("ViewPager2 : ","드래깅 상태")
                     isUserScrolling = true
                 } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    Log.d("ViewPager2 : ","드래깅 아닌 상태")
                     isUserScrolling = false
                 }
                 super.onPageScrollStateChanged(state)
