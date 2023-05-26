@@ -461,6 +461,7 @@ class ViewerFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
 
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
+                var firstImageView:ImageView? = null
                 for(i in 0..pictureList.size-1){
                     val picture = pictureList[i]
                     val pictureByteArr = pictureByteArrList[i]
@@ -478,6 +479,7 @@ class ViewerFragment : Fragment() {
                         var mainMark: TextView = scollItemLayout.findViewById(R.id.mainMark)
                         if (i == 0){
                             mainMark.visibility = View.VISIBLE
+                            firstImageView = scrollImageView
                         }
 
                         CoroutineScope(Dispatchers.Main).launch {
@@ -511,6 +513,7 @@ class ViewerFragment : Fragment() {
                                 }
                             }
                             binding.linear.addView(scollItemLayout)
+                            firstImageView!!.performClick()
                         }
                     } catch (e: IllegalStateException) {
                         println(e.message)
@@ -545,7 +548,6 @@ class ViewerFragment : Fragment() {
                                 scrollAudioView.background = null
                             }
                         }
-
                         binding.linear.addView(scollItemLayout,binding.linear.childCount)
                     }
                 }
@@ -556,6 +558,8 @@ class ViewerFragment : Fragment() {
                         binding.imageCntTextView.text = "${currText} + 텍스트"
                     }
                 }
+
+
 
                //jpegViewModel.setselectedSubImage(pictureList[0]) // 초기 선택된 이미지는 Main으로 고정
             }
