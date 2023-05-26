@@ -14,7 +14,7 @@
 
         <ImageView
             android:background="@drawable/shadow"
-            android:id="@+id/shqdow"
+            android:id="@+id/shadow"
             android:layout_margin="11dp"
             android:layout_gravity="center"
             android:scaleType="centerCrop"

@@ -112,8 +112,7 @@
                 android:id="@+id/viewPager2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart = "10dp"
-                android:layout_marginEnd = "10dp"
+                android:layout_margin="10dp"
                 android:paddingTop="15dp"
                 android:paddingBottom="20dp" />
 
@@ -179,6 +178,7 @@
         </FrameLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/magicBtnlinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -201,6 +201,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/seekBarLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -227,7 +228,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:layout_height="0dp"
-            android:layout_weight="2">
+            android:layout_weight="1.5">
 
             <ImageView
                 android:id="@+id/containerImageView"
@@ -241,11 +242,11 @@
                 android:id="@+id/allInJpegTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:rotation="90"
-                android:textSize="10sp"
                 android:layout_gravity="center_vertical|end"
-                android:text="All in JPEG" />
+                android:rotation="90"
+                android:text="All in JPEG"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
 
             <LinearLayout
