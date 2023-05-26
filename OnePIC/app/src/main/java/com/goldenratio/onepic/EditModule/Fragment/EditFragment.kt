@@ -96,14 +96,16 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // imageToolModule 설정
         imageToolModule = ImageToolModule()
 
-        // picture 리스트 만들어질때까지
-        while (!imageContent.checkPictureList) { }
 
         // Content 설정
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
         textContent = jpegViewModel.jpegMCContainer.value!!.textContent
         audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
+
+        // picture 리스트 만들어질때까지
+        while (!imageContent.checkPictureList) { }
+
 
         // 만약 편집을 했다면 저장 버튼이 나타나게 설정
         if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
