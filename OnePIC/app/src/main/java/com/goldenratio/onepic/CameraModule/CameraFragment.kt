@@ -18,7 +18,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AlphaAnimation
 import android.widget.*
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
@@ -32,7 +31,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.example.test_camera2.CameraHelper.ImageSaver
 import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
@@ -64,18 +66,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     // binding 변수
     private lateinit var viewFinder : PreviewView
     private lateinit var shutterBtn : ImageView
-    private lateinit var basicRadioBtn : RadioButton
+    private lateinit var basicRadioButton : RadioButton
+    private lateinit var burstRadioBtn : RadioButton
     private lateinit var objectFocusRadioBtn : RadioButton
     private lateinit var distanceFocusRadioBtn : RadioButton
-    private lateinit var autoRewindRadioBtn : RadioButton
-    private lateinit var basicToggleBtn : ToggleButton
     private lateinit var overlay : OverlayView
-    private lateinit var seekBarLinearLayout : LinearLayout
-    private lateinit var  distanceOptionLinearLayout : LinearLayout
     private lateinit var bottomMenu : ConstraintLayout
     private lateinit var galleryBtn : ImageView
     private lateinit var convertBtn : ImageView
     private lateinit var modeRadioGroup : RadioGroup
+
+    private lateinit var camera2: Camera2
+    private lateinit var textureView: TextureView
 
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
@@ -122,8 +124,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var imageToolModule: ImageToolModule
     private lateinit var rewindModule: RewindModule
 
-    private val burstSize = 5
-
     private var imageAnalyzer: ImageAnalysis? = null
     private lateinit var bitmapBuffer: Bitmap
 
@@ -132,7 +132,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     // Lens Flag
     private var isBackLens : Boolean? = true
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -150,7 +149,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val window: Window = activity?.window
             ?: throw IllegalStateException("Fragment is not attached to an activity")
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
 
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 
@@ -161,20 +160,20 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         super.onViewCreated(view, savedInstanceState)
 
         // Binding 초기화
+        textureView = binding.textureView
         viewFinder = binding.viewFinder
         shutterBtn = binding.shutterBtn
-        basicRadioBtn = binding.basicRadioBtn
+        basicRadioButton = binding.basicRadioBtn
+        burstRadioBtn = binding.burstRadioBtn
         objectFocusRadioBtn = binding.objectFocusRadioBtn
         distanceFocusRadioBtn = binding.distanceFocusRadioBtn
-        autoRewindRadioBtn = binding.autoRewindRadioBtn
-        basicToggleBtn = binding.basicToggleBtn
         overlay = binding.overlay
-        seekBarLinearLayout = binding.seekBarLinearLayout
-        distanceOptionLinearLayout = binding.distanceOptionLinearLayout
         bottomMenu = binding.bottomMenu
         galleryBtn = binding.galleryBtn
         convertBtn = binding.convertBtn
         modeRadioGroup = binding.modeRadioGroup
+
+        camera2 = Camera2(activity, requireContext(), binding)
 
         factory = viewFinder.meteringPointFactory
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
@@ -190,38 +189,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // Initialize the detector object
         setDetecter()
 
-
-
-        // distance 수동, 자동 Btn
-        binding.distanceOptionRadioGroup.setOnCheckedChangeListener { group, checkedId ->
-            // TODO : Manual과 Auto에 따라 seekbar 유무 + tv 색상 변경
-            when(checkedId){
-                // 수동
-                R.id.distanceManualRadioBtn -> {
-                    binding.seekBarLinearLayout.visibility = View.VISIBLE
-                    binding.distanceManualTv.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                    binding.distanceAutoTv.setTextColor(ContextCompat.getColor(requireContext(), R.color.middle_gray_80))
-                }
-                // 자동
-                R.id.distanceAutoRadioBtn -> {
-                    binding.seekBarLinearLayout.visibility = View.GONE
-                    binding.distanceManualTv.setTextColor(ContextCompat.getColor(requireContext(), R.color.middle_gray_80))
-                    binding.distanceAutoTv.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                }
-            }
-        }
-
-        // distance 수동 Seek Bar 조절
-        binding.distanceFocusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                focusDistance = (minFocusDistance/binding.distanceFocusSeekBar.max.toFloat())*progress.toFloat()
-                Log.v("chaewon", "focusDistance : $focusDistance")
-                if(fromUser)
-                    turnOffAFMode(focusDistance)
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
 
 
         // shutter Btn 애니메이션 설정
@@ -243,8 +210,32 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         convertBtn.setOnClickListener {
 
-            isBackLens = !isBackLens!!
-            startCamera(isBackLens)
+            when ( selectedRadioIndex ) {
+
+                burstRadioBtn.id -> {
+                    camera2.stopCamera2()
+
+                    // TODO : CameraID를 Front(1), Back(0) 으로 설정
+                    if(isBackLens!!) {
+                        camera2.cameraId = "1" // CAMERA_FRONT
+                    } else {
+                        camera2.cameraId = "0" // CAMERA_BACK
+                    }
+
+                    camera2.startBackgroundThread()
+                    camera2.startCamera2()
+
+                    isBackLens = !isBackLens!!
+                    Log.v("chaewon", "2222 isBackLens : $isBackLens")
+                }
+
+                basicRadioButton.id,
+                objectFocusRadioBtn.id,
+                distanceFocusRadioBtn.id -> {
+                    isBackLens = !isBackLens!!
+                    startCamera(isBackLens)
+                }
+            }
 
         }
 
@@ -303,78 +294,77 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
 
         isBackLens = sharedPref?.getBoolean("isBackLens", true)
-
-        Log.v("chaewon", "$isBackLens")
-
-        // 카메라 권한 확인 후 카메라 시작하기
-        if(allPermissionsGranted()){
-            startCamera(isBackLens)
-        } else {
-            ActivityCompat.requestPermissions(
-                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
-
-        // 저장된 값을 가져옵니다.
         selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", 0)
 
-        Log.v("chaewon", "$selectedRadioIndex")
+        // '연사 촬영' 일때, Camera2 열기
+        if(selectedRadioIndex!! == burstRadioBtn.id ){
+            Log.v("chaewon", "혹시 렌즈가 1이세요..? : $isBackLens")
+            // TODO: isBackLens로 cameraId 설정하기
+            if(isBackLens!!)
+                camera2.cameraId = "0" // CAMERA_BACK
+            else
+                camera2.cameraId = "1" // CAMERA_FRONT
+
+            camera2.startBackgroundThread()
+            camera2.startCamera2()
+        }
+        // '기본', '객체별 초점 촬영', '거리별 초점 촬영' 일때, CameraX 열기
+        else {
+            startCameraX()
+        }
 
         // 가져온 값을 사용합니다.
         if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
             // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
             when (selectedRadioIndex) {
-                0 -> {
-                    basicRadioBtn.isChecked = true
-                    basicRadioBtn.setTypeface(null, Typeface.BOLD)
-                    basicToggleBtn.visibility = View.VISIBLE
+                basicRadioButton.id -> {
+                    basicRadioButton.isChecked = true
 
                     overlay.visibility = View.GONE
+                    viewFinder.visibility = View.VISIBLE
+                    textureView.visibility = View.GONE
 
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
+                    binding.infoConstraintLayout.visibility = View.GONE
                 }
-                1 -> {
+                burstRadioBtn.id -> {
+                    burstRadioBtn.isChecked = true
+
+                    overlay.visibility = View.GONE
+                    viewFinder.visibility = View.GONE
+                    textureView.visibility = View.VISIBLE
+
+                    binding.infoConstraintLayout.visibility = View.VISIBLE
+                    binding.infoTextView.text = resources.getString(R.string.camera_burst_info)
+                }
+                objectFocusRadioBtn.id -> {
                     objectFocusRadioBtn.isChecked = true
-                    objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
-                    basicToggleBtn.visibility = View.INVISIBLE
 
                     overlay.visibility = View.VISIBLE
+                    viewFinder.visibility = View.VISIBLE
+                    viewFinder.isEnabled = true
 
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
+                    textureView.visibility = View.GONE
+
+                    binding.infoConstraintLayout.visibility = View.VISIBLE
+                    binding.infoTextView.text = resources.getString(R.string.camera_object_info)
                 }
-                2 -> {
+                distanceFocusRadioBtn.id -> {
                     distanceFocusRadioBtn.isChecked = true
-                    distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
-                    basicToggleBtn.visibility = View.INVISIBLE
 
                     overlay.visibility = View.GONE
+                    viewFinder.visibility = View.VISIBLE
+                    viewFinder.isEnabled = true
 
-                    distanceOptionLinearLayout.visibility = View.VISIBLE
-                    seekBarLinearLayout.visibility = View.VISIBLE
-                }
-                3 -> {
-                    autoRewindRadioBtn.isChecked = true
-                    autoRewindRadioBtn.setTypeface(null, Typeface.BOLD)
-                    basicToggleBtn.visibility = View.INVISIBLE
+                    textureView.visibility = View.GONE
 
-                    overlay.visibility = View.GONE
-
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
+                    binding.infoConstraintLayout.visibility = View.GONE
                 }
             }
         }
 
-        val isToggleChecked = sharedPref?.getBoolean("isToggleChecked", false)
-        if(isToggleChecked != null){
-            when(isToggleChecked){
-                false -> basicToggleBtn.isChecked = false
-                true -> basicToggleBtn.isChecked = true
-            }
+        binding.infoCloseBtn.setOnClickListener {
+            binding.infoConstraintLayout.visibility = View.GONE
         }
-
 
         /**
          * radioGroup.setOnCheckedChangeListener
@@ -384,73 +374,108 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
          */
         modeRadioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId){
-                basicRadioBtn.id -> {
-                    selectedRadioIndex = 0
-                    basicToggleBtn.visibility = View.VISIBLE
+                basicRadioButton.id -> {
 
-                    basicRadioBtn.setTypeface(null, Typeface.BOLD)
+                    if( selectedRadioIndex == burstRadioBtn.id ) {
+                        //Camera2 중단 > CameraX 실행
+                        camera2.stopCamera2()
+                        startCameraX()
+                    }
+
+                    selectedRadioIndex = basicRadioButton.id
+
+                    basicRadioButton.setTypeface(null, Typeface.BOLD)
+                    burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
-                    autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
 
                     overlay.visibility = View.GONE
-
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
-
+                    viewFinder.visibility = View.VISIBLE
                     viewFinder.isEnabled = true
+
+                    textureView.visibility = View.GONE
+
+                    binding.infoConstraintLayout.visibility = View.GONE
+                }
+
+                burstRadioBtn.id -> {
+
+                    if(selectedRadioIndex == basicRadioButton.id
+                        || selectedRadioIndex == objectFocusRadioBtn.id
+                        || selectedRadioIndex == distanceFocusRadioBtn.id) {
+                        //CameraX 중단 > Camera2 실행
+                        stopCameraX()
+                        overlay.visibility = View.GONE
+                        viewFinder.visibility = View.GONE
+
+                        textureView.visibility = View.VISIBLE
+                        camera2.startBackgroundThread()
+                        camera2.startCamera2()
+                    }
+
+                    selectedRadioIndex = burstRadioBtn.id
+
+                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    burstRadioBtn.setTypeface(null, Typeface.BOLD)
+                    objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
+
+//                    overlay.visibility = View.GONE
+//                    viewFinder.visibility = View.GONE
+//
+//                    textureView.visibility = View.VISIBLE
+
+                    binding.infoConstraintLayout.visibility = View.VISIBLE
+                    binding.infoTextView.text = resources.getString(R.string.camera_burst_info)
                 }
 
                 objectFocusRadioBtn.id -> {
-                    selectedRadioIndex = 1
-                    basicToggleBtn.visibility = View.INVISIBLE
 
-                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    if( selectedRadioIndex == burstRadioBtn.id ) {
+                        //Camera2 중단 > CameraX 실행
+                        camera2.stopCamera2()
+                        startCameraX()
+                    }
+
+                    selectedRadioIndex = objectFocusRadioBtn.id
+
+                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
-                    autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
 
                     overlay.visibility = View.VISIBLE
-
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
-
+                    viewFinder.visibility = View.VISIBLE
                     viewFinder.isEnabled = true
+
+                    textureView.visibility = View.GONE
+
+                    binding.infoConstraintLayout.visibility = View.VISIBLE
+                    binding.infoTextView.text = resources.getString(R.string.camera_object_info)
                 }
 
                 distanceFocusRadioBtn.id -> {
-                    selectedRadioIndex = 2
-                    basicToggleBtn.visibility = View.INVISIBLE
 
-                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
+                    if( selectedRadioIndex == burstRadioBtn.id ) {
+                        //Camera2 중단 > CameraX 실행
+                        camera2.stopCamera2()
+                        startCameraX()
+                    }
+
+                    selectedRadioIndex = distanceFocusRadioBtn.id
+
+                    basicRadioButton.setTypeface(null, Typeface.NORMAL)
+                    burstRadioBtn.setTypeface(null, Typeface.NORMAL)
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
-                    autoRewindRadioBtn.setTypeface(null, Typeface.NORMAL)
 
                     overlay.visibility = View.GONE
-
-                    distanceOptionLinearLayout.visibility = View.VISIBLE
-                    seekBarLinearLayout.visibility = View.VISIBLE
-
-                    viewFinder.isEnabled = false
-                }
-
-                autoRewindRadioBtn.id -> {
-                    selectedRadioIndex = 3
-                    basicToggleBtn.visibility = View.INVISIBLE
-
-                    basicRadioBtn.setTypeface(null, Typeface.NORMAL)
-                    objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
-                    distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
-                    autoRewindRadioBtn.setTypeface(null, Typeface.BOLD)
-
-                    overlay.visibility = View.GONE
-
-                    distanceOptionLinearLayout.visibility = View.GONE
-                    seekBarLinearLayout.visibility = View.GONE
-
+                    viewFinder.visibility = View.VISIBLE
                     viewFinder.isEnabled = true
 
+                    textureView.visibility = View.GONE
+
+                    binding.infoConstraintLayout.visibility = View.GONE
                 }
             }
         }
@@ -463,116 +488,93 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             shutterBtn.isEnabled = false
             galleryBtn.isEnabled = false
             convertBtn.isEnabled = false
-            basicRadioBtn.isEnabled = false
+            basicRadioButton.isEnabled = false
+            burstRadioBtn.isEnabled = false
             objectFocusRadioBtn.isEnabled = false
             distanceFocusRadioBtn.isEnabled = false
-            autoRewindRadioBtn.isEnabled = false
-            basicToggleBtn.isEnabled = false
-            binding.distanceManualRadioBtn.isEnabled = false
-            binding.distanceAutoRadioBtn.isEnabled = false
-
 
             // previewByteArrayList 초기화
             previewByteArrayList.clear()
 
             //Basic 모드
-            if(basicRadioBtn.isChecked){
+            if(basicRadioButton.isChecked){
+                turnOnAFMode()
+                audioResolver.startRecording("camera_record")
 
-                // Single 모드
-                if(!(basicToggleBtn.isChecked)){
+                CoroutineScope(Dispatchers.IO).launch {
 
-                    turnOnAFMode()
-
-                    CoroutineScope(Dispatchers.IO).launch {
-                        mediaPlayer.start()
-                        val result = takePicture(0)
-
-                        // 녹음 중단
-                        val savedFile = audioResolver.stopRecording()
-                        if (savedFile != null) {
-                            val audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
-                                audioBytes,
-                                ContentAttribute.basic
-                            )
-                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-                        }
-
-                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
-                            previewByteArrayList,
-                            ContentType.Image,
+                    val result = takePicture(0)
+                    mediaPlayer.start()
+                    // 녹음 중단
+                    val savedFile = audioResolver.stopRecording()
+                    if (savedFile != null) {
+                        val audioBytes = audioResolver.getByteArrayInFile(savedFile)
+                        jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                            audioBytes,
                             ContentAttribute.basic
                         )
-
-                        withContext(Dispatchers.Main) {
-
-                            shutterBtn.isEnabled = true
-                            galleryBtn.isEnabled = true
-                            convertBtn.isEnabled = true
-                            basicRadioBtn.isEnabled = true
-                            objectFocusRadioBtn.isEnabled = true
-                            distanceFocusRadioBtn.isEnabled = true
-                            autoRewindRadioBtn.isEnabled = true
-                            basicToggleBtn.isEnabled = true
-                            binding.distanceManualRadioBtn.isEnabled = true
-                            binding.distanceAutoRadioBtn.isEnabled = true
-
-                            rotation.cancel()
-                        }
-
-                        imageContent.activityType = ActivityType.Camera
-//                        CoroutineScope(Dispatchers.Default).launch {
-//                            // RewindFragment로 이동
-//                            withContext(Dispatchers.Main) {
-//                                findNavController().navigate(R.id.action_cameraFragment_to_basicModeEditFragment)
-//                            }
-//                        }
-                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                        jpegViewModel.jpegMCContainer.value?.save()
-                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
+                        Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                     }
-                }
+                    Log.d("burst", "setImageContent 호출 전")
 
-                // Burst 모드
-                else{
-                    turnOnBurstMode()
-                    audioResolver.startRecording("camera_record")
-                    for (i in 1..burstSize) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val result = takePicture(i)
-                        }
-                    } // end of the for ...
+                    withContext(Dispatchers.Main) {
 
-                    CoroutineScope(Dispatchers.IO).launch {
+                        shutterBtn.isEnabled = true
+                        galleryBtn.isEnabled = true
+                        convertBtn.isEnabled = true
+                        basicRadioButton.isEnabled = true
+                        burstRadioBtn.isEnabled = true
+                        objectFocusRadioBtn.isEnabled = true
+                        distanceFocusRadioBtn.isEnabled = true
 
-                        while (previewByteArrayList.size < burstSize) { }
+                        rotation.cancel()
+                    }
 
-                        if (previewByteArrayList.size == burstSize) {
-                            mediaPlayer.start()
-                            // 녹음 중단
-                            val savedFile = audioResolver.stopRecording()
-                            if (savedFile != null) {
-                                val audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                                jpegViewModel.jpegMCContainer.value!!.setAudioContent(
-                                    audioBytes,
-                                    ContentAttribute.basic
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // RewindFragment로 이동
+                        withContext(Dispatchers.Main) {
+                            var jop = async {
+                                jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                                    previewByteArrayList,
+                                    ContentType.Image,
+                                    ContentAttribute.burst
                                 )
-                                Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                             }
-                            Log.d("burst", "setImageContent 호출 전")
+                            jop.await()
+                            Log.d("error 잡기", "넘어가기 전")
+//                            imageContent.activityType = ActivityType.Camera
+//                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+//
+                            jpegViewModel.jpegMCContainer.value?.save()
+                        }
+                    }
+
+                } // end of Coroutine ...
+            }
+
+            else if(burstRadioBtn.isChecked){
+                camera2.previewByteArrayList.clear()
+
+                camera2.lockFocus()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    while(true){
+
+                        if(camera2.state == 0){ // state : PREVIEW
+
+                            while(camera2.previewByteArrayList.size < BURST_SIZE){}
+                            previewByteArrayList = camera2.previewByteArrayList
 
                             withContext(Dispatchers.Main) {
 
                                 shutterBtn.isEnabled = true
                                 galleryBtn.isEnabled = true
                                 convertBtn.isEnabled = true
-                                basicRadioBtn.isEnabled = true
+                                basicRadioButton.isEnabled = true
+                                burstRadioBtn.isEnabled = true
                                 objectFocusRadioBtn.isEnabled = true
                                 distanceFocusRadioBtn.isEnabled = true
-                                autoRewindRadioBtn.isEnabled = true
-                                basicToggleBtn.isEnabled = true
-                                binding.distanceManualRadioBtn.isEnabled = true
-                                binding.distanceAutoRadioBtn.isEnabled = true
 
                                 rotation.cancel()
                             }
@@ -592,16 +594,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                     Log.d("error 잡기", "넘어가기 전")
 //                                    imageContent.activityType = ActivityType.Camera
 //                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-                                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
+
                                     jpegViewModel.jpegMCContainer.value?.save()
-                                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
                                 }
                             }
 
+                            break
                         }
-                    } // end of Coroutine ...
-
-                } // end of else ...
+                    }
+                }
             }
 
             // Object Focus 모드
@@ -617,198 +618,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             else if(distanceFocusRadioBtn.isChecked){
 
                 audioResolver.startRecording("camera_record")
-
-                if(binding.distanceManualRadioBtn.isChecked){
-                    turnOffAFMode(focusDistance)
-                    CoroutineScope(Dispatchers.IO).launch {
-                        mediaPlayer.start()
-                        val result = takePicture(0)
-
-                        // 녹음 중단
-                        val savedFile = audioResolver.stopRecording()
-                        if (savedFile != null) {
-                            val audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
-                                audioBytes,
-                                ContentAttribute.basic
-                            )
-                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-                        }
-
-                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
-                            previewByteArrayList,
-                            ContentType.Image,
-                            ContentAttribute.basic
-                        )
-
-                        withContext(Dispatchers.Main) {
-
-                            shutterBtn.isEnabled = true
-                            galleryBtn.isEnabled = true
-                            convertBtn.isEnabled = true
-                            basicRadioBtn.isEnabled = true
-                            objectFocusRadioBtn.isEnabled = true
-                            distanceFocusRadioBtn.isEnabled = true
-                            autoRewindRadioBtn.isEnabled = true
-                            basicToggleBtn.isEnabled = true
-                            binding.distanceManualRadioBtn.isEnabled = true
-                            binding.distanceAutoRadioBtn.isEnabled = true
-
-                            rotation.cancel()
-                        }
-
-                        imageContent.activityType = ActivityType.Camera
-                        CoroutineScope(Dispatchers.Default).launch {
-                            // RewindFragment로 이동
-//                            withContext(Dispatchers.Main) {
-//                                findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-//                            }
-                            Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                            jpegViewModel.jpegMCContainer.value?.save()
-                            Log.d("error 잡기", "바로 편집에서 save() 호출후")
-                        }
-                    }
-                }
-                else if(binding.distanceAutoRadioBtn.isChecked) {
-                    turnOffAFMode(0f)
-                    controlLensFocusDistance(0)
-                }
+                turnOffAFMode(0f)
+                controlLensFocusDistance(0)
             }
 
-            // Auto Rewind 모드
-            else if(autoRewindRadioBtn.isChecked){
-                turnOnBurstMode()
-                audioResolver.startRecording("camera_record")
-
-                for (i in 1..burstSize) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val result = takePicture(i)
-                    }
-                } // end of the for ...
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    while(previewByteArrayList.size < burstSize) { }
-                    if (previewByteArrayList.size == burstSize) {
-                        // 녹음 중단
-                        val savedFile = audioResolver.stopRecording()
-                        if (savedFile != null) {
-                            var audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                            jpegViewModel.jpegMCContainer.value!!.setAudioContent(
-                                audioBytes,
-                                ContentAttribute.basic
-                            )
-                            Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
-                        }
-
-                        jpegViewModel.jpegMCContainer.value!!.setImageContent(
-                            previewByteArrayList,
-                            ContentType.Image,
-                            ContentAttribute.burst
-                        )
-
-//                        imageContent.getBitmapList()
-
-                        //jpegViewModel.jpegMCContainer.value?.save()
-
-                        withContext(Dispatchers.Main) {
-
-                            shutterBtn.isEnabled = true
-                            galleryBtn.isEnabled = true
-                            convertBtn.isEnabled = true
-                            basicRadioBtn.isEnabled = true
-                            objectFocusRadioBtn.isEnabled = true
-                            distanceFocusRadioBtn.isEnabled = true
-                            autoRewindRadioBtn.isEnabled = true
-                            basicToggleBtn.isEnabled = true
-                            binding.distanceManualRadioBtn.isEnabled = true
-                            binding.distanceAutoRadioBtn.isEnabled = true
-
-                            rotation.cancel()
-                        }
-
-                        imageContent.activityType = ActivityType.Camera
-//                        CoroutineScope(Dispatchers.Default).launch {
-//                            // RewindFragment로 이동
-//                            withContext(Dispatchers.Main) {
-//                                findNavController().navigate(R.id.action_cameraFragment_to_rewindFragment)
-//                            }
-//                        }
-                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                        jpegViewModel.jpegMCContainer.value?.save()
-                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
-                    }
-                } // end of Coroutine ...
-            } // end of auto rewind ...
         }
 
-
-        /**
-         * ToggleButton 눌렸을 떄
-         */
-
-//        // AlphaAnimation 객체를 미리 생성합니다.
-//        val fadeOutAnimation = AlphaAnimation(1f, 0f).apply {
-//            duration = 500 // 0.5초 동안 서서히 사라지게 합니다.
-//            setAnimationListener(object : Animation.AnimationListener {
-//                override fun onAnimationStart(animation: Animation?) {
-//                    // 애니메이션이 시작될 때 호출됩니다.
-//                }
-//                override fun onAnimationEnd(animation: Animation?) {
-//                    // 애니메이션이 종료될 때 호출됩니다.
-//                    if(isToggleChecked) {
-//                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
-//                        binding.burstToast.visibility = View.GONE
-//                    } else{
-//                        Log.v("basicToggle", "fadeOutAnimation : onAnimationEnd()")
-//                        binding.singleToast.visibility = View.GONE
-//                    }
-//                }
-//                override fun onAnimationRepeat(animation: Animation?) {
-//                    // 애니메이션이 반복될 때 호출됩니다.
-//                }
-//            })
-//        }
-//        val fadeInAnimation = AlphaAnimation(0f, 1f).apply {
-//            duration = 500 // 0.5초 동안 서서히 나타나게 합니다.
-//            setAnimationListener(object : Animation.AnimationListener {
-//                override fun onAnimationStart(animation: Animation?) {
-//                    // 애니메이션이 시작될 때 호출됩니다.
-//                }
-//                override fun onAnimationEnd(animation: Animation?) {
-//                    Log.v("basicToggle", "fadeInAnimation : onAnimationEnd()")
-//                    // 애니메이션이 종료될 때 호출됩니다.
-//                    if(isToggleChecked) {
-//                        binding.burstToast.postDelayed({
-//                            // 1초 후에 textView1을 서서히 사라지게 합니다.
-//                            binding.burstToast.startAnimation(fadeOutAnimation)
-//                        }, 1000)
-//                    } else {
-//                        binding.singleToast.postDelayed({
-//                            // 1초 후에 textView1을 서서히 사라지게 합니다.
-//                            binding.singleToast.startAnimation(fadeOutAnimation)
-//                        }, 1000)
-//                    }
-//                }
-//                override fun onAnimationRepeat(animation: Animation?) {
-//                    // 애니메이션이 반복될 때 호출됩니다.
-//                }
-//            })
-//        }
-
-//        binding.basicToggle.setOnCheckedChangeListener { buttonView, isChecked ->
-//            isToggleChecked = isChecked
-//            if (isChecked) {
-//                binding.burstToast.clearAnimation()
-//                binding.singleToast.clearAnimation()
-//                binding.burstToast.visibility = View.VISIBLE
-//                binding.burstToast.startAnimation(fadeInAnimation)
-//            } else {
-//                binding.singleToast.clearAnimation()
-//                binding.burstToast.clearAnimation()
-//                binding.singleToast.visibility = View.VISIBLE
-//                binding.singleToast.startAnimation(fadeInAnimation)
-//            }
-//        }
 
     }
 
@@ -822,29 +637,27 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // SharedPreferences.Editor를 사용하여 상태 값을 저장합니다.
         with (sharedPref?.edit()) {
             this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
-            this?.putBoolean("isToggleChecked", isToggleChecked!!)
             this?.putBoolean("isBackLens", isBackLens!!)
             this?.apply()
         }
     }
 
-
-    private fun showTextViewWithFadeInAnimation(view: View) {
-        Log.v("basicToggle", "showTextViewWithFadeInAnimation View : ${view}")
-        view.visibility = View.VISIBLE
-        val fadeInAnimation = AlphaAnimation(0f, 1f)
-        fadeInAnimation.duration = 500
-        view.startAnimation(fadeInAnimation)
+    private fun startCameraX() {
+        if(allPermissionsGranted()){
+            viewFinder.visibility = View.VISIBLE
+            Log.v("chaewon", "xxxx isBackLens : $isBackLens")
+            startCamera(isBackLens)
+        } else {
+            ActivityCompat.requestPermissions(
+                activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
     }
 
-    private fun showTextViewWithFadeOutAnimation(view: View) {
-        Log.v("basicToggle", "showTextViewWithFadeOutAnimation View : ${view}")
-        val fadeOutAnimation = AlphaAnimation(1f, 0f)
-        fadeOutAnimation.duration = 500
-        view.startAnimation(fadeOutAnimation)
-        view.visibility = View.GONE
+    private fun stopCameraX() {
+        cameraProvider.unbindAll()
+        viewFinder.visibility = View.GONE
     }
-
 
     suspend fun takePicture(i : Int) : Int {
         return suspendCoroutine { continuation ->
@@ -971,7 +784,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
      */
     private fun takeObjectFocusMode(index: Int, detectedObjectList : List<DetectionResult>) {
         if(index >= detectedObjectList.size){
-            Log.v("chaewon","previewByteArrayList :: ${previewByteArrayList.size}, detectedObjectList :: ${detectedObjectList.size} ")
             CoroutineScope(Dispatchers.IO).launch {
                 while (previewByteArrayList.size < detectedObjectList.size) { }
 
@@ -997,27 +809,21 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
                         convertBtn.isEnabled = true
-                        basicRadioBtn.isEnabled = true
+                        basicRadioButton.isEnabled = true
+                        burstRadioBtn.isEnabled = true
                         objectFocusRadioBtn.isEnabled = true
                         distanceFocusRadioBtn.isEnabled = true
-                        autoRewindRadioBtn.isEnabled = true
-                        basicToggleBtn.isEnabled = true
-                        binding.distanceManualRadioBtn.isEnabled = true
-                        binding.distanceAutoRadioBtn.isEnabled = true
 
                         rotation.cancel()
                     }
 
-//                    jpegViewModel.jpegMCContainer.value!!.save()
                     imageContent.activityType = ActivityType.Camera
-//                    CoroutineScope(Dispatchers.Default).launch {
-//                        withContext(Dispatchers.Main) {
-//                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-//                        }
-//                    }
-                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                    jpegViewModel.jpegMCContainer.value?.save()
-                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+//                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                            jpegViewModel.jpegMCContainer.value?.save()
+                        }
+                    }
                 }
             }
             return
@@ -1033,7 +839,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         result?.addListener({
             try {
                 isFocusSuccess = result.get().isFocusSuccessful
-                Log.v("chaewon", "hi")
             } catch (e: IllegalAccessException) {
                 Log.e("Error", "IllegalAccessException")
             } catch (e: InvocationTargetException) {
@@ -1042,14 +847,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
             if (isFocusSuccess == true) {
                 mediaPlayer.start()
-                Log.v("chaewon", "success")
+
                 previewToByteArray()
                 isFocusSuccess = false
-                Log.v("list size", "${previewByteArrayList.size}")
                 takeObjectFocusMode(index + 1, detectedObjectList)
             } else {
                 // 초점이 안잡혔다면 다시 그 부분에 초점을 맞춰라
-                Log.v("Focus", "false")
                 takeObjectFocusMode(index, detectedObjectList)
             }
         }, ContextCompat.getMainExecutor(activity))
@@ -1067,6 +870,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 if (previewByteArrayList.size == DISTANCE_FOCUS_PHOTO_COUNT) {
                     mediaPlayer.start()
+                    turnOnAFMode()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
                     if (savedFile != null) {
@@ -1089,27 +893,21 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
                         convertBtn.isEnabled = true
-                        basicRadioBtn.isEnabled = true
+                        basicRadioButton.isEnabled = true
+                        burstRadioBtn.isEnabled = true
                         objectFocusRadioBtn.isEnabled = true
                         distanceFocusRadioBtn.isEnabled = true
-                        autoRewindRadioBtn.isEnabled = true
-                        basicToggleBtn.isEnabled = true
-                        binding.distanceManualRadioBtn.isEnabled = true
-                        binding.distanceAutoRadioBtn.isEnabled = true
 
                         rotation.cancel()
                     }
 
-//                    jpegViewModel.jpegMCContainer.value!!.save()
-//                    imageContent.activityType = ActivityType.Camera
-//                    CoroutineScope(Dispatchers.Default).launch {
-//                        withContext(Dispatchers.Main) {
-//                            findNavController().navigate(R.id.action_cameraFragment_to_focusChangeFragment)
-//                        }
-//                    }
-                    Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                    jpegViewModel.jpegMCContainer.value?.save()
-                    Log.d("error 잡기", "바로 편집에서 save() 호출후")
+                    imageContent.activityType = ActivityType.Camera
+                    CoroutineScope(Dispatchers.Default).launch {
+                        withContext(Dispatchers.Main) {
+//                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                            jpegViewModel.jpegMCContainer.value?.save()
+                        }
+                    }
                 }
             }
             return
@@ -1196,7 +994,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
             // 2. CameraProvider 사용 가능 여부 확인
             // 생명주기에 binding 할 수 있는 ProcessCameraProvider 객체 가져옴
-            val cameraProvider = cameraProviderFuture.get()
+            cameraProvider = cameraProviderFuture.get()
 
             // 3. 카메라를 선택하고 use case를 같이 생명주기에 binding
 
@@ -1240,7 +1038,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                     .build()
 
                             // Preprocess the image and convert it into a TensorImage for detection.
-                            val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmapBuffer))
+                            val tensorImage =
+                                imageProcessor.process(TensorImage.fromBitmap(bitmapBuffer))
 
                             val results = customObjectDetector?.detect(tensorImage)
 
@@ -1260,7 +1059,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                 results,
                                 inferenceTime,
                                 tensorImage.height,
-                                tensorImage.width)
+                                tensorImage.width
+                            )
                         }
                     }
 
@@ -1281,7 +1081,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
             orientationEventListener.enable()
 
-            if(isBackLens!!){
+            if (isBackLens!!) {
                 // 3-2. 카메라 세팅
                 // CameraSelector는 카메라 세팅을 맡는다.(전면, 후면 카메라)
                 cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -1289,7 +1089,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
             }
 
-            try{
+            try {
                 // binding 전에 binding 초기화
                 cameraProvider.unbindAll()
 
@@ -1304,7 +1104,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 preview.setSurfaceProvider(viewFinder.surfaceProvider)
 
                 // 지원되는 MeteringPoints 가져오기
-                val meteringPoints = camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
+                val meteringPoints =
+                    camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
 
                 // 스마트폰 기기 별 min Focus Distance 알아내기 ( 가장 `가까운` 곳에 초점을 맞추기 위한 렌즈 초점 거리 )
                 // 대부분 10f
@@ -1408,5 +1209,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         private val REQUEST_CAMERA_PERMISSION_CODE = 1001
         private val REQUEST_RECORD_AUDIO_PERMISSION_CODE = 1002
+
+        private val BURST_SIZE = 10
     }
 }

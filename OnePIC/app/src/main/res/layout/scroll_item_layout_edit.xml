@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/scrollImageView"
-        android:layout_marginTop="5dp"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:scaleType="centerCrop" />
+        android:layout_marginTop="5dp"
+        android:scaleType="centerCrop"
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/mainMark"
@@ -23,5 +26,16 @@
         android:textColor="#FFFFFF"
         android:textSize="12sp"
         android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/deleteIcon"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/edit_delete_back_color"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/delete" />
 
 </FrameLayout>

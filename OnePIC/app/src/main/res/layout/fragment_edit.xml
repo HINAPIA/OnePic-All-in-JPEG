@@ -146,7 +146,7 @@
                 android:id="@+id/magicBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="13dp"
                 android:layout_weight="1"
                 android:background="@drawable/menu_round"
                 android:drawableLeft="@drawable/magic_icon_resize"
@@ -158,25 +158,6 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11sp"
-                app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/addBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/menu_round"
-                android:drawableLeft="@drawable/add_icon_resize"
-                android:paddingStart="14dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="12dp"
-                android:text="@string/add"
-                android:textAllCaps="false"
-                android:textColor="@color/menu_color"
-                android:textSize="11sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
 
@@ -184,7 +165,7 @@
                 android:id="@+id/bestMainBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="13dp"
                 android:layout_weight="1"
                 android:background="@drawable/menu_round"
                 android:drawableLeft="@drawable/best_main_icon_resize"
@@ -196,7 +177,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11sp"
-                app:layout_constraintBottom_toTopOf="@+id/magicBtn"
+                app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <ProgressBar
@@ -208,8 +189,30 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
 
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainChangeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp">
+
+            <Button
+                android:id="@+id/mainChangeBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/point_color"
+                android:text="대표 사진으로"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -220,22 +223,10 @@
             android:layout_marginBottom="10dp"
             android:padding="3dp">
 
-            <Button
-                android:id="@+id/mainChangeBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#434343"
-                android:text="대표 사진으로"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <SeekBar
                 android:id="@+id/seekBar"
                 android:layout_width="300dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:progressDrawable="@drawable/seekbar_progress"
                 android:splitTrack="false"
                 android:thumb="@drawable/seekbar_thumb"
@@ -249,11 +240,10 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="120dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="15dp"
-            android:layout_weight="1.5"
             android:scaleType="fitCenter">
 
             <ImageView
@@ -269,6 +259,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="-1dp">
+
+                <ImageView
+                    android:id="@+id/contentDeleteBtn"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/container_delete_icon" />
 
                 <ImageView
                     android:id="@+id/imageView5"
@@ -325,9 +326,10 @@
                     app:layout_constraintTop_toBottomOf="@+id/imageView5" />
 
                 <FrameLayout
+                    android:id="@+id/frameLayout2"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginStart="35dp"
+                    android:layout_marginStart="40dp"
                     android:layout_marginEnd="50dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -348,9 +350,10 @@
                             android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:gravity="center"
-                            android:orientation="horizontal"/>
+                            android:orientation="horizontal" />
 
                     </HorizontalScrollView>
+
                 </FrameLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

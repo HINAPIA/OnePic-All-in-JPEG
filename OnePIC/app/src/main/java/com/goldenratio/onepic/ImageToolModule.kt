@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.InputStream
 
 class ImageToolModule {
@@ -70,17 +71,19 @@ class ImageToolModule {
 
     }
 
-//    fun byteArrayToBitmap(context: Context, byteArray: ByteArray): Bitmap {
-//        val requestOptions = RequestOptions()
-//            .format(DecodeFormat.PREFER_RGB_565)
-//        val bitmap = Glide.with(context)
-//            .asBitmap()
-//            .load(byteArray)
-//            .apply(requestOptions)
-//            .submit()
-//            .get()
-//        return bitmap
-//    }
+    @Throws(IOException::class)
+    fun getBytes(inputStream: InputStream): ByteArray {
+        val byteBuffer = ByteArrayOutputStream()
+        val bufferSize = 1024
+        val buffer = ByteArray(bufferSize)
+        var len = 0
+        while (inputStream.read(buffer).also { len = it } != -1) {
+            byteBuffer.write(buffer, 0, len)
+        }
+        byteBuffer.close()
+        inputStream.close()
+        return byteBuffer.toByteArray()
+    }
 
     fun bitmapRotation(byteArray: ByteArray, value: Int) : Matrix{
         val inputStream: InputStream = ByteArrayInputStream(byteArray)
