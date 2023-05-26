@@ -215,17 +215,6 @@ class BasicViewerFragment : Fragment() {
                     isUserScrolling = false
                     if (isDragging){
                         Log.d("사용자의 스크롤",": 드래그 있었었음")
-
-//                        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//                        val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-//                        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-//                        centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
-//
-//                        val currentViewHolder = recyclerView.findViewHolderForAdapterPosition(centerItemPosition!!)
-//                        if (currentViewHolder != null && currentViewHolder is RecyclerViewAdapter.ViewHolder) {
-//                            binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
-//                        }
-
                         isDragging = false
                     }
                 }

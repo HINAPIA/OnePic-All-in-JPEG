@@ -527,10 +527,9 @@ class ViewerFragment : Fragment() {
                         val scrollAudioView: ImageView =
                             scollItemLayout.findViewById(R.id.scrollItemAudioView)
                         scrollAudioView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-                            if (scrollAudioView.background == null){
+                            if (!isAudioBtnClicked){ // 클릭 안되어있던 상태
                                 // TODO: 음악 재생
-                                Log.d("song music: ","음악 재생")
-                                scrollAudioView.setBackgroundResource(R.drawable.chosen_scroll_menu_border)
+                                isAudioBtnClicked = true
                                 if(isAudioPlaying.value != true){
                                     jpegViewModel.jpegMCContainer.value!!.audioPlay()
                                     isAudioPlaying.value = true
@@ -538,8 +537,7 @@ class ViewerFragment : Fragment() {
                             }
                             else {
                                 // TODO: 음악 멈춤
-                                Log.d("song music: ","음악 멈춤")
-                                scrollAudioView.background = null
+                                isAudioBtnClicked = false
                                 jpegViewModel.jpegMCContainer.value!!.audioStop()
                                 isAudioPlaying.value = false
                             }
@@ -547,7 +545,18 @@ class ViewerFragment : Fragment() {
 
                         isAudioPlaying.observe(requireActivity()){ value ->
                             if (value == false){
-                                scrollAudioView.background = null
+                                scrollAudioView.setBackgroundResource(R.drawable.scroll_menu_btn)
+                                scrollAudioView.setPadding(30,30,30,30)
+                                scrollAudioView.setImageResource(R.drawable.audio_item)
+                                isAudioBtnClicked = false
+                            }
+                            else {
+                                Log.d("song music: ","음악 재생")
+                                scrollAudioView.setBackgroundResource(R.drawable.scroll_menu_btn_color)
+                                scrollAudioView.setPadding(0,0,0,0)
+                                Glide.with(scrollAudioView)
+                                    .load(R.raw.giphy)
+                                    .into(scrollAudioView)
                             }
                         }
                         binding.linear.addView(scollItemLayout,binding.linear.childCount)
