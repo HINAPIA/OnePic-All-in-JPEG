@@ -1013,7 +1013,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             return
         }
 
-        val distance: Float? = 0F + lensDistanceSteps * photoCnt
+//        val distance: Float? = 0F + lensDistanceSteps * photoCnt
+        val distance: Float? = minFocusDistance - lensDistanceSteps * photoCnt
+        Log.v("distance", "distance : $distance")
         turnOffAFMode(distance!!)
 
         val imageCapture = imageCapture ?: return
@@ -1212,7 +1214,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 minFocusDistance =
                     camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)!!
                 // 연속 사진 촬영 장수에 따른 Step 거리
-                lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat())
+                lensDistanceSteps = minFocusDistance / (DISTANCE_FOCUS_PHOTO_COUNT.toFloat() - 1f)
 
                 setBottomMenuHeight()
 
@@ -1300,7 +1302,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         private const val TAG = "OnePIC"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
-        private const val DISTANCE_FOCUS_PHOTO_COUNT = 10
+        private const val DISTANCE_FOCUS_PHOTO_COUNT = 7
         private val REQUIRED_PERMISSIONS = // Array<String>
             mutableListOf(
                 Manifest.permission.CAMERA,
