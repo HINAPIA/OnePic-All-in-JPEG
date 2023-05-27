@@ -17,6 +17,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.activityViewModels
+import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +31,8 @@ import java.io.*
 class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     private var MCContainer : MCContainer
     private var mainActivity : Activity
+
+
     init{
         MCContainer = _MC_Container
         mainActivity = _mainActivity
@@ -128,76 +132,46 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             var uri : Uri
 
             // 기존 파일이 존재하는지 확인합니다.
-            val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
-            val selectionArgs = arrayOf(fileName)
-            val cursor = mainActivity.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null,
-                selection,
-                selectionArgs,
-                null
-            )
+//            val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+//            val selectionArgs = arrayOf(fileName)
+//            val cursor = mainActivity.contentResolver.query(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                null,
+//                selection,
+//                selectionArgs,
+//                null
+//            )
 
-
-        // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
-        if (cursor != null && cursor.moveToFirst()) {
-            //result가 false이면 우리 앱의 사진이 아니여서 삭제를 못함
-            result =  deleteImage(fileName)
-        }
+//        // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
+//        if (cursor != null && cursor.moveToFirst()) {
+//            // 사용자가 허가하면 기존 이미지 삭제, 그렇지 않으면 삭제 안함
+//            result =  deleteImage(fileName)
+//        }
 
         // 같은 파일이 없거나 덮어쓰기가 가능할 때
-        if(result){
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            Log.d("saveResolver", "새 파일에 저장")
-            uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
-            ViewerFragment.currentFilePath = uri.toString()
+        //if(result){
 
-            Log.d("here here : ",ViewerFragment.currentFilePath )
+        /* 새로운 파일 저장 */
+        Log.d("save_test", "새로운 파일 저장")
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        uri= mainActivity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+        ViewerFragment.currentFilePath = uri.toString()
 
-            val outputStream: OutputStream? = uri?.let {
-                mainActivity.getContentResolver().openOutputStream(
-                    it
-                )
-            }
-            if (outputStream != null) {
-                outputStream.write(byteArray)
-                outputStream.close()
-               // waitForFileSaved(fileName)
-            }
+        Log.d("here here : ",ViewerFragment.currentFilePath )
 
+        val outputStream: OutputStream? = uri?.let {
+            mainActivity.getContentResolver().openOutputStream(
+                it
+            )
         }
-
-//            try {
-//                // 파일이 완전히 저장되었는지 확인합니다.
-//                val contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-//                val selectionClause = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
-//                val selectionArgs = arrayOf(fileName)
-//                val queryUri = contentUri.buildUpon().appendQueryParameter("limit", "1").build()
-//                mainActivity.contentResolver.query(queryUri, null, selectionClause, selectionArgs, null)?.use { cursor ->
-//                    if (cursor.moveToFirst()) {
-//                        val isPending = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING))
-//                        if (isPending == 0) {
-//                            Log.d("error 잡기", "파일 저장 완료")
-//                            CoroutineScope(Dispatchers.Main).launch {
-//                                Toast.makeText(mainActivity, "저장 되었습니다.", Toast.LENGTH_SHORT).show()
-//                            }
-//                        } else {
-//                            Log.d("error 잡기", "파일 저장 중")
-//                        }
-//                    }
-//                }
-//            } catch(e: FileNotFoundException) {
-//                e.printStackTrace()
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-       // }
-
+        if (outputStream != null) {
+            outputStream.write(byteArray)
+            outputStream.close()
+            // waitForFileSaved(fileName)
+        }
         if(result){
             return ""
         } else{
@@ -228,7 +202,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         }
     }
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun deleteImage(fileName : String) : Boolean {
+    fun deleteImage(fileName : String) {
         // 이미지를 조회하기 위한 쿼리
         val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(fileName)
@@ -251,23 +225,29 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                     } else {
                         Log.d("save_test", "이미지 삭제 실패")
                     }
+                    JpegViewModel.isUserInentFinish = true
+
                 } catch (e: SecurityException) {
                     // 사용자 요청 메시지를 보냄
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && e is RecoverableSecurityException) {
+                        val intentSender = e.userAction.actionIntent.intentSender
+                        mainActivity.startIntentSenderForResult(intentSender, 1, null, 0, 0, 0, null)
                         Log.d("save_test", "삭제 중 예외 처리 (우리 앱 사진이 아님)")
-                        return false
                     } else {
                         // 예외 처리
                         Log.d("save_test", "삭제 중 예외 처리 (우리 앱 사진이 아님) && 버전 13이하")
                     }
+
                 }
+
             } else {
                 // 이미지가 존재하지 않는 경우
                 Log.d("save_test", "이미지가 존재 하지 않음")
+                JpegViewModel.isUserInentFinish = true
+
             }
         }
-        return true
-
+        //JpegViewModel.isUserInentFinish = true
     }
 
 
@@ -331,7 +311,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         if (pos == jpegMetaData.size - 1) {
             // SOI 쓰기
             byteBuffer.write(jpegMetaData,0,2)
-            //Log.d("test_test", "APP1 세그먼트를 찾지 못함")
         }
 
         //헤더 쓰기
@@ -352,7 +331,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 //EOI 작성
                 byteBuffer.write(0xff)
                 byteBuffer.write(0xd9)
-
             }
         }
 
