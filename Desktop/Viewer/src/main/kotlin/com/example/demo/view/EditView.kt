@@ -1,37 +1,25 @@
 package com.example.demo.view
 
-import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.example.demo.app.CustomColor
+import com.example.demo.app.MyStyles
+import com.example.demo.style.TablStyle
 import javafx.application.Platform
-import javafx.beans.value.ObservableValue
 import javafx.geometry.Insets
-import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
+import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
-import javafx.scene.media.Media
-import javafx.scene.media.MediaPlayer
-import javafx.scene.media.MediaView
 import javafx.scene.paint.Color
-import javafx.scene.shape.Box
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import tornadofx.*
-import tornadofx.Stylesheet.Companion.scrollPane
 import java.io.File
-import javax.swing.text.LabelView
 
 
 class EditView (val centerView : CenterView) : View(){
-    // text
-    private val textImageView: ImageView = ImageView()
-    private val textContentLabel : Label = Label("")
-
-    // aduio
-    private  val audioImageView : ImageView = ImageView()
-    //private val audioResolver : AudioResolver = AudioResolver()
-    private val audioPlayStartImageView : ImageView = ImageView()
 
     // Ai meta
     private var aiMetaDataImageView : ImageView = ImageView()
@@ -39,101 +27,130 @@ class EditView (val centerView : CenterView) : View(){
     private lateinit var aiScrollPane : ScrollPane
     private val aimetaDataView = AimetaDataView(centerView)
 
+    private val basicMetaDataView : BasicMetaDataView = BasicMetaDataView()
+
+    private val tabPane = TabPane()
+
 
     override val root = vbox {
-        val textImageUrl = File("src/main/kotlin/com/example/demo/resource/textImage.png").toURI().toURL()
-        if(textImageUrl != null){
-            val image = Image(textImageUrl.toExternalForm())
-            textImageView.image = image
-        }
 
+        // "Meta Data" lable
         hbox{
-            spacing = 5.0
-            add(aiMetaDataImageView)
+            spacing = 10.0
+            //add(aiMetaDataImageView)
             aiMetaDataImageView.isPreserveRatio = true
             aiMetaDataImageView.fitHeight = 30.0
             aiMetaDataImageView.fitWidth = 95.0
 
             label{
-                text = "All-in Meta Data"
+                text = "> Meta Data"
                 style{
-                    textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Inter", FontWeight.EXTRA_BOLD, 14.0)
-
+                    textFill = c(CustomColor.white) // 글자 색상 흰색
+                    font = Font.font("Inter", FontWeight.BOLD, 15.0)
                 }
             }
         }
 
-
-        aiScrollPane =  scrollpane {
-            padding = insets(10)
-            content = stackpane{
-                add(aimetaDataView.root)
-            }
-            // 수직 스크롤
-            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
-            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-
-            //315X480
-            // 스크롤 팬의 크기 지정
-            setMinSize(300.0, 480.0)
-            setMaxSize(300.0, 480.0)
+        tabPane.apply {
             style{
-                //backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
-                paddingAll = 5.0
-                background = Background(BackgroundFill(Color.web("#1A1A1A"), CornerRadii(15.0), Insets.EMPTY))
+                borderRadius = multi(box(10.px))
+            }
+            // 일반 메타데이터
+            val tab1 = tab("JPEG") {
+                style{
+                    backgroundColor = MultiValue(arrayOf(Color.web(CustomColor.point)))
+                    paddingAll = 5.0
+                   // background = Background(BackgroundFill(Color.web("#1A1A1A"), CornerRadii(15.0), Insets.EMPTY))
 
+                }
+                add(basicMetaDataView.root)
+            }
+            tab1.setOnSelectionChanged { value->
+                print("value : ${value}")
+                onTabClicked(tabPane, 0)
+            }
+
+            // ai metadata
+            val tab2 = tab("All in JPEG") {
+                style {
+                    backgroundColor += c(CustomColor.deepBackground)
+                }
+                aiScrollPane =  scrollpane {
+                    padding = insets(10)
+                    content = stackpane{
+                        add(aimetaDataView.root)
+                    }
+                    // 수직 스크롤
+                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+
+                    //315X480
+                    // 스크롤 팬의 크기 지정
+                    setMinSize(280.0, 360.0)
+                    setMaxSize(280.0, 360.0)
+                    style{
+                        backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
+                        paddingAll = 5.0
+                        background = Background(BackgroundFill(Color.web("#1A1A1A"), CornerRadii(15.0), Insets.EMPTY))
+
+                        background = Background(BackgroundFill(c("#1A1A1A"), null, null))
+                         borderWidth += box(2.px)
+                        borderColor += box(c(CustomColor.point))
+                    }
+                }
+            }
+            tab2.setOnSelectionChanged { value->
+                onTabClicked(tabPane, 1)
             }
         }
+
+        children.add(tabPane)
+        //tabPane.addClass(TablStyle())
+
         spacing = 3.0
-         imageFileLoad()
-//315X530
-            // Ai MeataData
-          //  vbox {
 
-//
-//                aiScrollPane = ScrollPane()
-//                add(aiScrollPane)
+        imageFileLoad()
+        // 스크롤 팬이 렌더링된 후에 lookup을 호출하여 수평 스크롤바 커스터마이징
+        Platform.runLater {
+            // 스크롤 바 설정
+            val viewport = aiScrollPane.lookup(".viewport")
+            viewport?.setStyle("-fx-background-color: #1A1A1A;")
+            aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
+            val scrollBarSkin = lookup(".scroll-bar:vertical .thumb") as? Region
+            // scroll bar 스킨이 null이 아닌 경우, 스크롤 바 막대의 색상을 검은색으로 설정
+            scrollBarSkin?.style = "-fx-background-color: black;"
 
+            // tab label 설정
+            val tabLabels = lookupAll(".tab-label")
+            tabLabels.forEach { it.style = "-fx-text-fill: ${CustomColor.white};" }
 
-//                aiScrollPane.apply{
-//                    content = stackpane{
-//                        add(aimetaDataView.root)
-//                    }
-//                    // 수직 스크롤
-//                    vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
-//                    hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-//
-//                    // 스크롤 팬의 크기 지정
-//                    prefHeightProperty().bind(this@stackpane.heightProperty().divide(3))
-//                    prefWidthProperty().bind(this@stackpane.widthProperty())
-//                   // lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-//                    style{
-//                        backgroundColor = MultiValue(arrayOf(Color.web("#1A1A1A")))
-//                    }
-//                }
-
-                //lookup(".viewport").style = "-fx-background-color: #1A1A1A;"
-                Platform.runLater {
-                    val viewport = aiScrollPane.lookup(".viewport")
-                    viewport?.setStyle("-fx-background-color: #1A1A1A;")
-                    aiScrollPane.lookup(".scroll-bar:vertical").style = "-fx-background-color: #302F2F;"
-                    val scrollBarSkin = lookup(".scroll-bar:vertical .thumb") as? Region
-                    // scroll bar 스킨이 null이 아닌 경우, 스크롤 바 막대의 색상을 검은색으로 설정
-                    scrollBarSkin?.style = "-fx-background-color: black;"
-                }
-         //   }
+            // tab pane header
+            val tabPane = lookup(".tab-pane")
+            tabPane.style = "-fx-background-color : ${CustomColor.background};"
+            lookup(".tab-pane *.tab-header-background").style = "-fx-background-color: transperaent;"
+        }
 
         style {
-            backgroundColor = MultiValue(arrayOf(c("#232323")))
-//              borderWidth += box(2.px)
-//              borderColor += box(c("#000000"))
+            backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
+//            borderWidth += box(2.px)
+//            borderColor += box(c(CustomColor.point))
+
         }
     }
 
+    fun onTabClicked(tabPane: TabPane, selectedTabIndex: Int) {
+        val tabs = tabPane.tabs
+        println(selectedTabIndex)
+        // 선택된 탭의 배경색을 흰색으로 변경
+        tabs[selectedTabIndex].style = "-fx-background-color: ${CustomColor.point};"
 
-
-
+        // 나머지 탭의 배경색을 원래의 색으로 변경
+        for (index in 0 until tabs.size) {
+            if (index != selectedTabIndex) {
+                tabs[index].style = "-fx-background-color: ${CustomColor.deepBackground};"
+            }
+        }
+    }
 
 
         // 이미지가 로드되면 fitWidth와 fitHeight를 설정
@@ -162,8 +179,9 @@ class EditView (val centerView : CenterView) : View(){
         }
     }
 
-    fun update(){
+    fun update(infoList : ArrayList<String>){
         aimetaDataView.update()
+        basicMetaDataView.update(infoList)
     }
 
     fun focusView(type:String, index : Int){
@@ -184,20 +202,6 @@ class EditView (val centerView : CenterView) : View(){
 
     }
     fun imageFileLoad(){
-        // AUDIO 텍스트 그림
-        val audioImageUrl =  File("src/main/kotlin/com/example/demo/resource/audioImage.png").toURI().toURL()
-        if(audioImageUrl != null){
-            val image = Image(audioImageUrl.toExternalForm())
-            audioImageView.image = image
-        }
-
-        // 재생 시작 그림
-        val audioPlayStartImageUrl =File("src/main/kotlin/com/example/demo/resource/playStart.png").toURI().toURL()
-        if(audioPlayStartImageUrl != null){
-            val image = Image(audioPlayStartImageUrl.toExternalForm())
-            audioPlayStartImageView.image = image
-        }
-
         // Ai meta Label
         val aiMeataImageUrl =File("src/main/kotlin/com/example/demo/resource/analsys.png").toURI().toURL()
         if(aiMeataImageUrl != null){

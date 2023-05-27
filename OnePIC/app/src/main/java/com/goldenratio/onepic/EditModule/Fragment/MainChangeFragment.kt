@@ -106,12 +106,10 @@ class MainChangeFragment : Fragment() {
                 Log.d("error 잡기", "메인 바꾸고 save : ${result}")
                 if (result) {
                     Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
-
                     // 2. main 사진을 첫번 째로 삽입
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture
                 }
-
 
                 if (imageContent.activityType == ActivityType.Camera) {
                     withContext(Dispatchers.Main) {

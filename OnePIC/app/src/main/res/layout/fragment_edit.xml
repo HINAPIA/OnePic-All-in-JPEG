@@ -40,7 +40,7 @@
             android:backgroundTint="@color/dark_purple"
             android:text="@string/save_text"
             android:textSize="18sp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toTopOf="parent"
@@ -75,6 +75,7 @@
 
 
 
+
 <!--        <Button-->
 <!--            android:id="@+id/audioAddBtn"-->
 <!--            android:layout_width="0dp"-->
@@ -87,6 +88,7 @@
 <!--            android:text="audio 추가"-->
 <!--            android:textAllCaps="false"-->
 <!--            android:textSize="12sp" />-->
+
 
 <!--        <Button-->
 <!--            android:id="@+id/textAddBtn"-->
