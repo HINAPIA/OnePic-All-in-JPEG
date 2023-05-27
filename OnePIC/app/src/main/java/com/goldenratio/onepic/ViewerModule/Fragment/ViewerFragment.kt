@@ -42,7 +42,8 @@ class ViewerFragment : Fragment() {
     private lateinit var binding: FragmentViewerBinding
     private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private val jpegViewModel by activityViewModels<JpegViewModel>()
-
+    private var scrollAudioView: ImageView? = null
+    private var scrollTextView: ImageView? = null
 
     /* audio, magic, text 버튼 클릭 여부 */
     private var isAudioBtnClicked = false
@@ -103,9 +104,10 @@ class ViewerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         /* 기본 UI & 헤더 버튼 이벤트 리스너 & viewPager 설정 */
+        setMainViewPager()
         setViewerBasicUI()
         setHeaderBarEventListeners()
-        setMainViewPager()
+
 
         /* GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음) */
         if(currentPosition != null){
@@ -232,10 +234,28 @@ class ViewerFragment : Fragment() {
     /** Header Btn 이벤트 리스너 설정: edit & back btn 리스너 설정 */
     fun setHeaderBarEventListeners(){
         binding.editBtn.setOnClickListener{
-            findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
+
+            CoroutineScope(Dispatchers.Main).launch {
+                // 오디오 버튼 초기화
+                if( isAudioBtnClicked && scrollAudioView != null ) { // 클릭 되어 있던 상태
+                    scrollAudioView!!.performClick()
+                }
+
+                // 매직 버튼 초기화
+                if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
+                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+                    isMagicBtnClicked = false
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+                }
+
+                findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
+            }
+
         }
         binding.backBtn.setOnClickListener{
-            backPressed()
+            CoroutineScope(Dispatchers.Main).launch {
+                backPressed()
+            }
         }
     }
 
@@ -418,10 +438,9 @@ class ViewerFragment : Fragment() {
                         val scollItemLayout =
                             layoutInflater.inflate(R.layout.scroll_item_menu, null)
                         // 위 불러온 layout에서 변경을 할 view가져오기
-                        val scrollAudioView: ImageView =
-                            scollItemLayout.findViewById(R.id.scrollItemMenuView)
-                        scrollAudioView.setImageResource(R.drawable.audio_item)
-                        scrollAudioView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                        scrollAudioView = scollItemLayout.findViewById(R.id.scrollItemMenuView)
+                        scrollAudioView!!.setImageResource(R.drawable.audio_item)
+                        scrollAudioView!!.setOnClickListener { // scrollview 이미지를 main으로 띄우기
                             if (!isAudioBtnClicked) { // 클릭 안되어있던 상태
                                 // TODO: 음악 재생
                                 isAudioBtnClicked = true
@@ -440,18 +459,18 @@ class ViewerFragment : Fragment() {
                         isAudioPlaying.observe(requireActivity()) { value ->
                             if (value == false) {
                                 val paddingInDp = resources.getDimensionPixelSize(R.dimen.audio_item_padding)
-                                scrollAudioView.setBackgroundResource(R.drawable.scroll_menu_btn)
-                                scrollAudioView.setImageResource(R.drawable.audio_item)
-                                scrollAudioView.setPadding(paddingInDp, paddingInDp, paddingInDp, paddingInDp)
+                                scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
+                                scrollAudioView!!.setImageResource(R.drawable.audio_item)
+                                scrollAudioView!!.setPadding(paddingInDp, paddingInDp, paddingInDp, paddingInDp)
                                 isAudioBtnClicked = false
 
                             } else {
                                 Log.d("song music: ", "음악 재생")
-                                scrollAudioView.setBackgroundResource(R.drawable.scroll_menu_btn_color)
-                                scrollAudioView.setPadding(0, 0, 0, 0)
-                                Glide.with(scrollAudioView)
+                                scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn_color)
+                                scrollAudioView!!.setPadding(0, 0, 0, 0)
+                                Glide.with(scrollAudioView!!)
                                     .load(R.raw.giphy)
-                                    .into(scrollAudioView)
+                                    .into(scrollAudioView!!)
                             }
                         }
                         binding.linear.addView(scollItemLayout, binding.linear.childCount)
@@ -527,6 +546,10 @@ class ViewerFragment : Fragment() {
     /** back btn 눌렀을 때 처리 */
     fun backPressed(){
         Glide.get(requireContext()).clearMemory()
+        // 오디오 버튼 초기화
+        if( isAudioBtnClicked && scrollAudioView != null ) { // 클릭 되어 있던 상태
+            scrollAudioView!!.performClick()
+        }
         val bundle = Bundle()
         bundle.putInt("currentPosition",binding.viewPager2.currentItem)
         findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment,bundle)
