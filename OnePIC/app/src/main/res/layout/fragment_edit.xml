@@ -224,6 +224,17 @@
             android:layout_marginBottom="10dp"
             android:padding="3dp">
 
+            <ImageButton
+                android:id="@+id/magicPlayBtn"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/transparent_color"
+                android:scaleType="fitCenter"
+                android:src="@drawable/edit_magic_icon"
+                android:visibility="gone"
+                tools:layout_editor_absoluteX="3dp"
+                tools:layout_editor_absoluteY="3dp" />
+
             <SeekBar
                 android:id="@+id/seekBar"
                 android:layout_width="300dp"

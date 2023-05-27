@@ -338,7 +338,12 @@ class ImageContent {
         val result = pictureList.remove(picture)
         pictureCount -= 1
 
+        Log.d("picture remove", "reomve $index")
+
+        while(!checkBitmapList || !checkPictureList) { }
+        Log.d("picture remove", "reomve2 $index")
         bitmapList.removeAt(index)
+        Log.d("picture remove", "reomve3 $index")
 
         return result
     }

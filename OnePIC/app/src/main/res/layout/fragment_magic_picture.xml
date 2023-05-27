@@ -125,6 +125,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -149,7 +150,7 @@
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
@@ -176,6 +177,16 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+                <ImageView
+                    android:id="@+id/glitterView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/mainView"
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -230,43 +241,33 @@
         <ImageButton
             android:id="@+id/magicPlayBtn"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="8dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:background="@color/transparent_color"
             android:scaleType="fitCenter"
-            android:src="@drawable/magic_picture_play_icon"
+            android:src="@drawable/edit_magic_icon"
             android:visibility="invisible"
-            app:tint="@color/main_color" />
+            tools:visibility="visible" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginBottom="15dp"
             android:layout_weight="1.5"
-            android:orientation="horizontal"
-            android:visibility="invisible">
-
-            <HorizontalScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight="3">
-
-                <LinearLayout
-                    android:id="@+id/magicCandidateLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal" />
-            </HorizontalScrollView>
+            android:visibility="visible">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/arrowBar"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
 
                 <ImageButton
                     android:id="@+id/maxArrowBtn"
@@ -325,7 +326,8 @@
                     app:layout_constraintGuide_percent="0.75" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
