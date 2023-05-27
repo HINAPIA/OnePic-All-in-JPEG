@@ -64,9 +64,9 @@ class ImageContent {
         isSetBitmapListStart = false
         //jpegMetaData = ByteArray(0)
 
-        CoroutineScope(Dispatchers.Default).launch {
-            setBitmapList()
-        }
+//        CoroutineScope(Dispatchers.Default).launch {
+//            setBitmapList()
+//        }
     }
 
     fun setCheckAttribute() {
@@ -188,7 +188,7 @@ class ImageContent {
     }
 
 
-    private fun setBitmapList() {
+     fun setBitmapList() {
         isSetBitmapListStart = true
 
         Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
