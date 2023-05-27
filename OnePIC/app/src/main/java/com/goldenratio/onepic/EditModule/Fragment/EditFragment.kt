@@ -178,13 +178,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(pictureList[index]))
                     .into(binding.mainImageView)
-            }
 
-            // distance focus일 경우 seekbar 보이게
-            if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                binding.seekBar.visibility = View.VISIBLE
+                // distance focus일 경우 seekbar 보이게
+                if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+                    binding.seekBar.visibility = View.VISIBLE
+                }
             }
-
             setContainerTextSetting()
 
             // 컨테이너 이미지 설정 (오디오 텍스트 이미지도 포함)
