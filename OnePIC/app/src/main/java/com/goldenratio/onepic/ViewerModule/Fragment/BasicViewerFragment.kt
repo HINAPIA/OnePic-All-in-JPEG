@@ -41,18 +41,16 @@ class BasicViewerFragment : Fragment() {
     private lateinit var mainViewPagerAdapter: BasicViewerAdapter
     private lateinit var recyclerViewAdapter:RecyclerViewAdapter
 
-
-    var centerItemPosition:Int? = null // recyclerView의 중앙 item idx
-
-
     // 순환적으로 스크롤 동작하는것 제어 하는 변수
     var isUserScrolling = false
+    var bundlePosition:Int? = null
 
     companion object {
         var currentFilePath:String = ""
         var isPictureClicked: MutableLiveData<Boolean> = MutableLiveData(true)
         var isClickedRecyclerViewImage:MutableLiveData<Boolean> = MutableLiveData(false)
         var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
+        var centerItemPosition:Int? = null // recyclerView의 중앙 item idx
     }
 
     override fun onAttach(context: Context) {
@@ -166,19 +164,19 @@ class BasicViewerFragment : Fragment() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 isPictureClicked.value = true // 초기화
-
+                Log.d("position : ",""+position)
                 // UI 스레드에서 notifyDataSetChanged() 호출
-                Handler(Looper.getMainLooper()).post {
+             //   Handler(Looper.getMainLooper()).post {
                     mainViewPagerAdapter.notifyDataSetChanged()
-                }
+             //   }
 
 
                 if (isUserScrolling){
                     // 리사이클러뷰를 중앙에 오도록 해당 인덱스로 스크롤
+                    centerItemPosition = position
                     binding.recyclerView.scrollToPosition(position)
+                    //isUserScrolling = false // 초기화
                 }
-
-                isUserScrolling = false // 초기화
 
             }
 
@@ -223,11 +221,16 @@ class BasicViewerFragment : Fragment() {
 
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                Log.d("onScrollled : ","들어옴")
 
-                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
+                if (centerItemPosition == null){
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                    centerItemPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2
+                }
+
+                Log.d("previousCenterItemPosition : ",""+previousCenterItemPosition)
 
                 if (centerItemPosition != previousCenterItemPosition) {
                     // 중앙 아이템이 변경되었을 때의 처리
@@ -256,6 +259,8 @@ class BasicViewerFragment : Fragment() {
                     binding.viewPager2.setCurrentItem(centerItemPosition!!, false)
                 }
 
+                bundlePosition = centerItemPosition!!
+                centerItemPosition = null
                 super.onScrolled(recyclerView, dx, dy)
             }
         })
@@ -267,7 +272,7 @@ class BasicViewerFragment : Fragment() {
 
             it.visibility = View.INVISIBLE
             val bundle = Bundle()
-            bundle.putInt("currentPosition",centerItemPosition!!)
+            bundle.putInt("currentPosition",bundlePosition!!)
             findNavController().navigate(R.id.action_basicViewerFragment_to_analyzeFragment,bundle)
         }
 

@@ -217,7 +217,7 @@ class ViewerFragment : Fragment() {
                 val width = binding.allInJpegTextView.width
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 val leftMarginInDp = 0
-                val topMarginInDp =  pxToDp(11f).toInt() //spToDp(context,11f)
+                val topMarginInDp =  spToDp(context,11f).toInt() //spToDp(context,11f)
                 var rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
                 rightMarginInDp += pxToDp(10f).toInt()
                 val bottomMarginInDp = 0 // 아래쪽 마진(dp)
@@ -258,7 +258,12 @@ class ViewerFragment : Fragment() {
                 super.onPageSelected(position)
 
                 Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-                mainViewPagerAdapter.notifyDataSetChanged()
+                //mainViewPagerAdapter.notifyDataSetChanged()
+
+                binding.viewPager2.post {
+                    mainViewPagerAdapter.notifyDataSetChanged()
+                }
+
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태

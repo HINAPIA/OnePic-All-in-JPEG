@@ -267,7 +267,7 @@
                 android:layout_gravity="center_vertical|end"
                 android:rotation="90"
                 android:text="All in JPEG"
-                android:textSize="11dp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
 
