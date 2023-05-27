@@ -170,6 +170,38 @@ class ViewerFragment : Fragment() {
         currentFilePath = mainViewPagerAdapter.galleryMainimage[currentPosition]
     }
 
+    /** ViewPager Adapter 및 swipe callback 설정 */
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun setMainViewPager() {
+
+        mainViewPagerAdapter = ViewPagerAdapter(requireContext())
+        mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
+        binding.viewPager2.setUserInputEnabled(false);
+
+        binding.viewPager2.adapter = mainViewPagerAdapter
+        binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+            @RequiresApi(Build.VERSION_CODES.Q)
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                binding.viewPager2.post {
+                    mainViewPagerAdapter.notifyDataSetChanged()
+                }
+
+                // 오디오 버튼 초기화
+                if( isAudioBtnClicked && scrollAudioView != null) { // 클릭 되어 있던 상태
+                    scrollAudioView!!.performClick()
+                }
+
+                // 매직 버튼 초기화
+                if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
+                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+                    isMagicBtnClicked = false
+                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+                }
+            }
+        })
+    }
+
 
     /** 기본 UI 설정:
      * all in jpeg 로고 설정
@@ -258,41 +290,6 @@ class ViewerFragment : Fragment() {
             }
         }
     }
-
-
-    /** ViewPager Adapter 및 swipe callback 설정 */
-    @RequiresApi(Build.VERSION_CODES.M)
-    fun setMainViewPager() {
-
-        mainViewPagerAdapter = ViewPagerAdapter(requireContext())
-        mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-        binding.viewPager2.setUserInputEnabled(false);
-
-        binding.viewPager2.adapter = mainViewPagerAdapter
-        binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            @RequiresApi(Build.VERSION_CODES.Q)
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                binding.viewPager2.post {
-                    mainViewPagerAdapter.notifyDataSetChanged()
-                }
-                // 오디오 버튼 초기화
-                if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
-                    isAudioBtnClicked = false
-                }
-                // 재생 중인 오디오 stop
-                jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
-
-                // 매직 버튼 초기화
-                if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
-                    isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-                }
-            }
-        })
-    }
-
 
     fun setMagicPicture() {
         binding.magicBtnlinearLayout.visibility = View.VISIBLE
@@ -545,10 +542,14 @@ class ViewerFragment : Fragment() {
 
     /** back btn 눌렀을 때 처리 */
     fun backPressed(){
-        Glide.get(requireContext()).clearMemory()
-        // 오디오 버튼 초기화
-        if( isAudioBtnClicked && scrollAudioView != null ) { // 클릭 되어 있던 상태
+        Glide.get(requireContext()).clearMemory()  // Glide 메모리 비우기
+        if( isAudioBtnClicked && scrollAudioView != null ) { // 오디오 버튼 초기화
             scrollAudioView!!.performClick()
+        }
+        if( isMagicBtnClicked ) { // 매직 버튼 초기화
+            binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+            isMagicBtnClicked = false
+            mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
         }
         val bundle = Bundle()
         bundle.putInt("currentPosition",binding.viewPager2.currentItem)
