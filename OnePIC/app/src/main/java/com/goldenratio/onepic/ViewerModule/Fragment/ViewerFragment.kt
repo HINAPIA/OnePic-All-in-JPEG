@@ -453,7 +453,7 @@ class ViewerFragment : Fragment() {
                             }
                         }
 
-                        isAudioPlaying.observe(requireActivity()) { value ->
+                        isAudioPlaying.observe(viewLifecycleOwner) { value ->
                             if (value == false) {
                                 val paddingInDp = resources.getDimensionPixelSize(R.dimen.audio_item_padding)
                                 scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
