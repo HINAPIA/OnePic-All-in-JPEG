@@ -147,6 +147,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var fadeIn: ObjectAnimator
     private lateinit var fadeOut: ObjectAnimator
 
+    // bounding box
+    private var boundingBoxArrayList: ArrayList<RectF> = arrayListOf()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
@@ -701,7 +704,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             else if(objectFocusRadioBtn.isChecked){
                 turnOnAFMode()
                 pointArrayList.clear()
+                boundingBoxArrayList.clear()
                 isFocusSuccess = false
+
                 saveObjectCenterPoint()
                 audioResolver.startRecording("camera_record")
             }
@@ -741,7 +746,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private fun startCameraX() {
         if(allPermissionsGranted()){
             viewFinder.visibility = View.VISIBLE
-            Log.v("chaewon", "xxxx isBackLens : $isBackLens")
             startCamera(isBackLens)
         } else {
             ActivityCompat.requestPermissions(
@@ -855,13 +859,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         for (obj in detectObjectList) {
             try {
-
                 var pointX: Float =
                     (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) * 0.5f)) * scaleFactor
                 var pointY: Float =
                     (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) * 0.5f)) * scaleFactor
 
                 pointArrayList.add(pointData(pointX, pointY))
+                boundingBoxArrayList.add(obj.boundingBox)
 
             } catch (e: IllegalAccessException) {
                 e.printStackTrace();
@@ -1013,9 +1017,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             return
         }
 
-//        val distance: Float? = 0F + lensDistanceSteps * photoCnt
         val distance: Float? = minFocusDistance - lensDistanceSteps * photoCnt
-        Log.v("distance", "distance : $distance")
         turnOffAFMode(distance!!)
 
         val imageCapture = imageCapture ?: return
@@ -1278,7 +1280,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             params.height =
                 displaySize.y - topMenuParams.height - (displaySize.x.toFloat() * (4f / 3f)).toInt() - statusBarHeight
         }else {
-            Log.v("chaewon", "viewFinder ${viewFinder.width} x ${binding.viewFinder.height}")
             params.height =
                 displaySize.y - topMenuParams.height - viewFinder.height - statusBarHeight
         }
