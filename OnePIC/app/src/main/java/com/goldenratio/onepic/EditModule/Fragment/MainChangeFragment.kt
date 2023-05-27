@@ -18,7 +18,6 @@ import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ActivityType
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
@@ -170,16 +169,6 @@ class MainChangeFragment : Fragment() {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
-            if (imageContent.activityType == ActivityType.Camera) {
-                if (imageContent.checkAttribute(ContentAttribute.burst)) {
-                    imageToolModule.showView(binding.progressBar, true)
-                    imageToolModule.showView(binding.choiceMainBtn, true)
-                    viewBestImage()
-                }
-            }
-        }
-
         return binding.root
     }
 
@@ -252,7 +241,6 @@ class MainChangeFragment : Fragment() {
 //        }
     }
     fun viewBestImage() {
-
         val bitmapList = imageContent.getBitmapList()
         if (bitmapList != null) {
             val rewindModule = RewindModule()
@@ -270,14 +258,14 @@ class MainChangeFragment : Fragment() {
                 if (checkFinish.all { it }) {
                     checkFinish = BooleanArray(bitmapList.size)
                 }
-                for(i in 0 until bitmapList.size) {
-                    if(!checkFinish[i]) {
+                for (i in 0 until bitmapList.size) {
+                    if (!checkFinish[i]) {
                         bestImageIndex = i
                         break
                     }
                 }
 
-                for(i in 0 until bitmapList.size) {
+                for (i in 0 until bitmapList.size) {
 
                     Log.d("anaylsis", "[$i] = ${checkFinish[i]} | ")
                     Log.d("anaylsis", "[$i] =  faceDetectio ${faceDetectionResult[i]} ")
@@ -285,7 +273,7 @@ class MainChangeFragment : Fragment() {
 
 
                     analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
-                    if(!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]){
+                    if (!checkFinish[i] && analysisResults[bestImageIndex] < analysisResults[i]) {
                         bestImageIndex = i
                         checkFinish[i] = true
                     }
@@ -303,27 +291,23 @@ class MainChangeFragment : Fragment() {
                         .load(imageContent.getJpegBytes(mainPicture))
                         .into(binding.changeMainView)
 
-                    if(imageContent.activityType == ActivityType.Viewer) {
+                    bestImage = binding.candidateLayout.getChildAt(bestImageIndex)
+                        .findViewById(R.id.checkMainIcon)
 
-                        bestImage = binding.candidateLayout.getChildAt(bestImageIndex)
-                            .findViewById<TextView>(R.id.checkMainIcon)
+                    mainSubView.background = null
+                    mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
+                        .findViewById<TextView>(R.id.cropImageView)
+                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
 
-                        mainSubView.background = null
-                        mainSubView = binding.candidateLayout.getChildAt(bestImageIndex)
-                            .findViewById<TextView>(R.id.cropImageView)
-                        mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-
-                        if(bestImage != null) {
-                            imageToolModule.showView(bestImage!!, true)
-                            Log.d("mainChange","bestImage not null")
-                        }
-                        Log.d("mainChange","bestImage null")
+                    if (bestImage != null) {
+                        imageToolModule.showView(bestImage!!, true)
+                        Log.d("mainChange", "bestImage not null")
                     }
+                    Log.d("mainChange", "bestImage null")
                     imageToolModule.showView(binding.progressBar, false)
 //                    imageToolModule.showView(binding.choiceMainBtn, true)
                     infoLevel.value = InfoLevel.BeforeMainSelect
                 }
-
             }
         }
     }
