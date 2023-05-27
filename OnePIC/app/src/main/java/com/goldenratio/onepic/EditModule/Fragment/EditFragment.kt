@@ -236,8 +236,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         // Rewind 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
             // RewindFragment로 이동
@@ -420,6 +418,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                 isSaving = true
 
+                imageContent.pictureList = pictureList
+                imageContent.pictureCount = pictureList.size
+
                 // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
                 val removeResult = imageContent.removePicture(mainPicture)
                 if (removeResult) {
@@ -427,7 +428,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture
                 }
-
 
                 // 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageUri
