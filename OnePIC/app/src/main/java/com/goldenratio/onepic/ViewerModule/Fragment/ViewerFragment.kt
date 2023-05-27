@@ -136,42 +136,42 @@ class ViewerFragment : Fragment() {
 
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
-        jpegViewModel.isGalleryUpdateFinished.observe(viewLifecycleOwner){ value ->
-            if (value){
-                mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
-                mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
-
-                var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
-
-                if (position != null){ // 사진이 갤러리에 존재하면
-                    binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
-                }
-                else if (currentFilePath != ""){
-
-                    //TODO: 보고 있는 사진이 삭제된 경우
-                    binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
-                    binding.entireLinearLayout.visibility = View.GONE
-                    binding.editBtn.visibility = View.GONE
-
-                    Glide.with(binding.deletedPhotoImageView)
-                        .load(R.drawable.image_not_found)
-                        .into(binding.deletedPhotoImageView)
-                }
-                jpegViewModel.isGalleryUpdateFinished.value = false
-            }
-        }
-
-
-//        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+//        jpegViewModel.isGalleryUpdateFinished.observe(viewLifecycleOwner){ value ->
+//            if (value){
+//                mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
+//                mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 //
-//            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
-//            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+//                var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
 //
-//            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
+//                if (position != null){ // 사진이 갤러리에 존재하면
+//                    binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+//                }
+//                else if (currentFilePath != ""){
 //
-//            if (position != null){ // 사진이 갤러리에 존재하면
-//                binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+//                    //TODO: 보고 있는 사진이 삭제된 경우
+//                    binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
+//                    binding.entireLinearLayout.visibility = View.GONE
+//                    binding.editBtn.visibility = View.GONE
+//
+//                    Glide.with(binding.deletedPhotoImageView)
+//                        .load(R.drawable.image_not_found)
+//                        .into(binding.deletedPhotoImageView)
+//                }
+//                jpegViewModel.isGalleryUpdateFinished.value = false
 //            }
+//        }
+
+
+        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+
+            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
+            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+
+            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
+
+            if (position != null){ // 사진이 갤러리에 존재하면
+                binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+            }
 //            else if (currentFilePath != ""){
 //
 //                //TODO: 보고 있는 사진이 삭제된 경우
@@ -184,7 +184,7 @@ class ViewerFragment : Fragment() {
 //                    .into(binding.deletedPhotoImageView)
 //
 //            }
-//        }
+        }
     }
 
     override fun onDetach() {
