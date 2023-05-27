@@ -2,21 +2,21 @@ package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.PointF
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
-import androidx.core.view.isEmpty
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MagicPictureFragment : RewindFragment() {
+
     private lateinit var binding: FragmentMagicPictureBinding
 
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
@@ -47,6 +48,8 @@ class MagicPictureFragment : RewindFragment() {
 
     private var infoLevel = MutableLiveData(InfoLevel.EditFaceSelect)
 
+    private var touchEvent: PointF = PointF(0f,0f)
+
     private enum class InfoLevel {
         EditFaceSelect,
         MagicStart,
@@ -62,7 +65,7 @@ class MagicPictureFragment : RewindFragment() {
         val window: Window = activity?.window
             ?: throw IllegalStateException("Fragment is not attached to an activity")
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+        window.statusBarColor = ContextCompat.getColor(requireContext(), android.R.color.black)
 
         context = requireContext()
 
@@ -116,7 +119,12 @@ class MagicPictureFragment : RewindFragment() {
 
             CoroutineScope(Dispatchers.IO).launch {
                 imageToolModule.showView(binding.progressBar , true)
-                val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
+//                val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
+
+                for(i in 0 until pictureList.size) {
+                    pictureList[i].embeddedData?.clear()
+                    pictureList[i].embeddedSize = 0
+                }
 
                 // EmbeddedData 추가
                 val indices = intArrayOf(5, 6, 7, 8) // 추출할 배열의 인덱스
@@ -128,8 +136,15 @@ class MagicPictureFragment : RewindFragment() {
                     mainBoundingBox.add(changeFaceStartX)
                     mainBoundingBox.add(changeFaceStartY)
 
-                    pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
-                    pictureList[boundingBox[0][0]].contentAttribute = ContentAttribute.magic
+                    if(boundingBox.size > 0 && boundingBox[0].size > 0 && pictureList.size > boundingBox[0][0]) {
+                        pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
+                    }
+                    for(i in 0 until pictureList.size) {
+                        if(pictureList[i].contentAttribute == ContentAttribute.magic) {
+                            pictureList[i].contentAttribute = ContentAttribute.burst
+                        }
+                    }
+                    jpegViewModel.selectedSubImage?.contentAttribute = ContentAttribute.magic
 
                     for (i in 1 until boundingBox.size) {
 //                        pictureList[boundingBox[i][0]].insertEmbeddedData(
@@ -171,11 +186,15 @@ class MagicPictureFragment : RewindFragment() {
                 imageToolModule.showView(binding.progressBar, true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
-                val touchPoint = ImageToolModule().getBitmapClickPoint(
+                val touchPoint = imageToolModule.getBitmapClickPoint(
                     PointF(event.x, event.y),
                     binding.mainView
                 )
-                Log.d("magic", "click point:$touchPoint")
+
+                touchEvent = PointF(event.x, event.y)
+
+                Log.d("magic", "event touchEvent: $touchPoint")
+                Log.d("magic", "bitmap touchPoint: $touchPoint")
 
                 if (touchPoint != null) {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -206,12 +225,41 @@ class MagicPictureFragment : RewindFragment() {
             if (!checkMagicPicturePlay) {
                 infoLevel.value = InfoLevel.ArrowCheck
 
-                magicPictureRun(cropBitmapList)
-                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_pause_icon)
+                // 이미지뷰의 레이아웃 파라미터를 가져옵니다.
+                val layoutParams = binding.glitterView.layoutParams as ConstraintLayout.LayoutParams
+
+                val width = selectFaceRect?.width() ?: 50
+                val height = selectFaceRect?.height() ?: 50
+
+                    // 새로운 위치를 설정합니다.
+                layoutParams.leftMargin = touchEvent.x.toInt() - (width / 2)  // 왼쪽 여백 설정
+                layoutParams.topMargin = touchEvent.y.toInt() - (height / 2)   // 위쪽 여백 설정
+
+                layoutParams.width = width
+                layoutParams.height = height
+
+                // 이미지뷰의 레이아웃 파라미터를 적용합니다.
+                binding.glitterView.layoutParams = layoutParams
+                imageToolModule.showView(binding.glitterView, true)
+
+                val glide = Glide.with(binding.glitterView)
+                    .load(R.raw.magic_twinkle)
+                    .skipMemoryCache(true) // 메모리 캐시 비우기
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 비우기
+                    .into(binding.glitterView)
+
+                binding.glitterView.postDelayed({
+                    imageToolModule.showView(binding.glitterView, false)
+                    binding.glitterView.setImageDrawable(null)
+                    magicPictureRun(cropBitmapList)
+                    Glide.get(requireContext()).clearMemory()
+                }, 1000)
+
+                binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                 checkMagicPicturePlay = true
             } else {
                 handler.removeCallbacksAndMessages(null)
-                binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+                binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
                 checkMagicPicturePlay = false
             }
         }
@@ -251,17 +299,8 @@ class MagicPictureFragment : RewindFragment() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            binding.bottomLayout.visibility = View.INVISIBLE
+//            binding.bottomLayout.visibility = View.INVISIBLE
             binding.magicPlayBtn.visibility = View.INVISIBLE
-        }
-
-        //showView(binding.faceListView, false)
-        if (!binding.magicCandidateLayout.isEmpty()) {
-            CoroutineScope(Dispatchers.Main).launch {
-                withContext(Dispatchers.Main) {
-                    binding.magicCandidateLayout.removeAllViews()
-                }
-            }
         }
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -282,7 +321,11 @@ class MagicPictureFragment : RewindFragment() {
                 }
             } else {
                 try {
-                    val resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
+                    var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
+
+//                    faceResult.forEach {
+//                        resultBitmap = drawMagicIcon(resultBitmap,  it.boundingBox.toRectF(), requireContext().resources.getColor(R.color.white))
+//                    }
 
                     Log.d("magic", "!!!!!!!!!!!!!!!!!!! end drawDetectionResult")
 
@@ -306,8 +349,9 @@ class MagicPictureFragment : RewindFragment() {
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
-        binding.magicCandidateLayout.removeAllViews()
-
+//        binding.magicCandidateLayout.removeAllViews()
+        imageToolModule.showView(binding.arrowBar, true)
+        changeMainView(selectBitmap)
 
         cropBitmapList.clear()
 
@@ -316,7 +360,7 @@ class MagicPictureFragment : RewindFragment() {
             return
         }
 
-        imageToolModule.showView(binding.bottomLayout, true)
+//        imageToolModule.showView(binding.bottomLayout, true)
         imageToolModule.showView(binding.magicPlayBtn, true)
 
         for (i in 0 until boundingBox.size) {
@@ -354,7 +398,7 @@ class MagicPictureFragment : RewindFragment() {
                 cropBitmapList.add(newImage!!)
 
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-                binding.magicCandidateLayout.addView(candidateLayout)
+//                binding.magicCandidateLayout.addView(candidateLayout)
             } catch (e: IllegalStateException) {
                 println(e.message)
             }
@@ -449,8 +493,42 @@ class MagicPictureFragment : RewindFragment() {
 
     override fun changeMainView(bitmap: Bitmap) {
         if(selectFaceRect != null) {
-            val newBitmap = imageToolModule.drawDetectionResult(bitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
-            binding.mainView.setImageBitmap(newBitmap)
+            CoroutineScope(Dispatchers.IO).launch {
+                val faceResult = rewindModule.runFaceDetection(0)
+                var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
+                resultBitmap = imageToolModule.drawDetectionResult(resultBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+                binding.mainView.setImageBitmap(resultBitmap)
+                }
         }
+    }
+
+    fun drawMagicIcon(
+        bitmap: Bitmap,
+        box: RectF,
+        customColor: Int
+    ): Bitmap {
+        val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(outputBitmap)
+        val pen = Paint()
+        pen.textAlign = Paint.Align.LEFT
+
+        // draw bounding box
+//            pen.color = context.resources.getColor(R.color.white)
+        pen.color = customColor
+        pen.strokeWidth = 30f
+        pen.style = Paint.Style.STROKE
+
+        val drawable: Drawable = resources.getDrawable(R.drawable.magic_edit)
+
+        val bottom = box.top.toInt()
+        val left =  (box.left + ((box.right - box.left)/2f)).toInt()
+
+        Log.d("magic Play", "magic x,y : $bottom , $left")
+
+        drawable.setBounds(left, bottom - 200, left + 200, bottom)
+//        drawable.setBounds(100, 100, 300, 300)
+        drawable.draw(canvas)
+
+        return outputBitmap
     }
 }

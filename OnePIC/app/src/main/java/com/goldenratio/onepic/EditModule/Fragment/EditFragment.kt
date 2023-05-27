@@ -6,9 +6,11 @@ import android.content.ClipData
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
@@ -26,6 +28,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.ImageToolModule
@@ -51,18 +54,19 @@ import kotlin.Double
 import kotlin.Exception
 import kotlin.IllegalStateException
 import kotlin.Int
+import kotlin.Long
 import kotlin.Unit
 import kotlin.getValue
 
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
 
-
     private lateinit var binding: FragmentEditBinding
     private lateinit var activity: ViewerEditorActivity
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     private lateinit var imageToolModule: ImageToolModule
+    private lateinit var magicPictureModule: MagicPictureModule
     private lateinit var loadResolver: LoadResolver
 
     private lateinit var imageContent: ImageContent
@@ -83,16 +87,23 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var isSaving = false
     private var isAudioPlay = false
     private var isTextView = false
+    private var isDelete = false
 
     private var isAudio = false
     private var isText = false
     private var isDeleting = false
+    private var isMagicPlay: Boolean = false
 
     private var bestImageIndex: Int? = null
 
     private val PICK_IMAGE_REQUEST = 1
 
-    val newImageByteArrayList = arrayListOf<ByteArray>()
+    private var overlayBitmap = arrayListOf<Bitmap>()
+
+    val handler = Handler()
+
+    var magicPlaySpeed: Long = 100
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -125,10 +136,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // imageToolModule 설정
         imageToolModule = ImageToolModule()
+
         loadResolver = LoadResolver()
 
         // Content 설정
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+
+        magicPictureModule = MagicPictureModule(imageContent)
+
         imageContent.setMainBitmap(null)
         textContent = jpegViewModel.jpegMCContainer.value!!.textContent
         audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
@@ -137,6 +152,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         while (!imageContent.checkPictureList) {
         }
 
+        // picture 설정
+        mainPicture = imageContent.mainPicture
+        pictureList = imageContent.pictureList
 
         // 만약 편집을 했다면 저장 버튼이 나타나게 설정
         if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
@@ -145,18 +163,19 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             imageToolModule.showView(binding.saveBtn, true)
         }
 
-        if(imageContent.checkAttribute(ContentAttribute.magic)) {
-            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
-        }
 
-        // picture 설정
-        mainPicture = imageContent.mainPicture
-        pictureList = imageContent.pictureList
+
+        setViewDetailMenu()
 
 
         // 메인 이미지 설정
         CoroutineScope(Dispatchers.Main).launch {
             val index = jpegViewModel.getSelectedSubImageIndex()
+            if(pictureList[index].contentAttribute == ContentAttribute.magic) {
+                imageToolModule.showView(binding.magicPlayBtn, true)
+                setMagicPlay()
+//            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
+            }
             Glide.with(binding.mainImageView)
                 .load(imageContent.getJpegBytes(pictureList[index]))
                 .into(binding.mainImageView)
@@ -178,6 +197,22 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         Log.d("selectedImageFilePath: ", "" + jpegViewModel.selectedSubImage)
 
         return binding.root
+    }
+
+    private fun setViewDetailMenu() {
+        if(pictureList.size <= 1) {
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.bestMainBtn.visibility = View.GONE
+                binding.rewindBtn.visibility = View.GONE
+                binding.magicBtn.visibility = View.GONE
+            }
+        } else {
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.bestMainBtn.visibility = View.VISIBLE
+                binding.rewindBtn.visibility = View.VISIBLE
+                binding.magicBtn.visibility = View.VISIBLE
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -261,25 +296,25 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         )
                     }
                 }
-                else {
-                    for (i in size-3 until size - 1 ) {
-                        val view = binding.linear.getChildAt(i)
-                        imageToolModule.showView(
-                            view.findViewById<ImageView>(R.id.deleteIcon),
-                            true
-                        )
-                    }
+                for (i in size-3 until size - 1 ) {
+                    val view = binding.linear.getChildAt(i)
+                    imageToolModule.showView(
+                        view.findViewById<ImageView>(R.id.deleteIcon),
+                        true
+                    )
                 }
                 if (textContent.textList.size == 0) {
-                    val view = binding.linear.getChildAt(size - 3)
+                    val view = binding.linear.getChildAt(binding.linear.size - 3)
                     imageToolModule.showView(view, false)
+                    Log.d("delete edit", "text add")
                 }
                 if (audioContent.audio == null) {
-                    val view = binding.linear.getChildAt(size - 2)
+                    val view = binding.linear.getChildAt(binding.linear.size - 2)
                     imageToolModule.showView(view, false)
+                    Log.d("delete edit", "audio add")
                 }
 
-                val view = binding.linear.getChildAt(size - 1)
+                val view = binding.linear.getChildAt(binding.linear.size - 1)
                 imageToolModule.showView(view, false)
 
                 isDeleting = true
@@ -295,15 +330,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     )
                 }
                 if (textContent.textList.isEmpty()) {
-                    val view = binding.linear.getChildAt(size - 3)
+                    val view = binding.linear.getChildAt(binding.linear.size - 3)
                     imageToolModule.showView(view, true)
                 }
                 if (audioContent.audio == null) {
-                    val view = binding.linear.getChildAt(size - 2)
+                    val view = binding.linear.getChildAt(binding.linear.size - 2)
                     imageToolModule.showView(view, true)
                 }
 
-                val view = binding.linear.getChildAt(size - 1)
+                val view = binding.linear.getChildAt(binding.linear.size - 1)
                 imageToolModule.showView(view, true)
                 isDeleting = false
             }
@@ -524,23 +559,28 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     @SuppressLint("MissingInflatedId")
     fun setContainer() {
         for (i in 0 until pictureList.size) {
-            setSubImage(pictureList[i])
+            val view = setSubImage(pictureList[i])
+            binding.linear.addView(view)
         }
 
         if (textContent.textList.size > 0) {
-            setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
+            val view = setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
+            binding.linear.addView(view)
         } else {
-            setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+            val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+            binding.linear.addView(view)
         }
 
         if (audioContent.audio != null) {
-            setContainerSubItem(R.drawable.edit_audio_icon, clickedFunc = ::ShowingAudio, deleteFunc = ::DeleteAudio)
+            val view = setContainerSubItem(R.drawable.edit_audio_icon, clickedFunc = ::ShowingAudio, deleteFunc = ::DeleteAudio)
+            binding.linear.addView(view)
         } else {
-            setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+            val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+            binding.linear.addView(view)
         }
 
-        setContainerSubItem(R.drawable.edit_image_add_icon, clickedFunc = ::AddImage, deleteFunc = fun() {})
-
+        val view = setContainerSubItem(R.drawable.edit_image_add_icon, clickedFunc = ::AddImage, deleteFunc = fun() {})
+        binding.linear.addView(view)
     }
 
     fun viewBestImage() {
@@ -551,8 +591,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
 
-                if (bestImageIndex == null) {
-
+                if (bestImageIndex == null || isDelete) {
                     rewindModule.allFaceDetection(bitmapList)
                     val faceDetectionResult = rewindModule.choiceBestImage(bitmapList)
                     Log.d("anaylsis", "end faceDetection")
@@ -583,7 +622,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     bestImageIndex = preBestImageIndex
                 }
                 withContext(Dispatchers.Main) {
-
                     Glide.with(binding.mainImageView)
                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex!!]))
                         .into(binding.mainImageView)
@@ -636,6 +674,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     fun changeViewImage(index: Int, imageView: ImageView) {
         mainSubView.background = null
         mainSubView.setPadding(0)
+
+        if(pictureList[index].contentAttribute == ContentAttribute.magic) {
+            imageToolModule.showView(binding.magicPlayBtn, true)
+        }
+        else {
+            imageToolModule.showView(binding.magicPlayBtn, false)
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             // 메인 이미지 설정
@@ -722,15 +767,18 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
 //                        pictureByteList.add(sourceByteArray)
                         for (j in 0 until newPictureList.size) {
-                            newImageByteArrayList.add(
-                                jpegMCContainer.imageContent.getJpegBytes(
-                                    newPictureList[j]
-                                )
-                            )
+//                            newImageByteArrayList.add(
+//                                jpegMCContainer.imageContent.getJpegBytes(
+//                                    newPictureList[j]
+//                                )
+//                            )
                             pictureList.add(newPictureList[j])
-                            val imageView = setSubImage(pictureList[pictureList.size - 1])
+                            val subLayout = setSubImage(pictureList[pictureList.size - 1])
+                            binding.linear.addView(subLayout, pictureList.size - 1)
+                            val imageView = subLayout?.findViewById<ImageView>(R.id.scrollImageView)
 
                             CoroutineScope(Dispatchers.Default).launch {
+                                val bitmapList = imageContent.getBitmapList()
                                 imageContent.addBitmapList(
                                     imageToolModule.byteArrayToBitmap(
                                         jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
@@ -747,7 +795,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                     mainSubView.background = null
                                     mainSubView.setPadding(0)
 
-                                    mainSubView = imageView
+                                    mainSubView = imageView!!
 
                                     mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
                                     mainSubView.setPadding(6)
@@ -759,7 +807,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             imageContent.checkMainChangeAttribute = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
+                        setViewDetailMenu()
                     }
+
 
                     //TODO: 유진아 여기 --> uriList: 방금 불러온 이미지들의 uri / newImageByteArrayList: 지금까지 불러온 이미지들의 bytearray
                 }
@@ -767,7 +817,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
     }
 
-    fun setSubImage(picture: Picture): ImageView {
+    fun setSubImage(picture: Picture): View? {
         // 넣고자 하는 layout 불러오기
         val subLayout =
             layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
@@ -816,6 +866,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
 
         subLayout.setOnClickListener {
+
+            handler.removeCallbacksAndMessages(null)
             // 이미지인 경우
             jpegViewModel.selectedSubImage = picture
             val index = pictureList.indexOf(picture)
@@ -852,12 +904,15 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     }
                 }
                 .setNeutralButton("네") { _, _ ->
+                    isDelete = true
                     binding.linear.removeView(subLayout)
                     imageContent.removePicture(picture)
 
                     if (pictureList.size == 1) {
                         imageToolModule.showView(binding.linear[0].findViewById<ImageView>(R.id.deleteIcon), false)
                         jpegViewModel.mainSubImage = pictureList[0]
+
+                        setViewDetailMenu()
                     }
 
                     imageContent.checkMainChangeAttribute = true
@@ -869,6 +924,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         Glide.with(binding.mainImageView)
                             .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
                             .into(binding.mainImageView)
+
+                        imageToolModule.showView(binding.saveBtn, true)
                     }
 
                     if (jpegViewModel.mainSubImage == picture) {
@@ -885,22 +942,22 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 }.show()
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-            val index = pictureList.indexOf(picture)
-            if (binding.linear.size - 3 == index) {
-                binding.linear.addView(subLayout, binding.linear.size - 3)
-                Log.d("main Change","sublayout index add : $index")
-            } else {
-                binding.linear.addView(subLayout)
-                Log.d("main Change","sublayout add : $index")
-            }
-
-        }
-        return imageView
+//        CoroutineScope(Dispatchers.Main).launch {
+//            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
+//            val index = pictureList.indexOf(picture)
+//            if (binding.linear.size - 3 == index) {
+//                binding.linear.addView(subLayout, binding.linear.size - 3)
+//                Log.d("main Change","sublayout index add : $index")
+//            } else {
+//                binding.linear.addView(subLayout)
+//                Log.d("main Change","sublayout add : $index")
+//            }
+//
+//        }
+        return subLayout
     }
 
-    fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: () -> Unit) {
+    fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: () -> Unit): View? {
         // 넣고자 하는 layout 불러오기
         val subLayout =
             layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
@@ -934,40 +991,60 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 }.show()
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-            binding.linear.addView(subLayout)
-        }
+        return subLayout
     }
 
     //
     fun ShowingText(imageView: ImageView) {
-        changeRound(imageView)
+        handler.removeCallbacksAndMessages(null)
+//        changeRound(imageView)
+        isTextView = if(isTextView) {
+            imageView.setImageResource(R.drawable.edit_text_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_text_click_icon)
+            true
+        }
     }
 
     fun AddText(imageView: ImageView) {
+        handler.removeCallbacksAndMessages(null)
         changeRound(imageView)
     }
 
     fun DeleteText() {
         textContent.textList.clear()
         setContainerTextSetting()
+        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+        binding.linear.addView(view, binding.linear.size - 2)
     }
 
     fun ShowingAudio(imageView: ImageView) {
-        changeRound(imageView)
+        handler.removeCallbacksAndMessages(null)
+//        changeRound(imageView)
+        isAudioPlay = if(isAudioPlay) {
+            imageView.setImageResource(R.drawable.edit_audio_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_audio_click_icon)
+            true
+        }
     }
 
     fun AddAudio(imageView: ImageView) {
-        changeRound(imageView)
+        handler.removeCallbacksAndMessages(null)
+//        changeRound(imageView)
     }
 
     fun DeleteAudio() {
         audioContent.audio = null
         setContainerTextSetting()
+        val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+        binding.linear.addView(view, binding.linear.size - 1)
     }
 
     fun AddImage(imageView: ImageView) {
+        handler.removeCallbacksAndMessages(null)
         openGallery()
     }
 
@@ -992,4 +1069,79 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
         binding.imageCntTextView.text = imageCntText
     }
+
+    fun setMagicPlay() {
+        CoroutineScope(Dispatchers.IO).launch {
+
+            isMagicPlay = false
+            magicPictureModule = MagicPictureModule(imageContent)
+
+            binding.magicPlayBtn.setOnClickListener {
+                if (!isMagicPlay) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+
+                        binding.progressBar.visibility = View.VISIBLE
+
+                        if (overlayBitmap.isEmpty()) {
+                            Glide.with(binding.mainImageView)
+                                .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                                .into(binding.mainImageView)
+                        }
+                    }
+                    isMagicPlay = true
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        if (overlayBitmap.isEmpty()) {
+                            overlayBitmap = magicPictureModule.magicPictureProcessing()
+                        }
+
+                        Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
+                        withContext(Dispatchers.Main) {
+                            binding.progressBar.visibility = View.GONE
+                        }
+                        Log.d("magic", "magicPucture run ${overlayBitmap.size}")
+                        magicPictureRun(overlayBitmap)
+                    }
+                } else {
+                    handler.removeCallbacksAndMessages(null)
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+
+                        binding.progressBar.visibility = View.GONE
+                    }
+                    isMagicPlay = false
+                }
+            }
+        }
+    }
+    private fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
+        CoroutineScope(Dispatchers.Default).launch {
+
+            var currentImageIndex = 0
+            var increaseIndex = 1
+
+            val runnable = object : java.lang.Runnable {
+                override fun run() {
+                    if (ovelapBitmap.size > 0) {
+                        binding.mainImageView.setImageBitmap(ovelapBitmap[currentImageIndex])
+                        //currentImageIndex++
+
+                        currentImageIndex += increaseIndex
+
+                        if (currentImageIndex >= ovelapBitmap.size - 1) {
+                            //currentImageIndex = 0
+                            increaseIndex = -1
+                        } else if (currentImageIndex <= 0) {
+                            increaseIndex = 1
+                        }
+                        handler.postDelayed(this, magicPlaySpeed)
+                    }
+                }
+            }
+            handler.postDelayed(runnable, magicPlaySpeed)
+        }
+    }
 }
+
