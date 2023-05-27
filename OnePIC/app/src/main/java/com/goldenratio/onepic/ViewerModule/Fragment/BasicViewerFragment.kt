@@ -69,7 +69,6 @@ class BasicViewerFragment : Fragment() {
     ): View {
         binding = FragmentBasicViewerBinding.inflate(inflater, container, false)
         currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
-
         return binding.root
     }
 

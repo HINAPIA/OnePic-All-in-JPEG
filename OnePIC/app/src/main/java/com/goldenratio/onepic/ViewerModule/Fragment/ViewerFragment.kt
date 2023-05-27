@@ -51,6 +51,10 @@ class ViewerFragment : Fragment() {
     private var isMagicBtnClicked = false
     private var isTextBtnClicked = false
 
+
+    var firstImageView: ImageView? = null // 스크롤바 첫번째 이미지
+
+
     /* 스크롤바 클릭 아이템 */
     private var previousClickedItem:ImageView? = null
 
@@ -67,7 +71,6 @@ class ViewerFragment : Fragment() {
         var audioTopMargin = MutableLiveData<Int>() // 오디오 버튼 top margin
         var audioEndMargin = MutableLiveData<Int>() // 오디오 버튼 end margin
         var seekBarMargin = MutableLiveData<Int>() // seek bar margin
-        var isFocusingChange = false
     }
 
     override fun onAttach(context: Context) {
@@ -99,24 +102,6 @@ class ViewerFragment : Fragment() {
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
         currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
-
-
-
-//        Glide.with(this)
-//            .load(R.drawable.background)
-//            .centerCrop()
-//            .into(object : CustomTarget<Drawable>() {
-//                override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
-//                    @Suppress("UNCHECKED_CAST")
-//                    binding.entireLinearLayout.background = resource
-//                }
-//
-//                override fun onLoadCleared(placeholder: Drawable?) {
-//                    // Optional: Implement any desired behavior when the image load is cleared.
-//                }
-//            })
-
-
 
         return binding.root
     }
@@ -151,21 +136,55 @@ class ViewerFragment : Fragment() {
 
 
         // gallery에 들어있는 사진이 변경되었을 때, 화면 다시 reload
-        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+        jpegViewModel.isGalleryUpdateFinished.observe(viewLifecycleOwner){ value ->
+            if (value){
+                mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
+                mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
-            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
-            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+                var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
 
-            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
+                if (position != null){ // 사진이 갤러리에 존재하면
+                    binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+                }
+                else if (currentFilePath != ""){
 
-            if (position != null){ // 사진이 갤러리에 존재하면
-                binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
-            }
-            else {
-                //TODO: 보고 있는 사진이 삭제된 경우
+                    //TODO: 보고 있는 사진이 삭제된 경우
+                    binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
+                    binding.entireLinearLayout.visibility = View.GONE
+                    binding.editBtn.visibility = View.GONE
 
+                    Glide.with(binding.deletedPhotoImageView)
+                        .load(R.drawable.image_not_found)
+                        .into(binding.deletedPhotoImageView)
+                }
+                jpegViewModel.isGalleryUpdateFinished.value = false
             }
         }
+
+
+//        jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
+//
+//            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
+//            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
+//
+//            var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
+//
+//            if (position != null){ // 사진이 갤러리에 존재하면
+//                binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+//            }
+//            else if (currentFilePath != ""){
+//
+//                //TODO: 보고 있는 사진이 삭제된 경우
+//                binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
+//                binding.entireLinearLayout.visibility = View.GONE
+//                binding.editBtn.visibility = View.GONE
+//
+//                Glide.with(binding.deletedPhotoImageView)
+//                    .load(R.drawable.image_not_found)
+//                    .into(binding.deletedPhotoImageView)
+//
+//            }
+//        }
     }
 
     override fun onDetach() {
@@ -337,6 +356,7 @@ class ViewerFragment : Fragment() {
                 it.background = ColorDrawable(Color.TRANSPARENT)
                 isMagicBtnClicked = false
                 mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+                firstImageView!!.performClick()
             }
         }
         try {
@@ -382,7 +402,6 @@ class ViewerFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
 
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
-                var firstImageView: ImageView? = null
                 for (i in 0..pictureList.size - 1) {
                     val picture = pictureList[i]
                     val pictureByteArr = pictureByteArrList[i]

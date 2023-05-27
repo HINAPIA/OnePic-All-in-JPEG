@@ -27,8 +27,10 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     val imageUriLiveData: LiveData<List<String>> get() = _imageUriLiveData //읽기 전용
 
     private lateinit var urlHashMap:HashMap<String, Int>
-
     private lateinit var pictureByteArrayList:MutableList<ByteArray> // pictureByteArrayList
+
+    var isGalleryUpdateFinished:MutableLiveData<Boolean> = MutableLiveData(false)
+
 
 //    var mainPictureIndex: Int = 0
 //    var selectPictureIndex: Int = 0
@@ -114,6 +116,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         for (i in 0 until uriList.size) {
             urlHashMap.put(uriList[i],i)
         }
+        isGalleryUpdateFinished.value = true
     }
 
     fun getAllPhotos(){

@@ -123,7 +123,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             checkMagicPicturePlay = false
             viewHolder.magicPictureStop()
 
-            // viewHolder.externalImageView.visibility = View.INVISIBLE
+            //viewHolder.externalImageView.visibility = View.INVISIBLE
         }
         else {
             CoroutineScope(Dispatchers.Default).launch {
@@ -429,7 +429,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
         fun magicPictureStop(){
             externalImageView.setImageResource(0)
-            externalImageView.visibility = View.INVISIBLE
+            imageView.visibility = View.VISIBLE
+            //externalImageView.visibility = View.INVISIBLE
         }
     }
 
