@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +26,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
@@ -33,6 +35,7 @@ import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
+import android.transition.Transition
 
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
@@ -99,6 +102,24 @@ class ViewerFragment : Fragment() {
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
         currentPosition = arguments?.getInt("currentPosition") // 갤러리 프래그먼트에서 넘어왔을 때
+
+
+
+//        Glide.with(this)
+//            .load(R.drawable.background)
+//            .centerCrop()
+//            .into(object : CustomTarget<Drawable>() {
+//                override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
+//                    @Suppress("UNCHECKED_CAST")
+//                    binding.entireLinearLayout.background = resource
+//                }
+//
+//                override fun onLoadCleared(placeholder: Drawable?) {
+//                    // Optional: Implement any desired behavior when the image load is cleared.
+//                }
+//            })
+
+
 
         return binding.root
     }
@@ -197,7 +218,8 @@ class ViewerFragment : Fragment() {
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 val leftMarginInDp = 0
                 val topMarginInDp =  spToDp(context,11f).toInt()
-                val rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
+                var rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
+                rightMarginInDp += pxToDp(10f).toInt()
                 val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
                 textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -208,24 +230,13 @@ class ViewerFragment : Fragment() {
             }
         })
 
-        /* Audio 버튼 UI - 있으면 표시, 없으면 GONE */
-//        if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
-//            binding.audioBtn.visibility = View.VISIBLE
-//        }
-//        else {
-//            binding.audioBtn.visibility = View.GONE
-//        }
 
-        /*  Text 있을 경우 - 표시 */
+        /*  Text 있을 경우 */
         if (container.textContent.textCount != 0){
-
-            binding.savedTextView.visibility = View.VISIBLE
-
             var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+
             if(textList != null && textList.size !=0){
-
                 val text = textList.get(0).data
-
                 val shadowColor = Color.parseColor("#CAC6C6")// 그림자 색상
                 val shadowDx = 5f // 그림자의 X 방향 오프셋
                 val shadowDy = 0f // 그림자의 Y 방향 오프셋
@@ -233,14 +244,7 @@ class ViewerFragment : Fragment() {
 
                 binding.savedTextView.setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
                 binding.savedTextView.setText(text)
-
             }
-            else {
-                binding.savedTextView.setText("")
-            }
-        }
-        else {
-            binding.savedTextView.visibility = View.INVISIBLE
         }
 
         mainViewPagerAdapter = ViewPagerAdapter(requireContext())
@@ -258,12 +262,11 @@ class ViewerFragment : Fragment() {
 
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.audioBtn.background = ColorDrawable(Color.TRANSPARENT)
                     isAudioBtnClicked = false
                 }
 
                 // 재생 중인 오디오 stop
-                //jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
+                jpegViewModel.jpegMCContainer.value!!.audioResolver.audioStop()
 
                 // 매직 버튼 초기화
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
@@ -291,59 +294,6 @@ class ViewerFragment : Fragment() {
         }
 
         /** Button 이벤트 리스너 - editBtn, backBtn, audioBtn*/
-
-//        binding.audioBtn.setOnClickListener{
-//
-//            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-//            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-//
-//            if (!isAudioBtnClicked) { // 클릭 안되어 있던 상태
-//                /* layout 변경 */
-//                binding.audioBtn.setImageResource(R.drawable.sound4)
-//                isAudioBtnClicked = true
-//
-//                // 오디오 재생
-//                jpegViewModel.jpegMCContainer.value!!.audioPlay()
-//                isAudioPlaying.value = true
-//            }
-//
-//            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
-//            else { // 클릭 되어 있던 상태
-//
-//                /* layout 변경 */
-//                binding.audioBtn.setImageResource(R.drawable.audio)
-//                isAudioBtnClicked = false
-//
-//                jpegViewModel.jpegMCContainer.value!!.audioStop()
-//            }
-//        }
-
-
-//        audioTopMargin.observe(requireActivity()){ value ->
-//
-//            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
-//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-//            val topMarginInDp =  pxToDp(value.toFloat()).toInt()// 위쪽 마진(dp)
-//            val rightMarginInDp = pxToDp(20f).toInt() // 오른쪽 마진(dp)
-//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-//
-//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-//            binding.audioBtn.layoutParams = layoutParams
-//
-//        }
-
-//        audioEndMargin.observe(requireActivity()) {value ->
-//
-//            val layoutParams = binding.audioBtn.layoutParams as ViewGroup.MarginLayoutParams
-//            val leftMarginInDp = 0 // 왼쪽 마진(dp)
-//            val topMarginInDp =  pxToDp(20f).toInt()// 위쪽 마진(dp)
-//            val rightMarginInDp = pxToDp(value.toFloat()).toInt() // 오른쪽 마진(dp)
-//            val bottomMarginInDp = 0 // 아래쪽 마진(dp)
-//
-//            layoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
-//            binding.audioBtn.layoutParams = layoutParams
-//        }
-
         binding.editBtn.setOnClickListener{
             findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
         }
@@ -536,7 +486,9 @@ class ViewerFragment : Fragment() {
                     }
                 }
                 // 텍스트 있는 경우
-//                   if (container.textContent.textCount != 0) {
+
+                if (container.textContent.textCount != 0) {
+
                     CoroutineScope(Dispatchers.Main).launch {
                         var currText = binding.imageCntTextView.text
                         binding.imageCntTextView.text = "${currText} + 텍스트"
@@ -552,18 +504,21 @@ class ViewerFragment : Fragment() {
                             if (!isTextBtnClicked) { // 클릭 안되어있던 상태
                                 scrollTextView.setBackgroundResource(R.drawable.scroll_menu_btn_color)
                                 scrollTextView.setImageResource(R.drawable.text_item_color)
+                                binding.savedTextView.text = "테스트입니다"
+                                binding.savedTextView.visibility = View.VISIBLE
                                 isTextBtnClicked = true
 
                             } else {
                                 scrollTextView.setBackgroundResource(R.drawable.scroll_menu_btn)
                                 scrollTextView.setImageResource(R.drawable.text_item)
+                                binding.savedTextView.visibility = View.INVISIBLE
                                 isTextBtnClicked = false
                             }
                         }
 
                         binding.linear.addView(scollItemLayout, binding.linear.childCount)
                     }
-                //}
+                }
 
             }
 
