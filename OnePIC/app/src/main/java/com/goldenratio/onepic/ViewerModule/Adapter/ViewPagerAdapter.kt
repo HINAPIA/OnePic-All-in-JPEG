@@ -281,65 +281,17 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         /** Uri 로 imageView에 띄우기 */
         fun bind(image:String) { // Main 이미지 보여주기
             imageView.visibility = View.VISIBLE
-
             externalImageView.visibility = View.GONE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 Glide.with(context)
                     .load(image)
-                    .listener(object : RequestListener<Drawable> {
-
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: com.bumptech.glide.request.target.Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            return false
-                        }
-
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            setFitCenterPaddingValue(resource)
-                            setTopMarginValue(resource)
-                            return false
-                        }
-                    })
                     .into(imageView)
             }
             else {
                 Glide.with(context)
                     .load(getUriFromPath(image))
-                    .listener(object : RequestListener<Drawable> {
-
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: com.bumptech.glide.request.target.Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            return false
-                        }
-
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            setFitCenterPaddingValue(resource)
-                            setTopMarginValue(resource)
-                            return false
-                        }
-                    })
                     .into(imageView)
             }
-
         }
 
         /** ByteArray 로 imageView에 띄우기  */
@@ -357,44 +309,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             externalImageView.setImageBitmap(embeddedImage)
         }
 
-
-        fun setFitCenterPaddingValue(resource:Drawable?) {
-
-            if(resource == null) {
-                Log.d("여기에서 나가버림",": here")
-                return
-            }
-
-            val bitmap: Bitmap = resource.toBitmap()
-
-            // imageView width, height 가져오기
-            val viewWidth = imageView.width
-            val viewHeight = imageView.height
-
-            val bitmapWidth = bitmap.width
-            val bitmapHeight = bitmap.height
-
-            val alpha = viewWidth/bitmapWidth
-
-           if( viewHeight > bitmapHeight * alpha ){ // 가로에 맞춰짐
-                   ViewerFragment.audioTopMargin.value = (viewHeight-bitmapHeight) / 2 + 60     //viewHeight - bitmapHeight * alpha
-            }
-            else { // 세로에 맞춰짐
-                   ViewerFragment.audioEndMargin.value = (viewWidth - bitmapWidth) / 2 + 60//viewHeight
-            }
-        }
-
-        fun setTopMarginValue(resource:Drawable?){ // seekBar top-margin
-
-            if(resource == null) {
-                return
-            }
-
-            val bitmap: Bitmap = resource.toBitmap()
-            val bitmapHeight = bitmap.height
-
-            ViewerFragment.seekBarMargin.value = bitmapHeight / 2 + 25//20 //bitmapHeight * 3 / 8
-        }
 
         fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
             externalImageView.visibility = View.VISIBLE
@@ -433,7 +347,4 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             //externalImageView.visibility = View.INVISIBLE
         }
     }
-
-
-
 }
