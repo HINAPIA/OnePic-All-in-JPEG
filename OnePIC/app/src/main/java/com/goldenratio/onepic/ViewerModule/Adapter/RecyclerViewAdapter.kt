@@ -45,6 +45,7 @@ class RecyclerViewAdapter(var imageList: List<String>, var layoutManager: Linear
         holder.imageView.setOnClickListener{
             Log.d("여기로 들어오긴 함","")
             BasicViewerFragment.currentPosition = position
+            BasicViewerFragment.centerItemPosition = position
             BasicViewerFragment.isClickedRecyclerViewImage.value = true
         }
 

@@ -395,6 +395,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
+            ViewerFragment.isEditStoraged = true
             // 저장 중인지 확인하는 flag가 false일 경우만 저장 단계 실행 --> 두번 실행될 경우 오류를 예외처리하기 위해
             if (!isSaving) {
                 imageTool.showView(binding.progressBar, true)
@@ -409,7 +410,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     imageContent.mainPicture = mainPicture
                 }
 
-                ViewerFragment.isEditStoraged = true
 
                 // 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageUri
