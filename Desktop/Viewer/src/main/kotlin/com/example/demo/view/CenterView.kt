@@ -83,7 +83,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
     override val root = stackpane{
 
         style {
-            backgroundColor = MultiValue(arrayOf(c(CustomColor.purple)))
+            backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
         }
         // iamge
         logoImageView.apply{

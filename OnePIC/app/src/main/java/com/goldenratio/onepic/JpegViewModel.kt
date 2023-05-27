@@ -39,6 +39,13 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     var mainSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
 
     var isAudioPlay = MutableLiveData<Int>(0)
+    var currentFileName : String? = null
+
+    companion object{
+        var isUserInentFinish : Boolean = false
+    }
+
+
 
     private val galleryObserver = object : ContentObserver(android.os.Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {

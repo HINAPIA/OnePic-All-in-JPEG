@@ -2,6 +2,7 @@ package com.goldenratio.onepic.ViewerModule
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -74,7 +76,23 @@ class ViewerEditorActivity : AppCompatActivity() {
 
     }
 
-
+    // 저장 버튼을 눌렀을 때 외부 사진일 때 사용자 요청 다이얼로그를 띄우고 결과를 받음
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                // 사용자가 승인한 경우 삭제 진행
+                Log.d("save_test", "사용자 허가를 받고 삭제 다시 진행")
+                jpegViewModels.jpegMCContainer.value?.saveResolver!!.deleteImage( jpegViewModels.currentFileName!!)
+                JpegViewModel.isUserInentFinish = true
+            } else {
+                // 사용자가 거부한 경우 또는 오류가 발생한 경우
+                Log.d("save_test", "사용자가 거부. 삭제 안함")
+                JpegViewModel.isUserInentFinish = true
+            }
+        }
+    }
     override fun onRequestPermissionsResult( // 권한 요청 처리
         requestCode: Int,
         permissions: Array<String>,

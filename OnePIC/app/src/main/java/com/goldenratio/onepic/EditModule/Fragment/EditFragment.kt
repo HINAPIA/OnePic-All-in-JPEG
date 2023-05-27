@@ -15,6 +15,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.get
@@ -175,8 +176,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         // Rewind 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
@@ -383,22 +387,40 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
                 }
 
-                val result = jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                // 우리 앱의 사진이 아닐 때
-                if (result == "another") {
-                    singleSave()
-                    CoroutineScope(Dispatchers.Default).launch {
-                        Thread.sleep(1000)
-                        setButtonDeactivation()
-                        setCurrentPictureByteArrList()
+                CoroutineScope(Dispatchers.IO).launch {
+                    jpegViewModel.currentFileName = fileName
+                    // 기존 파일 삭제
+                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
+                    var i =0
+                    while (JpegViewModel.isUserInentFinish == false){
+                        Log.d("save_test", "${i++}")
+                        delay(500)
                     }
-                } else {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        setButtonDeactivation()
-                        Thread.sleep(2000)
-                        setCurrentPictureByteArrList()
-                    }
+                    JpegViewModel.isUserInentFinish = false
+                    jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+                    Thread.sleep(2000)
+                    Log.d("save_test", "뷰어로 넘어가기")
+                    setButtonDeactivation()
+                    setCurrentPictureByteArrList()
                 }
+
+                // 우리 앱의 사진이 아닐 때
+//                if (result == "another") {
+//
+//                    // 권한을 요청하고 다시 save
+//                    singleSave()
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        Thread.sleep(1000)
+//                        setButtonDeactivation()
+//                        setCurrentPictureByteArrList()
+//                    }
+//                } else {
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        setButtonDeactivation()
+//                        Thread.sleep(2000)
+//                        setCurrentPictureByteArrList()
+//                    }
+//                }
                 imageContent.setCheckAttribute()
             }
         }
