@@ -29,6 +29,7 @@
 
     <color name="button_color">#6B8B7A</color>
 
+    <!-- ________________카메라________________ -->
     <color name="layout_background">#80000000</color>
     <color name="background">#FAF8FF</color>
     <color name="preview_color">#FFFADE</color>
@@ -43,5 +44,11 @@
     <color name="white_85">#D9FFFFFF</color>
     <color name="white_50">#80FFFFFF</color>
     <color name="dark_purple_85">#D99177D0</color>
+    <color name="camera_background">#D6D2EC</color>
+    <color name="camera_mode_background">#66E3DFFD</color>
+    <color name="camera_mode_select_color">#E1CEFF</color>
+    <color name="camera_success_background">#669C8EFF</color>
+    <color name="camera_success_border">#9C8EFF</color>
+    <!-- _____________________________________ -->
 
 </resources>

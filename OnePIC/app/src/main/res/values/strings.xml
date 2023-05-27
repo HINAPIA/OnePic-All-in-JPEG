@@ -36,18 +36,21 @@
     <string name="burst_mode_edit">Burst Mode</string>
     <string name="basic_mode_edit">Basic Mode</string>
 
-    <string name="distance_manual">수동</string>
-    <string name="distance_auto">자동</string>
-    <string name="distance_manual_initial">M</string>
-    <string name="distance_auto_initial">A</string>
-
     <string name="basic_mode">기본</string>
     <string name="burst_mode">연속 촬영</string>
     <string name="object_mode">객체별\n초점 촬영</string>
     <string name="distance_mode">거리별\n초점 촬영</string>
 
-    <string name="camera_burst_info">5장 연속 촬영 후 추천</string>
-    <string name="camera_object_info">인식된 객체 각각에 초점이 맞는 사진 촬영</string>
+    <string name="camera_burst_info">5장 연속 촬영</string>
+    <string name="camera_object_info">인식된 객체에 각각 초점이 맞는 사진 촬영</string>
+    <string name="camera_success_info">촬영 완료</string>
+
+    <string name="burst1">3</string>
+    <string name="burst2">5</string>
+    <string name="burst3">7</string>
+    <string name="burst1_info">3장 연속 촬영</string>
+    <string name="burst2_info">5장 연속 촬영</string>
+    <string name="burst3_info">7장 연속 촬영</string>
 
     <string name="loading_text">얼굴 인식 중 입니다</string>
 
