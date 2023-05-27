@@ -42,6 +42,8 @@ class ImageContent {
 
     var isSetBitmapListStart = false
 
+    constructor()
+
     fun init() {
         Log.d("burst", "==================")
         Log.d("burst", "imageContnet 초기화")
@@ -137,40 +139,26 @@ class ImageContent {
      */
     // bitmapList getter
     fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
-//        checkTransformAttributeBitmap = true
-        Log.d("faceRewind","")
-        val newBitmapList = arrayListOf<Bitmap>()
-        try {
-            if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
-                attributeBitmapList.clear()
-                bitmapListAttribute = attribute
+
+        if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
+            attributeBitmapList.clear()
+            bitmapListAttribute = attribute
+        }
+        if (attributeBitmapList.size == 0) {
+            val newBitmapList = arrayListOf<Bitmap>()
+            while (!checkBitmapList || !checkPictureList) {
+                Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+                Thread.sleep(200)
             }
-            if (attributeBitmapList.size == 0) {
-
-                Log.d("faceRewind","!!!! getBitmapList while start")
-                while (!checkBitmapList || !checkPictureList) {
+            for (i in 0 until pictureList.size) {
 //                if(!checkTransformAttributeBitmap)
 //                    return null
-                    Log.d("faceRewind","!!!! $checkBitmapList || $checkPictureList")
-                    Thread.sleep(200)
-                }
-                Log.d("faceRewind","!!!! getBitmapList while end")
-
-                for (i in 0 until pictureList.size) {
-//                if(!checkTransformAttributeBitmap)
-//                    return null
-                    if (pictureList[i].contentAttribute != attribute)
-                        newBitmapList.add(bitmapList[i])
-                }
+                if (pictureList[i].contentAttribute != attribute)
+                    newBitmapList.add(bitmapList[i])
             }
             attributeBitmapList = newBitmapList
-//        checkTransformAttributeBitmap = false
-            return attributeBitmapList
-        }catch (e: IndexOutOfBoundsException) {
-            // 예외가 발생한 경우 처리할 코드
-            e.printStackTrace() // 예외 정보 출력
-            return null
         }
+        return attributeBitmapList
     }
 
     /**
@@ -187,8 +175,25 @@ class ImageContent {
         return bitmapList
     }
 
+    fun addBitmapList( index: Int, bitmap: Bitmap) {
+        while (!checkBitmapList || !checkPictureList) {
+            Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+        }
+        bitmapList.add(index, bitmap)
+        attributeBitmapList.clear()
+        bitmapListAttribute = null
+    }
+    fun addBitmapList( bitmap: Bitmap) {
+        while (!checkBitmapList || !checkPictureList) {
+            Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+        }
+        bitmapList.add(bitmap)
+        attributeBitmapList.clear()
+        bitmapListAttribute = null
+    }
 
-     fun setBitmapList() {
+
+    fun setBitmapList() {
         isSetBitmapListStart = true
 
         Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -320,18 +325,22 @@ class ImageContent {
      */
     fun insertPicture(picture : Picture){
         pictureList.add(picture)
-        pictureCount = pictureCount + 1
+        pictureCount += 1
     }
     fun insertPicture(index : Int, picture : Picture){
         pictureList.add(index, picture)
-        pictureCount = pictureCount + 1
+        pictureCount += 1
         Log.d("error 잡기", "insertPicture pictureCount= ${pictureCount} ")
     }
 
     fun removePicture(picture: Picture) : Boolean{
-        var retuslt = pictureList.remove(picture)
-        pictureCount = pictureCount -1
-        return retuslt
+        val index = pictureList.indexOf(picture)
+        val result = pictureList.remove(picture)
+        pictureCount -= 1
+
+        bitmapList.removeAt(index)
+
+        return result
     }
     /**
      * PictureList의 index번째 요소를 찾아 반환

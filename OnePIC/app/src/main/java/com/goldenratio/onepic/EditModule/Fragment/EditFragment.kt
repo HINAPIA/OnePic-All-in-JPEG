@@ -215,7 +215,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             mainTextView?.visibility = View.INVISIBLE
 
             // 선택한 picture Index 알아내기
-            val selectPictureIndex = pictureList.indexOf(jpegViewModel.mainSubImage)
+            val selectPictureIndex = pictureList.indexOf(jpegViewModel.selectedSubImage)
             jpegViewModel.mainSubImage = jpegViewModel.selectedSubImage
 
             Log.d("main Change", "selectPictureIndex: $selectPictureIndex")
@@ -229,20 +229,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             mainTextView = newMainSubView
             mainPicture = pictureList[selectPictureIndex]
 
-            // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
-            val result = imageContent.removePicture(mainPicture)
-            if (result) {
-                // 2. main 사진을 첫번 째로 삽입
-                imageContent.insertPicture(0, mainPicture)
-                imageContent.mainPicture = mainPicture
+            // 메인 변경 유무 flag true로 변경
+            imageContent.checkMainChangeAttribute = true
 
-                // 메인 변경 유무 flag true로 변경
-                imageContent.checkMainChangeAttribute = true
-
-                // 저장 버튼 표시 | 메인 변경 버튼 없애기
-                imageToolModule.showView(binding.saveBtn, true)
-                imageToolModule.showView(binding.mainChangeBtn, false)
-            }
+            // 저장 버튼 표시 | 메인 변경 버튼 없애기
+            imageToolModule.showView(binding.saveBtn, true)
+            imageToolModule.showView(binding.mainChangeBtn, false)
         }
 
         // 컨텐츠 삭제
@@ -346,6 +338,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             job.await()
 
                             while(!imageContent.checkPictureList) {}
+                            CoroutineScope(Dispatchers.Default).launch {
+                                imageContent.setBitmapList()
+                            }
                             findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         }
 
@@ -362,6 +357,14 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 imageTool.showView(binding.progressBar, true)
 
                 isSaving = true
+
+                // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
+                val removeResult = imageContent.removePicture(mainPicture)
+                if (removeResult) {
+                    // 2. main 사진을 첫번 째로 삽입
+                    imageContent.insertPicture(0, mainPicture)
+                    imageContent.mainPicture = mainPicture
+                }
 
                 ViewerFragment.isEditStoraged = true
 
@@ -574,7 +577,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //                        imageToolModule.showView(binding.mainChangeBtn, false)
 //                    }
 //
-//                    imageToolModule.showView(binding.progressBar, false)
+                    imageToolModule.showView(binding.progressBar, false)
 //                    setMoveScrollView(mainSubView, bestImageIndex!!)
 
                     Log.d("mainChange", "bestImage null")
@@ -684,40 +687,53 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                     CoroutineScope(Dispatchers.Main).launch {
                         val jpegMCContainer = MCContainer(requireActivity())
-                        loadResolver.createMCContainer(jpegMCContainer,sourceByteArray)
-                        while(!jpegMCContainer.imageContent.checkPictureList) {}
+                        loadResolver.createMCContainer(jpegMCContainer, sourceByteArray)
+                        while (!jpegMCContainer.imageContent.checkPictureList) {
+                        }
 
                         val newPictureList = jpegMCContainer.imageContent.pictureList
 //                        pictureList.addAll(newPictureList)
 
 //                        pictureByteList.add(sourceByteArray)
-                        for(j in 0 until newPictureList.size) {
-                            newImageByteArrayList.add(jpegMCContainer.imageContent.getJpegBytes(newPictureList[j]))
+                        for (j in 0 until newPictureList.size) {
+                            newImageByteArrayList.add(
+                                jpegMCContainer.imageContent.getJpegBytes(
+                                    newPictureList[j]
+                                )
+                            )
                             pictureList.add(newPictureList[j])
-                            setSubImage(pictureList[pictureList.size - 1])
+                            val imageView = setSubImage(pictureList[pictureList.size - 1])
+
+                            CoroutineScope(Dispatchers.Default).launch {
+                                imageContent.addBitmapList(
+                                    imageToolModule.byteArrayToBitmap(
+                                        jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
+                                    )
+                                )
+                            }
+
+                            if (j == newPictureList.size - 1) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    Glide.with(binding.mainImageView)
+                                        .load(imageContent.getJpegBytes(pictureList[pictureList.size - 1]))
+                                        .into(binding.mainImageView)
+
+                                    mainSubView.background = null
+                                    mainSubView.setPadding(0)
+
+                                    mainSubView = imageView
+
+                                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+                                    mainSubView.setPadding(6)
+
+                                    setMoveScrollView(mainSubView, pictureList.size)
+                                }
+                            }
+                            imageContent.pictureList = pictureList
+                            imageContent.checkMainChangeAttribute = true
+                            imageToolModule.showView(binding.saveBtn, true)
                         }
-                        imageContent.pictureList = pictureList
-                        imageContent.checkMainChangeAttribute = true
-                        imageToolModule.showView(binding.saveBtn, true)
                     }
-
-                }
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    Glide.with(binding.mainImageView)
-                        .load(imageContent.getJpegBytes(pictureList[pictureList.size-1]))
-                        .into(binding.mainImageView)
-
-                    mainSubView.background = null
-                    mainSubView.setPadding(0)
-
-                    mainSubView = binding.linear.getChildAt(pictureList.size-1).findViewById<ImageView>(R.id.scrollImageView)
-
-                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                    mainSubView.setPadding(6)
-
-                    setContainerTextSetting()
-                    setMoveScrollView(mainSubView, pictureList.size-1)
 
                     //TODO: 유진아 여기 --> uriList: 방금 불러온 이미지들의 uri / newImageByteArrayList: 지금까지 불러온 이미지들의 bytearray
                 }
@@ -725,7 +741,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         }
     }
 
-    fun setSubImage(picture: Picture) {
+    fun setSubImage(picture: Picture): ImageView {
         // 넣고자 하는 layout 불러오기
         val subLayout =
             layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
@@ -776,7 +792,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         subLayout.setOnClickListener {
             // 이미지인 경우
             jpegViewModel.selectedSubImage = picture
-            changeViewImage(pictureList.indexOf(picture), imageView)
+            val index = pictureList.indexOf(picture)
+            Log.d("main Change", "onClickListener : $index" )
+            changeViewImage(index, imageView)
         }
 
         // 삭제
@@ -836,6 +854,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             if (mainTextView != null)
                                 imageToolModule.showView(mainTextView!!, true)
                         }
+                        mainPicture = pictureList[jpegViewModel.getSelectedSubImageIndex()]
                     }
                 }.show()
         }
@@ -843,12 +862,16 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         CoroutineScope(Dispatchers.Main).launch {
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
             val index = pictureList.indexOf(picture)
-            if (binding.linear.size > index) {
-                binding.linear.addView(subLayout, index)
+            if (binding.linear.size - 3 == index) {
+                binding.linear.addView(subLayout, binding.linear.size - 3)
+                Log.d("main Change","sublayout index add : $index")
             } else {
                 binding.linear.addView(subLayout)
+                Log.d("main Change","sublayout add : $index")
             }
+
         }
+        return imageView
     }
 
     fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: () -> Unit) {

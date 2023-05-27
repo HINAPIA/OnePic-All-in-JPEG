@@ -187,10 +187,13 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 imageContent.pictureList.add(selectIndex,
                     Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes)))
+                imageContent.addBitmapList(selectIndex, selectBitmap)
 
                 imageContent.pictureList[selectIndex].waitForByteArrayInitialized()
 
                 jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)
+
+                jpegViewModel.selectedSubImage = imageContent.pictureList[selectIndex]
 
 //                imageContent.setMainBitmap(selectBitmap)
                 withContext(Dispatchers.Main) {
@@ -349,6 +352,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             binding.mainView.setImageBitmap(selectBitmap)
             imageToolModule.showView(binding.faceRewindMenuLayout, false)
+            imageToolModule.showView(binding.rewindSaveBtn, true)
+            imageToolModule.showView(binding.rewindCloseBtn, true)
             setMainImageBoundingBox()
         }
 
@@ -360,6 +365,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
             binding.mainView.setImageBitmap(selectBitmap)
             imageToolModule.showView(binding.faceRewindMenuLayout, false)
+            imageToolModule.showView(binding.rewindSaveBtn, true)
+            imageToolModule.showView(binding.rewindCloseBtn, true)
             setMainImageBoundingBox()
         }
     }
@@ -518,6 +525,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
         imageToolModule.showView(binding.faceRewindMenuLayout, true)
+        imageToolModule.showView(binding.rewindSaveBtn, false)
+        imageToolModule.showView(binding.rewindCloseBtn, false)
         isSelected = true
         changeMainView(selectBitmap)
 
