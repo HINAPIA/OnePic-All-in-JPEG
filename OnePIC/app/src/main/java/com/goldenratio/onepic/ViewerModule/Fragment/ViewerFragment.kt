@@ -28,12 +28,11 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
+import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
-
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
-import com.goldenratio.onepic.PictureModule.Contents.Picture
 
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
@@ -490,7 +489,7 @@ class ViewerFragment : Fragment() {
                 var container = jpegViewModel.jpegMCContainer.value!!
 
                 // 오디오 있는 경우
-                if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0) {
+                if (container.audioContent.audio != null) {
                     CoroutineScope(Dispatchers.Main).launch {
                         var currText = binding.imageCntTextView.text
                         binding.imageCntTextView.text = "${currText} + 오디오"
@@ -537,7 +536,7 @@ class ViewerFragment : Fragment() {
                     }
                 }
                 // 텍스트 있는 경우
-//                    if (container.textContent.textCount != 0) {
+//                   if (container.textContent.textCount != 0) {
                     CoroutineScope(Dispatchers.Main).launch {
                         var currText = binding.imageCntTextView.text
                         binding.imageCntTextView.text = "${currText} + 텍스트"

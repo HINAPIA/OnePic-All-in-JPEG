@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepic.PictureModule.Contents.Audio
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Text
 import com.goldenratio.onepic.PictureModule.Contents.Picture
+import com.goldenratio.onepic.PictureModule.Contents.Text
 import com.goldenratio.onepic.PictureModule.MCContainer
 import kotlinx.coroutines.*
 import java.io.IOException
@@ -37,8 +37,7 @@ class LoadResolver() {
     }
     suspend fun createMCContainer(
         MCContainer: MCContainer,
-        sourceByteArray: ByteArray,
-        isViewChanged: MutableLiveData<Boolean>
+        sourceByteArray: ByteArray
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             // APP3 세그먼트의 시작 위치를 찾음
@@ -117,9 +116,9 @@ class LoadResolver() {
                 }
 
             }
-            CoroutineScope(Dispatchers.Main).launch {
-                isViewChanged.value = true
-            }
+//            CoroutineScope(Dispatchers.Main).launch {
+//                isViewChanged.value = true
+//            }
             return@launch
         }
     }

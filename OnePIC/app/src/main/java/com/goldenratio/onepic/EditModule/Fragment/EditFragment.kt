@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.get
 import androidx.core.view.setPadding
 import androidx.core.view.size
 import androidx.fragment.app.Fragment
@@ -214,8 +215,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             mainTextView?.visibility = View.INVISIBLE
 
             // 선택한 picture Index 알아내기
-            val selectPictureIndex = jpegViewModel.getSelectedSubImageIndex()
+            val selectPictureIndex = pictureList.indexOf(jpegViewModel.mainSubImage)
             jpegViewModel.mainSubImage = jpegViewModel.selectedSubImage
+
+            Log.d("main Change", "selectPictureIndex: $selectPictureIndex")
 
             // 해당 뷰를 index를 통해 알아내 mainMark 표시 띄우기
             val newMainSubView = binding.linear.getChildAt(selectPictureIndex)
@@ -245,55 +248,64 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // 컨텐츠 삭제
         binding.contentDeleteBtn.setOnClickListener {
             val size = binding.linear.size
-            if(pictureList.size > 1) {
-                if (!isDeleting) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.contentDeleteBtn.setImageResource(R.drawable.container_deleting_icon)
-                    }
-                    for (i in 0 until size - 1) {
+            if (!isDeleting) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.contentDeleteBtn.setImageResource(R.drawable.container_deleting_icon)
+                }
+                if (pictureList.size > 1) {
+                    for (i in 0 until size - 3) {
                         val view = binding.linear.getChildAt(i)
                         imageToolModule.showView(
                             view.findViewById<ImageView>(R.id.deleteIcon),
                             true
                         )
                     }
-                    if (textContent.textList.size == 0) {
-                        val view = binding.linear.getChildAt(size - 3)
-                        imageToolModule.showView(view, false)
-                    }
-                    if (audioContent.audio == null) {
-                        val view = binding.linear.getChildAt(size - 2)
-                        imageToolModule.showView(view, false)
-                    }
-
-                    val view = binding.linear.getChildAt(size - 1)
-                    imageToolModule.showView(view, false)
-
-                    isDeleting = true
-                } else {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.contentDeleteBtn.setImageResource(R.drawable.container_delete_icon)
-                    }
-                    for (i in 0 until size - 1) {
+                }
+                else {
+                    for (i in size-3 until size - 1 ) {
                         val view = binding.linear.getChildAt(i)
                         imageToolModule.showView(
                             view.findViewById<ImageView>(R.id.deleteIcon),
-                            false
+                            true
                         )
                     }
-                    if (textContent.textList.isEmpty()) {
-                        val view = binding.linear.getChildAt(size - 3)
-                        imageToolModule.showView(view, true)
-                    }
-                    if (audioContent.audio == null) {
-                        val view = binding.linear.getChildAt(size - 2)
-                        imageToolModule.showView(view, true)
-                    }
-
-                    val view = binding.linear.getChildAt(size - 1)
-                    imageToolModule.showView(view, true)
-                    isDeleting = false
                 }
+                if (textContent.textList.size == 0) {
+                    val view = binding.linear.getChildAt(size - 3)
+                    imageToolModule.showView(view, false)
+                }
+                if (audioContent.audio == null) {
+                    val view = binding.linear.getChildAt(size - 2)
+                    imageToolModule.showView(view, false)
+                }
+
+                val view = binding.linear.getChildAt(size - 1)
+                imageToolModule.showView(view, false)
+
+                isDeleting = true
+            } else {
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.contentDeleteBtn.setImageResource(R.drawable.container_delete_icon)
+                }
+                for (i in 0 until size - 1) {
+                    val view = binding.linear.getChildAt(i)
+                    imageToolModule.showView(
+                        view.findViewById<ImageView>(R.id.deleteIcon),
+                        false
+                    )
+                }
+                if (textContent.textList.isEmpty()) {
+                    val view = binding.linear.getChildAt(size - 3)
+                    imageToolModule.showView(view, true)
+                }
+                if (audioContent.audio == null) {
+                    val view = binding.linear.getChildAt(size - 2)
+                    imageToolModule.showView(view, true)
+                }
+
+                val view = binding.linear.getChildAt(size - 1)
+                imageToolModule.showView(view, true)
+                isDeleting = false
             }
         }
 
@@ -315,7 +327,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     .setNeutralButton("확인") { _, _ ->
                         setButtonDeactivation()
 
-                        var uri:Uri
+                        val uri:Uri
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                             uri = Uri.parse(jpegViewModel.currentImageUri)
                         }
@@ -330,7 +342,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         CoroutineScope(Dispatchers.Main).launch {
                             imageContent.checkPictureList = false
                             val job = async {
-                                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
+                                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
                             job.await()
 
                             while(!imageContent.checkPictureList) {}
@@ -542,29 +554,30 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     bestImageIndex = preBestImageIndex
                 }
                 withContext(Dispatchers.Main) {
-                    mainSubView.background = null
-                     mainSubView.setPadding(0)
+//                    mainSubView.background = null
+//                     mainSubView.setPadding(0)
 
                     Glide.with(binding.mainImageView)
                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex!!]))
                         .into(binding.mainImageView)
 
-                    mainSubView = binding.linear.getChildAt(bestImageIndex!!)
-                        .findViewById<ImageView>(R.id.scrollImageView)
-                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                     mainSubView.setPadding(6)
-
-//                    jpegViewModel.selectPictureIndex = bestImageIndex!!
-                    jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
-
-                    if (bestImageIndex != jpegViewModel.getMainSubImageIndex()) {
-                        imageToolModule.showView(binding.mainChangeBtn, true)
-                    } else {
-                        imageToolModule.showView(binding.mainChangeBtn, false)
-                    }
-
-                    imageToolModule.showView(binding.progressBar, false)
-                    setMoveScrollView(mainSubView, bestImageIndex!!)
+                    changeViewImage(bestImageIndex!!, binding.linear.getChildAt(bestImageIndex!!)
+                        .findViewById<ImageView>(R.id.scrollImageView))
+//                    mainSubView =
+//                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
+//                     mainSubView.setPadding(6)
+//
+////                    jpegViewModel.selectPictureIndex = bestImageIndex!!
+//                    jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
+//
+//                    if (bestImageIndex != jpegViewModel.getMainSubImageIndex()) {
+//                        imageToolModule.showView(binding.mainChangeBtn, true)
+//                    } else {
+//                        imageToolModule.showView(binding.mainChangeBtn, false)
+//                    }
+//
+//                    imageToolModule.showView(binding.progressBar, false)
+//                    setMoveScrollView(mainSubView, bestImageIndex!!)
 
                     Log.d("mainChange", "bestImage null")
                 }
@@ -611,7 +624,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //        jpegViewModel.selectPictureIndex = index
 
         imageView.setBackgroundResource(R.drawable.chosen_image_border)
-        imageView.setPadding(6, 6, 6, 6)
+        imageView.setPadding(6)
 
         mainSubView = imageView
     }
@@ -673,7 +686,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                     CoroutineScope(Dispatchers.Main).launch {
                         val jpegMCContainer = MCContainer(requireActivity())
-                        loadResolver.createMCContainer(jpegMCContainer,sourceByteArray, isContainerChanged)
+                        loadResolver.createMCContainer(jpegMCContainer,sourceByteArray)
                         while(!jpegMCContainer.imageContent.checkPictureList) {}
 
                         val newPictureList = jpegMCContainer.imageContent.pictureList
@@ -749,8 +762,11 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
 
-        if (picture == jpegViewModel.mainSubImage || jpegViewModel.mainSubImage == null && pictureList.indexOf(picture) == 0) {
+        if (picture == jpegViewModel.mainSubImage ||
+            jpegViewModel.mainSubImage == null && pictureList.indexOf(picture) == 0) {
 //                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
+
+            jpegViewModel.mainSubImage = picture
 
             CoroutineScope(Dispatchers.Main).launch {
                 mainTextView = subLayout.findViewById<TextView>(R.id.mainMark)
@@ -767,7 +783,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // 삭제
         subLayout.findViewById<ImageView>(R.id.deleteIcon).setOnClickListener {
-            jpegViewModel.selectedSubImage = picture
             // 이미지인 경우
 //            changeViewImage(index, imageView)
 
@@ -797,71 +812,42 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 .setNeutralButton("네") { _, _ ->
                     binding.linear.removeView(subLayout)
                     imageContent.removePicture(picture)
+
+                    if (pictureList.size == 1) {
+                        imageToolModule.showView(binding.linear[0].findViewById<ImageView>(R.id.deleteIcon), false)
+                        jpegViewModel.mainSubImage = pictureList[0]
+                    }
+
                     imageContent.checkMainChangeAttribute = true
 
                     setContainerTextSetting()
 
-                   CoroutineScope(Dispatchers.Main).launch {
+                    CoroutineScope(Dispatchers.Main).launch {
                         // 메인 이미지 설정
                         Glide.with(binding.mainImageView)
                             .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
                             .into(binding.mainImageView)
                     }
 
-                    if(jpegViewModel.mainSubImage == picture) {
-                        jpegViewModel.mainSubImage = picture
+                    if (jpegViewModel.mainSubImage == picture) {
+                        jpegViewModel.mainSubImage = pictureList[0]
 
                         CoroutineScope(Dispatchers.Main).launch {
-                            if(jpegViewModel.getMainSubImageIndex() != 0) {
-                                mainTextView = binding.linear.getChildAt(0)
-                                    .findViewById<TextView>(R.id.mainMark)
-                            }
-                            else {
-                                mainTextView = binding.linear.getChildAt(1)
-                                    .findViewById<TextView>(R.id.mainMark)
-                            }
+                            mainTextView = binding.linear.getChildAt(0)
+                                .findViewById<TextView>(R.id.mainMark)
                             if (mainTextView != null)
                                 imageToolModule.showView(mainTextView!!, true)
                         }
                     }
-
-                    if(pictureList.size == 1) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.contentDeleteBtn.setImageResource(R.drawable.container_delete_icon)
-                        }
-                        val size = binding.linear.size
-                        for (i in 0 until size - 1) {
-                            val view = binding.linear.getChildAt(i)
-                            imageToolModule.showView(
-                                view.findViewById<ImageView>(R.id.deleteIcon),
-                                false
-                            )
-                        }
-                        if (textContent.textList.isEmpty()) {
-                            val view = binding.linear.getChildAt(size - 3)
-                            imageToolModule.showView(view, true)
-                        }
-                        if (audioContent.audio == null) {
-                            val view = binding.linear.getChildAt(size - 2)
-                            imageToolModule.showView(view, true)
-                        }
-
-                        val view = binding.linear.getChildAt(size - 1)
-                        imageToolModule.showView(view, true)
-                        isDeleting = false
-                    }
-
-                    imageToolModule.showView(binding.saveBtn, true)
                 }.show()
         }
 
         CoroutineScope(Dispatchers.Main).launch {
             // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
             val index = pictureList.indexOf(picture)
-            if(binding.linear.size > index) {
+            if (binding.linear.size > index) {
                 binding.linear.addView(subLayout, index)
-            }
-            else {
+            } else {
                 binding.linear.addView(subLayout)
             }
         }

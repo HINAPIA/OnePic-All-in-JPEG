@@ -8,20 +8,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.transition.TransitionInflater
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
-
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavOptions
@@ -104,7 +100,7 @@ class AnalyzeFragment : Fragment() {
                 var curr = binding.analyzeDataTextView.text
                 var container = jpegViewModel.jpegMCContainer.value!!
 
-                if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0){
+                if (container.audioContent.audio != null){
 
                     CoroutineScope(Dispatchers.Main).launch{
                         binding.analyzeDataTextView.text = "${curr}오디오 발견!\n"
@@ -233,6 +229,8 @@ class AnalyzeFragment : Fragment() {
 
         setCurrentMCContainer(currentPosition!!)
 
+
+
         // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
         isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
@@ -311,8 +309,18 @@ class AnalyzeFragment : Fragment() {
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray, isContainerChanged) }
+                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
             jop.await()
+
+            val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+            imageContent.checkPictureList = false
+
+            while(!imageContent.checkPictureList) {
+
+            }
+
+            setCurrentPictureByteArrList()
+
             jpegViewModel.setCurrentImageUri(position) // edit 위한 처리
         }
     }
