@@ -217,7 +217,7 @@ class ViewerFragment : Fragment() {
                 val width = binding.allInJpegTextView.width
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 val leftMarginInDp = 0
-                val topMarginInDp =  spToDp(context,11f).toInt()
+                val topMarginInDp =  pxToDp(11f).toInt() //spToDp(context,11f)
                 var rightMarginInDp = - pxToDp((width/2 - spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
                 rightMarginInDp += pxToDp(10f).toInt()
                 val bottomMarginInDp = 0 // 아래쪽 마진(dp)
