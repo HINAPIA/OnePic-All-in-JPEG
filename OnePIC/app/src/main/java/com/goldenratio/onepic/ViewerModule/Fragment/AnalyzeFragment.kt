@@ -308,15 +308,17 @@ class AnalyzeFragment : Fragment() {
 
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
             var sourceByteArray = getBytes(iStream!!)
-            var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
-            jop.await()
 
             val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
             imageContent.checkPictureList = false
 
-            while(!imageContent.checkPictureList) {
+            var jop = async {
+                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
+            jop.await()
 
+            while(!imageContent.checkPictureList) { }
+            CoroutineScope(Dispatchers.Default).launch {
+                imageContent.setBitmapList()
             }
 
             setCurrentPictureByteArrList()
