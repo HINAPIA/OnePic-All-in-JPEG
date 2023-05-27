@@ -57,6 +57,7 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.Unit
 import kotlin.getValue
+import kotlin.let
 
 
 class EditFragment : Fragment(R.layout.fragment_edit) {
@@ -77,7 +78,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     private var isFinished = MutableLiveData<Boolean>()
 
-    private lateinit var mainSubView: View
+    private var mainSubView: View? = null
     private var mainTextView: TextView? = null
 
     private var pictureList = arrayListOf<Picture>()
@@ -87,7 +88,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var isSaving = false
     private var isAudioPlay = false
     private var isTextView = false
-    private var isDelete = false
+    private var isPictureChanged : MutableLiveData<Boolean> = MutableLiveData(false)
 
     private var isAudio = false
     private var isText = false
@@ -137,64 +138,80 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // imageToolModule 설정
         imageToolModule = ImageToolModule()
 
-        loadResolver = LoadResolver()
+        imageToolModule.showView(binding.progressBar, true)
 
-        // Content 설정
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        CoroutineScope(Dispatchers.Default).launch {
+            loadResolver = LoadResolver()
 
-        magicPictureModule = MagicPictureModule(imageContent)
-
-        imageContent.setMainBitmap(null)
-        textContent = jpegViewModel.jpegMCContainer.value!!.textContent
-        audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
-
-        // picture 리스트 만들어질때까지
-        while (!imageContent.checkPictureList) {
-        }
-
-        // picture 설정
-        mainPicture = imageContent.mainPicture
-        pictureList = imageContent.pictureList
-
-        // 만약 편집을 했다면 저장 버튼이 나타나게 설정
-        if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
-            imageContent.checkMagicAttribute || imageContent.checkAddAttribute
-        ) {
-            imageToolModule.showView(binding.saveBtn, true)
-        }
+            // Content 설정
+            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+            magicPictureModule = MagicPictureModule(imageContent)
+//        imageContent.setMainBitmap(null)
+            textContent = jpegViewModel.jpegMCContainer.value!!.textContent
+            audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
 
 
+            // picture 리스트 만들어질때까지
+            while (!imageContent.checkPictureList) { }
 
-        setViewDetailMenu()
+            // picture 설정
+            mainPicture = imageContent.mainPicture
+            pictureList = imageContent.pictureList
 
-
-        // 메인 이미지 설정
-        CoroutineScope(Dispatchers.Main).launch {
-            val index = jpegViewModel.getSelectedSubImageIndex()
-            if(pictureList[index].contentAttribute == ContentAttribute.magic) {
-                imageToolModule.showView(binding.magicPlayBtn, true)
-                setMagicPlay()
-//            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
+            // 만약 편집을 했다면 저장 버튼이 나타나게 설정
+            if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
+                imageContent.checkMagicAttribute || imageContent.checkAddAttribute
+            ) {
+                imageToolModule.showView(binding.saveBtn, true)
             }
-            Glide.with(binding.mainImageView)
-                .load(imageContent.getJpegBytes(pictureList[index]))
-                .into(binding.mainImageView)
+            setViewDetailMenu()
+
+            // 메인 이미지 설정
+            CoroutineScope(Dispatchers.Main).launch {
+                val index = jpegViewModel.getSelectedSubImageIndex()
+                if (pictureList[index].contentAttribute == ContentAttribute.magic) {
+                    imageToolModule.showView(binding.magicPlayBtn, true)
+                    imageToolModule.showView(binding.progressBar, true)
+                    setMagicPlay()
+//            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
+                }
+                Glide.with(binding.mainImageView)
+                    .load(imageContent.getJpegBytes(pictureList[index]))
+                    .into(binding.mainImageView)
+            }
+
+            // distance focus일 경우 seekbar 보이게
+            if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+                binding.seekBar.visibility = View.VISIBLE
+            }
+
+            setContainerTextSetting()
+
+            // 컨테이너 이미지 설정 (오디오 텍스트 이미지도 포함)
+            withContext(Dispatchers.Main) {
+                setContainer()
+            }
+
+            /* TODO: ViewrFragment to EditorFragment - currentImageFilePath와 selectedImageFilePath 확인 */
+            // ViewerFragment에서 스크롤뷰 이미지 중 아무것도 선택하지 않은 상태에서 edit 누르면 picturelist의 맨 앞 객체(메인)이 선택된 것으로 했음
+            Log.d("currentImageUri: ", "" + jpegViewModel.currentImageUri)
+            Log.d("selectedImageFilePath: ", "" + jpegViewModel.selectedSubImage)
+
+
+            imageToolModule.showView(binding.progressBar, false)
         }
 
-        // distance focus일 경우 seekbar 보이게
-        if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-            binding.seekBar.visibility = View.VISIBLE
+        isPictureChanged.observe(viewLifecycleOwner) {
+            if (isPictureChanged.value == true) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    bestImageIndex = null
+                    overlayBitmap.clear()
+                    withContext(Dispatchers.Main) {
+                        isPictureChanged.value = false
+                    }
+                }
+            }
         }
-
-        setContainerTextSetting()
-
-        // 컨테이너 이미지 설정 (오디오 텍스트 이미지도 포함)
-        setContainer()
-
-        /* TODO: ViewrFragment to EditorFragment - currentImageFilePath와 selectedImageFilePath 확인 */
-        // ViewerFragment에서 스크롤뷰 이미지 중 아무것도 선택하지 않은 상태에서 edit 누르면 picturelist의 맨 앞 객체(메인)이 선택된 것으로 했음
-        Log.d("currentImageUri: ", "" + jpegViewModel.currentImageUri)
-        Log.d("selectedImageFilePath: ", "" + jpegViewModel.selectedSubImage)
 
         return binding.root
     }
@@ -234,6 +251,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         // 얼굴 추천 버튼 클릭 이벤트 리스너 등록
         binding.bestMainBtn.setOnClickListener {
+//            imageToolModule.showView(binding.progressBar, true)
             viewBestImage()
         }
 
@@ -584,14 +602,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     }
 
     fun viewBestImage() {
-        imageToolModule.showView(binding.progressBar, true)
-
+        imageToolModule.showView(binding.magicPlayBtn, true)
         val bitmapList = imageContent.getBitmapList()
         if (bitmapList != null) {
             val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
 
-                if (bestImageIndex == null || isDelete) {
+                if (bestImageIndex == null ) {
                     rewindModule.allFaceDetection(bitmapList)
                     val faceDetectionResult = rewindModule.choiceBestImage(bitmapList)
                     Log.d("anaylsis", "end faceDetection")
@@ -672,8 +689,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     }
 
     fun changeViewImage(index: Int, imageView: ImageView) {
-        mainSubView.background = null
-        mainSubView.setPadding(0)
+            mainSubView?.background = null
+            mainSubView?.setPadding(0)
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
             imageToolModule.showView(binding.magicPlayBtn, true)
@@ -792,15 +809,16 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                                         .load(imageContent.getJpegBytes(pictureList[pictureList.size - 1]))
                                         .into(binding.mainImageView)
 
-                                    mainSubView.background = null
-                                    mainSubView.setPadding(0)
+                                    mainSubView?.background = null
+                                    mainSubView?.setPadding(0)
 
                                     mainSubView = imageView!!
 
-                                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                                    mainSubView.setPadding(6)
+                                    mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
+                                    mainSubView?.setPadding(6)
 
-                                    setMoveScrollView(mainSubView, pictureList.size)
+                                    if(mainSubView != null)
+                                        setMoveScrollView(mainSubView!!, pictureList.size)
                                 }
                             }
                             imageContent.pictureList = pictureList
@@ -904,7 +922,9 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     }
                 }
                 .setNeutralButton("네") { _, _ ->
-                    isDelete = true
+                    CoroutineScope(Dispatchers.Main).launch {
+                        isPictureChanged.value = true
+                    }
                     binding.linear.removeView(subLayout)
                     imageContent.removePicture(picture)
 
@@ -914,9 +934,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                         setViewDetailMenu()
                     }
-
-                    imageContent.checkMainChangeAttribute = true
-
                     setContainerTextSetting()
 
                     CoroutineScope(Dispatchers.Main).launch {
@@ -925,6 +942,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
                             .into(binding.mainImageView)
 
+
+                        imageContent.checkMainChangeAttribute = true
                         imageToolModule.showView(binding.saveBtn, true)
                     }
 
@@ -1009,11 +1028,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     fun AddText(imageView: ImageView) {
         handler.removeCallbacksAndMessages(null)
-        changeRound(imageView)
+//        changeRound(imageView)
     }
 
     fun DeleteText() {
         textContent.textList.clear()
+        imageContent.checkMainChangeAttribute = true
+        imageToolModule.showView(binding.saveBtn, true)
         setContainerTextSetting()
         val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
         binding.linear.addView(view, binding.linear.size - 2)
@@ -1039,6 +1060,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     fun DeleteAudio() {
         audioContent.audio = null
         setContainerTextSetting()
+        imageContent.checkMainChangeAttribute = true
+        imageToolModule.showView(binding.saveBtn, true)
         val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
         binding.linear.addView(view, binding.linear.size - 1)
     }
@@ -1067,12 +1090,13 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         if (audioContent.audio != null) {
             imageCntText += "+ 오디오"
         }
-        binding.imageCntTextView.text = imageCntText
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.imageCntTextView.text = imageCntText
+        }
     }
 
     fun setMagicPlay() {
         CoroutineScope(Dispatchers.IO).launch {
-
             isMagicPlay = false
             magicPictureModule = MagicPictureModule(imageContent)
 
@@ -1080,19 +1104,22 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 if (!isMagicPlay) {
                     CoroutineScope(Dispatchers.Main).launch {
                         binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+                        imageToolModule.showView(binding.magicPlayBtn, true)
 
-                        binding.progressBar.visibility = View.VISIBLE
-
-                        if (overlayBitmap.isEmpty()) {
+//                        if (overlayBitmap.isEmpty()) {
                             Glide.with(binding.mainImageView)
-                                .load(imageContent.getJpegBytes(imageContent.mainPicture))
+                                .load(jpegViewModel.selectedSubImage?.let { picture ->
+                                    imageContent.getJpegBytes(
+                                        picture
+                                    )
+                                })
                                 .into(binding.mainImageView)
-                        }
+//                        }
                     }
                     isMagicPlay = true
 
                     CoroutineScope(Dispatchers.Default).launch {
-                        if (overlayBitmap.isEmpty()) {
+                        if (overlayBitmap.isEmpty() ) {
                             overlayBitmap = magicPictureModule.magicPictureProcessing()
                         }
 
