@@ -1,6 +1,7 @@
 package com.goldenratio.onepic.CameraModule
 
 import android.Manifest
+import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentValues
@@ -18,6 +19,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.*
@@ -65,17 +68,20 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     // binding 변수
     private lateinit var viewFinder : PreviewView
-    private lateinit var shutterBtn : ImageView
+    private lateinit var textureView: TextureView
+    private lateinit var modeRadioGroup : RadioGroup
     private lateinit var basicRadioBtn : RadioButton
     private lateinit var burstRadioBtn : RadioButton
     private lateinit var objectFocusRadioBtn : RadioButton
     private lateinit var distanceFocusRadioBtn : RadioButton
     private lateinit var overlay : OverlayView
+    private lateinit var successInfoConstraintLayout : ConstraintLayout
+    // binding Bottom menu
     private lateinit var bottomMenu : ConstraintLayout
     private lateinit var galleryBtn : ImageView
     private lateinit var convertBtn : ImageView
-    private lateinit var modeRadioGroup : RadioGroup
     private lateinit var infoTextView : TextView
+    private lateinit var shutterBtn : ImageView
     // binding Burst Size Setting
     private lateinit var burstSizeSettingScrollView : HorizontalScrollView
     private lateinit var burstSizeSettingRadioGroup : RadioGroup
@@ -84,7 +90,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var burst3RadioBtn : RadioButton
 
     private lateinit var camera2: Camera2
-    private lateinit var textureView: TextureView
 
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
@@ -138,6 +143,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     // Lens Flag
     private var isBackLens : Boolean? = true
 
+    // Animation
+    private lateinit var fadeIn: ObjectAnimator
+    private lateinit var fadeOut: ObjectAnimator
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as CameraEditorActivity
@@ -174,7 +183,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         objectFocusRadioBtn = binding.objectFocusRadioBtn
         distanceFocusRadioBtn = binding.distanceFocusRadioBtn
         infoTextView = binding.infoTextView
-        factory = viewFinder.meteringPointFactory
+        successInfoConstraintLayout = binding.successInfoConstraintLayout
 
         //binding Bottom Menu
         bottomMenu = binding.bottomMenu
@@ -190,8 +199,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         burst3RadioBtn = binding.burst3RadioBtn
 
         camera2 = Camera2(activity, requireContext(), binding)
-
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
+        factory = viewFinder.meteringPointFactory
 
         // imageContent 설정
         imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
@@ -204,6 +213,38 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // Initialize the detector object
         setDetecter()
 
+
+        binding.infoConstraintLayout.visibility = View.GONE
+        burstSizeSettingScrollView.visibility = View.GONE
+
+        //Animation
+        fadeIn = ObjectAnimator.ofFloat(successInfoConstraintLayout, "alpha", 0f, 1f)
+        fadeIn.duration = 1000
+
+        fadeOut = ObjectAnimator.ofFloat(successInfoConstraintLayout, "alpha", 1f, 0f)
+        fadeOut.duration = 1000
+
+        fadeIn.addListener(object : Animator.AnimatorListener{
+
+            override fun onAnimationEnd(animation: Animator) {
+                fadeOut.start()
+            }
+
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+
+        fadeOut.addListener(object : Animator.AnimatorListener{
+
+            override fun onAnimationEnd(animation: Animator) {
+                successInfoConstraintLayout.visibility = View.GONE
+            }
+
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
 
         // shutter Btn 애니메이션 설정
         shutterBtn.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -564,19 +605,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                     }
 
-                    withContext(Dispatchers.Main) {
-
-                        shutterBtn.isEnabled = true
-                        galleryBtn.isEnabled = true
-                        convertBtn.isEnabled = true
-                        basicRadioBtn.isEnabled = true
-                        burstRadioBtn.isEnabled = true
-                        objectFocusRadioBtn.isEnabled = true
-                        distanceFocusRadioBtn.isEnabled = true
-
-                        rotation.cancel()
-                    }
-
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         // RewindFragment로 이동
@@ -597,6 +625,21 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         }
                     }
 
+                    withContext(Dispatchers.Main) {
+
+                        shutterBtn.isEnabled = true
+                        galleryBtn.isEnabled = true
+                        convertBtn.isEnabled = true
+                        basicRadioBtn.isEnabled = true
+                        burstRadioBtn.isEnabled = true
+                        objectFocusRadioBtn.isEnabled = true
+                        distanceFocusRadioBtn.isEnabled = true
+                        successInfoConstraintLayout.visibility = View.VISIBLE
+
+                        fadeIn.start()
+                        rotation.cancel()
+                    }
+
                 } // end of Coroutine ...
             }
 
@@ -612,19 +655,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                             while(camera2.previewByteArrayList.size < BURST_SIZE){}
                             previewByteArrayList = camera2.previewByteArrayList
-
-                            withContext(Dispatchers.Main) {
-
-                                shutterBtn.isEnabled = true
-                                galleryBtn.isEnabled = true
-                                convertBtn.isEnabled = true
-                                basicRadioBtn.isEnabled = true
-                                burstRadioBtn.isEnabled = true
-                                objectFocusRadioBtn.isEnabled = true
-                                distanceFocusRadioBtn.isEnabled = true
-
-                                rotation.cancel()
-                            }
 
                             imageContent.activityType = ActivityType.Camera
                             CoroutineScope(Dispatchers.Default).launch {
@@ -643,6 +673,21 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 //                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
 
                                     jpegViewModel.jpegMCContainer.value?.save()
+                                }
+
+                                withContext(Dispatchers.Main) {
+
+                                    shutterBtn.isEnabled = true
+                                    galleryBtn.isEnabled = true
+                                    convertBtn.isEnabled = true
+                                    basicRadioBtn.isEnabled = true
+                                    burstRadioBtn.isEnabled = true
+                                    objectFocusRadioBtn.isEnabled = true
+                                    distanceFocusRadioBtn.isEnabled = true
+                                    successInfoConstraintLayout.visibility = View.VISIBLE
+
+                                    fadeIn.start()
+                                    rotation.cancel()
                                 }
                             }
 
@@ -855,24 +900,26 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         ContentAttribute.object_focus
                     )
 
-                    withContext(Dispatchers.Main) {
-
-                        shutterBtn.isEnabled = true
-                        galleryBtn.isEnabled = true
-                        convertBtn.isEnabled = true
-                        basicRadioBtn.isEnabled = true
-                        burstRadioBtn.isEnabled = true
-                        objectFocusRadioBtn.isEnabled = true
-                        distanceFocusRadioBtn.isEnabled = true
-
-                        rotation.cancel()
-                    }
-
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
 //                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
                             jpegViewModel.jpegMCContainer.value?.save()
+                        }
+
+                        withContext(Dispatchers.Main) {
+
+                            shutterBtn.isEnabled = true
+                            galleryBtn.isEnabled = true
+                            convertBtn.isEnabled = true
+                            basicRadioBtn.isEnabled = true
+                            burstRadioBtn.isEnabled = true
+                            objectFocusRadioBtn.isEnabled = true
+                            distanceFocusRadioBtn.isEnabled = true
+                            successInfoConstraintLayout.visibility = View.VISIBLE
+
+                            fadeIn.start()
+                            rotation.cancel()
                         }
                     }
                 }
@@ -939,24 +986,26 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         ContentAttribute.distance_focus
                     )
 
-                    withContext(Dispatchers.Main) {
-
-                        shutterBtn.isEnabled = true
-                        galleryBtn.isEnabled = true
-                        convertBtn.isEnabled = true
-                        basicRadioBtn.isEnabled = true
-                        burstRadioBtn.isEnabled = true
-                        objectFocusRadioBtn.isEnabled = true
-                        distanceFocusRadioBtn.isEnabled = true
-
-                        rotation.cancel()
-                    }
-
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
 //                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
                             jpegViewModel.jpegMCContainer.value?.save()
+                        }
+
+                        withContext(Dispatchers.Main) {
+
+                            shutterBtn.isEnabled = true
+                            galleryBtn.isEnabled = true
+                            convertBtn.isEnabled = true
+                            basicRadioBtn.isEnabled = true
+                            burstRadioBtn.isEnabled = true
+                            objectFocusRadioBtn.isEnabled = true
+                            distanceFocusRadioBtn.isEnabled = true
+                            successInfoConstraintLayout.visibility = View.VISIBLE
+
+                            fadeIn.start()
+                            rotation.cancel()
                         }
                     }
                 }
