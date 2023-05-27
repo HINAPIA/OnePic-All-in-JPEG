@@ -75,28 +75,36 @@ class ImageTool {
             if (exifIFD0Directory != null) {
                 val dateTime = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)
                 if (dateTime != null) {
-                    timeInfo = convertToKoreaTime(dateTime.toString())
+
+                    val inputDateString =  convertToKoreaTime(dateTime.toString())
+                    val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+
+                    val date = inputFormat.parse(inputDateString)
+                    timeInfo = outputFormat.format(date)
                     println("시간 ${(timeInfo)}")
                 }
             } else{
-                timeInfo = "2023-5-25 23:25:50"
+                timeInfo = "2023-5-25 23:25"
             }
             StringList.add(timeInfo)
 
             // 사진의 위치 정보 읽기
-            //TODO(문자 자르기)
             val gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory::class.java)
             if (gpsDirectory != null) {
                 val latitude = gpsDirectory.getString(GpsDirectory.TAG_LATITUDE)
                 val longitude = gpsDirectory.getString(GpsDirectory.TAG_LONGITUDE)
                 if (latitude != null && longitude != null) {
-                    locationInfo = "Latitude: $latitude\n Longitude: $longitude"
-                    println("위치 ${locationInfo}")
+                    //locationInfo = "Latitude: $latitude\n\n Longitude: $longitude"
+                    val input = "Lat: $latitude\nLon: $longitude"
+                    val parts = input.split(" ")
+                    locationInfo = parts.map { it.split("/")[0] }.joinToString(" ")
+
                 } else{
-                    locationInfo = "Latitude: 37/1 31/1\nLongitude: 127/1 6/1"
+                    locationInfo = "Lat: 37/1 31/1\nLon: 127/1 6/1"
                 }
             }else{
-                locationInfo = "Latitude: 37/1 31/1\nLongitude: 127/1 6/1"
+                locationInfo = "Lat: 37/1 31/1\nLon: 127/1 6/1"
             }
             StringList.add(locationInfo)
         } catch (e: IOException) {

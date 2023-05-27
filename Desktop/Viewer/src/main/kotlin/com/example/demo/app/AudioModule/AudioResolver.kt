@@ -41,7 +41,6 @@ class AudioResolver() {
     }
 
     fun prepare(){
-
         CoroutineScope(Dispatchers.Default).launch {
             println("audio : prepare()")
             var filePath: String? =  null
@@ -70,8 +69,10 @@ class AudioResolver() {
                 println("Audio: Ready to play")
                 currentTime = (mediaPlayer.totalDuration.toMillis()).toInt()/1000
                 var string : String = String.format("%02d:%02d", currentTime/60, currentTime)
-                if(subImagesView != null)
+                if(subImagesView != null){
                     subImagesView!!.setAudioTextLabel(string)
+                }
+
             }
         }
 

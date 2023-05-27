@@ -1,5 +1,6 @@
 package com.example.demo.view
 
+import com.example.demo.app.CustomColor
 import com.example.demo.app.ImageTool
 import com.goldenratio.onepic.PictureModule.AiContainer
 import javafx.animation.*
@@ -29,7 +30,7 @@ import java.io.IOException
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
-class CenterView : View() {
+class CenterView (imageViewer : ImageViewer) : View(){
 
     val aiContainer : AiContainer = AiContainerSingleton.aiContainer
     //val mainImageView : MainImageView by inject()
@@ -59,7 +60,7 @@ class CenterView : View() {
     var fileNameLabel = Label()
     var label = Label()
 
-    var detailImage : ImageView = ImageView()
+
     var detailView : VBox = VBox()
 
     var textContentLabel = Label()
@@ -70,29 +71,104 @@ class CenterView : View() {
     var calenderLabel : Label = Label()
     var imageLabel : Label = Label()
     var loacionLabel : Label = Label()
+    var homeImage : ImageView = ImageView()
+
+    var infoList : ArrayList<String> = arrayListOf()
+
+    var logoImageView = ImageView()
+    var textLogoView =ImageView()
+    var selectedFileVIew = ImageView()
+    var reSelectView : ImageView = ImageView()
 
     override val root = stackpane{
+
+        style {
+            backgroundColor = MultiValue(arrayOf(c(CustomColor.purple)))
+        }
+        // iamge
+        logoImageView.apply{
+            fitWidth = 250.0
+            isPreserveRatio = true
+
+        }
+        textLogoView.apply {
+            fitWidth = 400.0
+            isPreserveRatio = true
+        }
+        StackPane.setMargin(textLogoView, Insets(350.0, 0.0, 0.0, 0.0))
+
+        // 파일 선택 버튼
+        selectedFileVIew.apply {
+            val imageUrl =File(imageSourcePath+ "selectedFile.png").toURI().toURL()
+            if(imageUrl != null){
+                var images = Image(imageUrl.toExternalForm())
+                image = images
+            }
+            fitWidth = 140.0
+            isPreserveRatio = true
+            isVisible = false
+
+            setOnMouseClicked {
+                var result = imageViewer.chooseImageFile()
+                if(result){
+                    isVisible = false
+                    logoImageView.isVisible = false
+                    textLogoView.isVisible = false
+                    homeImage.isVisible = true
+                    reSelectView.isVisible = true
+                    style {
+                        backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
+                    }
+                }
+            }
+        }
+        StackPane.setMargin(selectedFileVIew, Insets(350.0 + 180, 0.0, 0.0, 0.0))
 
         // 상세보기
         setDetailView()
         StackPane.setAlignment(detailView, Pos.TOP_RIGHT)
         StackPane.setMargin(detailView, Insets(45.0, 95.0, 0.0, 50.0))
 
-        // 상세 보기 버튼
-        detailImage = ImageView(Image(File(imageSourcePath +"book.png").toURI().toURL().toExternalForm()))
-        detailImage.apply {
+        // home 버튼
+        homeImage = ImageView(Image(File(imageSourcePath +"homeIcon.png").toURI().toURL().toExternalForm()))
+        homeImage.apply {
+            fitWidth = 50.0 // 이미지의 가로 크기를 50으로 지정
+            isPreserveRatio = true // 이미지의 비율을 유지하도록 설정
+            setOnMouseClicked { e ->
+                initComponent()
+                style {
+                    backgroundColor = MultiValue(arrayOf(c(CustomColor.purple)))
+                }
+                mainImageView.isVisible = false
+                analysisButton.isVisible = false
+                fileImageView.isVisible = false
+
+                playLogoGif()
+            }
+        }
+        StackPane.setAlignment(homeImage, Pos.TOP_RIGHT)
+        StackPane.setMargin(homeImage, Insets(20.0, 70.0, 0.0, 100.0))
+
+
+        // 다시 선택 버튼
+        reSelectView = ImageView(Image(File(imageSourcePath +"selectedFile2.png").toURI().toURL().toExternalForm()))
+        reSelectView.apply {
             fitWidth = 50.0 // 이미지의 가로 크기를 50으로 지정
             isPreserveRatio = true // 이미지의 비율을 유지하도록 설정
             isVisible = false
             setOnMouseClicked { e ->
-                detailView.isVisible = !detailView.isVisible
+                var result = imageViewer.chooseImageFile()
+                if(result){
+                    initComponent()
+                    //isVisible = false
+                    logoImageView.isVisible = false
+                    textLogoView.isVisible = false
+                    homeImage.isVisible = true
+                }
             }
-
         }
-
-        detailView.isVisible = false
-        StackPane.setAlignment(detailImage, Pos.TOP_RIGHT)
-        StackPane.setMargin(detailImage, Insets(20.0, 70.0, 0.0, 50.0))
+        StackPane.setAlignment(reSelectView, Pos.TOP_RIGHT)
+        StackPane.setMargin(reSelectView, Insets(20.0, 130.0, 0.0, 80.0))
 
         // '분석하기' 버튼
         addAnalysisButton()
@@ -114,10 +190,8 @@ class CenterView : View() {
                 }
             }
             analysisContent = label{
-                text = "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ. . ."
-
+                text = ""
                 textAlignment = TextAlignment.CENTER
-                //text ="이미지 분석 6개\n 텍스트 1개 발견 \n 오디오 발견"
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
                     font = Font.font("Inter", FontWeight.BOLD, 15.0)
@@ -164,7 +238,7 @@ class CenterView : View() {
         editView.root.setMinSize(315.0, 530.0)
         editView.root.isVisible = false
         StackPane.setAlignment(editView.root, Pos.CENTER_RIGHT)
-        StackPane.setMargin(editView.root, Insets(00.0, 60.0, 80.0, 0.0))
+        StackPane.setMargin(editView.root, Insets(00.0, 60.0, 100.0, 0.0))
 
         fileImageView.apply{
             image =  Image(File(imageSourcePath+ "file.png").toURI().toURL().toExternalForm())
@@ -191,8 +265,10 @@ class CenterView : View() {
         }
 
         // Main image View
+        children.add(selectedFileVIew)
+        children.add(logoImageView)
+        children.add(textLogoView)
         children.add(mainImageView)
-       // children.add(backgroudView)
         children.add(fileImageView)
         children.add(gifImageVeiew)
         children.add(fileNameLabel)
@@ -201,22 +277,17 @@ class CenterView : View() {
         children.add(editView.root)
         children.add(analysisLabels)
         children.add(textContentStackPane)
-        children.add(detailImage)
-        children.add(detailView)
+        children.add(reSelectView)
+       // children.add(detailView)
+        children.add(homeImage)
 
 
-        style {
-            backgroundColor = MultiValue(arrayOf(c("#232323")))
-        }
 
 
         // 이미지가 로드되면 fitWidth와 fitHeight를 설정
         mainImageView.imageProperty().addListener { _, _, newImage ->
             if (newImage != null) {
                 mainImageView.isPreserveRatio = true
-//                mainImageView.fitWidthProperty().bind(primaryStage.widthProperty().multiply(0.5));
-//
-              //  mainImageView.fitHeight = Region.USE_COMPUTED_SIZE
 
                 style {
                     backgroundColor = MultiValue(arrayOf(c("#232323")))
@@ -224,6 +295,7 @@ class CenterView : View() {
             }
         }
     }
+
 
     fun textContentStackPaneToggle(){
         if(textContentStackPane.isVisible){
@@ -252,89 +324,27 @@ class CenterView : View() {
             }
         }
     }
-    fun setDetailView(){
 
-        detailView.apply {
-           // spacing = 10.0
-            setPrefSize(230.0, 160.0)
-            setMaxSize(230.0, 160.0)
-            style{
-                // 둥글게
-                paddingAll = 5.0
-                background = Background(BackgroundFill(Color.web("#EAEAEADD"), CornerRadii(15.0), Insets.EMPTY))
-            }
-//           label.apply {
-//                text = "상세 정보"
-//                style{
-//                    textFill = c("#000000") // 글자 색상 흰색
-//                    font = Font.font("Inter", FontWeight.BOLD, 11.0)
-//                }
-//                padding = insets(10)
-//            }
-           // add(label)
-            add(
-                hbox {
-                    padding = insets(10,0,0,0)
-                    spacing = 5.0
-                    // 아이콘 이미지
-                    vbox {
-                        spacing = 20.0
-                        padding = insets(10,3)
-                        add(ImageView(Image(File(imageSourcePath +"calender.png").toURI().toURL().toExternalForm())).apply {
-                            fitWidth = 25.0
-                            isPreserveRatio = true
-                        })
-                        add(ImageView(Image(File(imageSourcePath +"image.png").toURI().toURL().toExternalForm())).apply {
-                            fitWidth = 25.0
-                            isPreserveRatio = true
-                        })
-                        add(ImageView(Image(File(imageSourcePath +"location.png").toURI().toURL().toExternalForm())).apply {
-                            fitWidth = 25.0
-                            isPreserveRatio = true
-                        })
-                    }
-                    vbox {
-                        spacing = 26.0
-                        padding = insets(5,10,0,0)
-                        calenderLabel =  label {
-                            text = ""
-                            style{
-                                textFill = c("#000000") // 글자 색상 흰색
-                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
-                            }
-                        }
-                        imageLabel =  label {
-                            text = ""
-                            style{
-                                textFill = c("#000000") // 글자 색상 흰색
-                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
-                            }
-                        }
-                        loacionLabel = label {
-                            text = ""
-                            style{
-                                textFill = c("#000000") // 글자 색상 흰색
-                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
-                            }
-                        }
-                    }
-                }
-            )
-        }
-    }
-    fun setMainImage(image : Image, rotation : Int){
 
+    fun initComponent(){
         mainImageView.translateX = 0.0; mainImageView.translateY = 20.0
         fileImageView.translateX = 0.0; fileImageView.translateY = 20.0
         fileNameLabel.translateX = 0.0; fileNameLabel.translateY = 20.0
         textContentStackPane.translateX = 0.0; textContentStackPane.translateY = 20.0
         analysisButton.isVisible = true
-        detailImage.isVisible = true
+        reSelectView.isVisible = true
 
         textContentStackPane.isVisible = false
-        analysisButton.isVisible = true
+
+        fileNameLabel.isVisible = false
+
         subImagesView.clear()
         editView.clear()
+    }
+    fun setMainImage(image : Image, rotation : Int){
+
+        initComponent()
+        mainImageView.isVisible = true
 
         var newImage = imageTool.rotaionImage(image, rotation)
         setMainChage(newImage)
@@ -367,6 +377,7 @@ class CenterView : View() {
     fun setFileName(fileName : String){
         fileNameLabel.text = fileName
     }
+
     fun addAnalysisButton(){
         preAnalsImage =  Image(File(imageSourcePath+ "preAnals.png").toURI().toURL().toExternalForm())
         analsImage =  Image(File(imageSourcePath +"Anals.png").toURI().toURL().toExternalForm())
@@ -392,11 +403,6 @@ class CenterView : View() {
     // 분석 중일 때
     fun analyzing(){
 
-//        CoroutineScope(Dispatchers.IO).launch {
-//            delay(1000)
-//
-//            // backgroudView.isVisible = true
-//        }
         //text 바꾸기
         if(aiContainer.textContent.textCount > 0){
             subImagesView.chageText(aiContainer.textContent.textList[0].data)
@@ -420,6 +426,58 @@ class CenterView : View() {
         return stringList
     }
 
+    fun playLogoGif(){
+        logoImageView.isVisible = true
+        textLogoView.isVisible = false
+        homeImage.isVisible = false
+
+        CoroutineScope(Dispatchers.IO).launch {
+            var inputStream = FileInputStream(imageSourcePath+ "logo2.gif")
+            var gifFrames = getGifFrames(inputStream)
+            inputStream.close()
+            val timeline = Timeline()
+            for (i in gifFrames.indices) {
+                val image = gifFrames[i]
+                val keyFrame = KeyFrame(Duration.millis(150.0*i), EventHandler {
+                    logoImageView.image = image
+                    logoImageView.style{
+                        borderWidth += box(5.px)
+                        // 상하좌우 모서리 모두 10px 둥글게 처리
+                        borderRadius = multi(box(10.px))
+                    }
+                })
+                timeline.keyFrames.add(keyFrame)
+            }
+            timeline.cycleCount = 1
+            timeline.play()
+            //tex_lLogo
+            delay(4000)
+            textLogoView.isVisible = true
+            inputStream = FileInputStream(imageSourcePath+ "text_logo.gif")
+            gifFrames = getGifFrames(inputStream)
+            inputStream.close()
+            val timeline2 = Timeline()
+            for (i in gifFrames.indices) {
+                val image = gifFrames[i]
+                val keyFrame = KeyFrame(Duration.millis(50.0*i), EventHandler {
+                    textLogoView.image = image
+                })
+                timeline2.keyFrames.add(keyFrame)
+            }
+            timeline2.cycleCount = 1
+            timeline2.play()
+
+            timeline2.setOnFinished {
+                //homeImage.isVisible = true
+                selectedFileVIew.isVisible = true
+
+
+            }
+
+        }
+
+
+    }
     fun analyzingImageAnimation(){
         // 돋보기 움짤 재생
         gifImageVeiew.isVisible = true
@@ -501,7 +559,8 @@ class CenterView : View() {
         // animation
         turnLeftAnimation()
         editView.root.isVisible = true
-        editView.update()
+
+        editView.update(infoList)
     }
     private fun getGifFrames(inputStream: FileInputStream): List<Image> {
         val gifFrames = mutableListOf<Image>()
@@ -605,5 +664,65 @@ class CenterView : View() {
 //    }
 
 
+    fun setDetailView(){
 
+        detailView.apply {
+            // spacing = 10.0
+            setPrefSize(230.0, 160.0)
+            setMaxSize(230.0, 160.0)
+            style{
+                // 둥글게
+                paddingAll = 5.0
+                background = Background(BackgroundFill(Color.web("#EAEAEADD"), CornerRadii(15.0), Insets.EMPTY))
+            }
+            add(
+                hbox {
+                    padding = insets(10,0,0,0)
+                    spacing = 5.0
+                    // 아이콘 이미지
+                    vbox {
+                        spacing = 20.0
+                        padding = insets(10,3)
+                        add(ImageView(Image(File(imageSourcePath +"calender.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                        add(ImageView(Image(File(imageSourcePath +"image.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                        add(ImageView(Image(File(imageSourcePath +"location.png").toURI().toURL().toExternalForm())).apply {
+                            fitWidth = 25.0
+                            isPreserveRatio = true
+                        })
+                    }
+                    vbox {
+                        spacing = 26.0
+                        padding = insets(5,10,0,0)
+                        calenderLabel =  label {
+                            text = ""
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
+                            }
+                        }
+                        imageLabel =  label {
+                            text = ""
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
+                            }
+                        }
+                        loacionLabel = label {
+                            text = ""
+                            style{
+                                textFill = c("#000000") // 글자 색상 흰색
+                                font = Font.font("Inter", FontWeight.BOLD, 11.0)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    }
 }
