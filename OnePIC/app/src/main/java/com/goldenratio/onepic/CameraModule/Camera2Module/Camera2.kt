@@ -48,6 +48,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
 
     var state = STATE_PREVIEW
 
+    private var BURST_SIZE = 10
+
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
 
@@ -584,6 +586,9 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
         closeCamera()
     }
 
+    fun setBurstSize ( size : Int ) {
+        BURST_SIZE = size
+    }
     companion object{
         private val TAG = "CameraFragment"
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA,
@@ -623,8 +628,6 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
          * Camera state: Picture was taken.
          */
         private val STATE_PICTURE_TAKEN = 4
-
-        private val BURST_SIZE = 10
 
         private val OBJECT_DETECT_SIZE = 5
 
