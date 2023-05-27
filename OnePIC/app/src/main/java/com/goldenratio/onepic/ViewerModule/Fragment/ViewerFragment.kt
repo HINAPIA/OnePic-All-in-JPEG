@@ -118,9 +118,7 @@ class ViewerFragment : Fragment() {
         }
 
         if (isEditStoraged && currentFilePath != "" && currentFilePath != null) { // 편집창에서 저장하고 넘어왔을 때
-
-            //isEditStoraged = false // 초기화
-            //isEdited = true
+            isEdited = true
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // ViewPager Update
 
             /* 편집 후, 바로 편집된 이미지로 넘어감 */
@@ -131,6 +129,7 @@ class ViewerFragment : Fragment() {
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
             jpegViewModel.setCurrentImageUri(binding.viewPager2.currentItem)
+            isEditStoraged = false // 초기화
         }
 
         setCurrentOtherImage() // 스크롤뷰 이미지 채우기
@@ -147,7 +146,7 @@ class ViewerFragment : Fragment() {
                 if (position != null){ // 사진이 갤러리에 존재하면
                     binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
                 }
-                else if (currentFilePath != "" && !isEditStoraged){ // edit에서 저장할때 삭제된게 아닐 때
+                else if (currentFilePath != "" && !isEdited){ // edit에서 저장할때 삭제된게 아닐 때
                     //TODO: 보고 있는 사진이 삭제된 경우
                     binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
                     binding.entireLinearLayout.visibility = View.GONE
@@ -156,8 +155,9 @@ class ViewerFragment : Fragment() {
                     Glide.with(binding.deletedPhotoImageView)
                         .load(R.drawable.image_not_found)
                         .into(binding.deletedPhotoImageView)
-
-                    isEditStoraged = false // 초기화
+                }
+                else {
+                    isEdited = false // 초기화
                 }
                 jpegViewModel.isGalleryUpdateFinished.value = false
             }
