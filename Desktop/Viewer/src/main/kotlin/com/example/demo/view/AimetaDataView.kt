@@ -1,5 +1,6 @@
 package com.example.demo.view
 
+import com.example.demo.app.CustomColor
 import com.goldenratio.camerax.PictureModule.Info.ImageContentInfo
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.ImageContent
@@ -28,9 +29,8 @@ class AimetaDataView (val centerView : CenterView) : View() {
             style{
                 background = Background(BackgroundFill(c("#1A1A1A"), null, null))
                 font = Font.font("Inter", FontWeight.BOLD, 10.0)
-                border = Border(BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))
-                // textFill = c("#FFFFFF") // 글자 색상 흰색
-               // font = Font.font("Inter", FontWeight.NORMAL, 11.0)
+//                borderWidth += box(2.px)
+//                borderColor += box(c(CustomColor.point))
             }
     }
     fun selectImageConentView(index : Int){
@@ -147,7 +147,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
             vbox{
                 padding = insets(0,0,0,20)
                 spacing = 5.0
-                add(createHbox("Size","${((audioContentInfo.datasize)/1000).toDouble()}kb", 120.0))
+                add(createHbox("Size","${((audioContentInfo.datasize).toDouble()/100).toInt()}kb", 120.0))
             }
             spacing = 5.0
         }
@@ -191,9 +191,9 @@ class AimetaDataView (val centerView : CenterView) : View() {
                         // 1개의 image info
                          vbox {
                             padding = insets(0,0,0,20)
-                            add(createHbox("Size","${((imageInfo.dataSize)/1000).toDouble()}kb", 80.0))
+                            add(createHbox("Size","${((imageInfo.dataSize).toDouble()/100).toInt()}kb", 85.0))
                             var attribute = ContentAttribute.fromCode(imageInfo.attribute)
-                            add(createHbox("Attribute", attribute.toString(), 80.0))
+                            add(createHbox("Attribute", attribute.toString(), 70.0))
                             spacing = 5.0
 
                             style{
@@ -233,7 +233,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
                 text = value
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Inter", FontWeight.BOLD, 9.0)
+                    font = Font.font("Inter", FontWeight.BOLD, 10.0)
                 }
             }
 

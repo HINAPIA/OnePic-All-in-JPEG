@@ -75,10 +75,19 @@ class ImageTool {
             if (exifIFD0Directory != null) {
                 val dateTime = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)
                 if (dateTime != null) {
-                    timeInfo = dateTime.toString()
-                    println("시간 ${convertToKoreaTime(timeInfo)}")
+
+                    val inputDateString =  convertToKoreaTime(dateTime.toString())
+                    val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+
+                    val date = inputFormat.parse(inputDateString)
+                    timeInfo = outputFormat.format(date)
+                    println("시간 ${(timeInfo)}")
                 }
+            } else{
+                timeInfo = "2023-5-25 23:25"
             }
+            StringList.add(timeInfo)
 
             // 사진의 위치 정보 읽기
             val gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory::class.java)
@@ -86,12 +95,18 @@ class ImageTool {
                 val latitude = gpsDirectory.getString(GpsDirectory.TAG_LATITUDE)
                 val longitude = gpsDirectory.getString(GpsDirectory.TAG_LONGITUDE)
                 if (latitude != null && longitude != null) {
-                    locationInfo = "Latitude: $latitude, Longitude: $longitude"
-                    println("위치 ${locationInfo}")
-                } else{
+                    //locationInfo = "Latitude: $latitude\n\n Longitude: $longitude"
+                    val input = "Lat: $latitude\nLon: $longitude"
+                    val parts = input.split(" ")
+                    locationInfo = parts.map { it.split("/")[0] }.joinToString(" ")
 
+                } else{
+                    locationInfo = "Lat: 37/1 31/1\nLon: 127/1 6/1"
                 }
+            }else{
+                locationInfo = "Lat: 37/1 31/1\nLon: 127/1 6/1"
             }
+            StringList.add(locationInfo)
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: MetadataException) {

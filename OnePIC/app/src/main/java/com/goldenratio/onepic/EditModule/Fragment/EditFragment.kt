@@ -76,7 +76,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var mainTextView: TextView? = null
 
     private var pictureList = arrayListOf<Picture>()
-//    private var pictureByteList = mutableListOf<ByteArray>()
+    //    private var pictureByteList = mutableListOf<ByteArray>()
     private lateinit var mainPicture: Picture
 
     private var isSaving = false
@@ -554,8 +554,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     bestImageIndex = preBestImageIndex
                 }
                 withContext(Dispatchers.Main) {
-//                    mainSubView.background = null
-//                     mainSubView.setPadding(0)
 
                     Glide.with(binding.mainImageView)
                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex!!]))
@@ -608,7 +606,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     fun changeViewImage(index: Int, imageView: ImageView) {
         mainSubView.background = null
-         mainSubView.setPadding(0)
+        mainSubView.setPadding(0)
 
         CoroutineScope(Dispatchers.Main).launch {
             // 메인 이미지 설정
@@ -711,12 +709,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         .into(binding.mainImageView)
 
                     mainSubView.background = null
-                     mainSubView.setPadding(0)
+                    mainSubView.setPadding(0)
 
                     mainSubView = binding.linear.getChildAt(pictureList.size-1).findViewById<ImageView>(R.id.scrollImageView)
 
                     mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                     mainSubView.setPadding(6)
+                    mainSubView.setPadding(6)
 
                     setContainerTextSetting()
                     setMoveScrollView(mainSubView, pictureList.size-1)
