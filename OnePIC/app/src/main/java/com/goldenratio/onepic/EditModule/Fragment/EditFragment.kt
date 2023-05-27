@@ -145,6 +145,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             imageToolModule.showView(binding.saveBtn, true)
         }
 
+        if(imageContent.checkAttribute(ContentAttribute.magic)) {
+            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
+        }
+
         // picture 설정
         mainPicture = imageContent.mainPicture
         pictureList = imageContent.pictureList
@@ -670,7 +674,7 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         val uriList = arrayListOf<Uri>()
 
         if (data == null) {   // 어떤 이미지도 선택하지 않은 경우
-            Toast.makeText(requireContext(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_SHORT).show()
         } else {   // 이미지를 하나라도 선택한 경우
             if (data.clipData == null) {     // 이미지를 하나만 선택한 경우
                 Log.e("single choice: ", String.valueOf(data.data))

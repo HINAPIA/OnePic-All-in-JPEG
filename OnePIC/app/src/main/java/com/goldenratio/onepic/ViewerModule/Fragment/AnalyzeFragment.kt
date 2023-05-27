@@ -86,10 +86,9 @@ class AnalyzeFragment : Fragment() {
                     var curr = binding.analyzeDataTextView.text
                     var container = jpegViewModel.jpegMCContainer.value!!
 
-                    if (container.audioContent.audio != null && container.audioContent.audio!!.size != 0){
-                        CoroutineScope(Dispatchers.Main).launch{
-                            binding.analyzeDataTextView.text = "${curr}매직 사진 발견!\n"
-                        }
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        binding.analyzeDataTextView.text = "${curr}매직 사진 발견!\n"
                     }
                 }
             }

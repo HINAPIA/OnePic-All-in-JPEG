@@ -5,7 +5,6 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,7 +25,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
@@ -35,7 +33,6 @@ import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
-import android.transition.Transition
 
 @SuppressLint("LongLogTag")
 class ViewerFragment : Fragment() {
@@ -304,6 +301,7 @@ class ViewerFragment : Fragment() {
     }
 
     fun setMagicPicture() {
+        binding.magicBtnlinearLayout.visibility = View.VISIBLE
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
         mainViewPagerAdapter.resetMagicPictureList()
