@@ -124,6 +124,115 @@
                 app:layout_constraintVertical_bias="0.0"
                 tools:srcCompat="@tools:sample/avatars" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/textContentLayout"
+                android:layout_width="match_parent"
+                android:layout_height="130dp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imageView6"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:layout_constraintEnd_toStartOf="@+id/vertical_centerline3"
+                    app:layout_constraintTop_toTopOf="@+id/horizontal_centerline"
+                    app:srcCompat="@drawable/edit" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/horizontal_centerline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFB8B8"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".15" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/horizontal_centerline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFB8B8"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".1" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/vertical_centerline1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".1" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/vertical_centerline2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="41dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/vertical_centerline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
+                    app:layout_constraintStart_toStartOf="@+id/vertical_centerline1"
+                    app:layout_constraintTop_toTopOf="@+id/horizontal_centerline"
+                    tools:visibility="visible">
+
+                    <EditText
+                        android:id="@+id/edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/edittext_rounded_corner_rectangle"
+                        android:gravity="center"
+                        android:inputType="textMultiLine"
+                        android:paddingLeft="20dp"
+                        android:paddingTop="15dp"
+                        android:paddingEnd="45dp"
+                        android:paddingRight="20dp"
+                        android:paddingBottom="15dp"
+                        android:textColor="#FFFFFF"
+                        android:textColorHint="#C8C8C8"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/text_check_button"
+                        android:layout_width="80dp"
+                        android:layout_height="43dp"
+                        android:layout_alignBottom="@+id/edit_text"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="230dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="-1dp"
+                        android:background="@drawable/check_selector"
+                        android:paddingLeft="0dp"
+                        android:paddingTop="0dp"
+                        android:paddingRight="0dp"
+                        android:paddingBottom="0dp"
+                        android:text="수정"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:visibility="invisible"
+                        app:iconPadding="1dp" />
+
+                </RelativeLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/rewindBtn"
                 android:layout_width="0dp"
@@ -143,6 +252,63 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/currentAudioBarLaydout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/mainImageView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <SeekBar
+                    android:id="@+id/currentSeekbar"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:max="20"
+                    android:progressDrawable="@drawable/seekbar"
+                    android:thumb="@drawable/seekbar_seekbar1_thumb"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/currentPlayTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="00 : 00"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/currentSeekbar"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/currentPlayBtn"
+                    android:layout_width="15dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/play2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/currentSeekbar"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/audioCheckBtn"-->
+                <!--                    android:layout_width="40dp"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:paddingTop="10dp"-->
+                <!--                    android:paddingBottom="10dp"-->
+                <!--                    android:src="@drawable/check_icon"-->
+                <!--                    app:layout_constraintStart_toEndOf="@+id/seekBar"-->
+                <!--                    app:layout_constraintTop_toTopOf="parent"-->
+                <!--                    app:tint="@color/point_color" />-->
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/magicBtn"
                 android:layout_width="0dp"
@@ -161,6 +327,18 @@
                 android:textSize="11sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
+
+
+<!--            오디오 layout-->
+            <ImageView
+                android:id="@+id/rawImageView2"
+                android:layout_width="229dp"
+                android:layout_height="136dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/mainImageView"
+                tools:src="@tools:sample/avatars" />
 
             <TextView
                 android:id="@+id/bestMainBtn"
@@ -192,6 +370,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.65" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -233,7 +418,8 @@
                 android:src="@drawable/edit_magic_icon"
                 android:visibility="gone"
                 tools:layout_editor_absoluteX="3dp"
-                tools:layout_editor_absoluteY="3dp" />
+                tools:layout_editor_absoluteY="3dp"
+                tools:ignore="MissingConstraints" />
 
             <SeekBar
                 android:id="@+id/seekBar"
@@ -258,114 +444,265 @@
             android:layout_marginBottom="15dp"
             android:scaleType="fitCenter">
 
-            <ImageView
-                android:id="@+id/containerImageView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginTop="-1dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/edit_container" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/audioContentLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="-1dp">
+                android:layout_height="130dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:visibility="visible">
 
-                <ImageView
-                    android:id="@+id/contentDeleteBtn"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="5dp"
-                    android:scaleType="fitCenter"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/container_delete_icon" />
+                <Button
+                    android:id="@+id/audioCancleBtn"
+                    android:layout_width="71dp"
+                    android:layout_height="33dp"
+                    android:background="@color/transparent_color"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="2dp"
+                    android:text="@string/cancle_text"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/background"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/guideline6"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:id="@+id/imageView5"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/edit_container_item" />
-
-                <LinearLayout
-                    android:id="@+id/datalinearLayout"
+                <TextView
+                    android:id="@+id/RecordingTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal"
-                    android:padding="3dp"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#FFFFFF"
+                    android:visibility="invisible"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/recordingImageView" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/playAudioBarLaydout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageView
-                        android:id="@+id/imageView3"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="3dp"
-                        app:srcCompat="@drawable/gallery_icon" />
+                    <SeekBar
+                        android:id="@+id/seekBar2"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:max="20"
+                        android:progressDrawable="@drawable/seekbar"
+                        android:thumb="@drawable/seekbar_seekbar1_thumb"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/imageCntTextView"
+                        android:id="@+id/playingTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textSize="12sp" />
+                        android:layout_marginStart="5dp"
+                        android:text="00 : 00"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/seekBar2"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                </LinearLayout>
+                    <ImageView
+                        android:id="@+id/playBtn"
+                        android:layout_width="15dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/play2"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/seekBar2"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/allInJpegTextView"
+                    <!--                <ImageView-->
+                    <!--                    android:id="@+id/audioCheckBtn"-->
+                    <!--                    android:layout_width="40dp"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:paddingTop="10dp"-->
+                    <!--                    android:paddingBottom="10dp"-->
+                    <!--                    android:src="@drawable/check_icon"-->
+                    <!--                    app:layout_constraintStart_toEndOf="@+id/seekBar"-->
+                    <!--                    app:layout_constraintTop_toTopOf="parent"-->
+                    <!--                    app:tint="@color/point_color" />-->
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <Button
+                    android:id="@+id/audioCheckBtn"
+                    android:layout_width="71dp"
+                    android:layout_height="32dp"
+                    android:background="@color/transparent_color"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="2dp"
+                    android:text="추가"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/point_color"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/horizontal_centerline1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|end"
-                    android:layout_marginEnd="-10dp"
-                    android:gravity="bottom"
-                    android:rotation="90"
-                    android:text="All in JPEG"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+                    android:background="#FFB8B8"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".15" />
 
-                <FrameLayout
-                    android:id="@+id/frameLayout2"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="40dp"
-                    android:layout_marginEnd="50dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                <ImageView
+                    android:id="@+id/recordingImageView"
+                    android:layout_width="60dp"
+                    android:layout_height="65dp"
+                    android:layout_marginStart="167dp"
+                    android:layout_marginEnd="165dp"
+                    android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/datalinearLayout">
+                    app:layout_constraintTop_toBottomOf="@+id/playAudioBarLaydout"
+                    tools:src="@tools:sample/avatars" />
 
-                    <HorizontalScrollView
-                        android:id="@+id/scrollView"
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <!--                    <ImageView-->
+<!--                        android:id="@+id/imageView3"-->
+<!--                        android:layout_width="22dp"-->
+<!--                        android:layout_height="22dp"-->
+<!--                        android:layout_marginStart="10dp"-->
+<!--                        android:layout_marginEnd="3dp"-->
+<!--                        app:srcCompat="@drawable/gallery_icon" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/imageCntTextView"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:textSize="12sp" />-->
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/containerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:visibility="visible"
+                tools:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/containerImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleType="fitXY"
+                    app:srcCompat="@drawable/edit_container" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/contentDeleteBtn"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="5dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/container_delete_icon" />
+
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/edit_container_item" />
+
+                    <LinearLayout
+                        android:id="@+id/datalinearLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="-8dp"
-                        android:foregroundGravity="center">
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal"
+                        android:padding="3dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
 
-                        <LinearLayout
-                            android:id="@+id/linear"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center_vertical"
+                        <ImageView
+                            android:id="@+id/imageView3"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="3dp"
+                            app:srcCompat="@drawable/gallery_icon" />
+
+                        <TextView
+                            android:id="@+id/imageCntTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:orientation="horizontal" />
+                            android:text="TextView"
+                            android:textSize="12sp" />
 
-                    </HorizontalScrollView>
+                    </LinearLayout>
 
-                </FrameLayout>
+                    <TextView
+                        android:id="@+id/allInJpegTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="-10dp"
+                        android:gravity="bottom"
+                        android:rotation="90"
+                        android:text="All in JPEG"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+
+                    <FrameLayout
+                        android:id="@+id/frameLayout2"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="40dp"
+                        android:layout_marginEnd="50dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/datalinearLayout">
+
+                        <HorizontalScrollView
+                            android:id="@+id/scrollView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="-8dp"
+                            android:foregroundGravity="center">
+
+                            <LinearLayout
+                                android:id="@+id/linear"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center_vertical"
+                                android:gravity="center"
+                                android:orientation="horizontal" />
+
+                        </HorizontalScrollView>
+
+                    </FrameLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -394,5 +731,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="60dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

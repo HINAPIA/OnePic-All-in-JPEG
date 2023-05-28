@@ -19,6 +19,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.ConfirmDialogInterface
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
@@ -133,14 +134,14 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
         if(!isAudioOn){
             isAudioOn = true
             binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
-            binding.contentLayout.visibility = View.VISIBLE
+            binding.audioContentLayout.visibility = View.VISIBLE
 //            // 재생 바
 //            if(tempAudioFile != null){
 //                setSeekBar()
 //            }
         }else{
             isAudioOn = false
-            binding.contentLayout.visibility = View.GONE
+            binding.audioContentLayout.visibility = View.GONE
         }
         binding.playBtn.setOnClickListener {
             // 정지 -> 재생
@@ -208,10 +209,10 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
             if(isPlayingMode){
                 /* 녹음 시작 */
                 binding.playAudioBarLaydout.visibility = View.INVISIBLE
-                binding.rawImageView.visibility = View.VISIBLE
+              //  binding.rawImageView.visibility = View.VISIBLE
                 binding.RecordingTextView.visibility = View.VISIBLE
 
-                Glide.with(this).load(R.raw.giphy).into(binding.rawImageView);
+                //Glide.with(this).load(R.raw.giphy).into(binding.rawImageView);
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.stop))
                 timerUIStart()
 
@@ -225,7 +226,7 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
             else if(isRecordingMode) {
                 /* 녹음 중단 */
                 binding.playAudioBarLaydout.visibility = View.VISIBLE
-                binding.rawImageView.visibility = View.GONE
+                //binding.rawImageView.visibility = View.GONE
                 binding.RecordingTextView.visibility = View.INVISIBLE
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh))
                 timerUIStop()
@@ -244,10 +245,10 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
             }
             else if(isRecordedMode){
                 // dialog
-                val dialog = ConfirmDialog(this)
-                // 알림창이 띄워져있는 동안 배경 클릭 막기
-                dialog.isCancelable = false
-                dialog.show(activity.supportFragmentManager, "ConfirmDialog")
+//                val dialog = ConfirmDialog(this)
+//                // 알림창이 띄워져있는 동안 배경 클릭 막기
+//                dialog.isCancelable = false
+//                dialog.show(activity.supportFragmentManager, "ConfirmDialog")
             }
         }
 
@@ -453,45 +454,45 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
     }
 }
 
-class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
-
-    // 뷰 바인딩 정의
-    private var _binding: AudioDialogBinding? = null
-    private val binding get() = _binding!!
-
-    private var confirmDialogInterface: ConfirmDialogInterface? = null
-
-
-    init {
-        this.confirmDialogInterface = confirmDialogInterface
-
-    }
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = AudioDialogBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        // 취소 버튼 클릭
-        binding.noButton.setOnClickListener {
-            dismiss()
-        }
-
-        // 확인 버튼 클릭
-        binding.yesButton.setOnClickListener {
-            this.confirmDialogInterface?.onYesButtonClick(id!!)
-            dismiss()
-        }
-        return view
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-}
-interface ConfirmDialogInterface {
-    fun onYesButtonClick(id: Int)
-}
+//class ConfirmDialog(confirmDialogInterface: ConfirmDialogInterface) : DialogFragment() {
+//
+//    // 뷰 바인딩 정의
+//    private var _binding: AudioDialogBinding? = null
+//    private val binding get() = _binding!!
+//
+//    private var confirmDialogInterface: ConfirmDialogInterface? = null
+//
+//
+//    init {
+//        this.confirmDialogInterface = confirmDialogInterface
+//
+//    }
+//    override fun onCreateView(
+//        inflater: LayoutInflater,
+//        container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        _binding = AudioDialogBinding.inflate(inflater, container, false)
+//        val view = binding.root
+//
+//        // 취소 버튼 클릭
+//        binding.noButton.setOnClickListener {
+//            dismiss()
+//        }
+//
+//        // 확인 버튼 클릭
+//        binding.yesButton.setOnClickListener {
+//            this.confirmDialogInterface?.onYesButtonClick(id!!)
+//            dismiss()
+//        }
+//        return view
+//    }
+//
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        _binding = null
+//    }
+//}
+//interface ConfirmDialogInterface {
+//    fun onYesButtonClick(id: Int)
+//}

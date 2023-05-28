@@ -19,6 +19,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.ConfirmDialogInterface
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
@@ -145,7 +146,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                         isRecordedMode = true
                     }
                     isAudioOn = false
-                    binding.contentLayout.visibility = View.GONE
+                    binding.audioContentLayout.visibility = View.GONE
                 }
                 isTextOn = true
                 //binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
@@ -205,14 +206,14 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 isAudioOn = true
 
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
-                binding.contentLayout.visibility = View.VISIBLE
+                binding.audioContentLayout.visibility = View.VISIBLE
                 // 재생 바
                 if(tempAudioFile != null){
                     setSeekBar()
                 }
             }else{
                 isAudioOn = false
-                binding.contentLayout.visibility = View.GONE
+                binding.audioContentLayout.visibility = View.GONE
             }
         }
 
@@ -240,10 +241,10 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             if(isPlayingMode){
                 /* 녹음 시작 */
                 binding.playAudioBarLaydout.visibility = View.INVISIBLE
-                binding.rawImageView.visibility = View.VISIBLE
+                binding.rawImageView2.visibility = View.VISIBLE
                 binding.RecordingTextView.visibility = View.VISIBLE
 
-                Glide.with(this).load(R.raw.giphy).into(binding.rawImageView);
+                Glide.with(this).load(R.raw.giphy).into(binding.rawImageView2);
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.stop))
                 timerUIStart()
 
@@ -257,7 +258,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             else if(isRecordingMode) {
                 /* 녹음 중단 */
                 binding.playAudioBarLaydout.visibility = View.VISIBLE
-                binding.rawImageView.visibility = View.GONE
+                binding.rawImageView2.visibility = View.GONE
                 binding.RecordingTextView.visibility = View.INVISIBLE
                 binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh))
                 timerUIStop()
@@ -272,15 +273,15 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
                 binding.audioCheckButton.visibility = View.VISIBLE
 
-
             }
             else if(isRecordedMode){
                 // dialog
-                val dialog = ConfirmDialog(this)
-                // 알림창이 띄워져있는 동안 배경 클릭 막기
-                dialog.isCancelable = false
-                dialog.show(activity.supportFragmentManager, "ConfirmDialog")
-            }
+//                val dialog = ConfirmDialog(this)
+//                // 알림창이 띄워져있는 동안 배경 클릭 막기
+//                dialog.isCancelable = false
+//                dialog.show(activity.supportFragmentManager, "ConfirmDialog")
+//
+                       }
         }
 
         // 오디오 seek bar
