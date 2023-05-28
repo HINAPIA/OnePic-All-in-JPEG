@@ -1,20 +1,27 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -23,16 +30,17 @@ import androidx.core.net.toUri
 import androidx.core.view.get
 import androidx.core.view.setPadding
 import androidx.core.view.size
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.MagicPictureModule
+import com.goldenratio.onepic.*
+import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
-import com.goldenratio.onepic.ImageToolModule
-import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.PictureModule.AudioContent
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
@@ -40,14 +48,17 @@ import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.PictureModule.TextContent
-import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
+import com.goldenratio.onepic.databinding.AudioDialogBinding
+import com.goldenratio.onepic.databinding.FragmentAudioAddBinding
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.*
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.lang.String
+import java.util.*
 import kotlin.Boolean
 import kotlin.ByteArray
 import kotlin.Double
@@ -56,11 +67,11 @@ import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.Long
 import kotlin.Unit
+import kotlin.collections.ArrayList
 import kotlin.getValue
-import kotlin.let
 
 
-class EditFragment : Fragment(R.layout.fragment_edit) {
+class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     private lateinit var binding: FragmentEditBinding
     private lateinit var activity: ViewerEditorActivity
@@ -95,20 +106,60 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     private var isDeleting = false
     private var isMagicPlay: Boolean = false
 
+    // Audio 없다가 추가, 수정
+    private  var isAudioAddMode = false
+
     private var bestImageIndex: Int? = null
 
     private val PICK_IMAGE_REQUEST = 1
 
+    private var bitmapList :ArrayList<Bitmap> = arrayListOf<Bitmap>()
     private var overlayBitmap = arrayListOf<Bitmap>()
-
     val handler = Handler()
-
     var magicPlaySpeed: Long = 100
+
+
+    private var infoLevel = MutableLiveData<InfoLevel>()
+    private var isInfoViewed = true
+
+    private enum class InfoLevel {
+        BeforeMainSelect
+    }
+
+    private enum class LoadingText {
+        BestImageRecommend,
+        Save,
+        MagicPlay,
+        EditReady
+    }
 
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as ViewerEditorActivity
+        audioResolver = AudioResolver(activity)
+        mediaPlayer = audioResolver.mediaPlayer
+    }
+    override fun onStop() {
+        super.onStop()
+
+//        if (mediaPlayer != null) {
+//            isDestroy = true
+//            mediaPlayer.stop()
+//            mediaPlayer.release()
+//            //mediaPlayer = null
+//        }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        if(audioWithContent != null){
+            isDestroy = true
+            audioWithContent.cancel()
+        }
+        // MediaPlayer 객체를 해제
+        if (audioResolver.mediaPlayer != null) {
+            audioResolver.mediaPlayer.release()
+        }
     }
 
     override fun onCreateView(
@@ -138,14 +189,18 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         // imageToolModule 설정
         imageToolModule = ImageToolModule()
 
-        imageToolModule.showView(binding.progressBar, true)
+//        imageToolModule.showView(binding.progressBar, true)
+        showProgressBar(true, LoadingText.EditReady)
 
         CoroutineScope(Dispatchers.Default).launch {
             loadResolver = LoadResolver()
 
             // Content 설정
             imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
-            magicPictureModule = MagicPictureModule(imageContent)
+
+            val selected = jpegViewModel.selectedSubImage
+            if(selected != null)
+                magicPictureModule = MagicPictureModule(imageContent, selected)
 //        imageContent.setMainBitmap(null)
             textContent = jpegViewModel.jpegMCContainer.value!!.textContent
             audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
@@ -157,6 +212,12 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             // picture 설정
             mainPicture = imageContent.mainPicture
             pictureList = imageContent.pictureList
+            CoroutineScope(Dispatchers.IO).launch {
+                val newBitmapList = imageContent.getBitmapList()
+                if (newBitmapList != null) {
+                    bitmapList = newBitmapList
+                }
+            }
 
             // 만약 편집을 했다면 저장 버튼이 나타나게 설정
             if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
@@ -171,7 +232,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 val index = jpegViewModel.getSelectedSubImageIndex()
                 if (pictureList[index].contentAttribute == ContentAttribute.magic) {
                     imageToolModule.showView(binding.magicPlayBtn, true)
-                    imageToolModule.showView(binding.progressBar, true)
+//                    imageToolModule.showView(binding.progressBar, true)
+                    showProgressBar(true, LoadingText.MagicPlay)
                     setMagicPlay()
 //            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
                 }
@@ -181,7 +243,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
                 // distance focus일 경우 seekbar 보이게
                 if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                    binding.seekBar.visibility = View.VISIBLE
+                    imageToolModule.showView(binding.seekBar, true)
+                    setDistanceSeekBar()
                 }
             }
             setContainerTextSetting()
@@ -197,7 +260,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             Log.d("selectedImageFilePath: ", "" + jpegViewModel.selectedSubImage)
 
 
-            imageToolModule.showView(binding.progressBar, false)
+//            imageToolModule.showView(binding.progressBar, false)
+            showProgressBar(false, null)
         }
 
         isPictureChanged.observe(viewLifecycleOwner) {
@@ -211,7 +275,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 }
             }
         }
-
         return binding.root
     }
 
@@ -245,12 +308,39 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             // MagicPictureFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
         }
+        // 초점 업그레이드 버튼 클릭 이벤트 리스너 등록
+        binding.focusBtn.setOnClickListener {
+            //FocusChangeFragment로 이동
+            findNavController().navigate(R.id.action_editFragment_to_focusChangeFragment)
+        }
 
         // 얼굴 추천 버튼 클릭 이벤트 리스너 등록
         binding.bestMainBtn.setOnClickListener {
 //            imageToolModule.showView(binding.progressBar, true)
             viewBestImage()
         }
+
+        /* 텍스트 추가 */
+        addTextModuale()
+
+
+        /* 오디오 */
+
+
+        // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
+        var savedFile : File? = null
+        jpegViewModel.jpegMCContainer.value!!.audioContent.audio?._audioByteArray?.let {
+            savedFile = audioResolver.saveByteArrToAacFile(
+                it, "original"
+            )
+        }
+        if(savedFile != null){
+            tempAudioFile = savedFile
+        }else{
+            tempAudioFile = null
+        }
+
+        addAudioModule()
 
 //        // audio ADD
 //        binding.audioAddBtn.setOnClickListener {
@@ -359,6 +449,41 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
         }
 
+        binding.magicPlayBtn.setOnClickListener {
+            if (!isMagicPlay) {
+                showProgressBar(true, LoadingText.MagicPlay)
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+                }
+//                    imageToolModule.showView(binding.magicPlayBtn, true)
+
+                    isMagicPlay = true
+
+                CoroutineScope(Dispatchers.Default).launch {
+                    if (overlayBitmap.isEmpty() ) {
+                        while (!magicPictureModule.isInit) {}
+                        showProgressBar(false, null)
+                        overlayBitmap = magicPictureModule.magicPictureProcessing()
+                    }
+
+                    Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
+                    showProgressBar(false, null)
+                    Log.d("magic", "magicPucture run ${overlayBitmap.size}")
+                    magicPictureRun(overlayBitmap)
+                }
+            } else {
+                handler.removeCallbacksAndMessages(null)
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+
+//                        binding.progressBar.visibility = View.GONE
+                    showProgressBar(false, null)
+                }
+                isMagicPlay = false
+            }
+        }
+
         // 취소 버튼 (viewer로 이동)
         binding.backBtn.setOnClickListener {
             // 변경된 편집이 있을 경우 확인 창 띄우기
@@ -413,8 +538,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             ViewerFragment.isEditStoraged = true
             // 저장 중인지 확인하는 flag가 false일 경우만 저장 단계 실행 --> 두번 실행될 경우 오류를 예외처리하기 위해
             if (!isSaving) {
-                imageTool.showView(binding.progressBar, true)
-
+//                imageTool.showView(binding.progressBar, true)
+                showProgressBar(true, LoadingText.Save)
                 isSaving = true
 
                 imageContent.pictureList = pictureList
@@ -427,6 +552,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                     imageContent.insertPicture(0, mainPicture)
                     imageContent.mainPicture = mainPicture
                 }
+
+               // textMessageSave()
 
                 // 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageUri
@@ -480,8 +607,73 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                 imageContent.setCheckAttribute()
             }
         }
+
+        /* 오디오 리스너 */
+        // 오디오 취소
+        binding.audioCancleBtn.setOnClickListener {
+            isAudioAddMode = false
+            fitAudioModeUI()
+            jpegViewModel.isAudioPlay.value = 0
+            isPlayingMode = true
+            isRecordedMode = false
+            isRecordingMode = false
+        }
+
+        // 오디오 추가가
+        addCurrentAudioBarListener()
+        binding.audioCheckBtn.setOnClickListener {
+            // 녹음 내역 저장
+            if(tempAudioFile != null){
+                saveAudioInMCContainer(tempAudioFile!!)
+                jpegViewModel.jpegMCContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
+                    audioResolver.saveByteArrToAacFile(
+                        it1, "viewer_record")
+                }
+            }
+            // audioResolver.audioStop()
+            imageContent.checkAddAttribute = true
+
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.RecordingTextView.setText("")
+                Toast.makeText(activity, "추가 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                isPlayingMode = true
+                isRecordedMode = false
+                isRecordingMode = false
+
+                isAudioAddMode = false
+                fitAudioModeUI()
+            }
+        }
     }
 
+    fun fitAudioModeUI(){
+        // 오디오 활성화
+        if(isAudioAddMode) {
+            binding.audioContentLayout.visibility = View.VISIBLE
+            binding.mainChangeLayout.visibility = View.GONE
+            binding.containerLayout.visibility = View.GONE
+
+            binding.playAudioBarLaydout.visibility = View.GONE
+            binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
+            jpegViewModel.isAudioPlay.value = 0
+           // binding.constraintLayout.visibility = View.INVISIBLE
+
+//            binding.bestMainBtn.visibility = View.GONE
+//            binding.rewindBtn.visibility = View.GONE
+//            binding.magicBtn.visibility = View.GONE
+
+            // 오디오 비활성화
+        }else{
+            binding.audioContentLayout.visibility = View.GONE
+            binding.mainChangeLayout.visibility = View.VISIBLE
+            binding.containerLayout.visibility = View.VISIBLE
+            //binding.constraintLayout.visibility = View.VISIBLE
+
+
+        }
+
+    }
 
     fun setButtonDeactivation() {
         imageContent.checkAddAttribute = false
@@ -516,7 +708,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             activity,
             android.R.style.Theme_DeviceDefault_Light_Dialog
         )
-        imageTool.showView(binding.progressBar, false)
+//        imageTool.showView(binding.progressBar, false)
+
         oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
             .setPositiveButton(
                 "모두 저장",
@@ -551,7 +744,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
     fun singleSave() {
         try {
-            imageTool.showView(binding.progressBar, true)
+//            imageTool.showView(binding.progressBar, true)
+            showProgressBar(true, LoadingText.Save)
             val newImageContent =
                 jpegViewModel.jpegMCContainer.value?.imageContent!!
             val singlePictureList: ArrayList<Picture> =
@@ -601,9 +795,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     }
 
     fun viewBestImage() {
-        imageToolModule.showView(binding.magicPlayBtn, true)
-        val bitmapList = imageContent.getBitmapList()
-        if (bitmapList != null) {
+        showProgressBar(true, LoadingText.BestImageRecommend)
+        val newBitmapList = imageContent.getBitmapList()
+        if (newBitmapList != null) {
+            bitmapList = newBitmapList
             val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
 
@@ -657,7 +852,8 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 //                        imageToolModule.showView(binding.mainChangeBtn, false)
 //                    }
 //
-                    imageToolModule.showView(binding.progressBar, false)
+//                    imageToolModule.showView(binding.progressBar, false)
+                    showProgressBar(false, null)
 //                    setMoveScrollView(mainSubView, bestImageIndex!!)
 
                     Log.d("mainChange", "bestImage null")
@@ -794,7 +990,6 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                             val imageView = subLayout?.findViewById<ImageView>(R.id.scrollImageView)
 
                             CoroutineScope(Dispatchers.Default).launch {
-                                val bitmapList = imageContent.getBitmapList()
                                 imageContent.addBitmapList(
                                     imageToolModule.byteArrayToBitmap(
                                         jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
@@ -884,12 +1079,20 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
 
         subLayout.setOnClickListener {
 
-            handler.removeCallbacksAndMessages(null)
+            if(isMagicPlay) {
+                handler.removeCallbacksAndMessages(null)
+                binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+                isMagicPlay = false
+            }
             // 이미지인 경우
             jpegViewModel.selectedSubImage = picture
             val index = pictureList.indexOf(picture)
             Log.d("main Change", "onClickListener : $index" )
             changeViewImage(index, imageView)
+
+            if(picture.contentAttribute == ContentAttribute.distance_focus) {
+                binding.seekBar.progress = jpegViewModel.getSelectedSubImageIndex()
+            }
         }
 
         // 삭제
@@ -932,6 +1135,10 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
                         jpegViewModel.mainSubImage = pictureList[0]
 
                         setViewDetailMenu()
+                    }
+
+                    if(picture.contentAttribute == ContentAttribute.distance_focus) {
+                        binding.seekBar.max -= 1
                     }
                     setContainerTextSetting()
 
@@ -1012,58 +1219,59 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
         return subLayout
     }
 
+
     //
-    fun ShowingText(imageView: ImageView) {
-        handler.removeCallbacksAndMessages(null)
-//        changeRound(imageView)
-        isTextView = if(isTextView) {
-            imageView.setImageResource(R.drawable.edit_text_icon)
-            false
-        } else {
-            imageView.setImageResource(R.drawable.edit_text_click_icon)
-            true
-        }
-    }
+//    fun ShowingText(imageView: ImageView) {
+//        handler.removeCallbacksAndMessages(null)
+////        changeRound(imageView)
+//        isTextView = if(isTextView) {
+//            imageView.setImageResource(R.drawable.edit_text_icon)
+//            false
+//        } else {
+//            imageView.setImageResource(R.drawable.edit_text_click_icon)
+//            true
+//        }
+//    }
 
-    fun AddText(imageView: ImageView) {
-        handler.removeCallbacksAndMessages(null)
-//        changeRound(imageView)
-    }
+//    fun AddText(imageView: ImageView) {
+//        handler.removeCallbacksAndMessages(null)
+////        changeRound(imageView)
+//    }
 
-    fun DeleteText() {
-        textContent.textList.clear()
-        imageContent.checkMainChangeAttribute = true
-        imageToolModule.showView(binding.saveBtn, true)
-        setContainerTextSetting()
-        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
-        binding.linear.addView(view, binding.linear.size - 2)
-    }
+//    fun DeleteText() {
+//        textContent.textList.clear()
+//        imageContent.checkMainChangeAttribute = true
+//        imageToolModule.showView(binding.saveBtn, true)
+//        setContainerTextSetting()
+//        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+//        binding.linear.addView(view, binding.linear.size - 2)
+//    }
 
-    fun ShowingAudio(imageView: ImageView) {
-        handler.removeCallbacksAndMessages(null)
-//        changeRound(imageView)
-        isAudioPlay = if(isAudioPlay) {
-            imageView.setImageResource(R.drawable.edit_audio_icon)
-            false
-        } else {
-            imageView.setImageResource(R.drawable.edit_audio_click_icon)
-            true
-        }
-    }
+//    fun ShowingAudio(imageView: ImageView) {
+//        handler.removeCallbacksAndMessages(null)
+////        changeRound(imageView)
+//        isAudioPlay = if(isAudioPlay) {
+//            imageView.setImageResource(R.drawable.edit_audio_icon)
+//            false
+//        } else {
+//            imageView.setImageResource(R.drawable.edit_audio_click_icon)
+//            true
+//        }
+//    }
 
-    fun AddAudio(imageView: ImageView) {
-        handler.removeCallbacksAndMessages(null)
-//        changeRound(imageView)
-    }
+//    fun AddAudio(imageView: ImageView) {
+//        handler.removeCallbacksAndMessages(null)
+////        changeRound(imageView)
+//    }
 
-    fun DeleteAudio() {
-        audioContent.audio = null
-        setContainerTextSetting()
-        imageContent.checkMainChangeAttribute = true
-        imageToolModule.showView(binding.saveBtn, true)
-        val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
-        binding.linear.addView(view, binding.linear.size - 1)
-    }
+//    fun DeleteAudio() {
+//        audioContent.audio = null
+//        setContainerTextSetting()
+//        imageContent.checkMainChangeAttribute = true
+//        imageToolModule.showView(binding.saveBtn, true)
+//        val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+//        binding.linear.addView(view, binding.linear.size - 1)
+//    }
 
     fun AddImage(imageView: ImageView) {
         handler.removeCallbacksAndMessages(null)
@@ -1097,51 +1305,110 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
     fun setMagicPlay() {
         CoroutineScope(Dispatchers.IO).launch {
             isMagicPlay = false
-            magicPictureModule = MagicPictureModule(imageContent)
+            val selected = jpegViewModel.selectedSubImage
+            if(selected != null)
+                magicPictureModule = MagicPictureModule(imageContent, selected)
+        }
+    }
 
-            binding.magicPlayBtn.setOnClickListener {
-                if (!isMagicPlay) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
-                        imageToolModule.showView(binding.magicPlayBtn, true)
 
-//                        if (overlayBitmap.isEmpty()) {
-                            Glide.with(binding.mainImageView)
-                                .load(jpegViewModel.selectedSubImage?.let { picture ->
-                                    imageContent.getJpegBytes(
-                                        picture
-                                    )
-                                })
-                                .into(binding.mainImageView)
-//                        }
-                    }
-                    isMagicPlay = true
+    /* 오디오 추가 관련 */
 
-                    CoroutineScope(Dispatchers.Default).launch {
-                        if (overlayBitmap.isEmpty() ) {
-                            overlayBitmap = magicPictureModule.magicPictureProcessing()
-                        }
+    // audio
+    var isAudioOn : Boolean = false
+    var isPlayingMode : Boolean = true
+    // 녹음 중
+    var isRecordingMode : Boolean = false
+    // 녹음이 완료 되었을 때
+    var isRecordedMode : Boolean = false
+    var isPlaying : Boolean = false
+    var isPlayingEnd : Boolean = false
+    var isAbleReset : Boolean = false
+    private var isDestroy : Boolean = false
+    private  var tempAudioFile : File? = null
+    private  var preTempAudioFile : File? = null
+    private lateinit var audioResolver : AudioResolver
+    private lateinit var timerTask: TimerTask
+    private var playingTimerTask : TimerTask? = null
+    private lateinit var mediaPlayer : MediaPlayer
+    private var audioWithContent : Job = Job()
 
-                        Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
-                        withContext(Dispatchers.Main) {
-                            binding.progressBar.visibility = View.GONE
-                        }
-                        Log.d("magic", "magicPucture run ${overlayBitmap.size}")
-                        magicPictureRun(overlayBitmap)
-                    }
-                } else {
-                    handler.removeCallbacksAndMessages(null)
+    fun ShowingAudio(imageView: ImageView) {
+//        changeRound(imageView)
+        handler.removeCallbacksAndMessages(null)
+        isAudioPlay = if(isAudioPlay) {
+            imageView.setImageResource(R.drawable.edit_audio_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_audio_click_icon)
+            true
+        }
 
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+        val audioContentLayout = binding.audioContentLayout
 
-                        binding.progressBar.visibility = View.GONE
-                    }
-                    isMagicPlay = false
+        // 오디오 활성화
+        if(binding.currentAudioBarLaydout.visibility == View.GONE){
+            binding.currentAudioBarLaydout.visibility = View.VISIBLE
+            // 오디오 활성화
+        }else{
+            binding.currentAudioBarLaydout.visibility = View.GONE
+        }
+    }
+
+    fun AddAudio(imageView: ImageView) {
+//        changeRound(imageView)
+        handler.removeCallbacksAndMessages(null)
+        Log.d("add_test", " AddAudio() 호출")
+        val dialog = ConfirmDialog( "Live 레코드를 추가 하시겠습니까?", GoAudioAddMode())
+        // 알림창이 띄워져있는 동안 배경 클릭 막기
+        dialog.isCancelable = false
+        dialog.show(activity.supportFragmentManager, "ConfirmDialog")
+        //isAudioAddMode = true
+        // fitAudioModeUI()
+
+    }
+
+    fun DeleteAudio() {
+        audioContent.audio = null
+        setContainerTextSetting()
+        imageContent.checkMainChangeAttribute = true
+        imageToolModule.showView(binding.saveBtn, true)
+        val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+        binding.linear.addView(view, binding.linear.size - 1)
+    }
+
+    fun addCurrentAudioBarListener(){
+        val currentAudioBarLaydout = binding.currentAudioBarLaydout
+        binding.currentPlayBtn.setOnClickListener {
+            // 정지 -> 재생
+            if(jpegViewModel.isAudioPlay.value!! == 0){
+                // 오디오 재생
+                if(tempAudioFile != null){
+                    jpegViewModel.isAudioPlay.value = 1
+                    setCurrentSeekBar()
+                    //mediaPlayer.start()
+                }
+
+            } else if(jpegViewModel.isAudioPlay.value!! == 1){
+                // 재생 -> 정지
+//                if(isPlaying){
+//                    jpegViewModel.isAudioPlay.value = 0
+//                    if (mediaPlayer != null) {
+//                        mediaPlayer.stop()
+//                    }
+//                    // 재생 -> replay
+//                }else
+                //   jpegViewModel.isAudioPlay.value = 2
+                // replay -> 재생
+            } else if(jpegViewModel.isAudioPlay.value!! == 2){
+                jpegViewModel.isAudioPlay.value = 1
+                if(tempAudioFile != null){
+                    setCurrentSeekBar()
                 }
             }
         }
     }
+
     private fun magicPictureRun(ovelapBitmap: ArrayList<Bitmap>) {
         CoroutineScope(Dispatchers.Default).launch {
 
@@ -1168,6 +1435,586 @@ class EditFragment : Fragment(R.layout.fragment_edit) {
             }
             handler.postDelayed(runnable, magicPlaySpeed)
         }
+    }
+
+    private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?) {
+//        if(boolean && isInfoViewed) {
+//            imageToolModule.showView(binding.infoDialogLayout, false)
+//        }
+//        else if (isInfoViewed) {
+//            imageToolModule.showView(binding.infoDialogLayout, true)
+//        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.loadingText.text = when (loadingText) {
+//                LoadingText.FaceDetection -> {
+//                    "자동 Face Blending 중"
+//                }
+                LoadingText.Save -> {
+                    "편집을 저장 중.."
+                }
+                LoadingText.BestImageRecommend -> {
+                    "Best 사진 추천 중.."
+                }
+                LoadingText.MagicPlay -> {
+                    "매직 사진 준비 중.."
+                }
+                LoadingText.EditReady -> {
+                    "편집 준비 중.."
+                }
+                else -> {
+                    ""
+                }
+            }
+        }
+
+        imageToolModule.showView(binding.progressBar, boolean)
+        imageToolModule.showView(binding.loadingText, boolean)
+    }
+
+
+    fun setDistanceSeekBar(){
+        while(!imageContent.checkPictureList) {}
+        Log.d("seekBar","#####")
+        imageToolModule.showView(binding.seekBar, true)
+
+        binding.seekBar.max = pictureList.size - 1
+
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
+                // progress 변수는 현재 SeekBar의 값입니다.
+                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
+                if (fromUser) {
+                    val index = progress % pictureList.size
+                    mainPicture = pictureList[index]
+
+                    // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
+
+                    if (bitmapList.size > index) {
+                        // 만들어 졌으면 비트맵으로 띄웠어
+                        CoroutineScope(Dispatchers.Main).launch {
+                            binding.mainImageView.setImageBitmap(bitmapList[index])
+                        }
+                    } else {
+                        // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Log.d("error 잡기", "$progress 번째 이미지 띄우기")
+                            Glide.with(binding.mainImageView)
+                                .load(imageContent.getJpegBytes(pictureList[index]))
+                                .into(binding.mainImageView)
+                        }
+                    }
+                    val subLayout = binding.linear.getChildAt(index)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        changeViewImage(index, subLayout.findViewById(R.id.scrollImageView))
+                    }
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+    }
+
+    fun addAudioModule(){
+
+        /* Audio Add */
+        if(!isAudioOn){
+            isAudioOn = true
+            binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
+            binding.audioContentLayout.visibility = View.VISIBLE
+//            // 재생 바
+//            if(tempAudioFile != null){
+//                setSeekBar()
+//            }
+        }else{
+            isAudioOn = false
+            binding.audioContentLayout.visibility = View.GONE
+        }
+
+        binding.playBtn.setOnClickListener {
+            // 정지 -> 재생
+            if(jpegViewModel.isAudioPlay.value!! == 0){
+                // 오디오 재생
+                if(tempAudioFile != null){
+                    jpegViewModel.isAudioPlay.value = 1
+                    setSeekBar()
+                    //mediaPlayer.start()
+                }
+
+            } else if(jpegViewModel.isAudioPlay.value!! == 1){
+                // 재생 -> 정지
+//                if(isPlaying){
+//                    jpegViewModel.isAudioPlay.value = 0
+//                    if (mediaPlayer != null) {
+//                        mediaPlayer.stop()
+//                    }
+//                    // 재생 -> replay
+//                }else
+                 //   jpegViewModel.isAudioPlay.value = 2
+                // replay -> 재생
+            } else if(jpegViewModel.isAudioPlay.value!! == 2){
+                jpegViewModel.isAudioPlay.value = 1
+                if(tempAudioFile != null){
+                    setSeekBar()
+                }
+            }
+        }
+        jpegViewModel.isAudioPlay.observe(viewLifecycleOwner) {
+            if(it == 0){
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play2))
+                binding.currentPlayBtn.setImageDrawable(resources.getDrawable(R.drawable.play2))
+                // binding.back.visibility = View.VISIBLE
+            }else if(it ==1){
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.pause2))
+                binding.currentPlayBtn.setImageDrawable(resources.getDrawable(R.drawable.pause2))
+            }else{
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.replay))
+                binding.currentPlayBtn.setImageDrawable(resources.getDrawable(R.drawable.replay))
+            }
+
+        }
+
+
+        binding.recordingImageView.setOnClickListener {
+            if(isPlayingMode){
+                /* 녹음 시작 */
+                binding.playAudioBarLaydout.visibility = View.GONE
+                binding.rawImageView2.visibility = View.VISIBLE
+                binding.RecordingTextView.visibility = View.VISIBLE
+
+                Glide.with(this).load(R.raw.giphy).into(binding.rawImageView2);
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.stop))
+                timerUIStart()
+
+                // 녹음 시작
+                audioResolver.audioStop()
+                audioResolver.startRecording("edit_record")
+                isPlayingMode = false
+                isRecordingMode = true
+
+            }
+            else if(isRecordingMode) {
+                /* 녹음 중단 */
+                binding.playAudioBarLaydout.visibility = View.VISIBLE
+                binding.rawImageView2.visibility = View.GONE
+                binding.RecordingTextView.visibility = View.INVISIBLE
+                binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.refresh))
+                timerUIStop()
+                // 녹음 중단
+                preTempAudioFile = tempAudioFile
+                tempAudioFile = audioStop()
+
+                if(tempAudioFile!= null){
+                    setSeekBar()
+                    jpegViewModel.isAudioPlay.value = 1
+                }
+
+                isRecordingMode = false
+                isRecordedMode = true
+
+            }
+            else if(isRecordedMode){
+                // dialog
+                val dialog = ConfirmDialog("녹음된 내용을 지우고  다시 녹음하시겠습니까?",this)
+                // 알림창이 띄워져있는 동안 배경 클릭 막기
+                dialog.isCancelable = false
+                dialog.show(activity.supportFragmentManager, "ConfirmDialog")
+            }
+        }
+
+        // 오디오 추가 창의 seek bar
+        binding.seekBar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                // 사용자가 시크바를 움직이면
+                if (fromUser){
+                    if(tempAudioFile == null){
+                        audioResolver.mediaPlayer.seekTo(0)
+                        return
+                    }
+                    else{
+                        if(mediaPlayer.isPlaying)
+                            audioResolver.mediaPlayer.seekTo(progress) // 재생위치를 바꿔준다(움직인 곳에서의 음악재생)
+                    }
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                if(tempAudioFile == null){
+                    audioResolver.mediaPlayer.seekTo(0)
+                    return
+                }
+                // 플레이
+                if(isPlayingEnd){
+                    isPlayingEnd= false
+                    setSeekBar()
+                }
+            }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+
+        // 편집창의 오디오 재생 seek bar
+        binding.currentSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                // 사용자가 시크바를 움직이면
+                if (fromUser){
+                    if(tempAudioFile == null){
+                        audioResolver.mediaPlayer.seekTo(0)
+                        return
+                    }
+                    else{
+                        if(mediaPlayer.isPlaying)
+                            audioResolver.mediaPlayer.seekTo(progress) // 재생위치를 바꿔준다(움직인 곳에서의 음악재생)
+                    }
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                if(tempAudioFile == null){
+                    audioResolver.mediaPlayer.seekTo(0)
+                    return
+                }
+                // 플레이
+                if(isPlayingEnd){
+                    isPlayingEnd= false
+                    setCurrentSeekBar()
+                }
+            }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer != null) {
+            try {
+                mediaPlayer.pause()
+                isDestroy = true
+            }catch (e : IllegalStateException){
+                Log.e("AudioModule", "Failed to media pause: ${e.message}")
+
+            }
+
+        }
+    }
+    override fun onYesButtonClick(id: Int) {
+        binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
+        binding.playAudioBarLaydout.visibility = View.GONE
+        jpegViewModel.isAudioPlay.value = 1
+        tempAudioFile = preTempAudioFile
+        isRecordedMode = false
+        isPlayingMode = true
+
+        if(tempAudioFile == null)
+            audioResolver.mediaPlayer.seekTo(0)
+        else{
+            setSeekBar()
+            audioResolver.mediaPlayer.seekTo(0)
+        }
+    }
+
+    fun setCurrentSeekBar(){
+      //  isPlaying = true
+        audioWithContent = CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer.reset()
+            mediaPlayer.apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                try {
+                    setDataSource(tempAudioFile!!.path)
+                    prepare()
+                    start()
+                } catch (e: IOException) {
+                    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
+                }
+            }
+            // Seek bar process UI
+            withContext(Dispatchers.Main) {
+                binding.currentSeekbar.max = audioResolver.mediaPlayer.duration
+                // 막대 바가 끝까지 도달 시 해당 코루틴 중단
+                mediaPlayer.setOnCompletionListener {
+                    isDestroy = true
+                    isPlayingEnd = true
+                    binding.currentSeekbar.clearFocus()
+                    binding.currentSeekbar.progress = binding.currentSeekbar.max
+                    binding.currentPlayBtn.setImageDrawable(resources.getDrawable(R.drawable.replay))
+                    coroutineContext.cancelChildren()
+                }
+
+                playinAudioUIStart(mediaPlayer.duration)
+                while (true) {
+                    if (mediaPlayer != null) {
+                        if(isDestroy) {
+                            isDestroy = false
+                            break
+                        }
+                        val currentPosition: Int = mediaPlayer.currentPosition
+                        binding.currentSeekbar.progress = currentPosition
+                        delay(100)
+                    } else {
+                        break
+                    }
+                }
+            }
+        }
+    }
+    fun setSeekBar(){
+        isPlaying = true
+        audioWithContent = CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer.reset()
+            mediaPlayer.apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                try {
+                    setDataSource(tempAudioFile!!.path)
+                    prepare()
+                    start()
+                } catch (e: IOException) {
+                    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
+                    //e.printStackTrace()
+                }
+            }
+            // Seek bar process UI
+            withContext(Dispatchers.Main) {
+                binding.seekBar2.max = audioResolver.mediaPlayer.duration
+                // 막대 바가 끝까지 도달 시 해당 코루틴 중단
+                mediaPlayer.setOnCompletionListener {
+                    isDestroy = true
+                    isPlayingEnd = true
+                    binding.seekBar2.clearFocus()
+                    binding.seekBar2.progress = binding.seekBar2.max
+                    jpegViewModel.isAudioPlay.value = 2
+                    coroutineContext.cancelChildren()
+                }
+
+                playinAudioUIStart(mediaPlayer.duration)
+                while (true) {
+                    if (mediaPlayer != null) {
+                        if(isDestroy) {
+                            isDestroy = false
+                            break
+                        }
+                        val currentPosition: Int = mediaPlayer.currentPosition
+                        binding.seekBar2.progress = currentPosition
+                        delay(100)
+                    } else {
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+
+    fun audioStop() : File? {
+        // 녹음 중단, 저장
+        var savedFile : File?  = audioResolver.stopRecording()
+        isRecordingMode = false
+        return savedFile
+    }
+    fun saveAudioInMCContainer(savedFile : File){
+        //MC Container에 추가
+        var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
+        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+    }
+    fun playinAudioUIStart(_time : Int){
+        if(playingTimerTask != null)
+            playingTimerTask!!.cancel()
+        var time = _time/1000
+        if(isPlaying){
+            playingTimerTask = object : TimerTask() {
+                var cnt = 0
+                override fun run() {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        var string : kotlin.String = kotlin.String.format("%02d:%02d", time/60, time)
+                        Log.d("AudioModule", time.toString())
+                        binding.playingTextView.setText(string)
+
+                        binding.currentPlayTime.setText(string)
+                        time -= 1
+                        if(time < 0){
+                            playinAudioUIStop()
+                        }
+                    }
+                }
+            }
+            val timer = Timer()
+            timer.schedule(playingTimerTask, 0, 1000)
+        }
+    }
+
+    fun playinAudioUIStop(){
+        if(playingTimerTask != null)
+            playingTimerTask!!.cancel()
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.playingTextView.setText("00:00")
+            binding.currentPlayTime.setText("00:00")
+        }
+    }
+
+    fun timerUIStart(){
+        if(!isRecordingMode){
+            timerTask = object : TimerTask() {
+                var cnt = 0
+                override fun run() {
+                    CoroutineScope(Dispatchers.Main).launch {
+
+                        var string : kotlin.String = kotlin.String.format("%02d:%02d", cnt/60, cnt)
+                        binding.RecordingTextView.setText(string)
+                        cnt++
+
+                        if(cnt > 30){
+                            timerUIStop()
+                        }
+                    }
+                }
+            }
+            val timer = Timer()
+            timer.schedule(timerTask, 0, 1000)
+        }
+    }
+
+    fun timerUIStop(){
+        if(isRecordingMode){
+            timerTask.cancel()
+//            CoroutineScope(Dispatchers.Main).launch {
+//                binding.RecordingTextView.setText("")
+//                Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+//            }
+        }
+    }
+
+    inner class GoAudioAddMode : ConfirmDialogInterface{
+        override fun onYesButtonClick(id: Int) {
+            Log.d("add_test", " AddAudio() 호출")
+            isAudioAddMode = true
+            fitAudioModeUI()
+        }
+
+    }
+
+    /* Text */
+    // text
+    var isTextOn : Boolean = false
+    var textList : java.util.ArrayList<kotlin.String> = arrayListOf()
+
+    fun addTextModuale(){
+        // 포커스를 잃으면 수정하는 그림이 뜨도록
+        binding.editText.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.imageView6.visibility = View.GONE
+                binding.textCheckButton .visibility = View.VISIBLE
+                binding.editText.apply {
+                    // 그림자 효과 제거
+                    setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT)
+                    textSize = 17.0F
+
+                }
+            } else {
+                if(textContent.textList.size > 0)
+                    binding.imageView6.visibility = View.VISIBLE
+                binding.textCheckButton.visibility = View.INVISIBLE
+                binding.editText.apply {
+                    // 그림자 효과 추가
+                    val shadowColor = Color.parseColor("#818181") // 그림자 색상
+                    val shadowDx = 5f // 그림자의 X 방향 오프셋
+                    val shadowDy = 0f // 그림자의 Y 방향 오프셋
+                    val shadowRadius = 3f // 그림자의 반경
+                    setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
+
+                    textSize = 20.0F
+                }
+            }
+        }
+        binding.mainImageView.setOnClickListener {
+            // 다른 영역 클릭 시 포커스를 잃도록 처리
+            binding.editText.clearFocus()
+            // 키보드 내리기
+            val imm: InputMethodManager? =
+                activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
+            }
+        }
+
+        // text의 "확인" 클릭 시
+        binding.textCheckButton.setOnClickListener {
+            textMessageSave()
+        }
+        // text 입력 UI에 기존의 텍스트 메시지 띄우기
+        var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+        if(textList != null && textList.size !=0){
+            val _text = textList.get(0).data.toString()
+            binding.editText.setText(textList.get(0).data)
+        }
+    }
+
+
+    fun textMessageSave(){
+        var textMessage: kotlin.String = binding.editText.text.toString()
+        var textList: java.util.ArrayList<kotlin.String> = arrayListOf()
+
+        textList.add(textMessage)
+        if (textMessage != "") {
+            jpegViewModel.jpegMCContainer.value!!.setTextConent(
+                ContentAttribute.basic,
+                textList
+            )
+            imageContent.checkAddAttribute = true
+            CoroutineScope(Dispatchers.Main).launch {
+                // 키보드 내리기
+                val imm: InputMethodManager? =
+                    activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(binding.editText.getWindowToken(), 0)
+                }
+                binding.editText.clearFocus()
+                Toast.makeText(activity, "${binding.textCheckButton.text} 되었습니다.", Toast.LENGTH_SHORT).show();
+                binding.textCheckButton.text = "수정"
+            }
+        }
+    }
+    fun ShowingText(imageView: ImageView) {
+        handler.removeCallbacksAndMessages(null)
+//        changeRound(imageView)
+        isTextView = if(isTextView) {
+            imageView.setImageResource(R.drawable.edit_text_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_text_click_icon)
+            true
+        }
+        if(binding.textContentLayout.visibility == View.GONE){
+            binding.textContentLayout.visibility = View.VISIBLE
+        } else{
+            binding.textContentLayout.visibility = View.GONE
+        }
+    }
+
+    fun AddText(imageView: ImageView) {
+        handler.removeCallbacksAndMessages(null)
+//        changeRound(imageView)
+        if(binding.textContentLayout.visibility == View.GONE){
+            binding.textContentLayout.visibility = View.VISIBLE
+            binding.editText.requestFocus()
+            binding.textCheckButton.text = "추가"
+        } else{
+            binding.textContentLayout.visibility = View.GONE
+        }
+        Log.d("add_test", " ADDText() 호출")
+    }
+
+    fun DeleteText() {
+
+        textContent.textList.clear()
+        imageContent.checkMainChangeAttribute = true
+        imageToolModule.showView(binding.saveBtn, true)
+        setContainerTextSetting()
+        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+        binding.linear.addView(view, binding.linear.size - 2)
     }
 }
 

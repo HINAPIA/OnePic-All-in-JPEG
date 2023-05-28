@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class MagicPictureModule(val imageContent: ImageContent) {
+class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Picture) {
 
     /* Magic picture 변수 */
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
@@ -26,14 +26,14 @@ class MagicPictureModule(val imageContent: ImageContent) {
 
     private var mainBitmap: Bitmap
 
-    private var isInit = false
+    var isInit = false
 
     init {
         while(!imageContent.checkPictureList) {
 
         }
         imageToolModule = ImageToolModule()
-        mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(imageContent.mainPicture))
+        mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(selectedPicture))
         pictureList = imageContent.pictureList
         isInit = true
     }
@@ -90,7 +90,7 @@ class MagicPictureModule(val imageContent: ImageContent) {
         }
 
 
-    private fun createOverlayImg(ovelapBitmap: ArrayList<Bitmap>, rect: ArrayList<Int>, index: Int) {
+    private fun createOverlayImg(ovelayBitmap: ArrayList<Bitmap>, rect: ArrayList<Int>, index: Int) {
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
@@ -103,7 +103,7 @@ class MagicPictureModule(val imageContent: ImageContent) {
             )
 
             val newImage = imageToolModule.circleCropBitmap(cropImage)
-            ovelapBitmap.add(
+            ovelayBitmap.add(
                 imageToolModule.overlayBitmap(mainBitmap, newImage, changeFaceStartX, changeFaceStartY)
             )
         }

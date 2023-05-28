@@ -56,7 +56,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     lateinit var fragment: Fragment
 
     private var infoLevel = MutableLiveData<InfoLevel>()
-    private var isInfoViewed = true
+    var isInfoViewed = true
 
     protected var selectFaceRect: Rect? = null
     protected var isSelected = false
@@ -628,7 +628,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             println("!!!!!!!!!! change point (${changeFaceStartX}, ${changeFaceStartY})")
             if(changeFaceStartX < 0)
                 changeFaceStartX = 0
-            else if(changeFaceStartX > selectBitmap.width- newImage!!.width)
+            else if(changeFaceStartX > selectBitmap.width - newImage!!.width)
                 changeFaceStartX = selectBitmap.width - newImage!!.width
             if(changeFaceStartY < 0)
                 changeFaceStartY = 0
@@ -660,7 +660,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 binding.infoText.text = "변경된 얼굴의 위치는\n조정 바를 통해 수정할 수 있습니다."
             }
             InfoLevel.BasicLevelEnd -> {
-                binding.infoText.text = "자동 얼굴 변경 버튼을 누르면 자동으로\n 모든 사람이 잘나온 얼굴로 변경됩니다."
+                binding.infoText.text = "버튼을 누르면 모든 사람이\n 잘나온 얼굴로 자동 변경됩니다."
             }
             else -> {}
         }
@@ -687,7 +687,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 //                    "자동 Face Blending 중"
 //                }
                 LoadingText.Save -> {
-                    "편집을 저장 중.."
+                    "편집 저장 중.."
                 }
                 LoadingText.AutoRewind -> {
                     "최적의 Blending 사진 제작 중.."

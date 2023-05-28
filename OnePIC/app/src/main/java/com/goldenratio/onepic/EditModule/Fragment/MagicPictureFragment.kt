@@ -3,7 +3,6 @@ package com.goldenratio.onepic.EditModule.Fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -56,6 +55,12 @@ class MagicPictureFragment : RewindFragment() {
         ArrowCheck,
     }
 
+    private enum class LoadingText {
+        FaceDetection,
+        MagicCreate,
+        Save,
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,7 +88,8 @@ class MagicPictureFragment : RewindFragment() {
         pictureList =
             jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
 
-        imageToolModule.showView(binding.progressBar, true)
+//        imageToolModule.showView(binding.progressBar, true)
+        showProgressBar(true, LoadingText.FaceDetection)
 
         // main Picture의 byteArray를 bitmap 제작
         selectPicture = imageContent.pictureList[jpegViewModel.getSelectedSubImageIndex()]
@@ -118,7 +124,8 @@ class MagicPictureFragment : RewindFragment() {
         binding.magicSaveBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.IO).launch {
-                imageToolModule.showView(binding.progressBar , true)
+//                imageToolModule.showView(binding.progressBar , true)
+                showProgressBar(true, LoadingText.Save)
 //                val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
 
                 for(i in 0 until pictureList.size) {
@@ -171,7 +178,8 @@ class MagicPictureFragment : RewindFragment() {
                     }
                 }
 
-                imageToolModule.showView(binding.progressBar, false)
+//                imageToolModule.showView(binding.progressBar, false)
+                showProgressBar(false, null)
             }
         }
 
@@ -183,7 +191,7 @@ class MagicPictureFragment : RewindFragment() {
         // 이미지 뷰 클릭 시
         binding.mainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
-                imageToolModule.showView(binding.progressBar, true)
+//                imageToolModule.showView(binding.progressBar, true)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = imageToolModule.getBitmapClickPoint(
@@ -197,6 +205,7 @@ class MagicPictureFragment : RewindFragment() {
                 Log.d("magic", "bitmap touchPoint: $touchPoint")
 
                 if (touchPoint != null) {
+                    showProgressBar(true, LoadingText.MagicCreate)
                     CoroutineScope(Dispatchers.IO).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
                         while (!rewindModule.getCheckFaceDetection()) {
@@ -214,7 +223,8 @@ class MagicPictureFragment : RewindFragment() {
                         }
                     }
                 } else {
-                    imageToolModule.showView(binding.progressBar, false)
+//                    imageToolModule.showView(binding.progressBar, false)
+                    showProgressBar(false, null)
                 }
             }
             return@setOnTouchListener true
@@ -300,7 +310,7 @@ class MagicPictureFragment : RewindFragment() {
 
         CoroutineScope(Dispatchers.Main).launch {
 //            binding.bottomLayout.visibility = View.INVISIBLE
-            binding.magicPlayBtn.visibility = View.INVISIBLE
+            imageToolModule.showView(binding.magicPlayBtn, true)
         }
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -314,7 +324,8 @@ class MagicPictureFragment : RewindFragment() {
                     try {
                         Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                             .show()
-                        imageToolModule.showView(binding.progressBar, false)
+//                        imageToolModule.showView(binding.progressBar, false)
+                        showProgressBar(false, null)
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }
@@ -337,7 +348,8 @@ class MagicPictureFragment : RewindFragment() {
                     // 예외가 발생한 경우 처리할 코드
                     e.printStackTrace() // 예외 정보 출력
                 }
-                imageToolModule.showView(binding.progressBar, false)
+//                imageToolModule.showView(binding.progressBar, false)
+                showProgressBar(false, null)
             }
         }
     }
@@ -356,7 +368,8 @@ class MagicPictureFragment : RewindFragment() {
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
-            imageToolModule.showView(binding.progressBar , false)
+//            imageToolModule.showView(binding.progressBar , false)
+            showProgressBar(false, null)
             return
         }
 
@@ -411,7 +424,8 @@ class MagicPictureFragment : RewindFragment() {
             )
         )
 
-        imageToolModule.showView(binding.progressBar , false)
+//        imageToolModule.showView(binding.progressBar , false)
+        showProgressBar(false, null)
         infoLevel.value = InfoLevel.MagicStart
     }
     private fun magicPictureRun(cropBitmapList: ArrayList<Bitmap>) {
@@ -482,7 +496,7 @@ class MagicPictureFragment : RewindFragment() {
                 binding.infoText.text = "움직이길 원하는 얼굴을 누릅니다."
             }
             InfoLevel.MagicStart -> {
-                binding.infoText.text = "재생 버튼을 통해 움직임을 확인합니다."
+                binding.infoText.text = "아래 버튼을 통해\n매직 사진을 제작합니다."
             }
             InfoLevel.ArrowCheck -> {
                 binding.infoText.text = "얼굴의 위치는\n조정 바를 통해 수정할 수 있습니다."
@@ -490,6 +504,37 @@ class MagicPictureFragment : RewindFragment() {
             else -> {}
         }
     }
+
+    private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
+        if(boolean && isInfoViewed) {
+            imageToolModule.showView(binding.infoDialogLayout, false)
+        }
+        else if (isInfoViewed) {
+            imageToolModule.showView(binding.infoDialogLayout, true)
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.loadingText.text = when (loadingText) {
+                LoadingText.FaceDetection -> {
+                    "사진 분석 중.."
+                }
+                LoadingText.Save -> {
+                    "편집 저장 중.."
+                }
+                LoadingText.MagicCreate -> {
+                    "매직 사진 제작 중.."
+                }
+                else -> {
+                    ""
+                }
+            }
+        }
+
+        imageToolModule.showView(binding.progressBar, boolean)
+        imageToolModule.showView(binding.loadingText, boolean)
+    }
+
+
 
     override fun changeMainView(bitmap: Bitmap) {
         if(selectFaceRect != null) {
@@ -500,35 +545,5 @@ class MagicPictureFragment : RewindFragment() {
                 binding.mainView.setImageBitmap(resultBitmap)
                 }
         }
-    }
-
-    fun drawMagicIcon(
-        bitmap: Bitmap,
-        box: RectF,
-        customColor: Int
-    ): Bitmap {
-        val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        val canvas = Canvas(outputBitmap)
-        val pen = Paint()
-        pen.textAlign = Paint.Align.LEFT
-
-        // draw bounding box
-//            pen.color = context.resources.getColor(R.color.white)
-        pen.color = customColor
-        pen.strokeWidth = 30f
-        pen.style = Paint.Style.STROKE
-
-        val drawable: Drawable = resources.getDrawable(R.drawable.magic_edit)
-
-        val bottom = box.top.toInt()
-        val left =  (box.left + ((box.right - box.left)/2f)).toInt()
-
-        Log.d("magic Play", "magic x,y : $bottom , $left")
-
-        drawable.setBounds(left, bottom - 200, left + 200, bottom)
-//        drawable.setBounds(100, 100, 300, 300)
-        drawable.draw(canvas)
-
-        return outputBitmap
     }
 }
