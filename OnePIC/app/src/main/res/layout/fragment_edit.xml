@@ -132,7 +132,8 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
 
                 <ImageView
                     android:id="@+id/imageView6"
@@ -201,7 +202,7 @@
                         android:paddingBottom="15dp"
                         android:textColor="#FFFFFF"
                         android:textColorHint="#C8C8C8"
-                        android:textSize="17sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:visibility="visible"
                         tools:visibility="visible" />
@@ -260,7 +261,8 @@
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/mainImageView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible">
 
                 <SeekBar
                     android:id="@+id/currentSeekbar"
@@ -295,6 +297,17 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/currentSeekbar"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/audioEditBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="수정"
+                    android:textColor="@color/camera_mode_select_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@+id/currentPlayTime" />
 
                 <!--                <ImageView-->
                 <!--                    android:id="@+id/audioCheckBtn"-->
@@ -494,11 +507,10 @@
                     android:id="@+id/playAudioBarLaydout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="@+id/horizontal_centerline1">
 
                     <SeekBar
                         android:id="@+id/seekBar2"
@@ -567,7 +579,7 @@
                     android:layout_height="wrap_content"
                     android:background="#FFB8B8"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_percent=".15" />
+                    app:layout_constraintGuide_percent=".25" />
 
                 <ImageView
                     android:id="@+id/recordingImageView"

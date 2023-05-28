@@ -143,12 +143,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     override fun onStop() {
         super.onStop()
 
-        if (mediaPlayer != null) {
-            isDestroy = true
-            mediaPlayer.stop()
-            mediaPlayer.release()
-            //mediaPlayer = null
-        }
+//        if (mediaPlayer != null) {
+//            isDestroy = true
+//            mediaPlayer.stop()
+//            mediaPlayer.release()
+//            //mediaPlayer = null
+//        }
     }
     override fun onDestroy() {
         super.onDestroy()
@@ -161,6 +161,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             audioResolver.mediaPlayer.release()
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         bundle: Bundle?
@@ -1341,7 +1342,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         val audioContentLayout = binding.audioContentLayout
 
         // 오디오 활성화
-        if(audioContentLayout.visibility == View.GONE){
+        if(binding.currentAudioBarLaydout.visibility == View.GONE){
             binding.currentAudioBarLaydout.visibility = View.VISIBLE
             // 오디오 활성화
         }else{
