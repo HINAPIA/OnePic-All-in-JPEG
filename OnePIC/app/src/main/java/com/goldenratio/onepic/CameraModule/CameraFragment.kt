@@ -89,7 +89,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var burst2RadioBtn : RadioButton
     private lateinit var burst3RadioBtn : RadioButton
 
-    private lateinit var camera2: Camera2
+    private lateinit var camera2Module: Camera2
 
     data class pointData(var x: Float, var y: Float)
     data class DetectionResult(val boundingBox: RectF, val text: String)
@@ -138,7 +138,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     // imageAnalysis
     private var imageAnalyzer: ImageAnalysis? = null
     private lateinit var bitmapBuffer: Bitmap
-    private var analyzeImageWidth : Int = 0
+    var analyzeImageWidth : Int = 480
 
     // Lens Flag
     private var isBackLens : Boolean? = true
@@ -148,7 +148,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var fadeOut: ObjectAnimator
 
     // bounding box
-    private var boundingBoxArrayList: ArrayList<RectF> = arrayListOf()
+    private var boundingBoxArrayList: ArrayList<ArrayList<Int>> = arrayListOf()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -201,7 +201,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         burst2RadioBtn = binding.burst2RadioBtn
         burst3RadioBtn = binding.burst3RadioBtn
 
-        camera2 = Camera2(activity, requireContext(), binding)
+        camera2Module = Camera2(activity, requireContext(), binding)
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
         factory = viewFinder.meteringPointFactory
 
@@ -270,13 +270,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         convertBtn.setOnClickListener {
             when ( selectedRadioIndex ) {
                 burstRadioBtn.id -> {
-                    camera2.stopCamera2()
+                    camera2Module.stopCamera2()
 
-                    if(isBackLens!!) camera2.cameraId = "1" // CAMERA_FRONT
-                    else camera2.cameraId = "0" // CAMERA_BACK
+                    if(isBackLens!!) camera2Module.cameraId = "1" // CAMERA_FRONT
+                    else camera2Module.cameraId = "0" // CAMERA_BACK
 
-                    camera2.startBackgroundThread()
-                    camera2.startCamera2()
+                    camera2Module.startBackgroundThread()
+                    camera2Module.startCamera2()
 
                     isBackLens = !isBackLens!!
                 }
@@ -349,12 +349,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // '연사 촬영' 일때, Camera2 열기
         if(selectedRadioIndex!! == burstRadioBtn.id ){
             if(isBackLens!!)
-                camera2.cameraId = "0" // CAMERA_BACK
+                camera2Module.cameraId = "0" // CAMERA_BACK
             else
-                camera2.cameraId = "1" // CAMERA_FRONT
+                camera2Module.cameraId = "1" // CAMERA_FRONT
 
-            camera2.startBackgroundThread()
-            camera2.startCamera2()
+            camera2Module.startBackgroundThread()
+            camera2Module.startCamera2()
         }
         // '기본', '객체별 초점 촬영', '거리별 초점 촬영' 일때, CameraX 열기
         else {
@@ -428,7 +428,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     infoTextView.text = resources.getString(R.string.burst3_info)
                 }
             }
-            camera2.setBurstSize(BURST_SIZE)
+            camera2Module.setBurstSize(BURST_SIZE)
         }
 
         /**
@@ -443,7 +443,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     if( selectedRadioIndex == burstRadioBtn.id ) {
                         //Camera2 중단 > CameraX 실행
-                        camera2.stopCamera2()
+                        camera2Module.stopCamera2()
                         startCameraX()
                     }
 
@@ -475,15 +475,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         viewFinder.visibility = View.GONE
 
                         textureView.visibility = View.VISIBLE
-                        camera2.startBackgroundThread()
+                        camera2Module.startBackgroundThread()
 
                         if(isBackLens!!) {
-                            camera2.cameraId = "0" // CAMERA_FRONT
+                            camera2Module.cameraId = "0" // CAMERA_FRONT
                         } else {
-                            camera2.cameraId = "1" // CAMERA_BACK
+                            camera2Module.cameraId = "1" // CAMERA_BACK
                         }
 
-                        camera2.startCamera2()
+                        camera2Module.startCamera2()
                     }
                     selectedRadioIndex = burstRadioBtn.id
 
@@ -505,7 +505,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     if( selectedRadioIndex == burstRadioBtn.id ) {
                         //Camera2 중단 > CameraX 실행
-                        camera2.stopCamera2()
+                        camera2Module.stopCamera2()
                         startCameraX()
                     }
 
@@ -531,7 +531,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     if( selectedRadioIndex == burstRadioBtn.id ) {
                         //Camera2 중단 > CameraX 실행
-                        camera2.stopCamera2()
+                        camera2Module.stopCamera2()
                         startCameraX()
                     }
 
@@ -569,7 +569,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     infoTextView.text = resources.getString(R.string.burst3_info)
                 }
             }
-            camera2.setBurstSize(BURST_SIZE)
+            camera2Module.setBurstSize(BURST_SIZE)
         }
 
         // shutter Btn 클릭
@@ -647,17 +647,17 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             }
 
             else if(burstRadioBtn.isChecked){
-                camera2.previewByteArrayList.clear()
+                camera2Module.previewByteArrayList.clear()
 
-                camera2.lockFocus()
+                camera2Module.lockFocus()
 
                 CoroutineScope(Dispatchers.IO).launch {
                     while(true){
 
-                        if(camera2.state == 0){ // state : PREVIEW
+                        if(camera2Module.state == 0){ // state : PREVIEW
 
-                            while(camera2.previewByteArrayList.size < BURST_SIZE){}
-                            previewByteArrayList = camera2.previewByteArrayList
+                            while(camera2Module.previewByteArrayList.size < BURST_SIZE){}
+                            previewByteArrayList = camera2Module.previewByteArrayList
 
                             imageContent.activityType = ActivityType.Camera
                             CoroutineScope(Dispatchers.Default).launch {
@@ -858,20 +858,34 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val scaleFactor = (viewFinder.width.toFloat()) / analyzeImageWidth.toFloat()
 
         for (obj in detectObjectList) {
+            val boundingBox = ArrayList<Int>()
             try {
+
+                val left = obj.boundingBox.left.toInt()
+                val top = obj.boundingBox.top.toInt()
+                val right = obj.boundingBox.right.toInt()
+                val bottom = obj.boundingBox.bottom.toInt()
+
+                boundingBox.add(left)
+                boundingBox.add(top)
+                boundingBox.add(right)
+                boundingBox.add(bottom)
+
                 var pointX: Float =
                     (obj.boundingBox.left + ((obj.boundingBox.right - obj.boundingBox.left) * 0.5f)) * scaleFactor
                 var pointY: Float =
                     (obj.boundingBox.top + ((obj.boundingBox.bottom - obj.boundingBox.top) * 0.5f)) * scaleFactor
 
                 pointArrayList.add(pointData(pointX, pointY))
-                boundingBoxArrayList.add(obj.boundingBox)
 
             } catch (e: IllegalAccessException) {
                 e.printStackTrace();
             } catch (e: InvocationTargetException) {
                 e.targetException.printStackTrace(); //getTargetException
             }
+            Log.v("focus test", "boundingBox : ${boundingBox[0]}, ${boundingBox[1]}, ${boundingBox[2]}, ${boundingBox[3]}")
+            boundingBoxArrayList.add(boundingBox)
+            Log.v("focus text", "boundingBoxArrayList size : ${boundingBoxArrayList.size}")
         }
 
         takeObjectFocusMode(0, detectObjectList)
@@ -907,7 +921,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageContent.activityType = ActivityType.Camera
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
-//                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
+                            val pictureList = jpegViewModel.jpegMCContainer.value!!.imageContent.pictureList
+                            for(i in 0 until pictureList.size) {
+                                pictureList[i].insertEmbeddedData(boundingBoxArrayList[i])
+                                Log.v("focus test", "camera boundingBox size : ${boundingBoxArrayList.size}")
+                                Log.v("focus test", "camera boundingBox : ${boundingBoxArrayList[i].get(0)}, ${boundingBoxArrayList[i].get(1)}, ${boundingBoxArrayList[i].get(2)}, ${boundingBoxArrayList[i].get(3)}")
+                                Log.v("focus test", "camera Analysis Image width : ${analyzeImageWidth}")
+                            }
                             jpegViewModel.jpegMCContainer.value?.save()
                         }
 

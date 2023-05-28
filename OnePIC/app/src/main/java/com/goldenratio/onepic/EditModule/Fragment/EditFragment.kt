@@ -305,6 +305,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // MagicPictureFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_magicPictureFragment)
         }
+        // 초점 업그레이드 버튼 클릭 이벤트 리스너 등록
+        binding.focusBtn.setOnClickListener {
+            //FocusChangeFragment로 이동
+            findNavController().navigate(R.id.action_editFragment_to_focusChangeFragment)
+        }
 
         // 얼굴 추천 버튼 클릭 이벤트 리스너 등록
         binding.bestMainBtn.setOnClickListener {

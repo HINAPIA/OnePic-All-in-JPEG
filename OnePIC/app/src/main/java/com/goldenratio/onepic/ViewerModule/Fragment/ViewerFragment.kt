@@ -30,6 +30,7 @@ import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
+import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
@@ -213,19 +214,26 @@ class ViewerFragment : Fragment() {
     fun setViewerBasicUI() {
 
         var container = jpegViewModel.jpegMCContainer.value!!
+        val isAiJPEG = isAllInJPEG(container)
 
         // All in JPEG 로고 설정(일반 jpeg vs all in jpeg)
         binding.allInJpegTextView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() { // all in jpeg 로고 텍스트뷰의 로딩이 완료된 후에 호출될 작업 - 마진 조절
-                val width = binding.allInJpegTextView.width
-                val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
-                val leftMarginInDp = 0
-                val topMarginInDp =  imageTool.spToDp(context,11f).toInt() //spToDp(context,11f)
-                var rightMarginInDp = - imageTool.pxToDp(context,(width/2 - imageTool.spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
-                rightMarginInDp += imageTool.pxToDp(context,10f).toInt()
-                val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
-                textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
+                val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
+                var marginEndInDp = 0
+                var marginTopInDp = 0
+                if (isAiJPEG) {
+                    binding.allInJpegTextView.text = "All in JPEG"
+                    marginEndInDp = resources.getDimensionPixelSize(R.dimen.info_marker_end_margin)
+                    marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
+                }
+                else {
+                    binding.allInJpegTextView.text = "JPEG"
+                    marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
+                }
+                textViewlayoutParams.setMargins(0, marginTopInDp, marginEndInDp, 0)
+
                 binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
                 // 작업을 수행한 후 리스너를 제거할 수도 있습니다.
@@ -233,8 +241,17 @@ class ViewerFragment : Fragment() {
             }
         })
 
-        //  Text 있을 경우
-        if (container.textContent.textCount != 0){
+        binding.infoMarkerTextView.apply { // info marker text 변경
+            val currText = this.text
+            if (isAiJPEG) {
+                this.text = "All in JPEG ${currText}"
+            }
+            else {
+                this.text = "JPEG ${currText}"
+            }
+        }
+
+        if (container.textContent.textCount != 0){//  Text 있을 경우
             var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
 
             if(textList != null && textList.size !=0){
@@ -248,8 +265,7 @@ class ViewerFragment : Fragment() {
             }
         }
 
-        // 매직 픽처인 경우 - 버튼 보이기
-        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
+        if (container.imageContent.checkAttribute(ContentAttribute.magic)) {// 매직 픽처인 경우
             setMagicPicture()
         }
         else {
@@ -257,7 +273,7 @@ class ViewerFragment : Fragment() {
         }
 
         // 거리별 초점 사진인 경우 - seekBar 보이기
-        if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.distance_focus)){
+        if (container.imageContent.checkAttribute(ContentAttribute.distance_focus)){
             binding.seekBarLinearLayout.visibility = View.VISIBLE
         }
         else {
@@ -292,6 +308,13 @@ class ViewerFragment : Fragment() {
                 backPressed()
             }
         }
+    }
+
+    fun isAllInJPEG(container: MCContainer):Boolean{
+        if (jpegViewModel.getPictureByteArrList().size != 1 || container.textContent.textCount != 0 || container.audioContent.audio != null){
+            return true
+        }
+        return false
     }
 
     fun setMagicPicture() {
