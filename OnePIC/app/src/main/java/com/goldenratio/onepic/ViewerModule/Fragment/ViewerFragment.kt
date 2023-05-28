@@ -19,6 +19,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -44,6 +45,7 @@ class ViewerFragment : Fragment() {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var scrollAudioView: ImageView? = null
     private var scrollTextView: ImageView? = null
+    private var imageTool = ImageToolModule()
 
     /* audio, magic, text 버튼 클릭 여부 */
     private var isAudioBtnClicked = false
@@ -51,6 +53,7 @@ class ViewerFragment : Fragment() {
     private var isTextBtnClicked = false
 
     private var currentPosition:Int? = null // AnalyzeFragment 에서 넘어올 때 받는 번들 값
+    var pictureList : ArrayList<Picture> = arrayListOf()
     private var bitmapList = arrayListOf<Bitmap>() // seek bar 속도 개선위한 비트맵(스크롤뷰)
     private var firstImageView: ImageView? = null // 스크롤바 첫번째 이미지
     private var previousClickedItem:ImageView? = null //스크롤바에서 클릭한 아이템
@@ -123,7 +126,7 @@ class ViewerFragment : Fragment() {
             /* 편집 후, 바로 편집된 이미지로 넘어감 */
             var path = currentFilePath
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
-                path = ImageToolModule().getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
+                path = imageTool.getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
             }
 
             binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
@@ -217,9 +220,9 @@ class ViewerFragment : Fragment() {
                 val width = binding.allInJpegTextView.width
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 val leftMarginInDp = 0
-                val topMarginInDp =  ImageToolModule().spToDp(context,11f).toInt() //spToDp(context,11f)
-                var rightMarginInDp = - ImageToolModule().pxToDp(context,(width/2 - ImageToolModule().spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
-                rightMarginInDp += ImageToolModule().pxToDp(context,10f).toInt()
+                val topMarginInDp =  imageTool.spToDp(context,11f).toInt() //spToDp(context,11f)
+                var rightMarginInDp = - imageTool.pxToDp(context,(width/2 - imageTool.spToDp(context,10f)).toFloat()).toInt() //왼쪽 마진(dp) //
+                rightMarginInDp += imageTool.pxToDp(context,10f).toInt()
                 val bottomMarginInDp = 0 // 아래쪽 마진(dp)
 
                 textViewlayoutParams.setMargins(leftMarginInDp, topMarginInDp, rightMarginInDp, bottomMarginInDp)
@@ -292,12 +295,12 @@ class ViewerFragment : Fragment() {
     }
 
     fun setMagicPicture() {
-        binding.magicBtnlinearLayout.visibility = View.VISIBLE
+
         val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
         mainViewPagerAdapter.resetMagicPictureList()
 
-        ImageToolModule().showView(binding.magicBtn, true)
+        imageTool.showView(binding.magicBtn, true)
         Log.d("magic 유무", "YES!!!!!!!!!!!")
         binding.magicBtn.setOnClickListener {
 
@@ -306,30 +309,29 @@ class ViewerFragment : Fragment() {
 
             if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
 
-                ImageToolModule().showView(binding.progressBar, true)
+                imageTool.showView(binding.progressBar, true)
 
-                /* layout 변경 */
-                it.setBackgroundResource(R.drawable.round_button)
-                isMagicBtnClicked = true
-                CoroutineScope(Dispatchers.Default).launch {
+                CoroutineScope(Dispatchers.Main).launch {
+                    /* layout 변경 */
+                    binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+                    isMagicBtnClicked = true
                     mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
                     mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
                 }
-            }
 
+            }
             //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
                 /* layout 변경 */
-                it.background = ColorDrawable(Color.TRANSPARENT)
+                binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
                 isMagicBtnClicked = false
                 mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-                firstImageView!!.performClick()
             }
         }
         try {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
-                    ImageToolModule().showView(binding.progressBar, false)
+                    imageTool.showView(binding.progressBar, false)
                 }
             }
         } catch (e: IllegalStateException) {
@@ -344,7 +346,7 @@ class ViewerFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun setCurrentOtherImage() {
 
-        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
+        pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()!!
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
 
 
@@ -395,26 +397,15 @@ class ViewerFragment : Fragment() {
                                 .into(scrollImageView)
 
                             scrollImageView.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-
-                                Log.d("click i : ", "" + i)
                                 if (previousClickedItem != scrollImageView) {
-                                    if (previousClickedItem != null) { //초기 설정값이 아닐때
-                                        // 기존 아이템 UI 없애기
-                                        previousClickedItem!!.background = null
-                                        previousClickedItem!!.setPadding(0, 0, 0, 0)
-                                    }
-
-                                    previousClickedItem = scrollImageView
-                                    scrollImageView.setBackgroundResource(R.drawable.chosen_image_border)
-                                    scrollImageView.setPadding(6, 6, 6, 6)
                                     if (binding.seekBar.visibility == View.VISIBLE) {
                                         binding.seekBar.progress = i
                                     }
-
                                     CoroutineScope(Dispatchers.Main).launch {
                                         mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
                                     }
                                     jpegViewModel.setselectedSubImage(picture)
+                                    changeImageView(i,scrollImageView)
                                 }
                             }
                             binding.linear.addView(scollItemLayout)
@@ -423,7 +414,7 @@ class ViewerFragment : Fragment() {
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }
-                } // end of for
+                } // end of for..
 
                 var container = jpegViewModel.jpegMCContainer.value!!
 
@@ -474,7 +465,6 @@ class ViewerFragment : Fragment() {
                     }
                 }
                 // 텍스트 있는 경우
-
                 if (container.textContent.textCount != 0) {
 
                     CoroutineScope(Dispatchers.Main).launch {
@@ -538,6 +528,26 @@ class ViewerFragment : Fragment() {
         }
     }
 
+
+    fun changeImageView(index: Int, imageView: ImageView) {
+
+        previousClickedItem?.background = null
+        previousClickedItem?.setPadding(0)
+        previousClickedItem = imageView
+        imageView.setBackgroundResource(R.drawable.chosen_image_border)
+        imageView.setPadding(6)
+
+        if(pictureList[index].contentAttribute == ContentAttribute.magic) {
+            imageTool.showView(binding.magicBtnlinearLayout, true)
+        }
+        else {
+            if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
+                binding.magicBtn.performClick()
+            }
+            imageTool.showView(binding.magicBtnlinearLayout, false)
+        }
+    }
+
     /** back btn 눌렀을 때 처리 */
     fun backPressed(){
         Glide.get(requireContext()).clearMemory()  // Glide 메모리 비우기
@@ -545,9 +555,7 @@ class ViewerFragment : Fragment() {
             scrollAudioView!!.performClick()
         }
         if( isMagicBtnClicked ) { // 매직 버튼 초기화
-            binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
-            isMagicBtnClicked = false
-            mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+            binding.magicBtn.performClick()
         }
         val bundle = Bundle()
         bundle.putInt("currentPosition",binding.viewPager2.currentItem)
