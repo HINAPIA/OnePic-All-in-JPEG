@@ -1296,12 +1296,32 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val displaySize = Point()
         activity.windowManager.defaultDisplay.getSize(displaySize)
 
+        Log.v("camera test","displaySize.x X y ${displaySize.x} x ${displaySize.y}")
+        Log.v("camera test","topMenu height = 0? ${topMenuParams.height}")
+        Log.v("camera test","statusBar height = 0? ${statusBarHeight}")
+
         if(viewFinder.height == 0){
+
+            Log.v("camera test","viewFinder height = 0? ${viewFinder.height}")
+
+//            params.height =
+//                displaySize.y - topMenuParams.height - (displaySize.x.toFloat() * (4f / 3f)).toInt() - statusBarHeight
             params.height =
-                displaySize.y - topMenuParams.height - (displaySize.x.toFloat() * (4f / 3f)).toInt() - statusBarHeight
+                displaySize.y - topMenuParams.height - (displaySize.x.toFloat() * (4f / 3f)).toInt()
+
+            Log.v("camera test","viewFinder height ${(displaySize.x.toFloat() * (4f / 3f)).toInt()}")
+            Log.v("camera test", "bottom Menu height = ${params.height}")
         }else {
+
+            Log.v("camera test","viewFinder height not 0? ${viewFinder.height}")
+
+//            params.height =
+//                displaySize.y - topMenuParams.height - viewFinder.height - statusBarHeight
             params.height =
-                displaySize.y - topMenuParams.height - viewFinder.height - statusBarHeight
+                displaySize.y - topMenuParams.height - viewFinder.height
+
+            Log.v("camera test","viewFinder height ${viewFinder.height}")
+            Log.v("camera test", "bottom Menu height = ${params.height}")
         }
         binding.bottomMenu.setLayoutParams(params)
     }
