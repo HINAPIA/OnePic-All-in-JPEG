@@ -143,11 +143,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         }
     }
 
-    fun setIsMainChanged(value:Boolean){
-        isMainChanged = value
-        notifyDataSetChanged()
-    }
-
 /*--------------------------------------------------------------------------------------------------------------*/
 
     /** FilePath String 을 Uri로 변환 */

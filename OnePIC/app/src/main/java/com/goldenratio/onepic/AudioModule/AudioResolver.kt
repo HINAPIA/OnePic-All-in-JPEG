@@ -170,7 +170,6 @@ class AudioResolver(val context : Context) {
             }
         }
     }
-
     fun audioStop(){
         mediaPlayer.stop()
         mediaPlayer.reset()

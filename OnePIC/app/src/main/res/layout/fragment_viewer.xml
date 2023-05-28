@@ -237,14 +237,13 @@
             <ImageButton
                 android:visibility="visible"
                 android:id="@+id/magicBtn"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/transparent_color"
                 android:layout_marginStart="10dp"
-                android:background="@drawable/round_color"
-                android:padding="4.5dp"
+                android:padding="2dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/magic"
-                app:tint="@color/white" />
+                android:src= "@drawable/edit_magic_icon" />
 
         </LinearLayout>
 
