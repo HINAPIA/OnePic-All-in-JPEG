@@ -13,33 +13,9 @@
         android:layout_height="60dp"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/dark_purple">
-
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="1.5dp"-->
-<!--            android:background="@color/dark_purple"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/topMenuHor1"/>-->
-
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="1.5dp"-->
-<!--            android:background="@color/dark_purple"-->
-<!--            android:layout_marginBottom="5dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/topMenuHor1"/>-->
-
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="1.5dp"-->
-<!--            android:background="@color/dark_purple"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/topMenuHor2"/>-->
-
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="1.5dp"-->
-<!--            android:background="@color/dark_purple"-->
-<!--            android:layout_marginTop="5dp"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/topMenuHor2"/>-->
 
         <TextView
             android:id="@+id/onePicLogoTv"
@@ -90,7 +66,6 @@
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="3:4"
         app:layout_constraintTop_toBottomOf="@id/topMenu"
-        app:layout_constraintBottom_toTopOf="@id/bottomMenu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -371,6 +346,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@color/focus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

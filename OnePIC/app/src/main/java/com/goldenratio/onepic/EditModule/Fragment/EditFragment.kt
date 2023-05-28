@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.text.TextUtils
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -30,15 +29,14 @@ import androidx.core.net.toUri
 import androidx.core.view.get
 import androidx.core.view.setPadding
 import androidx.core.view.size
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.*
 import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.LoadModule.LoadResolver
@@ -50,8 +48,6 @@ import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.PictureModule.TextContent
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
-import com.goldenratio.onepic.databinding.AudioDialogBinding
-import com.goldenratio.onepic.databinding.FragmentAudioAddBinding
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -67,8 +63,9 @@ import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.Long
 import kotlin.Unit
-import kotlin.collections.ArrayList
+import kotlin.apply
 import kotlin.getValue
+import kotlin.let
 
 
 class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
@@ -78,7 +75,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     private lateinit var imageToolModule: ImageToolModule
-    private lateinit var magicPictureModule: MagicPictureModule
+    private var magicPictureModule: MagicPictureModule? = null
     private lateinit var loadResolver: LoadResolver
 
     private lateinit var imageContent: ImageContent
@@ -233,7 +230,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 if (pictureList[index].contentAttribute == ContentAttribute.magic) {
                     imageToolModule.showView(binding.magicPlayBtn, true)
 //                    imageToolModule.showView(binding.progressBar, true)
-                    showProgressBar(true, LoadingText.MagicPlay)
+//                    showProgressBar(true, LoadingText.MagicPlay)
                     setMagicPlay()
 //            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
                 }
@@ -325,8 +322,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
 
         /* 오디오 */
-
-
         // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
         var savedFile : File? = null
         jpegViewModel.jpegMCContainer.value!!.audioContent.audio?._audioByteArray?.let {
@@ -334,14 +329,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 it, "original"
             )
         }
+
+        addAudioModule()
         if(savedFile != null){
             tempAudioFile = savedFile
+            setCurrentSeekBar()
         }else{
             tempAudioFile = null
         }
-
-        addAudioModule()
-
 //        // audio ADD
 //        binding.audioAddBtn.setOnClickListener {
 //            // 일반 사진이면 안 넘어가도록
@@ -372,7 +367,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val newMainSubView = binding.linear.getChildAt(selectPictureIndex)
                 .findViewById<TextView>(R.id.mainMark)
             newMainSubView.visibility = View.VISIBLE
-
             // 메인에 관한 설정
             mainTextView = newMainSubView
             mainPicture = pictureList[selectPictureIndex]
@@ -456,14 +450,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                 }
 //                    imageToolModule.showView(binding.magicPlayBtn, true)
-
                     isMagicPlay = true
 
                 CoroutineScope(Dispatchers.Default).launch {
                     if (overlayBitmap.isEmpty() ) {
-                        while (!magicPictureModule.isInit) {}
-                        showProgressBar(false, null)
-                        overlayBitmap = magicPictureModule.magicPictureProcessing()
+                        while(magicPictureModule == null ) {}
+                        overlayBitmap = magicPictureModule!!.magicPictureProcessing()
                     }
 
                     Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
@@ -611,6 +603,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         /* 오디오 리스너 */
         // 오디오 취소
         binding.audioCancleBtn.setOnClickListener {
+
+            if(audioWithContent != null){
+                isDestroy = true
+                audioWithContent.cancel()
+                playinAudioUIStop()
+            }
+
             isAudioAddMode = false
             fitAudioModeUI()
             jpegViewModel.isAudioPlay.value = 0
@@ -619,7 +618,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             isRecordingMode = false
         }
 
-        // 오디오 추가가
+        // 오디오 추가 버튼
         addCurrentAudioBarListener()
         binding.audioCheckBtn.setOnClickListener {
             // 녹음 내역 저장
@@ -634,14 +633,35 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             imageContent.checkAddAttribute = true
 
             CoroutineScope(Dispatchers.Main).launch {
-                binding.RecordingTextView.setText("")
-                Toast.makeText(activity, "추가 되었습니다.", Toast.LENGTH_SHORT).show();
 
+                binding.linear.removeViewAt(binding.linear.size - 2)
+                val view = setContainerSubItem(R.drawable.edit_audio_icon, clickedFunc = ::ShowingAudio, deleteFunc = ::DeleteAudio)
+
+                imageContent.checkMainChangeAttribute = true
+
+                    binding.linear.addView(view, binding.linear.size - 1)
+
+                    // 저장 버튼 표시 | 메인 변경 버튼 없애기
+                    imageToolModule.showView(binding.saveBtn, true)
+
+
+                if(audioWithContent != null){
+                    isDestroy = true
+                    audioWithContent.cancel()
+
+                }
+
+                binding.RecordingTextView.setText("")
+                Toast.makeText(activity, "추가 되었습니다.", Toast.LENGTH_SHORT).show()
+
+                jpegViewModel.isAudioPlay.value = 0
                 isPlayingMode = true
                 isRecordedMode = false
                 isRecordingMode = false
 
                 isAudioAddMode = false
+
+                setCurrentSeekBar()
                 fitAudioModeUI()
             }
         }
@@ -653,6 +673,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             binding.audioContentLayout.visibility = View.VISIBLE
             binding.mainChangeLayout.visibility = View.GONE
             binding.containerLayout.visibility = View.GONE
+            binding.seekBar.visibility = View.GONE
+            // 편집 창 오디오 재생 바
+            binding.currentAudioBarLaydout.visibility = View.GONE
 
             binding.playAudioBarLaydout.visibility = View.GONE
             binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
@@ -668,6 +691,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             binding.audioContentLayout.visibility = View.GONE
             binding.mainChangeLayout.visibility = View.VISIBLE
             binding.containerLayout.visibility = View.VISIBLE
+            binding.seekBar.visibility = View.VISIBLE
+
+            binding.currentAudioBarLaydout.visibility = View.VISIBLE
             //binding.constraintLayout.visibility = View.VISIBLE
 
 
@@ -889,9 +915,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
             imageToolModule.showView(binding.magicPlayBtn, true)
+            setMagicPlay()
         }
         else {
             imageToolModule.showView(binding.magicPlayBtn, false)
+            magicPictureModule = null
         }
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -984,6 +1012,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                                    newPictureList[j]
 //                                )
 //                            )
+                            newPictureList[j].embeddedData = null
+                            newPictureList[j].embeddedSize = 0
+
                             pictureList.add(newPictureList[j])
                             val subLayout = setSubImage(pictureList[pictureList.size - 1])
                             binding.linear.addView(subLayout, pictureList.size - 1)
@@ -1020,6 +1051,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             imageToolModule.showView(binding.saveBtn, true)
                         }
                         setViewDetailMenu()
+                        setContainerTextSetting()
                     }
 
 
@@ -1308,6 +1340,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val selected = jpegViewModel.selectedSubImage
             if(selected != null)
                 magicPictureModule = MagicPictureModule(imageContent, selected)
+
+            Log.d("magic!!!", "seleted index = $selected | ${jpegViewModel.getSelectedSubImageIndex()}" )
         }
     }
 
@@ -1335,6 +1369,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     fun ShowingAudio(imageView: ImageView) {
 //        changeRound(imageView)
+        Log.d("current_audio", " AddAudio() 호출")
+
         handler.removeCallbacksAndMessages(null)
         isAudioPlay = if(isAudioPlay) {
             imageView.setImageResource(R.drawable.edit_audio_icon)
@@ -1343,12 +1379,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             imageView.setImageResource(R.drawable.edit_audio_click_icon)
             true
         }
-
         val audioContentLayout = binding.audioContentLayout
-
         // 오디오 활성화
         if(binding.currentAudioBarLaydout.visibility == View.GONE){
             binding.currentAudioBarLaydout.visibility = View.VISIBLE
+            setCurrentSeekBar()
             // 오디오 활성화
         }else{
             binding.currentAudioBarLaydout.visibility = View.GONE
@@ -1358,6 +1393,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     fun AddAudio(imageView: ImageView) {
 //        changeRound(imageView)
         handler.removeCallbacksAndMessages(null)
+
+        isAudioPlay = if(isAudioPlay) {
+            imageView.setImageResource(R.drawable.edit_audio_add_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_audio_add_click_icon)
+            true
+        }
+
         Log.d("add_test", " AddAudio() 호출")
         val dialog = ConfirmDialog( "Live 레코드를 추가 하시겠습니까?", GoAudioAddMode())
         // 알림창이 띄워져있는 동안 배경 클릭 막기
@@ -1380,17 +1424,19 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     fun addCurrentAudioBarListener(){
         val currentAudioBarLaydout = binding.currentAudioBarLaydout
         binding.currentPlayBtn.setOnClickListener {
+            var num = jpegViewModel.isAudioPlay.value
+            Log.d("current_audio", "${num}")
             // 정지 -> 재생
             if(jpegViewModel.isAudioPlay.value!! == 0){
                 // 오디오 재생
                 if(tempAudioFile != null){
                     jpegViewModel.isAudioPlay.value = 1
-                    setCurrentSeekBar()
-                    //mediaPlayer.start()
+                    currentSeekBarPlay()
+                    Log.d("current_audio", "플레이")
                 }
-
             } else if(jpegViewModel.isAudioPlay.value!! == 1){
                 // 재생 -> 정지
+                Log.d("current_audio", "플레이")
 //                if(isPlaying){
 //                    jpegViewModel.isAudioPlay.value = 0
 //                    if (mediaPlayer != null) {
@@ -1402,8 +1448,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 // replay -> 재생
             } else if(jpegViewModel.isAudioPlay.value!! == 2){
                 jpegViewModel.isAudioPlay.value = 1
+                Log.d("current_audio", "다시 재생1")
                 if(tempAudioFile != null){
-                    setCurrentSeekBar()
+                    currentSeekBarPlay()
+                    Log.d("current_audio", "다시 재생2")
                 }
             }
         }
@@ -1531,6 +1579,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }else{
             isAudioOn = false
             binding.audioContentLayout.visibility = View.GONE
+        }
+
+        // 수정 버튼
+        binding.audioEditBtn.setOnClickListener{
+            isAudioAddMode = true
+            fitAudioModeUI()
         }
 
         binding.playBtn.setOnClickListener {
@@ -1676,7 +1730,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 // 플레이
                 if(isPlayingEnd){
                     isPlayingEnd= false
-                    setCurrentSeekBar()
+                    currentSeekBarPlay()
                 }
             }
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
@@ -1693,7 +1747,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 Log.e("AudioModule", "Failed to media pause: ${e.message}")
 
             }
-
         }
     }
     override fun onYesButtonClick(id: Int) {
@@ -1712,18 +1765,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
     }
 
-    fun setCurrentSeekBar(){
-      //  isPlaying = true
+    fun currentSeekBarPlay(){
+        isPlaying = true
+        Log.d("current_audio","currentSeekBarPlay 호출: 오디오 재생" )
+
         audioWithContent = CoroutineScope(Dispatchers.IO).launch {
-            mediaPlayer.reset()
             mediaPlayer.apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
                 try {
-                    setDataSource(tempAudioFile!!.path)
-                    prepare()
                     start()
                 } catch (e: IOException) {
                     Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
@@ -1739,9 +1787,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     binding.currentSeekbar.clearFocus()
                     binding.currentSeekbar.progress = binding.currentSeekbar.max
                     binding.currentPlayBtn.setImageDrawable(resources.getDrawable(R.drawable.replay))
+                    jpegViewModel.isAudioPlay.value = 2
                     coroutineContext.cancelChildren()
                 }
-
                 playinAudioUIStart(mediaPlayer.duration)
                 while (true) {
                     if (mediaPlayer != null) {
@@ -1758,6 +1806,31 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
         }
+    }
+
+    // 재생 바의 적절한 파일 로드
+    fun setCurrentSeekBar(){
+      //  audioWithContent = CoroutineScope(Dispatchers.IO).launch {
+        Log.d("current_audio","setCurrentSeekBar 호출: 오디오 파일 로드" )
+            mediaPlayer.reset()
+            mediaPlayer.apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                try {
+                    if(tempAudioFile!!.path != null){
+                        setDataSource(tempAudioFile!!.path)
+                        prepare()
+                        Log.d("current_audio","setCurrentSeekBar 호출: ${mediaPlayer.duration}" )
+                        var time = mediaPlayer.duration/1000
+                        var string : kotlin.String = kotlin.String.format("%02d:%02d", time/60, time)
+                        binding.currentPlayTime.setText(string)
+                    }
+                } catch (e: IOException) {
+                    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
+                }
+            }
     }
     fun setSeekBar(){
         isPlaying = true
@@ -1820,20 +1893,24 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
         jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
     }
-    fun playinAudioUIStart(_time : Int){
+    fun playinAudioUIStart(_time : Int, ){
         if(playingTimerTask != null)
             playingTimerTask!!.cancel()
-        var time = _time/1000
+        var time = _time/1000 + 1
         if(isPlaying){
             playingTimerTask = object : TimerTask() {
                 var cnt = 0
                 override fun run() {
                     CoroutineScope(Dispatchers.Main).launch {
+                        // var time = _time/1000
                         var string : kotlin.String = kotlin.String.format("%02d:%02d", time/60, time)
+                        // binding.currentPlayTime.setText(string)
                         Log.d("AudioModule", time.toString())
-                        binding.playingTextView.setText(string)
-
-                        binding.currentPlayTime.setText(string)
+                        if(isAudioAddMode){
+                            binding.playingTextView.setText(string)
+                        } else {
+                            binding.currentPlayTime.setText(string)
+                        }
                         time -= 1
                         if(time < 0){
                             playinAudioUIStop()
@@ -1861,11 +1938,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 var cnt = 0
                 override fun run() {
                     CoroutineScope(Dispatchers.Main).launch {
-
                         var string : kotlin.String = kotlin.String.format("%02d:%02d", cnt/60, cnt)
                         binding.RecordingTextView.setText(string)
                         cnt++
-
                         if(cnt > 30){
                             timerUIStop()
                         }
@@ -1902,6 +1977,17 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     var textList : java.util.ArrayList<kotlin.String> = arrayListOf()
 
     fun addTextModuale(){
+
+        binding.editText.apply {
+            // 그림자 효과 추가
+            val shadowColor = Color.parseColor("#818181") // 그림자 색상
+            val shadowDx = 5f // 그림자의 X 방향 오프셋
+            val shadowDy = 0f // 그림자의 Y 방향 오프셋
+            val shadowRadius = 3f // 그림자의 반경
+            setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor)
+
+            textSize = 20.0F
+        }
         // 포커스를 잃으면 수정하는 그림이 뜨도록
         binding.editText.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
@@ -1975,6 +2061,18 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 Toast.makeText(activity, "${binding.textCheckButton.text} 되었습니다.", Toast.LENGTH_SHORT).show();
                 binding.textCheckButton.text = "수정"
             }
+
+            binding.linear.removeViewAt(binding.linear.size - 3)
+            val view = setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
+            // 메인 변경 유무 flag true로 변경
+            imageContent.checkMainChangeAttribute = true
+
+            CoroutineScope(Dispatchers.Main).launch{
+                binding.linear.addView(view, binding.linear.size - 2)
+
+                // 저장 버튼 표시 | 메인 변경 버튼 없애기
+                imageToolModule.showView(binding.saveBtn, true)
+            }
         }
     }
     fun ShowingText(imageView: ImageView) {
@@ -1996,6 +2094,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     fun AddText(imageView: ImageView) {
         handler.removeCallbacksAndMessages(null)
+
+        isTextView = if(isTextView) {
+            imageView.setImageResource(R.drawable.edit_text_add_icon)
+            false
+        } else {
+            imageView.setImageResource(R.drawable.edit_text_add_click_icon)
+            true
+        }
+
 //        changeRound(imageView)
         if(binding.textContentLayout.visibility == View.GONE){
             binding.textContentLayout.visibility = View.VISIBLE
@@ -2008,8 +2115,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun DeleteText() {
-
         textContent.textList.clear()
+
         imageContent.checkMainChangeAttribute = true
         imageToolModule.showView(binding.saveBtn, true)
         setContainerTextSetting()

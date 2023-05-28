@@ -311,7 +311,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 //                        newImage = null
 //                    }
                     // click 좌표를 bitmap에 해당하는 좌표로 변환
-                    val touchPoint = ImageToolModule().getBitmapClickPoint(
+                    val touchPoint = imageToolModule.getBitmapClickPoint(
                         PointF(event.x, event.y),
                         binding.mainView
                     )

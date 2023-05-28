@@ -195,7 +195,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
         val topMenuParams: ViewGroup.LayoutParams = binding.topMenu.getLayoutParams()
         val displaySize = Point()
         activity.windowManager.defaultDisplay.getSize(displaySize)
-        params.height = displaySize.y - topMenuParams.height - textureView.height - statusBarHeight
+//        params.height = displaySize.y - topMenuParams.height - textureView.height - statusBarHeight
+        params.height = displaySize.y - topMenuParams.height - textureView.height
 
         binding.bottomMenu.setLayoutParams(params)
 
