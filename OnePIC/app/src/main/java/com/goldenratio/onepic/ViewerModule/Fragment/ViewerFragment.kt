@@ -227,14 +227,21 @@ class ViewerFragment : Fragment() {
                     binding.allInJpegTextView.text = "All in JPEG"
                     marginEndInDp = resources.getDimensionPixelSize(R.dimen.info_marker_end_margin)
                     marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
+                    textViewlayoutParams.setMargins(0, marginTopInDp, marginEndInDp, 0)
+
+                    binding.allInJpegTextView.layoutParams = textViewlayoutParams
+
                 }
                 else {
-                    binding.allInJpegTextView.text = "JPEG"
-                    marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
+                    binding.containerImageView.visibility = View.GONE
+                    binding.corner.visibility = View.GONE
+                    binding.allInJpegTextView.visibility = View.GONE
+                    //binding.allInJpegTextView.text = "JPEG"
+                    //marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
                 }
-                textViewlayoutParams.setMargins(0, marginTopInDp, marginEndInDp, 0)
-
-                binding.allInJpegTextView.layoutParams = textViewlayoutParams
+//                textViewlayoutParams.setMargins(0, marginTopInDp, marginEndInDp, 0)
+//
+//                binding.allInJpegTextView.layoutParams = textViewlayoutParams
 
                 // 작업을 수행한 후 리스너를 제거할 수도 있습니다.
                 binding.allInJpegTextView.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -349,6 +356,7 @@ class ViewerFragment : Fragment() {
                 binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
                 isMagicBtnClicked = false
                 mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+                //previousClickedItem!!.performClick()
             }
         }
         try {

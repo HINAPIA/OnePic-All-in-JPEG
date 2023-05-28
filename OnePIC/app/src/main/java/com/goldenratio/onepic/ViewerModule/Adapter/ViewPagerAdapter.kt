@@ -337,8 +337,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         }
 
         fun magicPictureStop(){
-            externalImageView.setImageResource(0)
-            imageView.visibility = View.VISIBLE
+            handler.removeCallbacksAndMessages(null)
+            //imageView.visibility = View.VISIBLE
             //externalImageView.visibility = View.INVISIBLE
         }
     }

@@ -77,7 +77,7 @@ class BasicViewerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         ViewerFragment.currentFilePath = ""
-2
+
         init()
 
         isClickedRecyclerViewImage.observe(viewLifecycleOwner){ value ->
@@ -195,7 +195,7 @@ class BasicViewerFragment : Fragment() {
         val itemWidth = screenWidth / 2 // 화면 너비의 절반으로 아이템 크기 설정
 
 
-        val paddingStart = pxToDp(requireContext(),((screenWidth - itemWidth) / 2 + 170).toFloat()).toInt()//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
+        val paddingStart = itemWidth - 90//pxToDp(requireContext(),((screenWidth - itemWidth) / 2 + 170).toFloat()).toInt()//tab 에서 되는 코드 -> dpToPx(170f,requireContext())
         recyclerView.setPaddingRelative(paddingStart, 0, paddingStart, 0)
         recyclerView.clipToPadding = false
 
