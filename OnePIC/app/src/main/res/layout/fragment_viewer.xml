@@ -218,7 +218,7 @@
                     android:id="@+id/infoMarkerTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="All in JPEG 안에 저장된 사진을 보고있습니다."
+                    android:text="안에 저장된 사진을 보고있습니다."
                     android:textColor="@color/white"
                     android:textSize="14dp" />
 
@@ -292,7 +292,7 @@
                 android:layout_gravity="center_vertical|end"
                 android:rotation="90"
                 android:text="All in JPEG"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 android:textStyle="bold" />
 
 
