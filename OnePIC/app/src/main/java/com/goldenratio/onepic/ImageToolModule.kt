@@ -460,7 +460,6 @@ class ImageToolModule {
             }
 
         }
-
         return adjustedArr
     }
 

@@ -585,8 +585,6 @@
                     android:id="@+id/recordingImageView"
                     android:layout_width="60dp"
                     android:layout_height="65dp"
-                    android:layout_marginStart="167dp"
-                    android:layout_marginEnd="165dp"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -615,7 +613,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/containerLayout"
                 android:layout_width="match_parent"
-                android:layout_height="120dp">
+                android:layout_height="120dp"
+                android:visibility="visible">
 
                 <ImageView
                     android:id="@+id/containerImageView"
@@ -675,7 +674,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="TextView"
                             android:textSize="12sp" />
 
                     </LinearLayout>

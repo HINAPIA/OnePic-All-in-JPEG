@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.text.TextUtils
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -30,15 +29,14 @@ import androidx.core.net.toUri
 import androidx.core.view.get
 import androidx.core.view.setPadding
 import androidx.core.view.size
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.*
 import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.LoadModule.LoadResolver
@@ -50,8 +48,6 @@ import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.PictureModule.TextContent
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
-import com.goldenratio.onepic.databinding.AudioDialogBinding
-import com.goldenratio.onepic.databinding.FragmentAudioAddBinding
 import com.goldenratio.onepic.databinding.FragmentEditBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -67,8 +63,9 @@ import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.Long
 import kotlin.Unit
-import kotlin.collections.ArrayList
+import kotlin.apply
 import kotlin.getValue
+import kotlin.let
 
 
 class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
@@ -78,7 +75,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     private lateinit var imageToolModule: ImageToolModule
-    private lateinit var magicPictureModule: MagicPictureModule
+    private var magicPictureModule: MagicPictureModule? = null
     private lateinit var loadResolver: LoadResolver
 
     private lateinit var imageContent: ImageContent
@@ -233,7 +230,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 if (pictureList[index].contentAttribute == ContentAttribute.magic) {
                     imageToolModule.showView(binding.magicPlayBtn, true)
 //                    imageToolModule.showView(binding.progressBar, true)
-                    showProgressBar(true, LoadingText.MagicPlay)
+//                    showProgressBar(true, LoadingText.MagicPlay)
                     setMagicPlay()
 //            Toast.makeText(requireContext(), "매직 사진입니다", Toast.LENGTH_LONG).show()
                 }
@@ -367,7 +364,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val newMainSubView = binding.linear.getChildAt(selectPictureIndex)
                 .findViewById<TextView>(R.id.mainMark)
             newMainSubView.visibility = View.VISIBLE
-
             // 메인에 관한 설정
             mainTextView = newMainSubView
             mainPicture = pictureList[selectPictureIndex]
@@ -451,14 +447,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                 }
 //                    imageToolModule.showView(binding.magicPlayBtn, true)
-
                     isMagicPlay = true
 
                 CoroutineScope(Dispatchers.Default).launch {
                     if (overlayBitmap.isEmpty() ) {
-                        while (!magicPictureModule.isInit) {}
-                        showProgressBar(false, null)
-                        overlayBitmap = magicPictureModule.magicPictureProcessing()
+                        while(magicPictureModule == null ) {}
+                        overlayBitmap = magicPictureModule!!.magicPictureProcessing()
                     }
 
                     Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
@@ -629,8 +623,20 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             imageContent.checkAddAttribute = true
 
             CoroutineScope(Dispatchers.Main).launch {
+                binding.linear.removeViewAt(binding.linear.size - 2)
+                val view = setContainerSubItem(R.drawable.edit_audio_icon, clickedFunc = ::ShowingAudio, deleteFunc = ::DeleteAudio)
+
+                imageContent.checkMainChangeAttribute = true
+
+                CoroutineScope(Dispatchers.Main).launch{
+                    binding.linear.addView(view, binding.linear.size - 1)
+
+                    // 저장 버튼 표시 | 메인 변경 버튼 없애기
+                    imageToolModule.showView(binding.saveBtn, true)
+                }
+
                 binding.RecordingTextView.setText("")
-                Toast.makeText(activity, "추가 되었습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "추가 되었습니다.", Toast.LENGTH_SHORT).show()
 
                 isPlayingMode = true
                 isRecordedMode = false
@@ -884,9 +890,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
             imageToolModule.showView(binding.magicPlayBtn, true)
+            setMagicPlay()
         }
         else {
             imageToolModule.showView(binding.magicPlayBtn, false)
+            magicPictureModule = null
         }
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -979,6 +987,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                                    newPictureList[j]
 //                                )
 //                            )
+                            newPictureList[j].embeddedData = null
+                            newPictureList[j].embeddedSize = 0
+
                             pictureList.add(newPictureList[j])
                             val subLayout = setSubImage(pictureList[pictureList.size - 1])
                             binding.linear.addView(subLayout, pictureList.size - 1)
@@ -1015,6 +1026,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             imageToolModule.showView(binding.saveBtn, true)
                         }
                         setViewDetailMenu()
+                        setContainerTextSetting()
                     }
 
 
@@ -1303,6 +1315,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val selected = jpegViewModel.selectedSubImage
             if(selected != null)
                 magicPictureModule = MagicPictureModule(imageContent, selected)
+
+            Log.d("magic!!!", "seleted index = $selected | ${jpegViewModel.getSelectedSubImageIndex()}" )
         }
     }
 
@@ -1970,6 +1984,18 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 Toast.makeText(activity, "${binding.textCheckButton.text} 되었습니다.", Toast.LENGTH_SHORT).show();
                 binding.textCheckButton.text = "수정"
             }
+
+            binding.linear.removeViewAt(binding.linear.size - 3)
+            val view = setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
+            // 메인 변경 유무 flag true로 변경
+            imageContent.checkMainChangeAttribute = true
+
+            CoroutineScope(Dispatchers.Main).launch{
+                binding.linear.addView(view, binding.linear.size - 2)
+
+                // 저장 버튼 표시 | 메인 변경 버튼 없애기
+                imageToolModule.showView(binding.saveBtn, true)
+            }
         }
     }
     fun ShowingText(imageView: ImageView) {
@@ -2003,8 +2029,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun DeleteText() {
-
         textContent.textList.clear()
+
         imageContent.checkMainChangeAttribute = true
         imageToolModule.showView(binding.saveBtn, true)
         setContainerTextSetting()
