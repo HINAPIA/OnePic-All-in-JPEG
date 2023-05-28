@@ -12,6 +12,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import androidx.exifinterface.media.ExifInterface
@@ -365,6 +366,102 @@ class ImageToolModule {
             pen.style = Paint.Style.STROKE
             canvas.drawArc(box, -30f, 70f, false, pen)
             canvas.drawArc(box, 140f, 70f, false, pen)
+        return outputBitmap
+    }
+
+    fun drawFocusResult(
+        bitmap: Bitmap,
+        detectionResults: ArrayList<ArrayList<Int>>,
+        customColor1: Int,
+        customColor2: Int
+    ): Bitmap {
+        var outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+
+        detectionResults.forEach {
+            val boundingBox = RectF(it[0].toFloat(), it[1].toFloat(), it[2].toFloat(), it[3].toFloat())
+            outputBitmap = drawFocusResult(outputBitmap, boundingBox, customColor1, customColor2)
+        }
+        return outputBitmap
+    }
+
+    fun drawFocusResult(
+        bitmap: Bitmap,
+        box: RectF,
+        customColor1: Int,
+        customColor2: Int
+    ): Bitmap {
+        val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(outputBitmap)
+        val pen = Paint()
+
+        pen.strokeWidth = 25f
+        pen.style = Paint.Style.STROKE
+
+        val top = box.top
+        val bottom = box.bottom
+        val left = box.left
+        val right = box.right
+
+        var lineLength = 130f
+
+        var path = Path()
+        pen.color = customColor1
+        path.moveTo(left - pen.strokeWidth/2f, top)
+        path.lineTo(left + lineLength, top)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor2
+        path.moveTo(left + lineLength, top)
+        path.lineTo(right - lineLength, top)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor1
+        path.moveTo(right - lineLength, top)
+        path.lineTo(right, top)
+        path.lineTo(right, top + lineLength)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor2
+        path.moveTo(right, top + lineLength)
+        path.lineTo(right, bottom - lineLength)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor1
+        path.moveTo(right, bottom - lineLength)
+        path.lineTo(right, bottom)
+        path.lineTo(right - lineLength, bottom)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor2
+        path.moveTo(right - lineLength, bottom)
+        path.lineTo(left + lineLength, bottom)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor1
+        path.moveTo(left + lineLength, bottom)
+        path.lineTo(left, bottom)
+        path.lineTo(left, bottom - lineLength)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor2
+        path.moveTo(left, bottom - lineLength)
+        path.lineTo(left, top + lineLength)
+        canvas.drawPath(path, pen);
+
+        path = Path()
+        pen.color = customColor1
+        path.moveTo(left, top + lineLength)
+        path.lineTo(left, top)
+        canvas.drawPath(path, pen);
+        path.close()
+
         return outputBitmap
     }
 
