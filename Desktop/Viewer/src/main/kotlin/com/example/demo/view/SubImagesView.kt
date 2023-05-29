@@ -1,5 +1,6 @@
 package com.example.demo.view
 
+import com.example.demo.app.CustomColor
 import com.example.demo.app.ImageTool
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.AiContainer
@@ -96,7 +97,7 @@ class SubImagesView(val centerView : CenterView) : View() {
                     centerView.focusView("text", 0)
                     textView.style{
                         borderWidth += box(4.px)
-                        borderColor += box(c("#31D655"))
+                        borderColor += box(c(CustomColor.point))
                         borderRadius  += box(10.px)
                     }
                 }
@@ -117,7 +118,7 @@ class SubImagesView(val centerView : CenterView) : View() {
                     centerView.focusView("audio", 0)
                     audioView.style{
                         borderWidth += box(4.px)
-                        borderColor += box(c("#EA2424"))
+                        borderColor += box(c(CustomColor.point))
                         borderRadius += box(10.px)
                     }
                 }
@@ -292,7 +293,7 @@ class SubImagesView(val centerView : CenterView) : View() {
             "text" -> {
                 textView.style{
                     borderWidth += box(4.px)
-                    borderColor += box(c("#31D655"))
+                    borderColor += box(c(CustomColor.point))
                     borderRadius  += box(10.px)
 
                 }
@@ -300,7 +301,7 @@ class SubImagesView(val centerView : CenterView) : View() {
             "audio" -> {
                 audioView.style{
                     borderWidth += box(4.px)
-                    borderColor += box(c("#EA2424"))
+                    borderColor += box(c(CustomColor.point))
                     borderRadius  += box(10.px)
 
                 }
@@ -373,14 +374,14 @@ class SubImagesView(val centerView : CenterView) : View() {
                             fitWidth = fitHeight / aspectRatio
                         }
                         singleImageView.setOnMouseEntered { e ->
-                            centerView.focusView("image", i)
+                           // centerView.focusView("image", i)
                             singleImageView.style{
                                 borderWidth += box(5.px)
                                 borderColor += box(Color.BLUE)
                             }
                         }
                         singleImageView.setOnMouseExited { e ->
-                            centerView.unfocusView("image", i)
+                           // centerView.unfocusView("image", i)
 
                         }
                         singleImageView.setOnMouseClicked { e ->

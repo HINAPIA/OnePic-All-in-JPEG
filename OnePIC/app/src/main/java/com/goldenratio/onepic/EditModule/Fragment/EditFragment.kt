@@ -329,10 +329,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
 
         /* Format - JPEG, Ai JPEG*/
-        if(JpegViewModel.AllInJPEG)
+        if(JpegViewModel.AllInJPEG) {
+            Log.d("format_test", "뷰어 로드할 때 AllInJPEG = true")
             binding.formatTextView.text = "ALL In JPEG"
-        else
+        }
+        else{
             binding.formatTextView.text = "일반 JPEG"
+            Log.d("format_test", "뷰어 로드할 때 AllInJPEG = false")
+        }
+
 
         /* 텍스트 추가 */
         addTextModuale()
@@ -579,8 +584,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
 
                 // Format 설정
-                if(isAllInJPEG) JpegViewModel.AllInJPEG = true
-                else JpegViewModel.AllInJPEG = false
+
+                if(isAllInJPEG) {
+                    JpegViewModel.AllInJPEG = true
+                    Log.d("format_test" , "저장 할 때 AllInJPEG = true")
+                }
+                else {
+                    JpegViewModel.AllInJPEG = false
+                    Log.d("format_test" , "저장 할 때 AllInJPEG = false")
+                }
 
                 CoroutineScope(Dispatchers.IO).launch {
                     jpegViewModel.currentFileName = fileName
@@ -986,7 +998,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 if (imageUri != null) {
                     uriList.add(imageUri)
                 }
-
             } else {      // 이미지를 여러장 선택한 경우
                 val clipData: ClipData? = data.clipData
                 Log.e("clipData", String.valueOf(clipData?.itemCount))
@@ -1010,6 +1021,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
             if(uriList.size > 0) {
+                checkAllInJPEG()
                 for(i in 0 until uriList.size) {
                     val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
                     val sourceByteArray = imageToolModule.getBytes(iStream!!)
@@ -1033,6 +1045,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                            )
                             newPictureList[j].embeddedData = null
                             newPictureList[j].embeddedSize = 0
+                            newPictureList[j].contentAttribute = ContentAttribute.basic
 
                             pictureList.add(newPictureList[j])
                             val subLayout = setSubImage(pictureList[pictureList.size - 1])
@@ -1314,9 +1327,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //        handler.removeCallbacksAndMessages(null)
 ////        changeRound(imageView)
 //    }
-
-
-
 
     fun AddImage(imageView: ImageView) {
         handler.removeCallbacksAndMessages(null)
@@ -2171,6 +2181,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             binding.formatTextView.text = "ALL In JPEG"
         }else{
             isAllInJPEG = false
+            Log.d("format_test", "textContent.textCount : ${textContent.textCount}")
+            Log.d("format_test", "audioContent.audio : ${audioContent.audio?._audioByteArray?.size}")
             binding.formatTextView.text = "일반 JPEG"
         }
     }

@@ -1,3 +1,9 @@
 Manifest-Version: 1.0
-Main-Class: com.example.demo.app.MyApp
+Main-Class: com.example.demo.app.MyAppKt
+Class-Path: kotlin-reflect-1.3.61.jar metadata-extractor-2.12.0.jar java
+ x.json-api-1.1.2.jar kotlin-stdlib-common-1.8.21.jar kotlinx-coroutines
+ -core-jvm-1.6.4.jar kotlin-stdlib-1.8.21.jar animated-gif-lib-for-java-
+ animated-gif-lib-1.7.jar kotlin-stdlib-jdk7-1.8.21.jar kotlin-stdlib-jd
+ k8-1.8.21.jar kotlinx-coroutines-core-1.6.4.jar tornadofx-1.7.20.jar an
+ notations-13.0.jar javax.json-1.1.2.jar xmpcore-6.0.6.jar
 

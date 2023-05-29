@@ -626,7 +626,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             Log.d("error 잡기", "넘어가기 전")
 //                            imageContent.activityType = ActivityType.Camera
 //                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-//
+                            JpegViewModel.AllInJPEG = false
                             jpegViewModel.jpegMCContainer.value?.save()
                         }
                     }
@@ -677,7 +677,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                     Log.d("error 잡기", "넘어가기 전")
 //                                    imageContent.activityType = ActivityType.Camera
 //                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-
+                                    JpegViewModel.AllInJPEG = true
                                     jpegViewModel.jpegMCContainer.value?.save()
                                 }
 
@@ -711,12 +711,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 isFocusSuccess = false
 
                 saveObjectCenterPoint()
+                JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
             }
 
             // Distance Focus 모드
             else if(distanceFocusRadioBtn.isChecked){
 
+                JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
                 turnOffAFMode(0f)
                 controlLensFocusDistance(0)

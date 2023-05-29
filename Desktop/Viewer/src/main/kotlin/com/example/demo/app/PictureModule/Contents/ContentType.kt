@@ -13,11 +13,12 @@ enum class ActivityType {
 
 enum class ContentAttribute(val code: Int ) {
     none(0),
-    basic(1),
-    burst(2),
-    focus(3),
-    magic(4),
-    edited(5);
+    Basic(1),
+    Burst(2),
+    object_focus(3),
+    Focus(4),
+    magic(5),
+    edited(6);
 
     companion object {
         fun fromCode(code: Int) = values().firstOrNull { it.code == code } ?: none

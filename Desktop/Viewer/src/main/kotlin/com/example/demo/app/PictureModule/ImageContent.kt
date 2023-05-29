@@ -5,7 +5,6 @@ import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.nio.ByteBuffer
 
 
@@ -121,10 +120,10 @@ class ImageContent {
      */
     fun setBasicContent(sourceByteArray: ByteArray){
         init()
-        jpegMetaData = extractJpegMeta(sourceByteArray, ContentAttribute.basic)
-        var frameBytes : ByteArray = extractFrame(sourceByteArray,ContentAttribute.basic)
+        jpegMetaData = extractJpegMeta(sourceByteArray, ContentAttribute.Basic)
+        var frameBytes : ByteArray = extractFrame(sourceByteArray,ContentAttribute.Basic)
         // Picture 객체 생성
-        var picture = Picture(ContentAttribute.basic, frameBytes)
+        var picture = Picture(ContentAttribute.Basic, frameBytes)
         picture.waitForByteArrayInitialized()
         insertPicture(picture)
         mainPicture = pictureList[0]

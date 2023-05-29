@@ -22,8 +22,8 @@ class AimetaDataView (val centerView : CenterView) : View() {
 
     var imageContentViewList : ArrayList<VBox> = arrayListOf()
     override val root = vbox{
-
-        setMaxSize(280.0, 480.0)
+        maxWidth = 280.0
+        //setMaxSize(280.0, 480.0)
         padding = insets(0,0,0,10)
         spacing = 5.0
             style{
@@ -40,7 +40,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
             // vbox 내부에 있는 모든 text 컨트롤의 색상을 파란색으로 변경
             imageView.lookupAll(".label").forEach { text ->
                 text.style {
-                    textFill = c("#257CFF") // 파란색으로 변경
+                    textFill = c(CustomColor.point) // 파란색으로 변경
                 }
             }
         }
@@ -48,14 +48,14 @@ class AimetaDataView (val centerView : CenterView) : View() {
     fun selectTextConentView(){
         textContent.lookupAll(".label").forEach { text ->
             text.style {
-                textFill = c("#31D655") // 파란색으로 변경
+                textFill = c(CustomColor.point) // 파란색으로 변경
             }
         }
     }
     fun selectAudioConentView(){
         audioContent.lookupAll(".label").forEach { text ->
             text.style {
-                textFill = c("#EA2424") // 파란색으로 변경
+                textFill = c(CustomColor.point) // 파란색으로 변경
             }
         }
     }
@@ -89,9 +89,9 @@ class AimetaDataView (val centerView : CenterView) : View() {
                 padding = insets(10)
                 spacing = 5.0
 
-                add(createHbox("Format", "JPEG", 70.0 + 60))
+                add(createHbox("Format", "ALL in JPEG", 90.0))
                 add(createHbox("Data Field Length", "100", 70.0))
-                add(createHbox("Indentity", "All-in", 70 +50.0))
+                //add(createHbox("Indentity", "All-in", 70 +50.0))
 
                 separator()
 
@@ -186,8 +186,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
                     var imageInfo = imageContentInfo.imageInfoList.get(i)
                     var imageContentView = vbox {
                         //hbox
-                        //add(createHbox("◇Image ${i+1}","", 80.0))
-                        add(createTitleHbox("Image ${i+1}"))
+                        add(createImageTitleHbox("Image ${i+1}"))
                         // 1개의 image info
                          vbox {
                             padding = insets(0,0,0,20)
@@ -209,6 +208,17 @@ class AimetaDataView (val centerView : CenterView) : View() {
         }
     }
 
+    fun createImageTitleHbox(key: String) : HBox{
+        return hbox {
+            label{
+                text = key
+                style{
+                    textFill = c(CustomColor.point) // 글자 색상 흰색
+                    font = Font.font("Inter", FontWeight.EXTRA_BOLD, 10.0)
+                }
+            }
+        }
+    }
     fun createTitleHbox(key: String) : HBox{
         return hbox {
             label{
@@ -233,7 +243,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
                 text = value
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Inter", FontWeight.BOLD, 10.0)
+                    font = Font.font("Inter", FontWeight.MEDIUM, 10.0)
                 }
             }
 

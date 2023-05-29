@@ -368,6 +368,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         if(!isAnalsys){
             isAnalsys = true
             analysisButton.isVisible = false
+            analysisContent.text =""
             analyzingImageAnimation()
             analyzing()
         }
