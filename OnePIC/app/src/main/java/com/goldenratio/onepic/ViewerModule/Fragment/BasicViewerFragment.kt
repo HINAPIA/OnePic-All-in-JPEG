@@ -112,6 +112,7 @@ class BasicViewerFragment : Fragment() {
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
             mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
+            Glide.get(requireContext()).clearMemory()
             recyclerViewAdapter.updateData(jpegViewModel.imageUriLiveData.value!!)//setRecyclerViewItem(jpegViewModel.imageUriLiveData.value!!)
 
 
