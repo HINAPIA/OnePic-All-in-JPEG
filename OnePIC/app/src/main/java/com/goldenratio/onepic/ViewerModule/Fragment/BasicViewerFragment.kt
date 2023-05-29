@@ -110,9 +110,8 @@ class BasicViewerFragment : Fragment() {
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
 
             mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
-            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
-            Glide.get(requireContext()).clearMemory()
+            mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
             recyclerViewAdapter.updateData(jpegViewModel.imageUriLiveData.value!!)//setRecyclerViewItem(jpegViewModel.imageUriLiveData.value!!)
 
 
@@ -185,7 +184,7 @@ class BasicViewerFragment : Fragment() {
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewAdapter = RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!,
+        recyclerViewAdapter = RecyclerViewAdapter(this,jpegViewModel.imageUriLiveData.value!!,
             recyclerView.layoutManager as LinearLayoutManager
         )
         recyclerView.adapter = recyclerViewAdapter//RecyclerViewAdapter(jpegViewModel.imageUriLiveData.value!!)

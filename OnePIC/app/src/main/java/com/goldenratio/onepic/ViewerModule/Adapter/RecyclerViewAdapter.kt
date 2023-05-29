@@ -8,13 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.adapter.FragmentViewHolder
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Fragment.BasicViewerFragment
 
-class RecyclerViewAdapter(var imageList: List<String>, var layoutManager: LinearLayoutManager) :
+class RecyclerViewAdapter(var fragment: Fragment, var imageList: List<String>, var layoutManager: LinearLayoutManager) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
 
@@ -37,13 +41,21 @@ class RecyclerViewAdapter(var imageList: List<String>, var layoutManager: Linear
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val imageUrl = imageList[position]
+        Log.d("이걸 확인해야함 position:${position} - ",""+imageUrl)
 
-        Glide.with(holder.itemView)
-            .load(imageUrl)
-            .into(holder.imageView)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            Glide.with(holder.itemView)
+                .load(imageUrl)
+                .into(holder.imageView)
+        }
+        else {
+            Glide.with(holder.itemView)
+                .load(ImageToolModule().getUriFromPath(fragment.requireContext(),imageUrl))
+                .into(holder.imageView)
+        }
+
 
         holder.imageView.setOnClickListener{
-            Log.d("여기로 들어오긴 함","")
             BasicViewerFragment.currentPosition = position
             BasicViewerFragment.centerItemPosition = position
             BasicViewerFragment.isClickedRecyclerViewImage.value = true
