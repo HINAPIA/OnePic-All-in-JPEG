@@ -260,9 +260,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         if(dir.exists().not()) {
             dir.mkdirs() // 폴더 없을경우 폴더 생성
         }
-
         try {
-
             fileItem.createNewFile()
             //0KB 파일 생성.
 
@@ -313,12 +311,16 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             byteBuffer.write(jpegMetaData,0,2)
         }
 
+
+//        if(JpegViewModel.AllInJPEG){
+//
+//        }
+
         //헤더 쓰기
         //App3 Extension 데이터 생성
         MCContainer.settingHeaderInfo()
         var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
         byteBuffer.write(APP3ExtensionByteArray)
-
         //나머지 첫번째 사진의 데이터 쓰기
         byteBuffer.write(jpegMetaData,4 + exifDataLength,jpegMetaData.size-(4 + exifDataLength))
         // byteBuffer.write(jpegMetaData)
