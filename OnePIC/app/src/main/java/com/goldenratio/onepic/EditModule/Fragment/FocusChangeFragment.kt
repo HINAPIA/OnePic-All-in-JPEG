@@ -8,15 +8,12 @@ import android.view.*
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toPointF
 import androidx.core.graphics.toRectF
-import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.goldenratio.onepic.CameraModule.CameraFragment
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ActivityType
@@ -25,15 +22,12 @@ import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentFocusChangeBinding
-import com.google.mlkit.vision.face.Face
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.reflect.typeOf
 
 
 class FocusChangeFragment : Fragment() {
@@ -242,9 +236,8 @@ class FocusChangeFragment : Fragment() {
 
         binding.focusSaveBtn.setOnClickListener {
             imageContent.resetBitmap()
-            imageToolModule.showView(binding.progressBar , true)
+            imageToolModule.showView(binding.progressBar, true)
             CoroutineScope(Dispatchers.Default).launch {
-                // 1. main으로 지정된 picture를 picturelist에서 삭제
                 var result = imageContent.removePicture(mainPicture)
                 Log.d("error 잡기", "메인 바꾸고 save : ${result}")
                 if (result) {
@@ -255,27 +248,12 @@ class FocusChangeFragment : Fragment() {
                     imageContent.mainPicture = mainPicture
                 }
 
-
-                if(imageContent.activityType == ActivityType.Camera) {
-                    withContext(Dispatchers.Main){
-                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                        jpegViewModel.jpegMCContainer.value?.save()
-                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
-                        imageContent.checkMainChangeAttribute = true
-                        Thread.sleep(2000)
-                        imageToolModule.showView(binding.progressBar , false)
-                        findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
-                    }
+                withContext(Dispatchers.Main) {
+                    Log.d("error 잡기", "바로 편집에서 navigate호출 전")
+                    imageContent.checkMainChangeAttribute = true
+                    findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
                 }
-                else{
-                    withContext(Dispatchers.Main){
-                        Log.d("error 잡기", "바로 편집에서 navigate호출 전")
-                        imageContent.checkMainChangeAttribute = true
-                        findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
-                    }
-                    imageToolModule.showView(binding.progressBar , false)
-
-                }
+                imageToolModule.showView(binding.progressBar, false)
 
             }
         }
@@ -393,6 +371,7 @@ class FocusChangeFragment : Fragment() {
                     bitmapResult.resume(i)
 //                    val boundingBox = listOf<Int>( obj.left, obj.top, obj.right, obj.bottom )
 //                    bitmapResult.resume(boundingBox)
+                    break
                 }
                 if(!checkResume && i == boundingBoxResizeList.size) bitmapResult.resume(null)
             }
