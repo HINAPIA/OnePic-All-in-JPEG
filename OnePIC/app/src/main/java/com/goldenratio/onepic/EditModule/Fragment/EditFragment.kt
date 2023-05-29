@@ -245,6 +245,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     imageToolModule.showView(binding.seekBar, true)
                     setDistanceSeekBar()
                 }
+                if(imageContent.checkAttribute(ContentAttribute.object_focus)) {
+                    imageToolModule.showView(binding.focusBtn, true)
+                }
             }
             setContainerTextSetting()
 
@@ -289,6 +292,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 binding.bestMainBtn.visibility = View.VISIBLE
                 binding.rewindBtn.visibility = View.VISIBLE
                 binding.magicBtn.visibility = View.VISIBLE
+            }
+
+            if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+                binding.bestMainBtn.visibility = View.GONE
+                binding.rewindBtn.visibility = View.GONE
+                binding.magicBtn.visibility = View.GONE
             }
         }
     }
@@ -650,6 +659,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             CoroutineScope(Dispatchers.Main).launch {
                 binding.linear.removeViewAt(binding.linear.size - 2)
                 val view = setContainerSubItem(R.drawable.edit_audio_icon, clickedFunc = ::ShowingAudio, deleteFunc = ::DeleteAudio)
+                setContainerTextSetting()
 
                 binding.audioContentLayout.visibility = View.GONE
                 imageContent.checkMainChangeAttribute = true
@@ -1426,6 +1436,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
         binding.linear.addView(view, binding.linear.size - 1)
         checkAllInJPEG()
+        setContainerTextSetting()
+
     }
 
     fun addCurrentAudioBarListener(){
@@ -2084,6 +2096,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
             binding.linear.removeViewAt(binding.linear.size - 3)
             val view = setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
+            setContainerTextSetting()
+
             // 메인 변경 유무 flag true로 변경
             imageContent.checkMainChangeAttribute = true
 
@@ -2146,6 +2160,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
         binding.linear.addView(view, binding.linear.size - 2)
         checkAllInJPEG()
+        setContainerTextSetting()
     }
 
 
