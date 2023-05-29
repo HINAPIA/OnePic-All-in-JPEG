@@ -17,7 +17,6 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
@@ -156,16 +155,16 @@ class FocusChangeFragment : Fragment() {
 
 //        Thread.sleep(3000)
         Log.d("error 잡기", "focusEdit picureList size ${pictureList.size}")
-        if(imageContent.activityType == ActivityType.Viewer) {
+//        if(imageContent.activityType == ActivityType.Viewer) {
             infoLevel.value = InfoLevel.BeforeMainSelect
             infoLevel.observe(viewLifecycleOwner){ _ ->
                 infoTextView()
             }
-        }
-        else {
-            infoLevel.value = InfoLevel.AfterMainSelect
-            infoTextView()
-        }
+//        }
+//        else {
+//            infoLevel.value = InfoLevel.AfterMainSelect
+//            infoTextView()
+//        }
 
         CoroutineScope(Dispatchers.Default).launch {
             if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
@@ -266,7 +265,7 @@ class FocusChangeFragment : Fragment() {
 
                 withContext(Dispatchers.Main) {
                     Log.d("error 잡기", "바로 편집에서 navigate호출 전")
-                    imageContent.checkMainChangeAttribute = true
+                    imageContent.checkMainChanged = true
                     findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
                 }
                 imageToolModule.showView(binding.progressBar, false)

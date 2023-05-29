@@ -14,17 +14,12 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.activityViewModels
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.*
 
 
@@ -143,7 +138,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         Log.d("here here : ",ViewerFragment.currentFilePath )
 
         val outputStream: OutputStream? = uri?.let {
-            mainActivity.getContentResolver().openOutputStream(
+            mainActivity.contentResolver.openOutputStream(
                 it
             )
         }

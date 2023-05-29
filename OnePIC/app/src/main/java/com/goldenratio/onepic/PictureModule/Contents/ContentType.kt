@@ -6,11 +6,6 @@ enum class ContentType {
     Text
 }
 
-enum class ActivityType {
-    Camera,
-    Viewer
-}
-
 enum class ContentAttribute(val code: Int ) {
     none(0),
     basic(1),
