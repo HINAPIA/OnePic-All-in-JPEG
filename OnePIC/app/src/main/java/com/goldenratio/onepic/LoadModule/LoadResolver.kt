@@ -2,6 +2,7 @@ package com.goldenratio.onepic.LoadModule
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.Audio
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
@@ -12,14 +13,12 @@ import java.io.IOException
 
 
 class LoadResolver() {
-
-
     fun findAPP3StartPos(sourceByteArray: ByteArray) : Int {
-        // APP3 세그먼트의 시작 위치를 찾음
+        // APP3 - ALL in JPEG 세그먼트의 시작 위치를 찾음
         var APP3_startOffset = 2
         while (APP3_startOffset < sourceByteArray.size - 1) {
             if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
-                //MC Format인지 확인
+                //All in Format인지 확인
                 if(sourceByteArray[APP3_startOffset+6] == 0x4D.toByte() &&  sourceByteArray[APP3_startOffset+7] == 0x43.toByte()
                     && sourceByteArray[APP3_startOffset+8] == 0x46.toByte()){
                     APP3_startOffset +=2
@@ -35,6 +34,7 @@ class LoadResolver() {
         // APP3 마커가 없음
         return -1
     }
+
     suspend fun createMCContainer(
         MCContainer: MCContainer,
         sourceByteArray: ByteArray
@@ -43,21 +43,21 @@ class LoadResolver() {
             // APP3 세그먼트의 시작 위치를 찾음
             var APP3_startOffset = 2
             APP3_startOffset = findAPP3StartPos(sourceByteArray)
-
             if (APP3_startOffset == - 1) {
                 try{
                     // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
                     Log.d("MCContainer", "일반 JPEG 생성")
                     MCContainer.setBasicJepg(sourceByteArray)
+                    JpegViewModel.AllInJPEG = false
                 }catch (e : IOException){
                     Log.e("MCcontainer", "Basic JPEG Parsing 불가")
                 }
-
             }
             else {
                 try{
                     Log.d("MCcontainer", "MC JPEG 생성")
+                    JpegViewModel.AllInJPEG = true
                     // var header : Header = Header()
                     var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset)
 

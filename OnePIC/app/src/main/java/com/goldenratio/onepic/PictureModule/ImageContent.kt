@@ -437,7 +437,6 @@ class ImageContent {
 
     // 한 파일에서 SOF~EOI 부분의 바이너리 데이터를 찾아 ByteArray에 담아 리턴
     fun extractFrame(jpegBytes: ByteArray, attribute: ContentAttribute): ByteArray {
-
         var pos = 0
         var startIndex = 0
         var endIndex = jpegBytes.size
@@ -445,10 +444,8 @@ class ImageContent {
         var isFindStartMarker = false // 시작 마커를 찾았는지 여부
         var isFindEndMarker = false // 종료 마커를 찾았는지 여부
 
-
         var SOFList : ArrayList<Int> = arrayListOf()
         var APP0MarkerList : ArrayList<Int> = arrayListOf()
-
 
         // 2번째 JFIF가 나오기 전까지가 메타데이터
         if (attribute == ContentAttribute.edited || attribute == ContentAttribute.magic) {

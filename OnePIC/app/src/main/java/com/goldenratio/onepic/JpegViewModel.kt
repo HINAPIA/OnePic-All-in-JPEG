@@ -45,6 +45,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     companion object{
         var isUserInentFinish : Boolean = false
+        var AllInJPEG : Boolean = true
     }
 
 
