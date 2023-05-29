@@ -48,7 +48,7 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
 
     var state = STATE_PREVIEW
 
-    private var BURST_SIZE = 10
+    private var BURST_SIZE = 5
 
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
@@ -197,6 +197,9 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
         activity.windowManager.defaultDisplay.getSize(displaySize)
 //        params.height = displaySize.y - topMenuParams.height - textureView.height - statusBarHeight
         params.height = displaySize.y - topMenuParams.height - textureView.height
+
+        if(statusBarHeight <= 75)
+            params.height -= statusBarHeight
 
         binding.bottomMenu.setLayoutParams(params)
 
@@ -443,10 +446,10 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
                     ((ORIENTATIONS.get(rotation) + sensorOrientation + 270) % 360 + 90) % 360)
 
                 // Use the same AE and AF modes as the preview.
-//                set(CaptureRequest.CONTROL_AF_MODE,
-//                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
                 set(CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_OFF)
+                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+//                set(CaptureRequest.CONTROL_AF_MODE,
+//                    CaptureRequest.CONTROL_AF_MODE_OFF)
             }?.also { setAutoFlash(it) }
 
             val captureCallback = object : CameraCaptureSession.CaptureCallback() {

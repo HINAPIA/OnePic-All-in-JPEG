@@ -23,6 +23,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.annotation.OptIn
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.camera.camera2.interop.*
 import androidx.camera.core.*
 import androidx.camera.core.Camera
@@ -77,12 +78,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var overlay : OverlayView
     private lateinit var successInfoConstraintLayout : ConstraintLayout
     // binding Bottom menu
-    private lateinit var bottomMenu : ConstraintLayout
+    private lateinit var bottomMenu : LinearLayoutCompat
     private lateinit var galleryBtn : ImageView
     private lateinit var convertBtn : ImageView
     private lateinit var infoTextView : TextView
     private lateinit var shutterBtn : ImageView
     // binding Burst Size Setting
+    private lateinit var burstSizeConstraintLayout : ConstraintLayout
     private lateinit var burstSizeSettingScrollView : HorizontalScrollView
     private lateinit var burstSizeSettingRadioGroup : RadioGroup
     private lateinit var burst1RadioBtn : RadioButton
@@ -166,7 +168,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         val window: Window = activity?.window
             ?: throw IllegalStateException("Fragment is not attached to an activity")
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.dark_purple))
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.white))
 
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 
@@ -195,6 +197,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         shutterBtn = binding.shutterBtn
 
         // binding Burst Size
+        burstSizeConstraintLayout = binding.burstSizeConstraintLayout
         burstSizeSettingScrollView = binding.burstSizeSettingScrollView
         burstSizeSettingRadioGroup = binding.burstSizeSettingRadioGroup
         burst1RadioBtn = binding.burst1RadioBtn
@@ -218,7 +221,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
 
         binding.infoConstraintLayout.visibility = View.GONE
-        burstSizeSettingScrollView.visibility = View.GONE
+        burstSizeConstraintLayout.visibility = View.GONE
 
         //Animation
         fadeIn = ObjectAnimator.ofFloat(successInfoConstraintLayout, "alpha", 0f, 1f)
@@ -372,7 +375,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.GONE
 
                     binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                 }
                 burstRadioBtn.id -> {
                     burstRadioBtn.isChecked = true
@@ -382,7 +385,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.VISIBLE
 
                     binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeSettingScrollView.visibility = View.VISIBLE
+                    burstSizeConstraintLayout.visibility = View.VISIBLE
                 }
                 objectFocusRadioBtn.id -> {
                     objectFocusRadioBtn.isChecked = true
@@ -395,7 +398,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                     binding.infoConstraintLayout.visibility = View.VISIBLE
                     infoTextView.text = resources.getString(R.string.camera_object_info)
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                 }
                 distanceFocusRadioBtn.id -> {
                     distanceFocusRadioBtn.isChecked = true
@@ -407,7 +410,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.GONE
 
                     binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                 }
             }
         }
@@ -461,7 +464,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.GONE
 
                     binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                 }
 
                 burstRadioBtn.id -> {
@@ -493,7 +496,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
 
                     binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeSettingScrollView.visibility = View.VISIBLE
+                    burstSizeConstraintLayout.visibility = View.VISIBLE
                     when(BURST_SIZE) {
                         BURST_OPTION1 -> infoTextView.text = resources.getString(R.string.burst1_info)
                         BURST_OPTION2 -> infoTextView.text = resources.getString(R.string.burst2_info)
@@ -523,7 +526,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.GONE
 
                     binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                     infoTextView.text = resources.getString(R.string.camera_object_info)
                 }
 
@@ -549,7 +552,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     textureView.visibility = View.GONE
 
                     binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeSettingScrollView.visibility = View.GONE
+                    burstSizeConstraintLayout.visibility = View.GONE
                 }
             }
         }
@@ -1323,6 +1326,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             Log.v("camera test","viewFinder height ${viewFinder.height}")
             Log.v("camera test", "bottom Menu height = ${params.height}")
         }
+
+        if(statusBarHeight <= 75)
+            params.height -= statusBarHeight
+
         binding.bottomMenu.setLayoutParams(params)
     }
 
@@ -1353,7 +1360,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         private val REQUEST_CAMERA_PERMISSION_CODE = 1001
         private val REQUEST_RECORD_AUDIO_PERMISSION_CODE = 1002
 
-        private var BURST_SIZE = 10
+        private var BURST_SIZE = 5
         private val BURST_OPTION1 = 3
         private val BURST_OPTION2 = 5
         private val BURST_OPTION3 = 7
