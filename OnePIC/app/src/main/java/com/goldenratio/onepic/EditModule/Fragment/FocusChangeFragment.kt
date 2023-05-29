@@ -8,15 +8,13 @@ import android.view.*
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toPointF
 import androidx.core.graphics.toRectF
-import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.goldenratio.onepic.CameraModule.CameraFragment
+import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.ActivityType
@@ -25,15 +23,12 @@ import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentFocusChangeBinding
-import com.google.mlkit.vision.face.Face
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.reflect.typeOf
 
 
 class FocusChangeFragment : Fragment() {
@@ -69,6 +64,8 @@ class FocusChangeFragment : Fragment() {
     val boundingBoxResizeList = arrayListOf<ArrayList<Int>>()
     protected var selectObjRect: Rect? = null
 
+    private lateinit var objectExtractModule: ObjectExtractModule
+
 
     enum class InfoLevel {
         BeforeMainSelect,
@@ -97,6 +94,7 @@ class FocusChangeFragment : Fragment() {
 
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
+        objectExtractModule = ObjectExtractModule()
 
         checkFinish = BooleanArray(pictureList.size)
 
@@ -217,11 +215,23 @@ class FocusChangeFragment : Fragment() {
                                 if (newBitmapList != null) {
                                     bitmapList = newBitmapList
                                     selectBitmap = bitmapList?.get(index)!!
+
+                                    // bitmap 자르기
                                     val selectBoundingBox = boundingBoxResizeList[index]
                                     selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
-                                    // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-//                                    setMainImageBoundingBox()
+
+//                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+//                                    val extractObj = objectExtractModule.extractObjFromBitmap(cropBitmap)
+
                                     changeMainView(selectBitmap)
+
+//                                    withContext(Dispatchers.Main) {
+//                                        // 메인(UI) 스레드에서 UI 작업 수행
+//                                        val newBitmap = imageToolModule.drawFocusResult(extractObj, selectObjRect!!.toRectF(),
+//                                            requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
+//                                        binding.focusMainView.setImageBitmap(newBitmap)
+//                                    }
+//                                    changeMainView(cropBitmap)
                                 }
                             }
 //                            if (boundingBox.size > 0) {
@@ -242,9 +252,8 @@ class FocusChangeFragment : Fragment() {
 
         binding.focusSaveBtn.setOnClickListener {
             imageContent.resetBitmap()
-            imageToolModule.showView(binding.progressBar , true)
+            imageToolModule.showView(binding.progressBar, true)
             CoroutineScope(Dispatchers.Default).launch {
-                // 1. main으로 지정된 picture를 picturelist에서 삭제
                 var result = imageContent.removePicture(mainPicture)
                 Log.d("error 잡기", "메인 바꾸고 save : ${result}")
                 if (result) {
@@ -255,27 +264,12 @@ class FocusChangeFragment : Fragment() {
                     imageContent.mainPicture = mainPicture
                 }
 
-
-                if(imageContent.activityType == ActivityType.Camera) {
-                    withContext(Dispatchers.Main){
-                        Log.d("error 잡기", "바로 편집에서 save() 호출 전")
-                        jpegViewModel.jpegMCContainer.value?.save()
-                        Log.d("error 잡기", "바로 편집에서 save() 호출후")
-                        imageContent.checkMainChangeAttribute = true
-                        Thread.sleep(2000)
-                        imageToolModule.showView(binding.progressBar , false)
-                        findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
-                    }
+                withContext(Dispatchers.Main) {
+                    Log.d("error 잡기", "바로 편집에서 navigate호출 전")
+                    imageContent.checkMainChangeAttribute = true
+                    findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
                 }
-                else{
-                    withContext(Dispatchers.Main){
-                        Log.d("error 잡기", "바로 편집에서 navigate호출 전")
-                        imageContent.checkMainChangeAttribute = true
-                        findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
-                    }
-                    imageToolModule.showView(binding.progressBar , false)
-
-                }
+                imageToolModule.showView(binding.progressBar, false)
 
             }
         }
@@ -297,6 +291,25 @@ class FocusChangeFragment : Fragment() {
         binding.dialogCloseBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
+    }
+
+    fun bitmapCropRect(bitmap: Bitmap, boundingBox: Rect): Bitmap {
+        val left = boundingBox.left
+        val top = boundingBox.top
+        val right = boundingBox.right
+        val bottom = boundingBox.bottom
+
+        val width = right - left
+        val height = bottom - top
+
+        val croppedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(croppedBitmap)
+        val srcRect = Rect(left, top, right, bottom)
+        val dstRect = Rect(0, 0, width, height)
+        canvas.drawBitmap(bitmap, srcRect, dstRect, null)
+
+        return croppedBitmap
     }
 
     /**
@@ -393,6 +406,7 @@ class FocusChangeFragment : Fragment() {
                     bitmapResult.resume(i)
 //                    val boundingBox = listOf<Int>( obj.left, obj.top, obj.right, obj.bottom )
 //                    bitmapResult.resume(boundingBox)
+                    break
                 }
                 if(!checkResume && i == boundingBoxResizeList.size) bitmapResult.resume(null)
             }

@@ -399,6 +399,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11sp"
+                android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/magicBtn" />
 
