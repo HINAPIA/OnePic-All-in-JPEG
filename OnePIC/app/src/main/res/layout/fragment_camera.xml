@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/dark_purple">
+        android:background="@color/white">
 
         <TextView
             android:id="@+id/onePicLogoTv"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/abril_fatface"
             android:text="@string/app_name"
-            android:textColor="@color/white"
+            android:textColor="@color/dark_purple"
             android:textSize="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/topMenuVer2"
@@ -346,7 +346,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/focus"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
