@@ -91,6 +91,57 @@
                 android:visibility="gone"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/warningInfoConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black_40"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ImageView
+                        android:id="@+id/warningLoadingImageView"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="15dp"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/warningTextView1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="3"
+                        android:gravity="center"
+                        android:text="촬영 중입니다."
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/warningTextView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:gravity="center"
+                        android:text="움직이지 마세요."
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/infoConstraintLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -108,7 +159,8 @@
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:text="@string/camera_burst_info"
-                    app:layout_constraintStart_toStartOf="@id/infoConstraintLayout_ver1"
+                    android:layout_marginLeft="15dp"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/infoCloseBtn"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
@@ -126,19 +178,19 @@
                     app:srcCompat="@drawable/close_icon"
                     app:tint="@color/white" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/infoConstraintLayout_ver1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.1" />
+<!--                <androidx.constraintlayout.widget.Guideline-->
+<!--                    android:id="@+id/infoConstraintLayout_ver1"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    app:layout_constraintGuide_percent="0.1" />-->
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/infoConstraintLayout_ver2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.9" />
+<!--                <androidx.constraintlayout.widget.Guideline-->
+<!--                    android:id="@+id/infoConstraintLayout_ver2"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    app:layout_constraintGuide_percent="0.9" />-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

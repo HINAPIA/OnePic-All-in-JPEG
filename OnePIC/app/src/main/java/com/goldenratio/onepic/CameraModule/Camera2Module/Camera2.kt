@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.graphics.*
 import android.hardware.camera2.*
 import android.media.ImageReader
+import android.media.MediaPlayer
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -24,6 +25,7 @@ import com.example.test_camera2.CameraHelper.CompareSizesByArea
 import com.example.test_camera2.CameraHelper.ImageSaver
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.CameraModule.CameraFragment
+import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -54,6 +56,9 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
     private var backgroundHandler: Handler? = null
 
     var previewByteArrayList: ArrayList<ByteArray> = arrayListOf()
+
+    var dummyWidth : Int? = null
+    var dummyHeight : Int? = null
 
     init {
         this.activity = activity
@@ -303,8 +308,11 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
                     Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
                     CompareSizesByArea())
 
+            dummyWidth = largest.width
+            dummyHeight = largest.height
+
                 imageReader = ImageReader.newInstance(largest.width, largest.height,
-                    ImageFormat.JPEG, /*maxImages*/10).apply{
+                    ImageFormat.JPEG, /*maxImages*/40).apply{
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
 
@@ -458,6 +466,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
                                                 request: CaptureRequest,
                                                 result: TotalCaptureResult) {
                     unlockFocus()
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
+                    mediaPlayer.start()
                 }
             }
 

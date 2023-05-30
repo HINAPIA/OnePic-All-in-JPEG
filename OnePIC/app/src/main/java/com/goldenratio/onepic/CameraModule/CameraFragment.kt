@@ -33,6 +33,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2
 import com.goldenratio.onepic.EditModule.RewindModule
@@ -85,6 +91,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var burst1RadioBtn : RadioButton
     private lateinit var burst2RadioBtn : RadioButton
     private lateinit var burst3RadioBtn : RadioButton
+    // warning Info
+    private lateinit var warningInfoConstraintLayout : ConstraintLayout
 
     private lateinit var camera2Module: Camera2
 
@@ -199,6 +207,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         burst2RadioBtn = binding.burst2RadioBtn
         burst3RadioBtn = binding.burst3RadioBtn
 
+        // warning Info
+        warningInfoConstraintLayout = binding.warningInfoConstraintLayout
+
         camera2Module = Camera2(activity, requireContext(), binding)
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
         factory = viewFinder.meteringPointFactory
@@ -217,6 +228,34 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         binding.infoConstraintLayout.visibility = View.GONE
         burstSizeConstraintLayout.visibility = View.GONE
+
+        // warning Gif
+        Glide.with(binding.warningLoadingImageView)
+            .asGif()
+            .load(R.raw.flower_loading)
+            .listener(object : RequestListener<GifDrawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<GifDrawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: GifDrawable?,
+                    model: Any?,
+                    target: Target<GifDrawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    resource?.setLoopCount(GifDrawable.LOOP_FOREVER)
+                    return false
+                }
+
+            })
+            .into(binding.warningLoadingImageView)
 
         //Animation
         fadeIn = ObjectAnimator.ofFloat(successInfoConstraintLayout, "alpha", 0f, 1f)
@@ -708,6 +747,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 saveObjectCenterPoint()
                 JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
+                imageToolModule.showView(warningInfoConstraintLayout, true)
             }
 
             // Distance Focus 모드
@@ -903,6 +943,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 if (previewByteArrayList.size == detectedObjectList.size) {
                     mediaPlayer.start()
+
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
                     if (savedFile != null) {
@@ -940,7 +981,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             burstRadioBtn.isEnabled = true
                             objectFocusRadioBtn.isEnabled = true
                             distanceFocusRadioBtn.isEnabled = true
-                            successInfoConstraintLayout.visibility = View.VISIBLE
+
+                            imageToolModule.showView(warningInfoConstraintLayout, false)
+                            imageToolModule.showView(successInfoConstraintLayout, true)
+//                            successInfoConstraintLayout.visibility = View.VISIBLE
 
                             fadeIn.start()
                             rotation.cancel()
