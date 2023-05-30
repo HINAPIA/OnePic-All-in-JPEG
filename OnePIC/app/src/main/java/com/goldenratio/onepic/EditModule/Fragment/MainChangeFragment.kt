@@ -17,7 +17,6 @@ import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.ImageContent
 import com.goldenratio.onepic.R
@@ -110,25 +109,25 @@ class MainChangeFragment : Fragment() {
                     imageContent.mainPicture = mainPicture
                 }
 
-                if (imageContent.activityType == ActivityType.Camera) {
+//                if (imageContent.activityType == ActivityType.Camera) {
                     withContext(Dispatchers.Main) {
                         Log.d("error 잡기", "바로 편집에서 save() 호출 전")
                         jpegViewModel.jpegMCContainer.value?.save()
                         Log.d("error 잡기", "바로 편집에서 save() 호출후")
-                        imageContent.checkMainChangeAttribute = true
+                        imageContent.checkMainChanged = true
                         Thread.sleep(2000)
                         imageToolModule.showView(binding.progressBar, false)
                         findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
                     }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Log.d("error 잡기", "바로 편집에서 navigate호출 전")
-                        imageContent.checkMainChangeAttribute = true
-                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
-                    }
-                    imageToolModule.showView(binding.progressBar, false)
-
-                }
+//                } else {
+//                    withContext(Dispatchers.Main) {
+//                        Log.d("error 잡기", "바로 편집에서 navigate호출 전")
+//                        imageContent.checkMainChanged = true
+//                        findNavController().navigate(R.id.action_burstModeEditFragment_to_Fragment)
+//                    }
+//                    imageToolModule.showView(binding.progressBar, false)
+//
+//                }
             }
         }
         binding.changeCloseBtn.setOnClickListener {
@@ -147,17 +146,17 @@ class MainChangeFragment : Fragment() {
 
 //        Thread.sleep(3000)
         Log.d("error 잡기", "BurstEdit picureList size ${pictureList.size}")
-        if(imageContent.activityType == ActivityType.Viewer) {
+//        if(imageContent.activity Type == ActivityType.Viewer) {
             infoLevel.value = InfoLevel.AfterMainSelect
             setSubImage()
             infoLevel.observe(viewLifecycleOwner){ _ ->
                 infoTextView()
             }
-        }
-        else {
-            infoLevel.value = InfoLevel.AfterMainSelect
-            infoTextView()
-        }
+//        }
+//        else {
+//            infoLevel.value = InfoLevel.AfterMainSelect
+//            infoTextView()
+//        }
 
         // info 확인
         binding.changeInfoBtn.setOnClickListener {

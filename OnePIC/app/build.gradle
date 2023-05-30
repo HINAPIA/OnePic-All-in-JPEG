@@ -11,10 +11,13 @@ android {
         applicationId "com.goldenratio.onepic"
         minSdk 21
         targetSdk 33
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
     }
 
     buildTypes {

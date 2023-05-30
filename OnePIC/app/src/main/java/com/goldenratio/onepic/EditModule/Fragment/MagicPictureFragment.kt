@@ -169,7 +169,7 @@ class MagicPictureFragment : RewindFragment() {
                     }
                 }
 
-                imageContent.checkMagicAttribute = true
+                imageContent.checkMagicCreated = true
                 withContext(Dispatchers.Main) {
                     try {
                         findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)

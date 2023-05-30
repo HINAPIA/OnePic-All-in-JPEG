@@ -19,10 +19,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
-import android.widget.SeekBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -219,8 +216,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             // 만약 편집을 했다면 저장 버튼이 나타나게 설정
-            if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
-                imageContent.checkMagicAttribute || imageContent.checkAddAttribute
+            if (imageContent.checkMainChanged || imageContent.checkRewind ||
+                imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
             ) {
                 imageToolModule.showView(binding.saveBtn, true)
             }
@@ -281,6 +278,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     private fun setViewDetailMenu() {
+        checkAllInJPEG()
         if(pictureList.size <= 1) {
             CoroutineScope(Dispatchers.Main).launch {
                 binding.bestMainBtn.visibility = View.GONE
@@ -396,7 +394,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             mainPicture = pictureList[selectPictureIndex]
 
             // 메인 변경 유무 flag true로 변경
-            imageContent.checkMainChangeAttribute = true
+            imageContent.checkMainChanged = true
 
             // 저장 버튼 표시 | 메인 변경 버튼 없애기
             imageToolModule.showView(binding.saveBtn, true)
@@ -503,8 +501,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         // 취소 버튼 (viewer로 이동)
         binding.backBtn.setOnClickListener {
             // 변경된 편집이 있을 경우 확인 창 띄우기
-            if (imageContent.checkMainChangeAttribute || imageContent.checkRewindAttribute ||
-                imageContent.checkMagicAttribute || imageContent.checkAddAttribute
+            if (imageContent.checkMainChanged || imageContent.checkRewind ||
+                imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
             ) {
                 val oDialog: AlertDialog.Builder = AlertDialog.Builder(
                     activity,
@@ -560,12 +558,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 imageContent.pictureList = pictureList
                 imageContent.pictureCount = pictureList.size
 
-                // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
-                val removeResult = imageContent.removePicture(mainPicture)
-                if (removeResult) {
-                    // 2. main 사진을 첫번 째로 삽입
-                    imageContent.insertPicture(0, mainPicture)
-                    imageContent.mainPicture = mainPicture
+                if(imageContent.checkMainChanged) {
+                    // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
+                    val removeResult = imageContent.removePicture(mainPicture)
+                    if (removeResult) {
+                        // 2. main 사진을 첫번 째로 삽입
+                        imageContent.insertPicture(0, mainPicture)
+                        imageContent.mainPicture = mainPicture
+                    }
                 }
 
                 // 덮어쓰기
@@ -666,7 +666,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
             // audioResolver.audioStop()
-            imageContent.checkAddAttribute = true
+            imageContent.checkAdded = true
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.linear.removeViewAt(binding.linear.size - 2)
@@ -674,7 +674,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 setContainerTextSetting()
 
                 binding.audioContentLayout.visibility = View.GONE
-                imageContent.checkMainChangeAttribute = true
+                imageContent.checkEditChanged = true
                 binding.linear.addView(view, binding.linear.size - 1)
                 // 저장 버튼 표시 | 메인 변경 버튼 없애기
                 imageToolModule.showView(binding.saveBtn, true)
@@ -733,10 +733,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun setButtonDeactivation() {
-        imageContent.checkAddAttribute = false
-        imageContent.checkRewindAttribute = false
-        imageContent.checkMagicAttribute = false
-        imageContent.checkMainChangeAttribute = false
+        imageContent.checkAdded = false
+        imageContent.checkRewind = false
+        imageContent.checkMagicCreated = false
+        imageContent.checkMainChanged = false
+        imageContent.checkEditChanged = false
         jpegViewModel.mainSubImage = null
     }
 
@@ -772,7 +773,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 "모두 저장",
                 DialogInterface.OnClickListener { dialog, which ->
                     imageTool.showView(binding.progressBar, true)
-                    if (!imageContent.checkMagicAttribute || !imageContent.checkRewindAttribute) {
+                    if (!imageContent.checkMagicCreated || !imageContent.checkRewind) {
                         val mainPicture = imageContent.mainPicture
                         // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
                         imageContent.insertPicture(0, mainPicture)
@@ -847,7 +848,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             binding.linear.addView(view)
         }
 
-        val view = setContainerSubItem(R.drawable.edit_image_add_icon, clickedFunc = ::AddImage, deleteFunc = fun() {})
+        val view = setContainerSubItem(R.drawable.edit_image_add_icon, clickedFunc = ::AddImage, deleteFunc = fun(_ : FrameLayout) {})
         binding.linear.addView(view)
     }
 
@@ -1079,7 +1080,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                 }
                             }
                             imageContent.pictureList = pictureList
-                            imageContent.checkMainChangeAttribute = true
+                            imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
                         setViewDetailMenu()
@@ -1176,7 +1177,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 android.R.style.Theme_DeviceDefault_Light_Dialog
             )
 
-            oDialog.setMessage("삭제 하시겠습니까?")
+            oDialog.setMessage("이미지를 삭제 하시겠습니까?")
                 .setPositiveButton(
                     "아니요"
                 ) { _, _ ->
@@ -1213,7 +1214,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             .into(binding.mainImageView)
 
 
-                        imageContent.checkMainChangeAttribute = true
+                        imageContent.checkEditChanged = true
                         imageToolModule.showView(binding.saveBtn, true)
                     }
 
@@ -1246,7 +1247,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         return subLayout
     }
 
-    fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: () -> Unit): View? {
+    fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: (subLayout: FrameLayout) -> Unit): View? {
         // 넣고자 하는 layout 불러오기
         val subLayout =
             layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
@@ -1263,21 +1264,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // 삭제
         subLayout.findViewById<ImageView>(R.id.deleteIcon).setOnClickListener {
-
-            val oDialog: AlertDialog.Builder = AlertDialog.Builder(
-                activity,
-                android.R.style.Theme_DeviceDefault_Light_Dialog
-            )
-
-            oDialog.setMessage("삭제 하시겠습니까?")
-                .setPositiveButton(
-                    "아니요"
-                ) { _, _ -> }
-                .setNeutralButton("네") { _, _ ->
-                    binding.linear.removeView(subLayout)
-                    setContainerTextSetting()
-                    deleteFunc()
-                }.show()
+            deleteFunc(subLayout as FrameLayout)
         }
 
         return subLayout
@@ -1304,7 +1291,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
 //    fun DeleteText() {
 //        textContent.textList.clear()
-//        imageContent.checkMainChangeAttribute = true
+//        imageContent.checkMainChanged = true
 //        imageToolModule.showView(binding.saveBtn, true)
 //        setContainerTextSetting()
 //        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
@@ -1437,16 +1424,34 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     }
 
-    fun DeleteAudio() {
-        audioContent.init()
-        binding.audioContentLayout.visibility = View.GONE
-        setContainerTextSetting()
-        imageContent.checkMainChangeAttribute = true
-        imageToolModule.showView(binding.saveBtn, true)
-        val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
-        binding.linear.addView(view, binding.linear.size - 1)
-        checkAllInJPEG()
-        setContainerTextSetting()
+    fun DeleteAudio(subLayout: FrameLayout) {
+        val oDialog: AlertDialog.Builder = AlertDialog.Builder(
+            activity,
+            android.R.style.Theme_DeviceDefault_Light_Dialog
+        )
+
+        oDialog.setMessage("오디오를 삭제 하시겠습니까?")
+            .setPositiveButton(
+                "아니요"
+            ) { _, _ -> }
+            .setNeutralButton("네") { _, _ ->
+                binding.linear.removeView(subLayout)
+                setContainerTextSetting()
+
+                // 삭제
+                audioContent.init()
+                binding.audioContentLayout.visibility = View.GONE
+                setContainerTextSetting()
+                imageContent.checkEditChanged = true
+                imageToolModule.showView(binding.saveBtn, true)
+                val view = setContainerSubItem(R.drawable.edit_audio_add_icon, clickedFunc = ::AddAudio, deleteFunc = ::DeleteAudio)
+                binding.linear.addView(view, binding.linear.size - 1)
+                if (view != null) {
+                    imageToolModule.showView(view, false)
+                }
+                checkAllInJPEG()
+                setContainerTextSetting()
+            }.show()
 
     }
 
@@ -2091,7 +2096,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 ContentAttribute.basic,
                 textList
             )
-            imageContent.checkAddAttribute = true
+            imageContent.checkAdded = true
             CoroutineScope(Dispatchers.Main).launch {
                 // 키보드 내리기
                 val imm: InputMethodManager? =
@@ -2108,11 +2113,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val view = setContainerSubItem(R.drawable.edit_text_icon, clickedFunc = ::ShowingText, deleteFunc = ::DeleteText)
             setContainerTextSetting()
 
-            // 메인 변경 유무 flag true로 변경
-            imageContent.checkMainChangeAttribute = true
+            imageContent.checkEditChanged = true
 
             CoroutineScope(Dispatchers.Main).launch{
                 binding.linear.addView(view, binding.linear.size - 2)
+                if(view != null) {
+                    ShowingText(view.findViewById(R.id.scrollImageView))
+                }
 
                 // 저장 버튼 표시 | 메인 변경 버튼 없애기
                 imageToolModule.showView(binding.saveBtn, true)
@@ -2159,31 +2166,59 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         Log.d("add_test", " ADDText() 호출")
     }
 
-    fun DeleteText() {
-        // 데이터 삭제
-        textContent.init()
-        binding.textContentLayout.visibility = View.GONE
-        binding.editText.setText("")
-        imageContent.checkMainChangeAttribute = true
-        imageToolModule.showView(binding.saveBtn, true)
-        setContainerTextSetting()
-        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
-        binding.linear.addView(view, binding.linear.size - 2)
-        checkAllInJPEG()
-        setContainerTextSetting()
+    fun DeleteText(subLayout: FrameLayout) {
+        val oDialog: AlertDialog.Builder = AlertDialog.Builder(
+            activity,
+            android.R.style.Theme_DeviceDefault_Light_Dialog
+        )
+
+        oDialog.setMessage("텍스트를 삭제 하시겠습니까?")
+            .setPositiveButton(
+                "아니요"
+            ) { _, _ -> }
+            .setNeutralButton("네") { _, _ ->
+                binding.linear.removeView(subLayout)
+                setContainerTextSetting()
+
+                // 삭제
+                textContent.init()
+                binding.textContentLayout.visibility = View.GONE
+                binding.editText.setText("")
+                imageContent.checkEditChanged = true
+                imageToolModule.showView(binding.saveBtn, true)
+                setContainerTextSetting()
+                val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
+                binding.linear.addView(view, binding.linear.size - 2)
+
+                if (view != null) {
+                    imageToolModule.showView(view, false)
+                }
+                checkAllInJPEG()
+                setContainerTextSetting()
+
+            }.show()
+
+    // 데이터 삭제
+
     }
 
 
-    fun checkAllInJPEG(){
-        if(imageContent.pictureList.size > 1 || textContent.textCount > 0 ||
-            (audioContent.audio != null && audioContent.audio!!._audioByteArray!!.size >0)){
-            isAllInJPEG = true
-            binding.formatTextView.text = "ALL In JPEG"
-        }else{
-            isAllInJPEG = false
-            Log.d("format_test", "textContent.textCount : ${textContent.textCount}")
-            Log.d("format_test", "audioContent.audio : ${audioContent.audio?._audioByteArray?.size}")
-            binding.formatTextView.text = "일반 JPEG"
+    fun checkAllInJPEG() {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (imageContent.pictureList.size > 1 || textContent.textCount > 0 ||
+                (audioContent.audio != null && audioContent.audio!!._audioByteArray!!.size > 0)
+            ) {
+                isAllInJPEG = true
+                binding.formatTextView.text = "ALL In JPEG"
+            } else {
+                isAllInJPEG = false
+                Log.d("format_test", "textContent.textCount : ${textContent.textCount}")
+                Log.d(
+                    "format_test",
+                    "audioContent.audio : ${audioContent.audio?._audioByteArray?.size}"
+                )
+                binding.formatTextView.text = "일반 JPEG"
+            }
         }
     }
 

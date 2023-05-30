@@ -113,7 +113,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 //                saveAudioInMCContainer(tempAudioFile!!)
 //           // }
 //            audioResolver.audioStop()
-//            imageContent.checkAddAttribute = true
+//            imageContent.checkAdded = true
 //            findNavController().navigate(R.id.action_addFragment_to_editFragment)
 //        }
 
@@ -182,7 +182,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                     ContentAttribute.basic,
                     textList
                 )
-                imageContent.checkAddAttribute = true
+                imageContent.checkAdded = true
                 CoroutineScope(Dispatchers.Main).launch {
                     // 키보드 내리기
                     val imm: InputMethodManager? =
@@ -229,7 +229,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             }
 
            // audioResolver.audioStop()
-            imageContent.checkAddAttribute = true
+            imageContent.checkAdded = true
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.RecordingTextView.setText("")
