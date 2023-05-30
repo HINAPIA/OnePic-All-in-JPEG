@@ -72,16 +72,18 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
     }
 
     override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
-        if (externalImage != null){ // 숨겨진 이미지가 선택 되었을 때 (스와이프 X, scrollView 아이템 중 하나 선택)
+
+        if (checkMagicPicturePlay){ //magic picture 재생
+            holder.magicPictureRun(overlayImg)
+            checkMagicPicturePlay = false
+        }
+        else if (externalImage != null){ // 숨겨진 이미지가 선택 되었을 때 (스와이프 X, scrollView 아이템 중 하나 선택)
             holder.bindEmbeddedImage(externalImage!!)
             externalImage = null // 초기화
         }
         else if (externalImageBitmap != null) {
             holder.bindBitmapImage(externalImageBitmap!!)
             externalImageBitmap = null // 초기화
-        }
-        else if (checkMagicPicturePlay){ //magic picture 재생
-            holder.magicPictureRun(overlayImg)
         }
         else { // 사용자가 스와이프로 화면 넘길 때
             holder.bind(galleryMainimage[position]) // binding
@@ -121,7 +123,7 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         if(!value) {
             handler.removeCallbacksAndMessages(null)
             checkMagicPicturePlay = false
-            viewHolder.magicPictureStop()
+            //viewHolder.magicPictureStop()
 
             //viewHolder.externalImageView.visibility = View.INVISIBLE
         }
@@ -132,8 +134,8 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                     overlayImg = magicPictureProcessing()
                 }
                 //magicPictureRun(overlayImg)
-                checkMagicPicturePlay = true
                 CoroutineScope(Dispatchers.Main).launch {
+                    checkMagicPicturePlay = true
                     notifyDataSetChanged()
                 }
                 withContext(Dispatchers.Main) {
@@ -336,10 +338,5 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
             }
         }
 
-        fun magicPictureStop(){
-            handler.removeCallbacksAndMessages(null)
-            //imageView.visibility = View.VISIBLE
-            //externalImageView.visibility = View.INVISIBLE
-        }
     }
 }
