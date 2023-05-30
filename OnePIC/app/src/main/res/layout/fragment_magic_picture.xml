@@ -247,8 +247,7 @@
             android:background="@color/transparent_color"
             android:scaleType="fitCenter"
             android:src="@drawable/edit_magic_icon"
-            android:visibility="invisible"
-            tools:visibility="visible" />
+            android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
@@ -256,7 +255,7 @@
             android:layout_height="0dp"
             android:layout_marginBottom="15dp"
             android:layout_weight="1.5"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <LinearLayout
                 android:id="@+id/faceListView"
@@ -296,7 +295,6 @@
                         android:scaleType="fitCenter"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/circle_icon"

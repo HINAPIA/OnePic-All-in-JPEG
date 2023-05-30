@@ -190,6 +190,15 @@ class MagicPictureFragment : RewindFragment() {
 
         // 이미지 뷰 클릭 시
         binding.mainView.setOnTouchListener { _, event ->
+            handler.removeCallbacksAndMessages(null)
+            binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+            checkMagicPicturePlay = false
+
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.magicPlayBtn.visibility = View.GONE
+                binding.bottomLayout.visibility = View.INVISIBLE
+            }
+
             if (event!!.action == MotionEvent.ACTION_UP) {
 //                imageToolModule.showView(binding.progressBar, true)
 
@@ -308,10 +317,6 @@ class MagicPictureFragment : RewindFragment() {
             checkMagicPicturePlay = false
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-//            binding.bottomLayout.visibility = View.INVISIBLE
-            imageToolModule.showView(binding.magicPlayBtn, true)
-        }
 
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("magic", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
@@ -374,7 +379,7 @@ class MagicPictureFragment : RewindFragment() {
         }
 
 //        imageToolModule.showView(binding.bottomLayout, true)
-        imageToolModule.showView(binding.magicPlayBtn, true)
+//        imageToolModule.showView(binding.magicPlayBtn, true)
 
         for (i in 0 until boundingBox.size) {
             println(i.toString() + " || " + boundingBox[i])
@@ -543,6 +548,11 @@ class MagicPictureFragment : RewindFragment() {
                 var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
                 resultBitmap = imageToolModule.drawDetectionResult(resultBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
                 binding.mainView.setImageBitmap(resultBitmap)
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        binding.magicPlayBtn.visibility = View.VISIBLE
+                        binding.bottomLayout.visibility = View.VISIBLE
+                    }
                 }
         }
     }

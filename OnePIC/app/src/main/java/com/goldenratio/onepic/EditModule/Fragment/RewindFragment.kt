@@ -145,6 +145,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
+                withContext(Dispatchers.Main) {
+                    imageToolModule.fadeIn.start()
+                }
             }
         }
 
@@ -244,7 +247,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                     setMainImageBoundingBox()
                     newImage = null
-//                    imageToolModule.showView(binding.progressBar, false)
+                    withContext(Dispatchers.Main) {
+                        imageToolModule.fadeIn.start()
+                    }
                     imageToolModule.showView(binding.rewindMenuLayout, true)
                     showProgressBar(false, null)
 
@@ -437,9 +442,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
 //            imageToolModule.showView(binding.progressBar, false)
             showProgressBar(false, null)
-            withContext(Dispatchers.Main) {
-                imageToolModule.fadeIn.start()
-            }
+
             imageToolModule.showView(binding.rewindMenuLayout, true)
 
         }

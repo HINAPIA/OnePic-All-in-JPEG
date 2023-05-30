@@ -177,7 +177,7 @@ class ImageContent {
     }
 
     fun addBitmapList( index: Int, bitmap: Bitmap) {
-        while (!checkBitmapList || !checkPictureList) {
+        while (!checkBitmapList || !checkPictureList || bitmapList.size < index) {
             Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
         }
         bitmapList.add(index, bitmap)
