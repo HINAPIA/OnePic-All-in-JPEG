@@ -967,6 +967,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 Log.e("Error", "InvocationTargetException")
             }
 
+            Log.v("focus test", "[$index] isFocusSuccess? : $isFocusSuccess")
+
             if (isFocusSuccess == true) {
                 mediaPlayer.start()
 
@@ -978,6 +980,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 takeObjectFocusMode(index, detectedObjectList)
             }
         }, ContextCompat.getMainExecutor(activity))
+
 
     } // end of takeObjectFocusMode()...
 

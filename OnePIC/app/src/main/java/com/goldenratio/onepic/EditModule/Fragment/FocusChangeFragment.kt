@@ -1,19 +1,25 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.*
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toRectF
+import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.EditModule.BlurBitmapUtil
 import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
@@ -65,6 +71,8 @@ class FocusChangeFragment : Fragment() {
 
     private lateinit var objectExtractModule: ObjectExtractModule
 
+    private val maxBlurRadius: Float = 21f
+    private var curBlurRadius = 10f
 
     enum class InfoLevel {
         BeforeMainSelect,
@@ -219,18 +227,13 @@ class FocusChangeFragment : Fragment() {
                                     val selectBoundingBox = boundingBoxResizeList[index]
                                     selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
 
-//                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
-//                                    val extractObj = objectExtractModule.extractObjFromBitmap(cropBitmap)
+                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+                                    val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
+                                    val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
 
-                                    changeMainView(selectBitmap)
-
-//                                    withContext(Dispatchers.Main) {
-//                                        // 메인(UI) 스레드에서 UI 작업 수행
-//                                        val newBitmap = imageToolModule.drawFocusResult(extractObj, selectObjRect!!.toRectF(),
-//                                            requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
-//                                        binding.focusMainView.setImageBitmap(newBitmap)
-//                                    }
-//                                    changeMainView(cropBitmap)
+                                    withContext(Dispatchers.Main) {
+                                        binding.focusMainView.setImageBitmap(resultBitmap)
+                                    }
                                 }
                             }
 //                            if (boundingBox.size > 0) {
@@ -290,6 +293,21 @@ class FocusChangeFragment : Fragment() {
         binding.dialogCloseBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
+    }
+
+    fun mergeBitmaps(blurredBitmap: Bitmap, cropBitmap: Bitmap, x: Int, y: Int): Bitmap {
+        val resultBitmap = Bitmap.createBitmap(blurredBitmap.width, blurredBitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(resultBitmap)
+
+        // 블러 처리된 이미지 그리기
+        canvas.drawBitmap(blurredBitmap, 0f, 0f, null)
+
+        // crop된 이미지 그리기
+        val matrix = Matrix()
+        matrix.postTranslate(x.toFloat(), y.toFloat())
+        canvas.drawBitmap(cropBitmap, matrix, null)
+
+        return resultBitmap
     }
 
     fun bitmapCropRect(bitmap: Bitmap, boundingBox: Rect): Bitmap {
@@ -543,11 +561,12 @@ class FocusChangeFragment : Fragment() {
     }
 
     fun setSeekBar(){
-        while(!imageContent.checkPictureList) {}
-        Log.d("seekBar","#####")
+//        while(!imageContent.checkPictureList) {}
+
         imageToolModule.showView(binding.seekBar, true)
 
-        binding.seekBar.max = pictureList.size - 1
+        binding.seekBar.max = maxBlurRadius.toInt()  // 0 ~ 21 ( 1 ~ 22 )
+        binding.seekBar.progress = curBlurRadius.toInt() + 1 // 현재 10f면 11f로 설정
 
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -555,29 +574,24 @@ class FocusChangeFragment : Fragment() {
                 // progress 변수는 현재 SeekBar의 값입니다.
                 // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
                 if (fromUser) {
-                    val index = progress % pictureList.size
-                    mainPicture = pictureList[index]
-
-                    // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
-                    if (bitmapList.size > index) {
-                        // 만들어 졌으면 비트맵으로 띄웠어
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.focusMainView.setImageBitmap(bitmapList[index])
-                        }
-                    } else {
-                        // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Log.d("error 잡기", "$progress 번째 이미지 띄우기")
-                            Glide.with(binding.focusMainView)
-                                .load(imageContent.getJpegBytes(pictureList[index]))
-                                .into(binding.focusMainView)
-                        }
-                    }
+                    // SeekBar의 진행 상태에 따라 블러 강도 조절
+                    curBlurRadius = progress.toFloat() + 1
+                    // 블러를 다시 적용하여 이미지 업데이트
+                    applyBlur()
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+    }
+
+    // 블러를 적용하여 이미지 업데이트
+    private fun applyBlur() {
+        val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+        val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
+        val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+
+        binding.focusMainView.setImageBitmap(resultBitmap)
     }
 }

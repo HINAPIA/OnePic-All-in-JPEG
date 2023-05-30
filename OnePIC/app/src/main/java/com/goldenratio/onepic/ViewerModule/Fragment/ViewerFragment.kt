@@ -301,9 +301,11 @@ class ViewerFragment : Fragment() {
 
                 // 매직 버튼 초기화
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+                    binding.magicBtn.performClick()
                     isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+//                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
+//                    isMagicBtnClicked = false
+//                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
                 }
 
                 findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -362,7 +364,9 @@ class ViewerFragment : Fragment() {
         try {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
+                    Log.d("프로그래스바 없애기",": 요기 들어옴")
                     imageTool.showView(binding.progressBar, false)
+                    isFinished.value = false
                 }
             }
         } catch (e: IllegalStateException) {
