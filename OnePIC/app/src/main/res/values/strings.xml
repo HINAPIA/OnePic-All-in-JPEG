@@ -12,6 +12,7 @@
     <string name="in_add">컨텐츠 추가</string>
     <string name="audio_add">Audio 추가</string>
     <string name="text_add">Text 추가</string>
+    <string name="extract_jpeg">단일 사진 저장</string>
 
     <string name="auto_option">Auto Face Blending</string>
 
