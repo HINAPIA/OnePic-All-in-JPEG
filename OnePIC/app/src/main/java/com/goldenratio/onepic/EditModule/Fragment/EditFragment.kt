@@ -2194,9 +2194,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     fun checkAllInJPEG() {
         CoroutineScope(Dispatchers.Main).launch {
-            if (imageContent.pictureList.size > 1 || textContent.textCount > 0 ||
-                (audioContent.audio != null && audioContent.audio!!._audioByteArray!!.isNotEmpty())
-            ) {
+            if (imageContent.pictureList.size > 1 || textContent.textCount > 0 || audioContent.audio != null) {
                 isAllInJPEG = true
                 binding.formatTextView.text = "ALL In JPEG"
                 binding.allInJpegTextView.text = "ALL In JPEG"
