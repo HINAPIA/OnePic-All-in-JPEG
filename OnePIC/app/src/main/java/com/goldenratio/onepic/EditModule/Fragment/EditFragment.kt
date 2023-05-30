@@ -114,10 +114,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     var isAllInJPEG : Boolean = false
 
-
-    private var infoLevel = MutableLiveData<InfoLevel>()
-    private var isInfoViewed = true
-
     private enum class InfoLevel {
         BeforeMainSelect
     }
@@ -274,6 +270,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
         }
+
+        imageToolModule.settingAnimation(binding.successInfoConstraintLayout)
+
         return binding.root
     }
 
@@ -704,9 +703,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         // 오디오 활성화
         if(isAudioAddMode) {
             binding.audioContentLayout.visibility = View.VISIBLE
+            binding.audioButtonLinearLayout.visibility = View.VISIBLE
+
             binding.mainChangeLayout.visibility = View.GONE
             binding.containerLayout.visibility = View.GONE
-            binding.seekBar.visibility = View.GONE
+            binding.seekBarLinearLayout.visibility = View.GONE
             // 편집 창 오디오 재생 바
             binding.currentAudioBarLaydout.visibility = View.GONE
 
@@ -722,9 +723,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 오디오 비활성화
         }else{
             binding.audioContentLayout.visibility = View.GONE
+            binding.audioButtonLinearLayout.visibility = View.GONE
             binding.mainChangeLayout.visibility = View.VISIBLE
             binding.containerLayout.visibility = View.VISIBLE
-            binding.seekBar.visibility = View.VISIBLE
+            binding.seekBarLinearLayout.visibility = View.VISIBLE
 
             binding.currentAudioBarLaydout.visibility = View.GONE
             binding.constraintLayout.visibility = View.VISIBLE
@@ -890,37 +892,33 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     bestImageIndex = preBestImageIndex
                 }
+                jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
+
                 withContext(Dispatchers.Main) {
                     Glide.with(binding.mainImageView)
                         .load(imageContent.getJpegBytes(pictureList[bestImageIndex!!]))
                         .into(binding.mainImageView)
 
-                    changeViewImage(bestImageIndex!!, binding.linear.getChildAt(bestImageIndex!!)
-                        .findViewById<ImageView>(R.id.scrollImageView))
-//                    mainSubView =
-//                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-//                     mainSubView.setPadding(6)
-//
-////                    jpegViewModel.selectPictureIndex = bestImageIndex!!
-//                    jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
-//
-//                    if (bestImageIndex != jpegViewModel.getMainSubImageIndex()) {
-//                        imageToolModule.showView(binding.mainChangeBtn, true)
-//                    } else {
-//                        imageToolModule.showView(binding.mainChangeBtn, false)
-//                    }
-//
-//                    imageToolModule.showView(binding.progressBar, false)
+                    val view =  binding.linear.getChildAt(bestImageIndex!!)
+
+
+                    changeViewImage(bestImageIndex!!, view.findViewById<ImageView>(R.id.scrollImageView))
+
+                    setMoveScrollView(view, bestImageIndex!!)
+
                     showProgressBar(false, null)
-//                    setMoveScrollView(mainSubView, bestImageIndex!!)
 
                     Log.d("mainChange", "bestImage null")
+
+
+                    binding.successInfoTextView.text = getString(R.string.best_choice_animation);
+                    imageToolModule.fadeIn.start()
                 }
             }
         }
     }
 
-    /**
+/**
      * setMoveScrollView(subLayout: View, index: Int)
      *      : 해당 뷰를 스크롤의 가운데로 가게 해주는 함수
      */
@@ -2206,10 +2204,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     fun checkAllInJPEG() {
         CoroutineScope(Dispatchers.Main).launch {
             if (imageContent.pictureList.size > 1 || textContent.textCount > 0 ||
-                (audioContent.audio != null && audioContent.audio!!._audioByteArray!!.size > 0)
+                (audioContent.audio != null && audioContent.audio!!._audioByteArray!!.isNotEmpty())
             ) {
                 isAllInJPEG = true
                 binding.formatTextView.text = "ALL In JPEG"
+                binding.allInJpegTextView.text = "ALL In JPEG"
             } else {
                 isAllInJPEG = false
                 Log.d("format_test", "textContent.textCount : ${textContent.textCount}")
@@ -2218,6 +2217,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     "audioContent.audio : ${audioContent.audio?._audioByteArray?.size}"
                 )
                 binding.formatTextView.text = "일반 JPEG"
+                binding.allInJpegTextView.text = "일반 JPEG"
             }
         }
     }

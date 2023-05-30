@@ -1,5 +1,7 @@
 package com.goldenratio.onepic
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
@@ -12,7 +14,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import androidx.exifinterface.media.ExifInterface
@@ -559,5 +561,44 @@ class ImageToolModule {
         }
         return adjustedArr
     }
+
+
+    // Animation
+    lateinit var fadeIn: ObjectAnimator
+    lateinit var fadeOut: ObjectAnimator
+    fun settingAnimation(layout : ConstraintLayout) {
+        //Animation
+        fadeIn = ObjectAnimator.ofFloat(layout, "alpha", 0f, 1f)
+        fadeIn.duration = 1000
+
+        fadeOut = ObjectAnimator.ofFloat(layout, "alpha", 1f, 0f)
+        fadeOut.duration = 1000
+
+        fadeIn.addListener(object : Animator.AnimatorListener{
+
+            override fun onAnimationEnd(animation: Animator) {
+                fadeOut.start()
+            }
+
+            override fun onAnimationStart(animation: Animator) {
+                showView(layout, true)
+            }
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+
+        fadeOut.addListener(object : Animator.AnimatorListener{
+
+            override fun onAnimationEnd(animation: Animator) {
+                showView(layout, false)
+            }
+
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+    }
+
+
 
 }

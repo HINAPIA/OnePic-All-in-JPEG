@@ -63,6 +63,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
     private var mainSubView: View? = null
 
+    // Animation
+//    private lateinit var fadeIn: ObjectAnimator
+//    private lateinit var fadeOut: ObjectAnimator
 
     private enum class InfoLevel {
         EditFaceSelect,
@@ -138,12 +141,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 
                 rewindModule.allFaceDetection(bitmapList)
 
-                selectBitmap = rewindModule.autoBestFaceChange(bitmapList)
+                selectBitmap = rewindModule.autoBestFaceChange(bitmapList, jpegViewModel.getSelectedSubImageIndex())
                 
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
             }
         }
+
+        imageToolModule.settingAnimation(binding.successInfoConstraintLayout)
 
         SetClickEvent()
 
@@ -235,13 +240,14 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
                     rewindModule.allFaceDetection(bitmapList)
-                    selectBitmap = rewindModule.autoBestFaceChange(bitmapList)
+                    selectBitmap = rewindModule.autoBestFaceChange(bitmapList, jpegViewModel.getSelectedSubImageIndex())
 
                     setMainImageBoundingBox()
                     newImage = null
 //                    imageToolModule.showView(binding.progressBar, false)
                     imageToolModule.showView(binding.rewindMenuLayout, true)
                     showProgressBar(false, null)
+
                 }
             }
             else {
@@ -431,6 +437,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
             }
 //            imageToolModule.showView(binding.progressBar, false)
             showProgressBar(false, null)
+            withContext(Dispatchers.Main) {
+                imageToolModule.fadeIn.start()
+            }
             imageToolModule.showView(binding.rewindMenuLayout, true)
 
         }
@@ -707,4 +716,6 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
         super.onStop()
         rewindModule.deleteModelCoroutine()
     }
+
+
 }

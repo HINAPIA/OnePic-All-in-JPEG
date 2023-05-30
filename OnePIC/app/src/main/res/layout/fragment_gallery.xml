@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/abril_fatface"
+            android:textStyle="bold"
             android:text="@string/app_name"
             android:textColor="@color/dark_purple"
             android:textSize="25dp"

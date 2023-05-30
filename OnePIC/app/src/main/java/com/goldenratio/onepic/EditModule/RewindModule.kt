@@ -224,13 +224,13 @@ class RewindModule() {
      *  (bestFaceStandard: Int, mainBitmap: Bitmap, bitmapList: ArrayList<Bitmap>): Bitmap
      *      - 여러 사진을 분석하여 각 인물 별로 가장 잘 나온 얼굴로 변환해 bitmap return
      */
-    suspend fun autoBestFaceChange(bitmapList: ArrayList<Bitmap>): Bitmap =
+    suspend fun autoBestFaceChange(bitmapList: ArrayList<Bitmap>, selectedIndex: Int): Bitmap =
         suspendCoroutine { continuation ->
             lateinit var basicInformation: List<Face>
 
             val bestFaceIndex: ArrayList<Int?> = ArrayList()
             val bestFace: ArrayList<Face> = ArrayList()
-            var resultBitmap = bitmapList[0]
+            var resultBitmap = bitmapList[selectedIndex]
 
             val checkFinish = BooleanArray(bitmapList.size)
             for (i in 0 until bitmapList.size) {
@@ -242,20 +242,25 @@ class RewindModule() {
             }
 
             CoroutineScope(Dispatchers.Default).launch {
+                val facesResult = faceArraylist[selectedIndex]
+                    // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
+                    if (facesResult != null) {
+                        for (i in 0 until facesResult.size) {
+                            bestFaceIndex.add(selectedIndex)
+                            bestFace.add(facesResult[i])
+                        }
+                    }
+                    if (facesResult != null) {
+                        basicInformation = facesResult
+                    }
+
                 for (j in 0 until bitmapList.size) {
-                    val facesResult = faceArraylist[j]
-                    if (j == 0) {
+
+                    if (j == selectedIndex) {
                         // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
-                        if (facesResult != null) {
-                            for (i in 0 until facesResult.size) {
-                                bestFaceIndex.add(0)
-                                bestFace.add(facesResult[i])
-                            }
-                        }
-                        if (facesResult != null) {
-                            basicInformation = facesResult
-                        }
+                        checkFinish[j] = true
                     } else {
+                        val facesResult = faceArraylist[j]
                         // 그 이후 인덱스일 경우, 각 face을 비교
                         if (facesResult != null) {
                             for (i in 0 until facesResult.size) {
