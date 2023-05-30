@@ -1,24 +1,18 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.*
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toRectF
-import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.goldenratio.onepic.EditModule.BlurBitmapUtil
 import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
@@ -39,6 +33,8 @@ import kotlin.coroutines.suspendCoroutine
 class FocusChangeFragment : Fragment() {
 
 
+    private var resultBitmap: Bitmap?  = null
+    private var index: Int? = null
     private lateinit var binding: FragmentFocusChangeBinding
     lateinit var fragment: Fragment
     private val jpegViewModel by activityViewModels<JpegViewModel>()
@@ -184,7 +180,7 @@ class FocusChangeFragment : Fragment() {
                             // Click 좌표가 포함된 Bounding Box 얻음
 //                            while (!rewindModule.getCheckFaceDetection()) {
 //                            }
-                            val index = getIndex(touchPoint)
+                            index = getIndex(touchPoint)
 
                             Log.d("focus test","getIndex out : $index")
 
@@ -194,10 +190,10 @@ class FocusChangeFragment : Fragment() {
                                 Log.d("faceRewind", "newBitmapList $newBitmapList")
                                 if (newBitmapList != null) {
                                     bitmapList = newBitmapList
-                                    selectBitmap = bitmapList?.get(index)!!
+                                    selectBitmap = bitmapList[index!!]
 
                                     // bitmap 자르기
-                                    val selectBoundingBox = boundingBoxResizeList[index]
+                                    val selectBoundingBox = boundingBoxResizeList[index!!]
                                     selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
 
                                     val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
@@ -229,15 +225,34 @@ class FocusChangeFragment : Fragment() {
             imageContent.resetBitmap()
             imageToolModule.showView(binding.progressBar, true)
             CoroutineScope(Dispatchers.Default).launch {
-                var result = imageContent.removePicture(mainPicture)
-                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
-                if (result) {
+//                var result = imageContent.removePicture(mainPicture)
+//                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
+//                if (result) {
                     Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
 
                     // 2. main 사진을 첫번 째로 삽입
-                    imageContent.insertPicture(0, mainPicture)
-                    imageContent.mainPicture = mainPicture
+//                    imageContent.insertPicture(0, mainPicture)
+//                    imageContent.mainPicture = mainPicture
+
+                if(index != null && resultBitmap != null) {
+
+                    val allBytes = imageToolModule.bitmapToByteArray(
+                        resultBitmap!!,
+                        imageContent.getJpegBytes(pictureList[index!!])
+                    )
+
+                    imageContent.pictureList.add(index!!,
+                        Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes)))
+//                    imageContent.addBitmapList(index!!, selectBitmap)
+
+                    imageContent.pictureList[index!!].waitForByteArrayInitialized()
+
+                    jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[index!!]), index!!)
+
+                    jpegViewModel.selectedSubImage = imageContent.pictureList[index!!]
                 }
+
+//                }
 
                 withContext(Dispatchers.Main) {
                     Log.d("error 잡기", "바로 편집에서 navigate호출 전")
@@ -572,7 +587,7 @@ class FocusChangeFragment : Fragment() {
     private fun applyBlur() {
         val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
         val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
-        val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+        resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
 
         binding.focusMainView.setImageBitmap(resultBitmap)
     }

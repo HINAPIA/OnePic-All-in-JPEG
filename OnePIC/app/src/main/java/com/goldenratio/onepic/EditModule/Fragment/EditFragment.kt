@@ -291,9 +291,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                binding.bestMainBtn.visibility = View.GONE
-                binding.rewindBtn.visibility = View.GONE
-                binding.magicBtn.visibility = View.GONE
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.bestMainBtn.visibility = View.GONE
+                    binding.rewindBtn.visibility = View.GONE
+                    binding.magicBtn.visibility = View.GONE
+                }
             }
         }
     }
@@ -595,12 +597,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 CoroutineScope(Dispatchers.IO).launch {
                     jpegViewModel.currentFileName = fileName
                     // 기존 파일 삭제
-                    //jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
+//                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
                     var i =0
-                    while (JpegViewModel.isUserInentFinish == false){
-                        Log.d("save_test", "${i++}")
-                        delay(500)
-                    }
+//                    while (!JpegViewModel.isUserInentFinish){
+//                        Log.d("save_test", "${i++}")
+//                        delay(500)
+//                    }
                     JpegViewModel.isUserInentFinish = false
                     jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     Thread.sleep(2000)
@@ -1215,7 +1217,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         imageToolModule.showView(binding.saveBtn, true)
                     }
 
-                    if (jpegViewModel.mainSubImage == picture) {
+                    if (jpegViewModel.mainSubImage == picture && pictureList.size > 0) {
                         jpegViewModel.mainSubImage = pictureList[0]
 
                         CoroutineScope(Dispatchers.Main).launch {

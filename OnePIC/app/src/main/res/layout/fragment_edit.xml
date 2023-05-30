@@ -247,6 +247,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -347,6 +348,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
+                android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
 
@@ -379,6 +381,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -580,7 +583,7 @@
                 android:layout_marginStart="8dp"
                 android:text="TextView"
                 android:textColor="#FFFFFF"
-                android:textSize="20dp"
+                android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
