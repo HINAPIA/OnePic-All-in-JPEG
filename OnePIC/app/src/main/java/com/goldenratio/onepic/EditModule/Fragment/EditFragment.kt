@@ -597,7 +597,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 CoroutineScope(Dispatchers.IO).launch {
                     jpegViewModel.currentFileName = fileName
                     // 기존 파일 삭제
-                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
+                    //jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
                     var i =0
                     while (JpegViewModel.isUserInentFinish == false){
                         Log.d("save_test", "${i++}")
