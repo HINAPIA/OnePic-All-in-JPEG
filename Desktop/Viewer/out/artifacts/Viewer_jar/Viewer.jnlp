@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="Viewer.jnlp">
+  <information>
+    <title>Viewer:jar</title>
+    <vendor>Unknown</vendor>
+    <description>Viewer:jar</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="Viewer.jar" size="348451" download="eager" />
+    <jar href="animated-gif-lib-for-java-animated-gif-lib-1.7.jar" size="20816" download="eager" />
+    <jar href="annotations-13.0.jar" size="17536" download="eager" />
+    <jar href="javax.json-1.1.2.jar" size="101089" download="eager" />
+    <jar href="javax.json-api-1.1.2.jar" size="31140" download="eager" />
+    <jar href="kotlin-reflect-1.3.61.jar" size="2869264" download="eager" />
+    <jar href="kotlin-stdlib-1.8.21.jar" size="1670468" download="eager" />
+    <jar href="kotlin-stdlib-common-1.8.21.jar" size="221490" download="eager" />
+    <jar href="kotlin-stdlib-jdk7-1.8.21.jar" size="963" download="eager" />
+    <jar href="kotlin-stdlib-jdk8-1.8.21.jar" size="968" download="eager" />
+    <jar href="kotlinx-coroutines-core-1.6.4.jar" size="170037" download="eager" />
+    <jar href="kotlinx-coroutines-core-jvm-1.6.4.jar" size="1476653" download="eager" />
+    <jar href="metadata-extractor-2.12.0.jar" size="708663" download="eager" />
+    <jar href="tornadofx-1.7.20.jar" size="3794196" download="eager" />
+    <jar href="xmpcore-6.0.6.jar" size="131936" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="600" height="400" main-class="com.example.demo.app.MyAppKt"  name="Viewer:jar" />
+  <update check="background"/>
+</jnlp>

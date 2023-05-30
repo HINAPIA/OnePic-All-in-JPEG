@@ -134,6 +134,7 @@ class ImageTool {
     fun rotaionImage(image : Image, rotation : Int) : Image{
         var angle : Int = 360 - rotation
         var bufferedImage = SwingFXUtils.fromFXImage(image, null)
+        if(bufferedImage == null) return image
         var newBufferedImage = rotateImageClockwise(bufferedImage, angle.toDouble())
         var newImage = SwingFXUtils.toFXImage(newBufferedImage, null)
        return newImage

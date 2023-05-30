@@ -19,8 +19,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.annotation.OptIn
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -35,14 +33,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
-import com.example.test_camera2.CameraHelper.ImageSaver
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2
 import com.goldenratio.onepic.EditModule.RewindModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.ImageContent
@@ -210,7 +205,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
         // imageContent 설정
         imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
-        imageContent.activityType = ActivityType.Camera
+         
 
         //rewind
         imageToolModule = ImageToolModule()
@@ -611,7 +606,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                     }
 
-                    imageContent.activityType = ActivityType.Camera
+                     
                     CoroutineScope(Dispatchers.Default).launch {
                         // RewindFragment로 이동
                         withContext(Dispatchers.Main) {
@@ -624,9 +619,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             }
                             jop.await()
                             Log.d("error 잡기", "넘어가기 전")
-//                            imageContent.activityType = ActivityType.Camera
+//                             
 //                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-//
+                            JpegViewModel.AllInJPEG = false
                             jpegViewModel.jpegMCContainer.value?.save()
                         }
                     }
@@ -662,7 +657,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             while(camera2Module.previewByteArrayList.size < BURST_SIZE){}
                             previewByteArrayList = camera2Module.previewByteArrayList
 
-                            imageContent.activityType = ActivityType.Camera
+                             
                             CoroutineScope(Dispatchers.Default).launch {
                                 // RewindFragment로 이동
                                 withContext(Dispatchers.Main) {
@@ -675,9 +670,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                     }
                                     jop.await()
                                     Log.d("error 잡기", "넘어가기 전")
-//                                    imageContent.activityType = ActivityType.Camera
+//                                     
 //                                    findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)
-
+                                    JpegViewModel.AllInJPEG = true
                                     jpegViewModel.jpegMCContainer.value?.save()
                                 }
 
@@ -711,12 +706,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 isFocusSuccess = false
 
                 saveObjectCenterPoint()
+                JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
             }
 
             // Distance Focus 모드
             else if(distanceFocusRadioBtn.isChecked){
 
+                JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
                 turnOffAFMode(0f)
                 controlLensFocusDistance(0)
@@ -921,7 +918,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         ContentAttribute.object_focus
                     )
 
-                    imageContent.activityType = ActivityType.Camera
+                     
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
                             val pictureList = jpegViewModel.jpegMCContainer.value!!.imageContent.pictureList
@@ -970,6 +967,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 Log.e("Error", "InvocationTargetException")
             }
 
+            Log.v("focus test", "[$index] isFocusSuccess? : $isFocusSuccess")
+
             if (isFocusSuccess == true) {
                 mediaPlayer.start()
 
@@ -981,6 +980,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 takeObjectFocusMode(index, detectedObjectList)
             }
         }, ContextCompat.getMainExecutor(activity))
+
 
     } // end of takeObjectFocusMode()...
 
@@ -1013,7 +1013,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         ContentAttribute.distance_focus
                     )
 
-                    imageContent.activityType = ActivityType.Camera
+                     
                     CoroutineScope(Dispatchers.Default).launch {
                         withContext(Dispatchers.Main) {
 //                            findNavController().navigate(R.id.action_cameraFragment_to_burstModeEditFragment)

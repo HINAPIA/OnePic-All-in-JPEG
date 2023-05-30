@@ -61,7 +61,8 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
     protected var selectFaceRect: Rect? = null
     protected var isSelected = false
 
-    private lateinit var mainSubView: View
+    private var mainSubView: View? = null
+
 
     private enum class InfoLevel {
         EditFaceSelect,
@@ -198,7 +199,7 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
 //                imageContent.setMainBitmap(selectBitmap)
                 withContext(Dispatchers.Main) {
                     //jpegViewModel.jpegMCContainer.value?.save()
-                    imageContent.checkRewindAttribute = true
+                    imageContent.checkRewind = true
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
 
@@ -567,8 +568,9 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                 // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
                 cropImageView.setOnClickListener {
 
-                    mainSubView.background = null
-                    mainSubView.setPadding(0)
+                        mainSubView?.background = null
+                        mainSubView?.setPadding(0)
+
 
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
@@ -592,17 +594,11 @@ open class RewindFragment : Fragment(R.layout.fragment_rewind) {
                         changeMainView(PreSelectBitmap!!)
 
                     mainSubView = cropImageView
-                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                    mainSubView.setPadding(6)
+                    mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
+                    mainSubView?.setPadding(6)
 
                     imageToolModule.showView(binding.arrowBar, true)
                     infoLevel.value = InfoLevel.ArrowCheck
-                }
-
-                if(i == jpegViewModel.getSelectedSubImageIndex()) {
-                    mainSubView = cropImageView
-                    mainSubView.setBackgroundResource(R.drawable.chosen_image_border)
-                    mainSubView.setPadding(6)
                 }
 
                 // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기

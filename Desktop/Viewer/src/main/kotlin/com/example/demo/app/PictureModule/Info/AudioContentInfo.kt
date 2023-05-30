@@ -19,7 +19,7 @@ class AudioContentInfo(audioContent: AudioContent, startOffset : Int) {
             attribute = audioContent.audio!!.attribute.code
             datasize = audioContent.audio!!._audioByteArray!!.size
         }else {
-            attribute = ContentAttribute.basic.code
+            attribute = ContentAttribute.Basic.code
             datasize = 0
         }
     }

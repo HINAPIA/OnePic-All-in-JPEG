@@ -69,9 +69,14 @@ class AudioResolver(val context : Context) {
         isRecording = false
         Log.d("AudioModule", "녹음 stop")
         mediaRecorder?.apply {
-            stop()
-            reset()
-            release()
+            try {
+                stop()
+                reset()
+                release()
+            }catch (e : java.lang.RuntimeException){
+                Log.e(TAG, "stopRecording: ${e.message}")
+            }
+
         }
         return savedFile
     }

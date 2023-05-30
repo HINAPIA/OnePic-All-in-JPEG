@@ -96,8 +96,8 @@ class ImageViewer : View() {
                 // 상세 정보 갱신
                 var stringList : ArrayList<String> = imageTool.getDetailInfo(firstImageBytes)
                 stringList.add("Rotate ${orientation} CW")
-                stringList.add(image.width.toString())
-                stringList.add(image.height.toString())
+                stringList.add(image.width.toInt().toString())
+                stringList.add(image.height.toInt().toString())
                 centerView.infoList = stringList
 
                 centerView.updateDetailView(stringList)

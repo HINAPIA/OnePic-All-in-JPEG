@@ -3,7 +3,6 @@ package com.goldenratio.onepic.PictureModule
 import android.graphics.Bitmap
 import android.util.Log
 import com.goldenratio.onepic.ImageToolModule
-import com.goldenratio.onepic.PictureModule.Contents.ActivityType
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import kotlinx.coroutines.*
@@ -27,7 +26,6 @@ class ImageContent {
     private var bitmapList: ArrayList<Bitmap> = arrayListOf()
     private var attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
     private var bitmapListAttribute : ContentAttribute? = null
-    var activityType: ActivityType? = null
     private var checkBitmapList = false
     var checkPictureList = false
     var checkMain = false
@@ -35,10 +33,11 @@ class ImageContent {
 //    private var checkTransformAttributeBitmap = false
 //    private var checkTransformMain = false
 
-    var checkMagicAttribute = false
-    var checkRewindAttribute = false
-    var checkAddAttribute = false
-    var checkMainChangeAttribute = false
+    var checkMagicCreated = false
+    var checkRewind = false
+    var checkAdded = false
+    var checkMainChanged = false
+    var checkEditChanged = false
 
     var isSetBitmapListStart = false
 
@@ -62,7 +61,6 @@ class ImageContent {
         mainBitmap = null
         attributeBitmapList.clear()
         bitmapListAttribute = null
-        activityType = null
         isSetBitmapListStart = false
         //jpegMetaData = ByteArray(0)
 
@@ -72,11 +70,11 @@ class ImageContent {
     }
 
     fun setCheckAttribute() {
-        checkMagicAttribute = false
-        checkRewindAttribute = false
-        checkAddAttribute = false
-        checkMainChangeAttribute = false
-
+        checkMagicCreated = false
+        checkRewind = false
+        checkAdded = false
+        checkMainChanged = false
+        checkEditChanged = false
     }
 
     /**
@@ -153,8 +151,11 @@ class ImageContent {
             for (i in 0 until pictureList.size) {
 //                if(!checkTransformAttributeBitmap)
 //                    return null
-                if (pictureList[i].contentAttribute != attribute)
+                if (pictureList[i].contentAttribute != attribute) {
+                    Log.d("getPictureList", "index : $i  | pictureList size : ${pictureList.size} " +
+                            "| bitmapList size : ${bitmapList.size}" )
                     newBitmapList.add(bitmapList[i])
+                }
             }
             attributeBitmapList = newBitmapList
         }

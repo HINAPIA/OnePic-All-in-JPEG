@@ -43,7 +43,7 @@ class EditView (val centerView : CenterView) : View(){
             aiMetaDataImageView.fitWidth = 95.0
 
             label{
-                text = "> Meta Data"
+                text = "[Meta Data]"
                 style{
                     textFill = c(CustomColor.white) // 글자 색상 흰색
                     font = Font.font("Inter", FontWeight.BOLD, 15.0)
@@ -56,7 +56,7 @@ class EditView (val centerView : CenterView) : View(){
                 borderRadius = multi(box(10.px))
             }
             // 일반 메타데이터
-            val tab1 = tab("JPEG") {
+            val tab1 = tab("Basic") {
                 style{
                     backgroundColor = MultiValue(arrayOf(Color.web(CustomColor.point)))
                     paddingAll = 5.0

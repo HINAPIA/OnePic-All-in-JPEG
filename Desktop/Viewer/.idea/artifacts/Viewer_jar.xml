@@ -1,0 +1,37 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="Viewer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Viewer_jar</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.example.demo.app.MyAppKt" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="Viewer.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="Viewer" />
+      </element>
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-reflect:1.3.61" />
+      <element id="library" level="project" name="Maven: com.drewnoakes:metadata-extractor:2.12.0" />
+      <element id="library" level="project" name="Maven: javax.json:javax.json-api:1.1.2" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.8.21" />
+      <element id="library" level="project" name="Maven: com.github.rtyley:animated-gif-lib-for-java:animated-gif-lib-1.7" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4" />
+      <element id="library" level="project" name="Maven: no.tornado:tornadofx:1.7.20" />
+      <element id="library" level="project" name="Maven: org.jetbrains:annotations:13.0" />
+      <element id="library" level="project" name="Maven: org.glassfish:javax.json:1.1.2" />
+      <element id="library" level="project" name="Maven: com.adobe.xmp:xmpcore:6.0.6" />
+    </root>
+  </artifact>
+</component>

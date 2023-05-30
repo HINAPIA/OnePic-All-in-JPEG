@@ -14,17 +14,12 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.activityViewModels
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.*
 
 
@@ -129,27 +124,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName : String) : String {
 //        CoroutineScope(Dispatchers.IO).launch {
         var result : Boolean = true
-            var uri : Uri
-
-            // 기존 파일이 존재하는지 확인합니다.
-//            val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
-//            val selectionArgs = arrayOf(fileName)
-//            val cursor = mainActivity.contentResolver.query(
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                null,
-//                selection,
-//                selectionArgs,
-//                null
-//            )
-
-//        // 같은 파일이 이미 존재 하는 경우 덮어쓰기 모드로
-//        if (cursor != null && cursor.moveToFirst()) {
-//            // 사용자가 허가하면 기존 이미지 삭제, 그렇지 않으면 삭제 안함
-//            result =  deleteImage(fileName)
-//        }
-
-        // 같은 파일이 없거나 덮어쓰기가 가능할 때
-        //if(result){
+        var uri : Uri
 
         /* 새로운 파일 저장 */
         Log.d("save_test", "새로운 파일 저장")
@@ -163,7 +138,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         Log.d("here here : ",ViewerFragment.currentFilePath )
 
         val outputStream: OutputStream? = uri?.let {
-            mainActivity.getContentResolver().openOutputStream(
+            mainActivity.contentResolver.openOutputStream(
                 it
             )
         }
@@ -311,36 +286,44 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             byteBuffer.write(jpegMetaData,0,2)
         }
 
-
-//        if(JpegViewModel.AllInJPEG){
-//
-//        }
-
-        //헤더 쓰기
-        //App3 Extension 데이터 생성
-        MCContainer.settingHeaderInfo()
-        var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
-        byteBuffer.write(APP3ExtensionByteArray)
-        //나머지 첫번째 사진의 데이터 쓰기
-        byteBuffer.write(jpegMetaData,4 + exifDataLength,jpegMetaData.size-(4 + exifDataLength))
-        // byteBuffer.write(jpegMetaData)
-
-        // Imgaes write
-        for(i in 0.. MCContainer.imageContent.pictureCount -1){
-            var picture = MCContainer.imageContent.getPictureAtIndex(i)
+        // 일반 JPEG으로 저장
+        if(!JpegViewModel.AllInJPEG){
+            Log.d("save_test", "1. 일반 JPEG으로 저장하기")
+            byteBuffer.write(jpegMetaData, byteBuffer.size() -1, jpegMetaData.size - (byteBuffer.size() -1))
+            var picture = MCContainer.imageContent.getPictureAtIndex(0)
             byteBuffer.write(/* b = */ picture!!._pictureByteArray)
-            if(i == 0){
-                //EOI 작성
-                byteBuffer.write(0xff)
-                byteBuffer.write(0xd9)
+
+            byteBuffer.write(0xff)
+            byteBuffer.write(0xd9)
+
+            // ALL in JPEG format으로 저장
+        } else{
+            Log.d("save_test", "2. all in jpeg으로 저장")
+            //헤더 쓰기
+            //App3 Extension 데이터 생성
+            MCContainer.settingHeaderInfo()
+            var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
+            byteBuffer.write(APP3ExtensionByteArray)
+            //나머지 첫번째 사진의 데이터 쓰기
+            byteBuffer.write(jpegMetaData,4 + exifDataLength,jpegMetaData.size-(4 + exifDataLength))
+            // byteBuffer.write(jpegMetaData)
+            // Imgaes write
+            for(i in 0.. MCContainer.imageContent.pictureCount -1){
+                var picture = MCContainer.imageContent.getPictureAtIndex(i)
+                byteBuffer.write(/* b = */ picture!!._pictureByteArray)
+                if(i == 0){
+                    //EOI 작성
+                    byteBuffer.write(0xff)
+                    byteBuffer.write(0xd9)
+                }
+            }
+            // Audio Write
+            if(MCContainer.audioContent.audio!= null){
+                var audio = MCContainer.audioContent.audio
+                byteBuffer.write(/* b = */ audio!!._audioByteArray)
             }
         }
 
-        // Audio Write
-        if(MCContainer.audioContent.audio!= null){
-            var audio = MCContainer.audioContent.audio
-            byteBuffer.write(/* b = */ audio!!._audioByteArray)
-        }
         return byteBuffer.toByteArray()
     }
 
