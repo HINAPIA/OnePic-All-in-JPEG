@@ -6,6 +6,7 @@ import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.core.CvType.CV_8U
+import org.opencv.core.CvType.CV_8UC3
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 
@@ -24,7 +25,7 @@ class ObjectExtractModule {
         Log.v("obj extract", "mat. cols x rows : ${mat.cols()} x ${mat.rows()}")
 
         // 객체와 배경 구분을 위한 mask ( Gray Scale )
-        val mask = Mat.zeros(mat.size(), CV_8U)
+        val mask = Mat.zeros(mat.size(), CvType.CV_8UC1)
         // 초기 배경 & 전경 모델
 //        val bgModel = Mat()
 //        val fgModel = Mat()

@@ -1,19 +1,25 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.*
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toRectF
+import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.EditModule.BlurBitmapUtil
 import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
@@ -219,10 +225,22 @@ class FocusChangeFragment : Fragment() {
                                     val selectBoundingBox = boundingBoxResizeList[index]
                                     selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
 
-//                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+                                    val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap)
+                                    val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+
+                                    withContext(Dispatchers.Main) {
+                                        binding.focusMainView.setImageBitmap(resultBitmap)
+                                    }
+
+
+//                                    val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+
+//                                    changeMainView(cropBitmap)
+
 //                                    val extractObj = objectExtractModule.extractObjFromBitmap(cropBitmap)
 
-                                    changeMainView(selectBitmap)
+//                                    changeMainView(selectBitmap)
 
 //                                    withContext(Dispatchers.Main) {
 //                                        // 메인(UI) 스레드에서 UI 작업 수행
@@ -230,7 +248,6 @@ class FocusChangeFragment : Fragment() {
 //                                            requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
 //                                        binding.focusMainView.setImageBitmap(newBitmap)
 //                                    }
-//                                    changeMainView(cropBitmap)
                                 }
                             }
 //                            if (boundingBox.size > 0) {
@@ -290,6 +307,41 @@ class FocusChangeFragment : Fragment() {
         binding.dialogCloseBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
+    }
+
+    fun applyBlur(bitmap: Bitmap, radius: Float = 50F, scaleFactor: Float = 8F) : Bitmap {
+        val width = (bitmap.width / scaleFactor).toInt()
+        val height = (bitmap.height / scaleFactor).toInt()
+        val inputBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val canvas = Canvas(outputBitmap)
+        val paint = Paint().apply {
+            flags = Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG
+        }
+        val rectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
+
+        canvas.drawRoundRect(rectF, radius, radius, paint)
+        paint.xfermode = null
+
+        val blurredBitmap = Bitmap.createScaledBitmap(outputBitmap, bitmap.width, bitmap.height, true)
+
+        return blurredBitmap
+    }
+
+    fun mergeBitmaps(blurredBitmap: Bitmap, cropBitmap: Bitmap, x: Int, y: Int): Bitmap {
+        val resultBitmap = Bitmap.createBitmap(blurredBitmap.width, blurredBitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(resultBitmap)
+
+        // 블러 처리된 이미지 그리기
+        canvas.drawBitmap(blurredBitmap, 0f, 0f, null)
+
+        // crop된 이미지 그리기
+        val matrix = Matrix()
+        matrix.postTranslate(x.toFloat(), y.toFloat())
+        canvas.drawBitmap(cropBitmap, matrix, null)
+
+        return resultBitmap
     }
 
     fun bitmapCropRect(bitmap: Bitmap, boundingBox: Rect): Bitmap {
