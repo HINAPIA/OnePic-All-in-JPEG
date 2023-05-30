@@ -168,21 +168,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="230dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="50dp"
-                android:max="4"
-                android:progress="0"
-                android:progressDrawable="@drawable/custom_seekbar_progress"
-                android:thumb="@drawable/custom_seekbar_thumb"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:visibility="visible" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -232,6 +217,32 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/blurSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" >
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
+            android:splitTrack="false"
+            android:progressDrawable="@drawable/seekbar_progress"
+            android:thumb="@drawable/seekbar_thumb"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
 
