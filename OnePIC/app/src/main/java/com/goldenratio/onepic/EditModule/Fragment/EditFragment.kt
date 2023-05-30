@@ -538,7 +538,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             CoroutineScope(Dispatchers.Default).launch {
                                 imageContent.setBitmapList()
                             }
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+                            setCurrentPictureByteArrList()
+//                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
                         }
 
                     }.show()
