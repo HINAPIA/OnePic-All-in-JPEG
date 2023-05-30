@@ -71,7 +71,7 @@ class FocusChangeFragment : Fragment() {
 
     private lateinit var objectExtractModule: ObjectExtractModule
 
-    private val maxBlurRadius: Float = 21f
+    private val maxBlurRadius: Float = 24f
     private var curBlurRadius = 10f
 
     enum class InfoLevel {
@@ -121,21 +121,9 @@ class FocusChangeFragment : Fragment() {
                 bitmapList = bitmap
         }
 
-// TODO : 이 코드 왜 필요한지 물어보기
-
-//        CoroutineScope(Dispatchers.Main).launch {
-//            // 파일을 parsing해서 PictureContainer로 바꾸는 함수 호출
-//            // 메인 이미지 설정
-//            withContext(Dispatchers.Main) {
-//                Glide.with(binding.focusMainView)
-//                    .load(imageContent.getJpegBytes(mainPicture))
-//                    .into(binding.focusMainView)
-//            }
-//        }
-
         CoroutineScope(Dispatchers.Default).launch {
             val allBitmapList = imageContent.getBitmapList()
-//            val index = jpegViewModel.getSelectedSubImageIndex()
+
             val index = jpegViewModel.getMainSubImageIndex()
             val newMainBitmap = allBitmapList?.get(index)
             if (newMainBitmap != null) {
@@ -150,29 +138,18 @@ class FocusChangeFragment : Fragment() {
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
             Log.d("focus", "newBitmapList $newBitmapList")
             if (newBitmapList != null) {
-//                bitmapList = newBitmapList
-//
-//                rewindModule.allFaceDetection(bitmapList)
-//
-//                selectBitmap = rewindModule.autoBestFaceChange(bitmapList)
-
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
             }
         }
 
-//        Thread.sleep(3000)
+
         Log.d("error 잡기", "focusEdit picureList size ${pictureList.size}")
-//        if(imageContent.activityType == ActivityType.Viewer) {
+
             infoLevel.value = InfoLevel.BeforeMainSelect
             infoLevel.observe(viewLifecycleOwner){ _ ->
                 infoTextView()
             }
-//        }
-//        else {
-//            infoLevel.value = InfoLevel.AfterMainSelect
-//            infoTextView()
-//        }
 
         CoroutineScope(Dispatchers.Default).launch {
             if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
@@ -194,10 +171,6 @@ class FocusChangeFragment : Fragment() {
 //                if (!isSelected) {
                     showProgressBar(true, LoadingText.Change)
 
-//                    if (PreSelectBitmap != null) {
-//                        selectBitmap = PreSelectBitmap!!
-//                        newImage = null
-//                    }
                     // click 좌표를 bitmap에 해당하는 좌표로 변환
                     val touchPoint = ImageToolModule().getBitmapClickPoint(
                         PointF(event.x, event.y),
@@ -565,24 +538,33 @@ class FocusChangeFragment : Fragment() {
 
         imageToolModule.showView(binding.seekBar, true)
 
-        binding.seekBar.max = maxBlurRadius.toInt()  // 0 ~ 21 ( 1 ~ 22 )
+        binding.seekBar.max = maxBlurRadius.toInt()  // 0 ~ 24 ( 1 ~ 25 )
         binding.seekBar.progress = curBlurRadius.toInt() + 1 // 현재 10f면 11f로 설정
 
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
-                // progress 변수는 현재 SeekBar의 값입니다.
-                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
-                if (fromUser) {
-                    // SeekBar의 진행 상태에 따라 블러 강도 조절
-                    curBlurRadius = progress.toFloat() + 1
-                    // 블러를 다시 적용하여 이미지 업데이트
-                    applyBlur()
-                }
+//                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
+//                // progress 변수는 현재 SeekBar의 값입니다.
+//                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
+//                if (fromUser) {
+//                    // SeekBar의 진행 상태에 따라 블러 강도 조절
+//                    curBlurRadius = progress.toFloat() + 1
+//                    // 블러를 다시 적용하여 이미지 업데이트
+//                    applyBlur()
+//                }
             }
 
+            // 슬라이더를 터치하여 조작을 시작할 때
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            // 슬라이더 조작을 멈추고 손을 뗄 때
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                // SeekBar의 진행 상태에 따라 블러 강도 조절
+                curBlurRadius = seekBar!!.progress.toFloat() + 1
+                // 블러를 다시 적용하여 이미지 업데이트
+                applyBlur()
+
+            }
         })
     }
 
