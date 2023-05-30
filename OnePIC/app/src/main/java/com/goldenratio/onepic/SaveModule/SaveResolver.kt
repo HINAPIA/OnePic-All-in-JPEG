@@ -14,12 +14,17 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.goldenratio.onepic.JpegViewModel
+import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.*
 
 
@@ -259,6 +264,52 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         return fileItem.toString()
     }
 
+    fun singleImageSave(picture : Picture){
+        val byteBuffer = ByteArrayOutputStream()
+        var jpegMetaData = MCContainer.imageContent.jpegMetaData
+        byteBuffer.write(jpegMetaData,0,jpegMetaData.size)
+        byteBuffer.write(picture._pictureByteArray)
+        byteBuffer.write(0xff)
+        byteBuffer.write(0xd9)
+
+        val singleJpegBytes =  byteBuffer.toByteArray()
+
+        var savedFile : String = ""
+        val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
+            savedFile = saveImageOnAboveAndroidQ(singleJpegBytes, fileName)
+            Log.d("Save Resolver", "save")
+        } else {
+            // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
+            val writePermission = mainActivity?.let {
+                ActivityCompat.checkSelfPermission(
+                    it,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            }
+            if (writePermission == PackageManager.PERMISSION_GRANTED) {
+                savedFile = saveImageOnUnderAndroidQ(singleJpegBytes)
+                 Toast.makeText(mainActivity, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                val requestExternalStorageCode = 1
+
+                val permissionStorage = arrayOf(
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+
+                ActivityCompat.requestPermissions(
+                    mainActivity as Activity,
+                    permissionStorage,
+                    requestExternalStorageCode
+                )
+            }
+
+        }
+       /// return savedFile!!
+    }
     fun MCContainerToBytes() : ByteArray{
         // 순서는 이미지 > 텍스트 > 오디오
         val byteBuffer = ByteArrayOutputStream()

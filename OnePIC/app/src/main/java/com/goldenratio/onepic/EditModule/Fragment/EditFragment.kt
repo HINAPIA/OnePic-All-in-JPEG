@@ -373,6 +373,16 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //            findNavController().navigate(R.id.action_editFragment_to_addFragment)
 //        }
 
+        // 단일 사진 추출
+        binding.extractJpegBtn.setOnClickListener {
+            // 한 장으로 저장출
+            val currentImage = jpegViewModel.selectedSubImage
+            jpegViewModel.jpegMCContainer.value!!.saveResolver.singleImageSave(currentImage!!)
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(activity, "사진이 저장 되었습니다.", Toast.LENGTH_SHORT).show();
+            }
+
+        }
 
         // 메인 변경
         binding.mainChangeBtn.setOnClickListener {
@@ -399,6 +409,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 저장 버튼 표시 | 메인 변경 버튼 없애기
             imageToolModule.showView(binding.saveBtn, true)
             imageToolModule.showView(binding.mainChangeBtn, false)
+            imageToolModule.showView(binding.extractJpegBtn, false)
         }
 
         // 컨텐츠 삭제
@@ -961,8 +972,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         if (jpegViewModel.getMainSubImageIndex() != index) {
             imageToolModule.showView(binding.mainChangeBtn, true)
+            imageToolModule.showView(binding.extractJpegBtn, true)
         } else {
             imageToolModule.showView(binding.mainChangeBtn, false)
+            imageToolModule.showView(binding.extractJpegBtn, false)
         }
 //        jpegViewModel.selectPictureIndex = index
 
@@ -1117,6 +1130,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                 if (picture != jpegViewModel.mainSubImage) {
                     imageToolModule.showView(binding.mainChangeBtn, true)
+                    imageToolModule.showView(binding.extractJpegBtn, true)
                 }
 
                 Glide.with(binding.mainImageView)

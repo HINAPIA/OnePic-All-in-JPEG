@@ -603,6 +603,19 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />
 
+            <Button
+                android:id="@+id/extractJpegBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00FFFFFF"
+                android:text="@string/extract_jpeg"
+                android:textColor="@color/camera_mode_select_color"
+                android:textSize="12sp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
