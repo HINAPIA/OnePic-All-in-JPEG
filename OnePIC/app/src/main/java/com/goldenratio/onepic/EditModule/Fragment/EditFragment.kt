@@ -64,7 +64,6 @@ import kotlin.apply
 import kotlin.getValue
 import kotlin.let
 
-
 class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     private lateinit var binding: FragmentEditBinding
@@ -1404,14 +1403,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         checkAllInJPEG()
         handler.removeCallbacksAndMessages(null)
 
-        isAudioPlay = if(isAudioPlay) {
-            imageView.setImageResource(R.drawable.edit_audio_add_icon)
-            false
-        } else {
-            imageView.setImageResource(R.drawable.edit_audio_add_click_icon)
-            true
-        }
-
         Log.d("add_test", " AddAudio() 호출")
         val dialog = ConfirmDialog( "Live 레코드를 추가 하시겠습니까?", GoAudioAddMode())
         // 알림창이 띄워져있는 동안 배경 클릭 막기
@@ -2221,7 +2212,4 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
         }
     }
-
-
 }
-
