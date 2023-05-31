@@ -42,7 +42,6 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
         val dateText = cellView.findViewById<TextView>(R.id.dateText)
         if (day == null) {
             dateText.text = " "
-            cellView.findViewById<ImageView>(R.id.lineImage).visibility = View.INVISIBLE
         } else {
             dateText.text = day.toString()
             cellViewMap[day] = cellView
@@ -75,7 +74,6 @@ class CalendarAdapter(private val context: Context, private val days: MutableLis
                         .load(uri)
                         .into(imageView)
                 }
-                cellViewMap[date]?.findViewById<ImageView>(R.id.sticker)?.visibility = View.VISIBLE
 
                 cellViewMap[date]?.setOnClickListener {
                     clickFun(uri)

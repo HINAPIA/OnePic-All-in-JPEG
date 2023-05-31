@@ -242,7 +242,7 @@ class ViewDiaryFragment : Fragment() {
 
                 layoutToolModule.month = month.value!!
                 try {
-                    layoutToolModule.setSubImage(layoutInflater, binding.monthLayout, 12, month.value!!, null, ::month)
+                    layoutToolModule.setMonthLayer(layoutInflater, binding.monthLayout, jpegViewModel.currentMonth, month.value!!, ::month)
                 }catch (e: IllegalStateException){
                     e.printStackTrace()
                 }
@@ -403,7 +403,7 @@ class ViewDiaryFragment : Fragment() {
         val calendar = Calendar.getInstance()
         calendar.set(2023, month.value!! -1, 1)
 
-        jpegViewModel.daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
         for (i in 0 until cellList.size) {
             val cell = cellList[i]
@@ -415,8 +415,12 @@ class ViewDiaryFragment : Fragment() {
             binding.dayLayout.removeAllViews()
         }
         CoroutineScope(Dispatchers.Default).launch {
-            layoutToolModule.month = month.value!!
-            layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, day.value!!, dayList, ::day)
+            if(month.value == jpegViewModel.currentMonth) {
+                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.currentDay, day.value!!, dayList, ::day)
+            }
+            else  {
+                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, 1, dayList, ::day)
+            }
         }
     }
 
@@ -496,7 +500,7 @@ class ViewDiaryFragment : Fragment() {
 
             binding.UnderImageLayout.visibility = View.GONE
             binding.OnImageLayout.visibility = View.INVISIBLE
-            binding.magicBtn.visibility = View.GONE
+//            binding.magicBtn.visibility = View.GONE
             binding.viewUnberBtn.visibility = View.GONE
 
             binding.addBtn.visibility = View.VISIBLE
@@ -559,65 +563,65 @@ class ViewDiaryFragment : Fragment() {
         }
     }
 
-    fun setMasetMagigic() {
-        CoroutineScope(Dispatchers.IO).launch {
-            if (imageContent.checkAttribute(ContentAttribute.magic)) {
-
-                withContext(Dispatchers.Main) {
-                    binding.magicBtn.visibility = View.VISIBLE
-                    binding.magicBtn.setImageResource(R.drawable.play)
-                }
-
-                isMagicPlay = false
-                magicPictureModule = MagicPictureModule(imageContent)
-
-                binding.magicBtn.setOnClickListener {
-                    if (!isMagicPlay) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.magicBtn.setImageResource(R.drawable.parse)
-
-                            binding.progressBar.visibility = View.VISIBLE
-                            binding.viewPager.visibility = View.GONE
-                            binding.mainView.visibility = View.VISIBLE
-
-                            if(overlayBitmap.isEmpty()) {
-                                Glide.with(binding.mainView)
-                                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
-                                    .into(binding.mainView)
-                            }
-                        }
-                        isMagicPlay = true
-
-                        CoroutineScope(Dispatchers.Default).launch {
-                            if(overlayBitmap.isEmpty()) {
-                                overlayBitmap = magicPictureModule.magicPictureProcessing()
-                            }
-
-                            Log.d("magic","magicPictureProcessing end ${overlayBitmap.size}")
-                            withContext(Dispatchers.Main) {
-                                binding.progressBar.visibility = View.GONE
-                            }
-                            Log.d("magic","magicPucture run ${overlayBitmap.size}")
-                            magicPictureRun(overlayBitmap)
-                        }
-                    } else {
-                        handler.removeCallbacksAndMessages(null)
-
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.magicBtn.setImageResource(R.drawable.play)
-
-                            binding.progressBar.visibility = View.GONE
-                            binding.viewPager.visibility = View.VISIBLE
-                            binding.mainView.visibility = View.GONE
-                        }
-                        isMagicPlay = false
-                    }
-                }
-            } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    binding.magicBtn.visibility = View.INVISIBLE
-                }
-            }
-        }
-    }
+//    fun setMasetMagigic() {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            if (imageContent.checkAttribute(ContentAttribute.magic)) {
+//
+//                withContext(Dispatchers.Main) {
+//                    binding.magicBtn.visibility = View.VISIBLE
+//                    binding.magicBtn.setImageResource(R.drawable.play)
+//                }
+//
+//                isMagicPlay = false
+//                magicPictureModule = MagicPictureModule(imageContent)
+//
+//                binding.magicBtn.setOnClickListener {
+//                    if (!isMagicPlay) {
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            binding.magicBtn.setImageResource(R.drawable.parse)
+//
+//                            binding.progressBar.visibility = View.VISIBLE
+//                            binding.viewPager.visibility = View.GONE
+//                            binding.mainView.visibility = View.VISIBLE
+//
+//                            if(overlayBitmap.isEmpty()) {
+//                                Glide.with(binding.mainView)
+//                                    .load(imageContent.getJpegBytes(imageContent.mainPicture))
+//                                    .into(binding.mainView)
+//                            }
+//                        }
+//                        isMagicPlay = true
+//
+//                        CoroutineScope(Dispatchers.Default).launch {
+//                            if(overlayBitmap.isEmpty()) {
+//                                overlayBitmap = magicPictureModule.magicPictureProcessing()
+//                            }
+//
+//                            Log.d("magic","magicPictureProcessing end ${overlayBitmap.size}")
+//                            withContext(Dispatchers.Main) {
+//                                binding.progressBar.visibility = View.GONE
+//                            }
+//                            Log.d("magic","magicPucture run ${overlayBitmap.size}")
+//                            magicPictureRun(overlayBitmap)
+//                        }
+//                    } else {
+//                        handler.removeCallbacksAndMessages(null)
+//
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            binding.magicBtn.setImageResource(R.drawable.play)
+//
+//                            binding.progressBar.visibility = View.GONE
+//                            binding.viewPager.visibility = View.VISIBLE
+//                            binding.mainView.visibility = View.GONE
+//                        }
+//                        isMagicPlay = false
+//                    }
+//                }
+//            } else {
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    binding.magicBtn.visibility = View.INVISIBLE
+//                }
+//            }
+//        }
+//    }
 }

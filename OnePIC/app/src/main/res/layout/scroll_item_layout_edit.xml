@@ -32,10 +32,12 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginTop="5dp"
+        android:alpha="0.7"
         android:background="@color/edit_delete_back_color"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:visibility="gone"
-        app:srcCompat="@drawable/delete" />
+        app:srcCompat="@drawable/delete"
+        tools:visibility="visible" />
 
 </FrameLayout>

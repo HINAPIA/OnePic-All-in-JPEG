@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical">
@@ -74,31 +74,31 @@
 
 
         <!--        <Button-->
-<!--            android:id="@+id/audioAddBtn"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="@color/transparent_color"-->
-<!--            android:drawableTop="@drawable/add_icon_resize"-->
-<!--            android:paddingLeft="10dp"-->
-<!--            android:paddingRight="10dp"-->
-<!--            android:text="audio 추가"-->
-<!--            android:textAllCaps="false"-->
-<!--            android:textSize="12sp" />-->
+        <!--            android:id="@+id/audioAddBtn"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:background="@color/transparent_color"-->
+        <!--            android:drawableTop="@drawable/add_icon_resize"-->
+        <!--            android:paddingLeft="10dp"-->
+        <!--            android:paddingRight="10dp"-->
+        <!--            android:text="audio 추가"-->
+        <!--            android:textAllCaps="false"-->
+        <!--            android:textSize="12sp" />-->
 
 
-<!--        <Button-->
-<!--            android:id="@+id/textAddBtn"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="@color/transparent_color"-->
-<!--            android:drawableTop="@drawable/add_icon_resize"-->
-<!--            android:paddingLeft="10dp"-->
-<!--            android:paddingRight="10dp"-->
-<!--            android:text="text 추가"-->
-<!--            android:textAllCaps="false"-->
-<!--            android:textSize="12sp" />-->
+        <!--        <Button-->
+        <!--            android:id="@+id/textAddBtn"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:background="@color/transparent_color"-->
+        <!--            android:drawableTop="@drawable/add_icon_resize"-->
+        <!--            android:paddingLeft="10dp"-->
+        <!--            android:paddingRight="10dp"-->
+        <!--            android:text="text 추가"-->
+        <!--            android:textAllCaps="false"-->
+        <!--            android:textSize="12sp" />-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -353,7 +353,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
 
 
-<!--            오디오 layout-->
+            <!--            오디오 layout-->
             <ImageView
                 android:id="@+id/rawImageView2"
                 android:layout_width="281dp"
@@ -602,9 +602,11 @@
                 android:textColor="#FFFFFF"
                 android:textSize="17dp"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <Button
                 android:id="@+id/extractJpegBtn"
                 android:layout_width="wrap_content"
@@ -736,8 +738,7 @@
                 android:id="@+id/containerLayout"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
-                android:visibility="visible"
-                tools:visibility="gone">
+                android:visibility="visible">
                 \>
 
 
@@ -808,11 +809,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|end"
-                        android:layout_marginEnd="-10dp"
+                        android:layout_marginEnd="-15dp"
                         android:gravity="bottom"
                         android:rotation="90"
                         android:text="All in JPEG"
-                        android:textSize="10sp"
+                        android:textColor="#000000"
+                        android:textSize="13dp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

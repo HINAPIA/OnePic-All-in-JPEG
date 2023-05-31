@@ -71,7 +71,7 @@
             android:gravity="center"
             android:text="일"
             android:textColor="#FF0000"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -81,7 +81,7 @@
             android:gravity="center"
             android:text="월"
             android:textColor="@color/black"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -91,7 +91,7 @@
             android:gravity="center"
             android:text="화"
             android:textColor="@color/black"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -101,7 +101,7 @@
             android:gravity="center"
             android:text="수"
             android:textColor="@color/black"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -111,7 +111,7 @@
             android:gravity="center"
             android:text="목"
             android:textColor="@color/black"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -121,7 +121,7 @@
             android:gravity="center"
             android:text="금"
             android:textColor="@color/black"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="0dp"
@@ -132,7 +132,7 @@
             android:gravity="center"
             android:text="토"
             android:textColor="#0073FF"
-            android:textSize="10sp" />
+            android:textSize="20sp" />
     </LinearLayout>
 
     <FrameLayout

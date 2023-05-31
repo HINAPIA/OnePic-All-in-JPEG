@@ -609,15 +609,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 CoroutineScope(Dispatchers.IO).launch {
                     jpegViewModel.currentFileName = fileName
                     // 기존 파일 삭제
-//                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
+                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
                     var i =0
-//                    while (!JpegViewModel.isUserInentFinish){
-//                        Log.d("save_test", "${i++}")
-//                        delay(500)
-//                    }
+                    while (!JpegViewModel.isUserInentFinish) {
+                        Log.d("save_test", "${i++}")
+                        delay(500)
+                    }
                     JpegViewModel.isUserInentFinish = false
                     jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
-                    Thread.sleep(2000)
+                    Thread.sleep(3000)
                     Log.d("save_test", "뷰어로 넘어가기")
                     setButtonDeactivation()
                     setCurrentPictureByteArrList()

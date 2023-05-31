@@ -52,10 +52,10 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
                         prevX = event.rawX
                         prevY = event.rawY
 
-                        handler.postDelayed(this, 100) // 100ms 간격으로 실행됩니다.
+                        handler.postDelayed(this, 500) // 100ms 간격으로 실행됩니다.
                     }
                 }
-                handler.postDelayed(runnable!!, 100)
+                handler.postDelayed(runnable!!, 500)
                 return true
             }
             MotionEvent.ACTION_UP -> {

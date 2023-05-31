@@ -16,24 +16,23 @@
         android:fontFamily="@font/ohmu"
         android:gravity="center"
         android:text="@string/title"
+        android:textColor="#000000"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView12"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.55">
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="3dp"
+        android:layout_weight="0.55"
+        android:background="@drawable/background_round"
+        android:backgroundTint="#FFC4C4">
 
         <TextView
             android:id="@+id/monthTextView"
@@ -42,6 +41,7 @@
             android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:text="Mon"
+            android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -54,6 +54,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="10dp"
+            android:foregroundGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline3"
@@ -63,8 +64,8 @@
                 android:id="@+id/monthLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingTop="8dp" />
+                android:gravity="center"
+                android:orientation="horizontal" />
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.Guideline
@@ -76,18 +77,16 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/imageView13"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.55">
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="3dp"
+        android:layout_weight="0.55"
+        android:background="@drawable/background_round"
+        android:backgroundTint="#FFDFC9">
 
         <TextView
             android:id="@+id/dateTextView"
@@ -96,6 +95,7 @@
             android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:text="Day"
+            android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -108,6 +108,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="10dp"
+            android:foregroundGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline4"
@@ -118,7 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:paddingTop="8dp" />
+                android:paddingTop="4dp" />
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.Guideline
@@ -130,14 +131,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/imageView10"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -147,7 +140,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="5">
+            android:layout_margin="10dp"
+            android:layout_weight="5"
+            android:background="@drawable/background_round"
+            android:backgroundTint="#FAECEC">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
@@ -157,7 +153,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" >
+                app:layout_constraintTop_toTopOf="parent">
 
             </androidx.viewpager2.widget.ViewPager2>
 
@@ -171,21 +167,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/magicBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:backgroundTint="@color/transparent_color"
-                android:scaleType="fitCenter"
-                android:src="@drawable/play"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="@+id/viewUnberBtn"
-                app:layout_constraintEnd_toStartOf="@+id/viewUnberBtn"
-                app:layout_constraintTop_toTopOf="@+id/viewUnberBtn"
-                app:tint="@color/on_image_color"
-                tools:visibility="visible" />
 
             <ImageButton
                 android:id="@+id/viewUnberBtn"
@@ -308,8 +289,8 @@
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="55dp"
+                android:layout_height="54dp"
                 android:indeterminateTint="@color/progressive_color"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -409,14 +390,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageView11"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -427,7 +400,7 @@
             android:id="@+id/playAudioBarLaydout"
             android:layout_width="175dp"
             android:layout_height="51dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/playBtn"
             app:layout_constraintTop_toTopOf="parent">
@@ -490,7 +463,9 @@
             android:layout_marginStart="16dp"
             android:layout_weight="1"
             android:src="@drawable/play2"
+            android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/play" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -138,8 +138,13 @@ class AddDiaryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         CoroutineScope(Dispatchers.Default).launch {
             layoutToolModule.month = month.value!!
-            layoutToolModule.setSubImage(layoutInflater,binding.monthLayout, 12, month.value!!, null, ::month)
-            layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, day.value!!, null, ::day)
+            layoutToolModule.setMonthLayer(layoutInflater,binding.monthLayout, jpegViewModel.currentMonth, month.value!!, ::month)
+            if(month.value == jpegViewModel.currentMonth) {
+                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.currentDay, day.value!!, null, ::day)
+            }
+            else  {
+                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, null, null, ::day)
+            }
         }
     }
 

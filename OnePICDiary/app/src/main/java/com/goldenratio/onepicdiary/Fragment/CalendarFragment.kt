@@ -62,6 +62,9 @@ class CalendarFragment : Fragment() {
         currentYear = calendar.get(Calendar.YEAR)
         currentMonth = calendar.get(Calendar.MONTH)
 
+        jpegViewModel.currentMonth = currentMonth + 1
+        jpegViewModel.currentDay = calendar.get(Calendar.DATE)
+
 //        Log.d("calendar","##### "+calendar.get(Calendar.DATE))
 
         getPreference()
@@ -127,6 +130,7 @@ class CalendarFragment : Fragment() {
         }
 
         jpegViewModel.daysInMonth = daysInMonth
+
         // 현재 달의 날짜 추가
         for (i in 1..daysInMonth) {
             days.add(i)
