@@ -48,6 +48,7 @@
 
     <string name="camera_burst_info">5장 연속 촬영</string>
     <string name="camera_object_info">인식된 객체에 각각 초점이 맞는 사진 촬영</string>
+    <string name="camera_distance_info">가까운 곳부터 먼 곳까지 초점이 맞는 사진 촬영</string>
     <string name="camera_success_info">촬영 완료</string>
 
     <string name="burst1">3</string>

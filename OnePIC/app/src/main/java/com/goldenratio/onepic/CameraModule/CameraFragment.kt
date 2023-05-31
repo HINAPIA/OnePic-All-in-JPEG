@@ -78,6 +78,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var distanceFocusRadioBtn : RadioButton
     private lateinit var overlay : OverlayView
     private lateinit var successInfoConstraintLayout : ConstraintLayout
+    private lateinit var distanceWarningConstraintLayout : ConstraintLayout
+    private lateinit var distanceProgressBar : ProgressBar
     // binding Bottom menu
     private lateinit var bottomMenu : LinearLayoutCompat
     private lateinit var galleryBtn : ImageView
@@ -92,7 +94,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
     private lateinit var burst2RadioBtn : RadioButton
     private lateinit var burst3RadioBtn : RadioButton
     // warning Info
-    private lateinit var warningInfoConstraintLayout : ConstraintLayout
+    private lateinit var objectWarningConstraintLayout : ConstraintLayout
 
     private lateinit var camera2Module: Camera2
 
@@ -192,6 +194,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         distanceFocusRadioBtn = binding.distanceFocusRadioBtn
         infoTextView = binding.infoTextView
         successInfoConstraintLayout = binding.successInfoConstraintLayout
+        distanceWarningConstraintLayout = binding.distanceWarningConstraintLayout
+        distanceProgressBar = binding.distanceProgressBar
 
         //binding Bottom Menu
         bottomMenu = binding.bottomMenu
@@ -208,7 +212,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         burst3RadioBtn = binding.burst3RadioBtn
 
         // warning Info
-        warningInfoConstraintLayout = binding.warningInfoConstraintLayout
+        objectWarningConstraintLayout = binding.objectWarningConstraintLayout
 
         camera2Module = Camera2(activity, requireContext(), binding)
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
@@ -225,9 +229,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // Initialize the detector object
         setDetecter()
 
-
-        binding.infoConstraintLayout.visibility = View.GONE
-        burstSizeConstraintLayout.visibility = View.GONE
+        imageToolModule.showView(binding.infoConstraintLayout, false)
 
         // warning Gif
         Glide.with(binding.warningLoadingImageView)
@@ -278,7 +280,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         fadeOut.addListener(object : Animator.AnimatorListener{
 
             override fun onAnimationEnd(animation: Animator) {
-                successInfoConstraintLayout.visibility = View.GONE
+                imageToolModule.showView(successInfoConstraintLayout, false)
             }
 
             override fun onAnimationStart(animation: Animator) {}
@@ -399,52 +401,61 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         }
 
         if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
-            // 저장된 라디오 버튼 인덱스를 사용하여 라디오 버튼을 선택합니다.
+
             when (selectedRadioIndex) {
+
                 basicRadioBtn.id -> {
+
                     basicRadioBtn.isChecked = true
 
-                    overlay.visibility = View.GONE
-                    viewFinder.visibility = View.VISIBLE
-                    textureView.visibility = View.GONE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, false)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
 
-                    binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeConstraintLayout.visibility = View.GONE
                 }
+
                 burstRadioBtn.id -> {
+
                     burstRadioBtn.isChecked = true
 
-                    overlay.visibility = View.GONE
-                    viewFinder.visibility = View.GONE
-                    textureView.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, false)
+                    imageToolModule.showView(textureView, true)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, true)
 
-                    binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeConstraintLayout.visibility = View.VISIBLE
                 }
+
                 objectFocusRadioBtn.id -> {
+
                     objectFocusRadioBtn.isChecked = true
 
-                    overlay.visibility = View.VISIBLE
-                    viewFinder.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, true)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, true)
+
                     viewFinder.isEnabled = true
-
-                    textureView.visibility = View.GONE
-
-                    binding.infoConstraintLayout.visibility = View.VISIBLE
                     infoTextView.text = resources.getString(R.string.camera_object_info)
-                    burstSizeConstraintLayout.visibility = View.GONE
+
                 }
+
                 distanceFocusRadioBtn.id -> {
+
                     distanceFocusRadioBtn.isChecked = true
 
-                    overlay.visibility = View.GONE
-                    viewFinder.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
+
                     viewFinder.isEnabled = true
+                    infoTextView.text = resources.getString(R.string.camera_distance_info)
 
-                    textureView.visibility = View.GONE
-
-                    binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeConstraintLayout.visibility = View.GONE
                 }
             }
         }
@@ -491,14 +502,14 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
 
-                    overlay.visibility = View.GONE
-                    viewFinder.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, false)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
+
                     viewFinder.isEnabled = true
 
-                    textureView.visibility = View.GONE
-
-                    binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeConstraintLayout.visibility = View.GONE
                 }
 
                 burstRadioBtn.id -> {
@@ -508,10 +519,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         || selectedRadioIndex == distanceFocusRadioBtn.id) {
                         //CameraX 중단 > Camera2 실행
                         stopCameraX()
-                        overlay.visibility = View.GONE
-                        viewFinder.visibility = View.GONE
 
-                        textureView.visibility = View.VISIBLE
                         camera2Module.startBackgroundThread()
 
                         if(isBackLens!!) {
@@ -529,8 +537,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
 
-                    binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeConstraintLayout.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, false)
+                    imageToolModule.showView(textureView, true)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, true)
+
                     when(BURST_SIZE) {
                         BURST_OPTION1 -> infoTextView.text = resources.getString(R.string.burst1_info)
                         BURST_OPTION2 -> infoTextView.text = resources.getString(R.string.burst2_info)
@@ -553,15 +565,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     objectFocusRadioBtn.setTypeface(null, Typeface.BOLD)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
 
-                    overlay.visibility = View.VISIBLE
-                    viewFinder.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, true)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
+
                     viewFinder.isEnabled = true
-
-                    textureView.visibility = View.GONE
-
-                    binding.infoConstraintLayout.visibility = View.VISIBLE
-                    burstSizeConstraintLayout.visibility = View.GONE
                     infoTextView.text = resources.getString(R.string.camera_object_info)
+
                 }
 
                 distanceFocusRadioBtn.id -> {
@@ -579,14 +591,15 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     objectFocusRadioBtn.setTypeface(null, Typeface.NORMAL)
                     distanceFocusRadioBtn.setTypeface(null, Typeface.BOLD)
 
-                    overlay.visibility = View.GONE
-                    viewFinder.visibility = View.VISIBLE
+                    imageToolModule.showView(overlay, false)
+                    imageToolModule.showView(viewFinder, true)
+                    imageToolModule.showView(textureView, false)
+                    imageToolModule.showView(binding.infoConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
+
                     viewFinder.isEnabled = true
+                    infoTextView.text = resources.getString(R.string.camera_distance_info)
 
-                    textureView.visibility = View.GONE
-
-                    binding.infoConstraintLayout.visibility = View.GONE
-                    burstSizeConstraintLayout.visibility = View.GONE
                 }
             }
         }
@@ -747,15 +760,19 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 saveObjectCenterPoint()
                 JpegViewModel.AllInJPEG = true
                 audioResolver.startRecording("camera_record")
-                imageToolModule.showView(warningInfoConstraintLayout, true)
+                imageToolModule.showView(objectWarningConstraintLayout, true)
             }
 
             // Distance Focus 모드
             else if(distanceFocusRadioBtn.isChecked){
 
                 JpegViewModel.AllInJPEG = true
-                audioResolver.startRecording("camera_record")
                 turnOffAFMode(0f)
+                audioResolver.startRecording("camera_record")
+
+                initProgressBar()
+                imageToolModule.showView(distanceWarningConstraintLayout, true)
+
                 controlLensFocusDistance(0)
             }
 
@@ -982,9 +999,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             objectFocusRadioBtn.isEnabled = true
                             distanceFocusRadioBtn.isEnabled = true
 
-                            imageToolModule.showView(warningInfoConstraintLayout, false)
+                            imageToolModule.showView(objectWarningConstraintLayout, false)
                             imageToolModule.showView(successInfoConstraintLayout, true)
-//                            successInfoConstraintLayout.visibility = View.VISIBLE
 
                             fadeIn.start()
                             rotation.cancel()
@@ -1073,7 +1089,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                             burstRadioBtn.isEnabled = true
                             objectFocusRadioBtn.isEnabled = true
                             distanceFocusRadioBtn.isEnabled = true
-                            successInfoConstraintLayout.visibility = View.VISIBLE
+
+                            imageToolModule.showView(distanceWarningConstraintLayout, false)
+                            imageToolModule.showView(successInfoConstraintLayout, true)
 
                             fadeIn.start()
                             rotation.cancel()
@@ -1092,6 +1110,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         imageCapture.takePicture(cameraExecutor, object :
             ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
+                incrementProgressBar()
+
                 controlLensFocusDistance(photoCnt + 1)
                 val buffer = image.planes[0].buffer
                 buffer.rewind()
@@ -1102,6 +1122,16 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 super.onCaptureSuccess(image)
             }
         })
+    }
+
+    private fun initProgressBar() {
+        distanceProgressBar.progress = 0
+    }
+
+    private fun incrementProgressBar() {
+        var currentProgress = distanceProgressBar.progress
+        currentProgress += 10
+        distanceProgressBar.progress = currentProgress
     }
 
     /**

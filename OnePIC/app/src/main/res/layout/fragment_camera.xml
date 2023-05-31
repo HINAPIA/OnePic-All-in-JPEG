@@ -91,7 +91,7 @@
                 android:visibility="gone"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/warningInfoConstraintLayout"
+                android:id="@+id/objectWarningConstraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/black_40"
@@ -142,6 +142,73 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/distanceWarningConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black_40"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:rotation="270"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/distanceProgressBar"
+                        android:layout_width="230dp"
+                        android:layout_height="7dp"
+                        android:max="70"
+                        android:progress="0"
+                        style="@style/DistanceProgressBar" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                        android:id="@+id/warningTextView3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginBottom="130dp"
+                        android:text="먼 곳 초점"
+                        android:textColor="@color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/warningTextView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginTop="130dp"
+                        android:text="가까운 곳 초점"
+                        android:textColor="@color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/infoConstraintLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -177,20 +244,6 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:srcCompat="@drawable/close_icon"
                     app:tint="@color/white" />
-
-<!--                <androidx.constraintlayout.widget.Guideline-->
-<!--                    android:id="@+id/infoConstraintLayout_ver1"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    app:layout_constraintGuide_percent="0.1" />-->
-
-<!--                <androidx.constraintlayout.widget.Guideline-->
-<!--                    android:id="@+id/infoConstraintLayout_ver2"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    app:layout_constraintGuide_percent="0.9" />-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -410,7 +463,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginTop="10dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <HorizontalScrollView
                 android:id="@+id/burstSizeSettingScrollView"
