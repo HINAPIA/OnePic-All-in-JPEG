@@ -9,55 +9,53 @@
     android:orientation="vertical"
     tools:context=".Fragment.AddDiaryFragment">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.55">
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="3dp"
+        android:layout_weight="0.55"
+        android:background="@drawable/background_round"
+        android:backgroundTint="@color/month_background">
 
         <TextView
             android:id="@+id/monthTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="35dp"
+            android:layout_height="33dp"
             android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:text="Mon"
-            android:textSize="18dp"
+            android:textColor="#000000"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/horizontalScrollView"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
+            android:id="@+id/horizontalScrollView2"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="10dp"
+            android:foregroundGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintStart_toStartOf="@+id/guideline3"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:id="@+id/monthLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingTop="8dp" />
+                android:gravity="center"
+                android:orientation="horizontal" />
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
+            android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -65,18 +63,16 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.55">
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="3dp"
+        android:layout_weight="0.55"
+        android:background="@drawable/background_round"
+        android:backgroundTint="@color/day_background">
 
         <TextView
             android:id="@+id/dateTextView"
@@ -85,10 +81,11 @@
             android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:text="Day"
-            android:textSize="18dp"
+            android:textColor="#000000"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintEnd_toStartOf="@+id/dayScrollbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -97,9 +94,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="10dp"
+            android:foregroundGravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="@+id/guideline4"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
@@ -107,25 +105,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:paddingTop="8dp" />
+                android:paddingTop="4dp" />
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline2"
+            android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_begin="60dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
 
     <ImageView
         android:id="@+id/mainView"
@@ -137,93 +127,20 @@
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/before_add_image" />
 
-    <ImageView
-        android:id="@+id/imageView5"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        android:visibility="gone"
-        app:tint="@color/line" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.6"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/titleView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/ohmu"
-            android:gravity="center_vertical"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
-            android:text="Title"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/titleTextField"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/edittext_rounded_corner_rectangle"
-            android:ems="10"
-            android:fontFamily="@font/ohmu"
-            android:inputType="textPersonName"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/titleView"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/imageView6"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line"
-        app:tint="@color/line" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3">
-
-        <TextView
-            android:id="@+id/titleView2"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/ohmu"
-            android:gravity="center_vertical"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
-            android:text="내용"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="10dp"
+        android:layout_weight="3"
+        android:background="@drawable/background_round"
+        android:backgroundTint="@color/main_imageview">
 
 
         <EditText
             android:id="@+id/contentTextField"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="13dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="13dp"
             android:background="@drawable/edittext_rounded_corner_rectangle"
             android:ems="10"
@@ -236,8 +153,7 @@
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/titleView2"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -248,14 +164,6 @@
         android:layout_height="0dp"
         android:layout_weight="0.8">
 
-        <ImageView
-            android:id="@+id/imageView14"
-            android:layout_width="wrap_content"
-            android:layout_height="2dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/line"
-            app:tint="@color/line" />
-
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/vertical_centerline1"
             android:layout_width="wrap_content"
@@ -263,17 +171,20 @@
             android:background="#FFB8B8"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.04379562" />
+
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
             android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/calendar"
             android:fontFamily="@font/ohmu"
             android:text="저장"
             android:textAllCaps="false"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/current_day"
-        app:tint="#FFA262"
+        app:tint="@color/day"
         tools:visibility="visible" />
 
     <TextView
@@ -23,7 +23,7 @@
         android:fontFamily="@font/ohmu"
         android:gravity="center"
         android:paddingStart="-3dp"
-        android:textColor="#A6A6A6"
+        android:textColor="#000000"
         android:textSize="20dp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"

@@ -62,20 +62,20 @@ class CalendarFragment : Fragment() {
         currentYear = calendar.get(Calendar.YEAR)
         currentMonth = calendar.get(Calendar.MONTH)
 
-        jpegViewModel.currentMonth = currentMonth + 1
-        jpegViewModel.currentDay = calendar.get(Calendar.DATE)
-
 //        Log.d("calendar","##### "+calendar.get(Calendar.DATE))
 
         getPreference()
-        val cellList = jpegViewModel.diaryCellArrayList
+//        val cellList = jpegViewModel.diaryCellArrayList
+//
+//        if (cellList.size > 0) {
+//            currentYear = cellList[cellList.size - 1].year
+//            currentMonth = cellList[cellList.size - 1].month
+//        }
 
-        if (cellList.size > 0) {
-            currentYear = cellList[cellList.size - 1].year
-            currentMonth = cellList[cellList.size - 1].month
-        }
+        jpegViewModel.currentMonth = currentMonth + 1
+        jpegViewModel.currentDay = calendar.get(Calendar.DATE)
 
-        setDiary(currentMonth)
+        setDiary(0)
 
         // 이전 달로 변경
         binding.previousMonth.setOnClickListener {
@@ -96,15 +96,15 @@ class CalendarFragment : Fragment() {
             findNavController().navigate(R.id.action_calendarFragment_to_addDiaryFragment)
         }
 
-        val pageChangeCallback = MyPageChangeCallback(::setDiary)
-        binding.viewPager.adapter = CalendarViewPagerAdapter(requireContext())
-        binding.viewPager.registerOnPageChangeCallback(pageChangeCallback)
-
-        binding.viewPager.setOnTouchListener { _, event ->
-            // 터치 이벤트를 처리하지 않고 하위 뷰로 전달되도록 함
-            Log.d("Click Touch", "viewPager")
-            false
-        }
+//        val pageChangeCallback = MyPageChangeCallback(::setDiary)
+//        binding.viewPager.adapter = CalendarViewPagerAdapter(requireContext())
+//        binding.viewPager.registerOnPageChangeCallback(pageChangeCallback)
+//
+//        binding.viewPager.setOnTouchListener { _, event ->
+//            // 터치 이벤트를 처리하지 않고 하위 뷰로 전달되도록 함
+//            Log.d("Click Touch", "viewPager")
+//            false
+//        }
 
         return binding.root
     }
@@ -147,16 +147,15 @@ class CalendarFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun setDiary(addValue : Int) {
+    private fun setDiary(addValue: Int) {
 
-        if(addValue == -1) {
+        if (addValue == -1) {
             currentMonth--
             if (currentMonth == -1) {
                 currentMonth = 11
                 currentYear--
             }
-        }
-        else {
+        } else if(addValue == 1) {
             currentMonth++
             if (currentMonth == 12) {
                 currentMonth = 0
@@ -174,7 +173,6 @@ class CalendarFragment : Fragment() {
         binding.calendarGrid.adapter = adapter
 
         val cellList = jpegViewModel.diaryCellArrayList
-
 
         CoroutineScope(Dispatchers.Default).launch {
             for (i in 0 until cellList.size) {
@@ -196,7 +194,7 @@ class CalendarFragment : Fragment() {
             val nowYear = calendar.get(Calendar.YEAR)
             val nowMonth = calendar.get(Calendar.MONTH)
 
-            if(currentYear == nowYear && currentMonth == nowMonth) {
+            if (currentYear == nowYear && currentMonth == nowMonth) {
                 val date = calendar.get(Calendar.DATE)
                 adapter.setMainImage(date)
                 jpegViewModel.selectDay = date
@@ -231,13 +229,18 @@ class CalendarFragment : Fragment() {
                 val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
                 // inputStream이 null이 아니라면 사진 URI가 존재하는 것입니다.
                 // 원하는 작업을 수행하거나 결과를 처리할 수 있습니다.
-                if(inputStream != null) {
-                        val cell = DiaryCellData(imageUri, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]))
-                        Log.d("Cell Text", "````````````` ${cell.toString()}")
-                        jpegViewModel.diaryCellArrayList.add(cell)
+                if (inputStream != null) {
+                    val cell = DiaryCellData(
+                        imageUri,
+                        Integer.parseInt(date[0]),
+                        Integer.parseInt(date[1]),
+                        Integer.parseInt(date[2])
+                    )
+                    Log.d("Cell Text", "````````````` ${cell.toString()}")
+                    jpegViewModel.diaryCellArrayList.add(cell)
                 }
                 inputStream?.close()
-            } catch (e: IOException ) {
+            } catch (e: IOException) {
                 // 사진 URI가 존재하지 않는 경우 발생하는 예외입니다.
                 // 예외 처리 코드를 추가할 수 있습니다.
 
@@ -249,17 +252,4 @@ class CalendarFragment : Fragment() {
             }
         }
     }
-
-
-    class MyPageChangeCallback(val clickFun: (Int) -> Unit) : ViewPager2.OnPageChangeCallback() {
-
-        private var prePosition = 0
-        override fun onPageSelected(position: Int) {
-            // 페이지 선택 시 호출할 함수를 여기에 작성합니다.
-            if (position > prePosition)
-                clickFun(1)
-            else
-                clickFun(-1)
-        }
-    }
- }
+}

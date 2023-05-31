@@ -57,11 +57,13 @@ class LayoutToolModule {
                 if (list != null) {
 //                textView.setTextColor(Color.parseColor("#9E9E9E"))
                     if (list.size > listNum && list[listNum] == i) {
+                        listNum++
+                    }
+                    else {
                         CoroutineScope(Dispatchers.Main).launch {
                             subLayout.findViewById<TextView>(R.id.dateText)
-                                .setTextColor(Color.BLACK)
+                                .setTextColor(Color.parseColor("#9C9C9C"))
                         }
-                        listNum++
                     }
                 }
 

@@ -70,15 +70,6 @@ class TextContent {
         return 0
     }
 
-    fun getTitle() : String {
-        if(textList.size !=0){
-            val title = textList[0].data.split("<title>")
-            val finalTitle = title[1].split("</title>")
-            return finalTitle[0]
-        }
-        return ""
-    }
-
     fun getContent() :String {
         if(textList.size !=0) {
             val contentText = textList[0].data.split("<contentText>")

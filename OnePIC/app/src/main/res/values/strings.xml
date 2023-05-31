@@ -5,7 +5,7 @@
 
     <string name="choice_button"> &#160;&#160;Best 사진 추천&#160; </string>
     <string name="rewind"> &#160;&#160;Face Blending&#160; </string>
-    <string name="magicPicture"> &#160;&#160;움직이는 사진 생성&#160; </string>
+    <string name="magicPicture"> &#160;&#160;매직픽쳐 생성&#160; </string>
     <string name="focus_upgrade"> &#160;&#160;초점 업그레이드&#160; </string>
 
     <string name="in_focus">사진 초점 변경</string>

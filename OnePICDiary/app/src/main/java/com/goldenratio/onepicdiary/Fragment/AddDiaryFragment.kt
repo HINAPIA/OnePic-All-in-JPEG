@@ -98,7 +98,6 @@ class AddDiaryFragment : Fragment() {
                 Toast.makeText(activity, "이미지를 선택해주세요.", Toast.LENGTH_SHORT).show()
             } else {
                 val cell = DiaryCellData(imageUri!!, year, month, day)
-                cell.titleText = binding.titleTextField.text.toString()
                 cell.contentText = binding.contentTextField.text.toString()
 
                 val textList: ArrayList<String> = arrayListOf()
@@ -137,14 +136,9 @@ class AddDiaryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         CoroutineScope(Dispatchers.Default).launch {
-            layoutToolModule.month = month.value!!
             layoutToolModule.setMonthLayer(layoutInflater,binding.monthLayout, jpegViewModel.currentMonth, month.value!!, ::month)
-            if(month.value == jpegViewModel.currentMonth) {
-                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.currentDay, day.value!!, null, ::day)
-            }
-            else  {
-                layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, null, null, ::day)
-            }
+            layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.currentDay, day.value!!, null, ::day)
+//            layoutToolModule.setSubImage(layoutInflater, binding.dayLayout, jpegViewModel.daysInMonth, null, null, ::day)
         }
     }
 

@@ -32,12 +32,12 @@
         android:layout_marginBottom="3dp"
         android:layout_weight="0.55"
         android:background="@drawable/background_round"
-        android:backgroundTint="#FFC4C4">
+        android:backgroundTint="@color/month_background">
 
         <TextView
             android:id="@+id/monthTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="35dp"
+            android:layout_height="33dp"
             android:fontFamily="@font/ohmu"
             android:gravity="center_vertical"
             android:text="Mon"
@@ -86,7 +86,7 @@
         android:layout_marginBottom="3dp"
         android:layout_weight="0.55"
         android:background="@drawable/background_round"
-        android:backgroundTint="#FFDFC9">
+        android:backgroundTint="@color/day_background">
 
         <TextView
             android:id="@+id/dateTextView"
@@ -143,7 +143,7 @@
             android:layout_margin="10dp"
             android:layout_weight="5"
             android:background="@drawable/background_round"
-            android:backgroundTint="#FAECEC">
+            android:backgroundTint="@color/main_imageview">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
@@ -252,26 +252,22 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/constraintLayout2"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
                     android:layout_weight="0.7"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
                         android:id="@+id/contentTextValueOnImage"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="50dp"
                         android:fontFamily="@font/ohmu"
-                        android:gravity="top|left"
+                        android:gravity="center_horizontal"
                         android:shadowColor="#838383"
                         android:shadowDx="2"
                         android:shadowDy="2"
@@ -281,9 +277,61 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         tools:ignore="MissingConstraints" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/playAudioBarLaydout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/playBtn">
+
+                <ImageView
+                    android:id="@+id/playBtn"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/play2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/play" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:max="20"
+                    android:progressDrawable="@drawable/seekbar2"
+                    android:thumb="@drawable/seekbar_seekbar2_thumb"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/playBtn"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.487" />
+
+                <TextView
+                    android:id="@+id/playingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
+                    android:text="00 : 00"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/seekBar"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -301,171 +349,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:id="@+id/UnderImageLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="4"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="gone">
-
-            <ImageView
-                android:id="@+id/imageView8"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/line"
-                android:visibility="gone"
-                app:tint="@color/line" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.7"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/titleView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/ohmu"
-                    android:gravity="center_vertical"
-                    android:text="Title"
-                    android:textColor="@color/on_image_color"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/titleTextValue"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:fontFamily="@font/ohmu"
-                    android:textColor="@color/on_image_color"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/titleView"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="MissingConstraints" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <ImageView
-                android:id="@+id/imageView9"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/line"
-                app:tint="@color/line" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3">
-
-                <TextView
-                    android:id="@+id/contentTextValue"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="13dp"
-                    android:fontFamily="@font/ohmu"
-                    android:textColor="@color/on_image_color"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.8"
-        android:gravity="center">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/playAudioBarLaydout"
-            android:layout_width="175dp"
-            android:layout_height="51dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/playBtn"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:max="20"
-                android:progressDrawable="@drawable/seekbar2"
-                android:thumb="@drawable/seekbar_seekbar2_thumb"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.487" />
-
-            <TextView
-                android:id="@+id/playingTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingBottom="0dp"
-                android:text="00 : 00"
-                android:textColor="@color/black"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/seekBar"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="40dp"
-            android:layout_height="50dp"
-            android:src="@drawable/next"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/playAudioBarLaydout"
-            app:srcCompat="@drawable/next"
-            tools:layout_editor_absoluteY="0dp"
-            tools:srcCompat="@drawable/next" />
-
-        <Button
-            android:id="@+id/deleteBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#D1D1D1"
-            android:fontFamily="@font/ohmu"
-            android:text="삭제"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/playBtn"
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:src="@drawable/play2"
-            android:visibility="visible"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/play" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -11,7 +11,7 @@
         android:layout_height="30dp"
         android:visibility="invisible"
         app:srcCompat="@drawable/current_day"
-        app:tint="#FF7474"
+        app:tint="@color/month"
         tools:visibility="visible" />
 
     <TextView

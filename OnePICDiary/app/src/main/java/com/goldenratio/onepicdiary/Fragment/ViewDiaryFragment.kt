@@ -108,17 +108,9 @@ class ViewDiaryFragment : Fragment() {
 
         layoutToolModule = LayoutToolModule()
 
-        binding.deleteBtn.setOnClickListener {
-            val key = "2023/${month.value!!-1}/${day.value!!}"
-            val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
-            Log.d("Cell Text", key)
-            editor.remove(key) // 삭제할 값의 키를 지정합니다.
-            editor.apply()
-            findNavController().navigate(R.id.action_viewDiaryFragment_to_calendarFragment)
-        }
         jpegViewModel.isAudioPlay.observe(viewLifecycleOwner) {
             if(it == 0){
-                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play2))
+                binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play))
                // binding.back.visibility = View.VISIBLE
 
             }else if(it == 1){
@@ -129,26 +121,10 @@ class ViewDiaryFragment : Fragment() {
             }
         }
 
-        binding.back.setOnClickListener {
-            jpegViewModel.isAudioPlay.value = 0
-            binding.playAudioBarLaydout.visibility = View.GONE
-            binding.back.visibility = View.GONE
 
-            if (mediaPlayer != null) {
-                isDestroy = true
-                mediaPlayer.stop()
-                mediaPlayer.release()
-                if(audioWithContent != null){
-                    isDestroy = true
-                    audioWithContent.cancel()
-                }
-                //mediaPlayer = null
-            }
-
-        }
         binding.playBtn.setOnClickListener {
             binding.playAudioBarLaydout.visibility = View.VISIBLE
-            binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play2))
+            binding.playBtn.setImageDrawable(resources.getDrawable(R.drawable.play))
 
 
             if(jpegViewModel.isAudioPlay.value!! == 0){
@@ -498,7 +474,6 @@ class ViewDiaryFragment : Fragment() {
         if(!isCell) {
             binding.viewPager.adapter = ViewPagerAdapter(requireContext())
 
-            binding.UnderImageLayout.visibility = View.GONE
             binding.OnImageLayout.visibility = View.INVISIBLE
 //            binding.magicBtn.visibility = View.GONE
             binding.viewUnberBtn.visibility = View.GONE
@@ -544,19 +519,12 @@ class ViewDiaryFragment : Fragment() {
     fun viewUnderLayout() {
         CoroutineScope(Dispatchers.Main).launch {
             binding.OnImageLayout.visibility = View.GONE
-            binding.UnderImageLayout.visibility = View.VISIBLE
-
-            binding.titleTextValue.text = textContent.getTitle()
-            binding.contentTextValue.text = textContent.getContent()
         }
     }
 
     fun viewOnImageLayout() {
         CoroutineScope(Dispatchers.Main).launch {
             binding.OnImageLayout.visibility = View.VISIBLE
-            binding.UnderImageLayout.visibility = View.GONE
-
-            binding.titleTextValueOnImage.text = textContent.getTitle()
             binding.contentTextValueOnImage.text = textContent.getContent()
 
             binding.progressBar.visibility = View.GONE
