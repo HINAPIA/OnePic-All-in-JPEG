@@ -117,7 +117,7 @@ class BasicMetaDataView() : View(){
                 maxWidth = 150.0
                 style{
                     textFill = c("#FFFFFF") // 글자 색상 흰색
-                    font = Font.font("Inter", FontWeight.MEDIUM, 11.0)
+                    font = Font.font("Inter", FontWeight.MEDIUM, 10.0)
                 }
                 hboxConstraints {
                     alignment = Pos.CENTER_RIGHT // 오른쪽 정렬

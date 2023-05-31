@@ -43,6 +43,9 @@
     <color name="focus_30">#4DFFEA00</color>
     <color name="white_85">#D9FFFFFF</color>
     <color name="white_50">#80FFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="black_30">#4D000000</color>
+    <color name="black_40">#66000000</color>
     <color name="dark_purple_85">#D99177D0</color>
     <color name="camera_background">#D6D2EC</color>
     <color name="camera_mode_background">#66E3DFFD</color>

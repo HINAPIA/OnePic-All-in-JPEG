@@ -346,10 +346,13 @@ class ImageContent {
             }
             Log.d("picture remove", "reomve2 $index")
 
-            bitmapList.removeAt(index)
+            if(bitmapList.size > index) {
+                bitmapList.removeAt(index)
+            }
             Log.d("picture remove", "reomve3 $index")
             return result
         }
+
         return false
     }
     /**
