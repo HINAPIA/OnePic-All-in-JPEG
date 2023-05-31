@@ -12,7 +12,7 @@
 
 </div>
 <h2>Installation</h2>
-<a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Goole Playstore</a><br>
+<a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Google Playstore</a><br>
 
 <h2>Screenshot</h2>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350"/></p>
