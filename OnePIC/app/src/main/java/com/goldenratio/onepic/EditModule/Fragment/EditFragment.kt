@@ -392,7 +392,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 선택한 picture Index 알아내기
             val selectPictureIndex = pictureList.indexOf(jpegViewModel.selectedSubImage)
             jpegViewModel.mainSubImage = jpegViewModel.selectedSubImage
-
             Log.d("main Change", "selectPictureIndex: $selectPictureIndex")
 
             // 해당 뷰를 index를 통해 알아내 mainMark 표시 띄우기

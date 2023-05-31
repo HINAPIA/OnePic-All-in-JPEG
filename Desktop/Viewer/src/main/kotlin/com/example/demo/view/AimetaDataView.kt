@@ -147,7 +147,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
             vbox{
                 padding = insets(0,0,0,20)
                 spacing = 5.0
-                add(createHbox("Size","${((audioContentInfo.datasize).toDouble()/100).toInt()}kb", 120.0))
+                add(createHbox("Size","${((audioContentInfo.datasize).toDouble()/1000).toInt()}kb", 120.0))
             }
             spacing = 5.0
         }
@@ -190,7 +190,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
                         // 1개의 image info
                          vbox {
                             padding = insets(0,0,0,20)
-                            add(createHbox("Size","${((imageInfo.dataSize).toDouble()/100).toInt()}kb", 85.0))
+                            add(createHbox("Size","${((imageInfo.dataSize).toDouble()/1000).toInt()}kb", 85.0))
                             var attribute = ContentAttribute.fromCode(imageInfo.attribute)
                             add(createHbox("Attribute", attribute.toString(), 70.0))
                             spacing = 5.0

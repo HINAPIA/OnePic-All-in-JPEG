@@ -59,8 +59,6 @@ class CenterView (imageViewer : ImageViewer) : View(){
     var fileImageView = ImageView()
     var fileNameLabel = Label()
     var label = Label()
-
-
     var detailView : VBox = VBox()
 
     var textContentLabel = Label()
@@ -80,22 +78,54 @@ class CenterView (imageViewer : ImageViewer) : View(){
     var selectedFileVIew = ImageView()
     var reSelectView : ImageView = ImageView()
 
+    var titleLabel : Label = Label()
+    var formatLabel : Label = Label()
+
     override val root = stackpane{
 
         style {
             backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
         }
+        formatLabel.apply {
+            text = "All in JPEG"
+            textAlignment = TextAlignment.CENTER
+            isVisible = false
+            style{
+                textFill = c(CustomColor.white) // 글자 색상 흰색
+                font = Font.font("Abhaya Libre", FontWeight.BOLD, 27.0)
+                lineSpacing = 2.0
+            }
+        }
+        StackPane.setAlignment(formatLabel, Pos.CENTER_RIGHT)
+        StackPane.setMargin(formatLabel, Insets(460.0, 80.0, 0.0, 10.0))
+
+        // title
+        titleLabel.apply {
+            text = "All in JPEG PC Viewer"
+            textAlignment = TextAlignment.CENTER
+            style{
+                textFill = c(CustomColor.point) // 글자 색상 흰색
+                font = Font.font("Abhaya Libre", FontWeight.BOLD, 28.0)
+                lineSpacing = 2.0
+            }
+        }
+        StackPane.setAlignment(titleLabel, Pos.TOP_LEFT)
+        StackPane.setMargin(titleLabel, Insets(1.0, 0.0, 0.0, 10.0))
+
+
         // iamge
         logoImageView.apply{
             fitWidth = 250.0
             isPreserveRatio = true
 
         }
+        StackPane.setMargin(logoImageView, Insets(0.0, 0.0, 100.0, 0.0))
+
         textLogoView.apply {
             fitWidth = 400.0
             isPreserveRatio = true
         }
-        StackPane.setMargin(textLogoView, Insets(350.0, 0.0, 0.0, 0.0))
+        StackPane.setMargin(textLogoView, Insets(350.0, 0.0, 100.0, 0.0))
 
         // 파일 선택 버튼
         selectedFileVIew.apply {
@@ -106,15 +136,17 @@ class CenterView (imageViewer : ImageViewer) : View(){
             }
             fitWidth = 140.0
             isPreserveRatio = true
-            isVisible = false
+            // isVisible = false
 
             setOnMouseClicked {
                 var result = imageViewer.chooseImageFile()
                 if(result){
                     isVisible = false
+                    formatLabel.isVisible = false
                     logoImageView.isVisible = false
                     textLogoView.isVisible = false
                     homeImage.isVisible = true
+                    reSelectView.isVisible = true
                     reSelectView.isVisible = true
                     style {
                         backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
@@ -142,13 +174,13 @@ class CenterView (imageViewer : ImageViewer) : View(){
                 mainImageView.isVisible = false
                 analysisButton.isVisible = false
                 fileImageView.isVisible = false
+                formatLabel.isVisible = false
 
                 playLogoGif()
             }
         }
         StackPane.setAlignment(homeImage, Pos.TOP_RIGHT)
         StackPane.setMargin(homeImage, Insets(20.0, 70.0, 0.0, 100.0))
-
 
         // 다시 선택 버튼
         reSelectView = ImageView(Image(File(imageSourcePath +"selectedFile2.png").toURI().toURL().toExternalForm()))
@@ -161,9 +193,11 @@ class CenterView (imageViewer : ImageViewer) : View(){
                 if(result){
                     initComponent()
                     //isVisible = false
+                    formatLabel.isVisible = false
                     logoImageView.isVisible = false
                     textLogoView.isVisible = false
                     homeImage.isVisible = true
+                    isVisible = true
                 }
             }
         }
@@ -179,7 +213,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         analysisLabels.apply{
             maxWidth = 600.0
             StackPane.setAlignment(this, Pos.CENTER)
-            StackPane.setMargin(this, Insets(150.0, 0.0, 150.0, 00.0))
+            StackPane.setMargin(this, Insets(150.0, 0.0, 200.0, 00.0))
             isVisible = false
             alignment = Pos.CENTER
             label{
@@ -203,7 +237,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         // gifImageView
         gifImageVeiew.fitWidth = 100.0
         gifImageVeiew.isPreserveRatio = true
-        StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 180.0, 00.0))
+        StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 230.0, 00.0))
 
 //        backgroudView.apply {
 //            setMaxSize(330.0, 330.0)
@@ -230,7 +264,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         subImagesView.root.maxWidth = 900.0
         subImagesView.root.maxHeight = 180.0
         subImagesView.root.isVisible = false
-        StackPane.setMargin(subImagesView.root, Insets(0.0, 0.0, 20.0, 0.0))
+        StackPane.setMargin(subImagesView.root, Insets(0.0, 0.0, 40.0, 0.0))
         StackPane.setAlignment(subImagesView.root, Pos.BOTTOM_CENTER)
 
         //editView 위치 조정
@@ -239,6 +273,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         editView.root.isVisible = false
         StackPane.setAlignment(editView.root, Pos.CENTER_RIGHT)
         StackPane.setMargin(editView.root, Insets(00.0, 60.0, 100.0, 0.0))
+        //StackPane.setMargin(editView.root, Insets(100.0, 60.0, 0.0, 0.0))
 
         fileImageView.apply{
             image =  Image(File(imageSourcePath+ "file.png").toURI().toURL().toExternalForm())
@@ -250,16 +285,16 @@ class CenterView (imageViewer : ImageViewer) : View(){
             text = ""
             style{
                 textFill = c("#FFFFFF") // 글자 색상 흰색
-                font = Font.font("Inter", FontWeight.BOLD, 20.0)
+                font = Font.font("Inter", FontWeight.BOLD, 15.0)
             }
         }
 
         // text Content Label(Stack Pane)
         textContentStackPane.apply{
             setMinSize(360.0, 140.0)
-            setMaxSize(360.0, 140.0)
+            maxWidth = 450.0
+            //setMaxSize(360.0, 140.0)
             padding = insets(10)
-
             add(textContentLabel)
             isVisible = false
         }
@@ -280,6 +315,8 @@ class CenterView (imageViewer : ImageViewer) : View(){
         children.add(reSelectView)
        // children.add(detailView)
         children.add(homeImage)
+        children.add(titleLabel)
+        children.add(formatLabel)
 
 
 
@@ -407,11 +444,23 @@ class CenterView (imageViewer : ImageViewer) : View(){
         //text 바꾸기
         if(aiContainer.textContent.textCount > 0){
             subImagesView.chageText(aiContainer.textContent.textList[0].data)
-            textContentLabel.text = aiContainer.textContent.textList[0].data
+            var textData = aiContainer.textContent.textList[0].data
+            val stringBuilder = StringBuilder()
+            val chunkSize = 20
+
+            for (i in 0 until textData.length step chunkSize) {
+                val endIndex = kotlin.math.min(i + chunkSize, textData.length)
+                stringBuilder.append(textData.substring(i, endIndex))
+                stringBuilder.append("\n")
+            }
+            textContentLabel.text = stringBuilder.toString()
 
         } else{
             subImagesView.chageText("")
             textContentLabel.text = ""
+        }
+        if(aiContainer.audioContent.audio == null){
+            subImagesView.setAudioTextLabel("")
         }
         // 이미지 리스트 뷰 바꾸기
         subImagesView.setPictureList(aiContainer.imageContent.pictureList)
@@ -431,6 +480,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
         logoImageView.isVisible = true
         textLogoView.isVisible = false
         homeImage.isVisible = false
+        reSelectView.isVisible = false
 
         CoroutineScope(Dispatchers.IO).launch {
             var inputStream = FileInputStream(imageSourcePath+ "logo2.gif")
@@ -471,13 +521,8 @@ class CenterView (imageViewer : ImageViewer) : View(){
             timeline2.setOnFinished {
                 //homeImage.isVisible = true
                 selectedFileVIew.isVisible = true
-
-
             }
-
         }
-
-
     }
     fun analyzingImageAnimation(){
         // 돋보기 움짤 재생
@@ -528,7 +573,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
                     println("추가 ${list.get(i)}")
                     val keyFrame = KeyFrame(Duration.seconds(((i+1)*count +1)), {
                         //val newText = list.get(i)
-                        StackPane.setMargin(analysisLabels, Insets(150.0, 0.0, 150.0 - 25*(i+1), 00.0))
+                        StackPane.setMargin(analysisLabels, Insets(150.0, 0.0, 203.0 - 27*(i+1), 00.0))
                         analysisContent.text += list.get(i)+"\n"
                     })
                     timeline2.keyFrames.add(keyFrame)
@@ -560,8 +605,19 @@ class CenterView (imageViewer : ImageViewer) : View(){
         // animation
         turnLeftAnimation()
         editView.root.isVisible = true
+        formatLabel.isVisible = true
 
-        editView.update(infoList)
+        var isAllInJPEG = false
+        formatLabel.apply {
+            if (aiContainer.imageContent.pictureList.size > 1 || aiContainer.textContent.textCount > 0 || aiContainer.audioContent.audio != null) {
+                text = "All In JPEG"
+                isAllInJPEG = true
+            } else {
+                text = "Basic JPEG"
+                isAllInJPEG = false
+            }
+        }
+        editView.update(infoList,isAllInJPEG)
     }
     private fun getGifFrames(inputStream: FileInputStream): List<Image> {
         val gifFrames = mutableListOf<Image>()

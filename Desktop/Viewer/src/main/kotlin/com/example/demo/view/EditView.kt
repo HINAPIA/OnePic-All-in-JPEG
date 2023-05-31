@@ -43,10 +43,10 @@ class EditView (val centerView : CenterView) : View(){
             aiMetaDataImageView.fitWidth = 95.0
 
             label{
-                text = "[Meta Data]"
+                text = "Meta Data"
                 style{
                     textFill = c(CustomColor.white) // 글자 색상 흰색
-                    font = Font.font("Inter", FontWeight.BOLD, 15.0)
+                    font = Font.font("Inter", FontWeight.BOLD, 17.0)
                 }
             }
         }
@@ -60,8 +60,6 @@ class EditView (val centerView : CenterView) : View(){
                 style{
                     backgroundColor = MultiValue(arrayOf(Color.web(CustomColor.point)))
                     paddingAll = 5.0
-                   // background = Background(BackgroundFill(Color.web("#1A1A1A"), CornerRadii(15.0), Insets.EMPTY))
-
                 }
                 add(basicMetaDataView.root)
             }
@@ -69,7 +67,6 @@ class EditView (val centerView : CenterView) : View(){
                 print("value : ${value}")
                 onTabClicked(tabPane, 0)
             }
-
             // ai metadata
             val tab2 = tab("All in JPEG") {
                 style {
@@ -179,9 +176,17 @@ class EditView (val centerView : CenterView) : View(){
         }
     }
 
-    fun update(infoList : ArrayList<String>){
-        aimetaDataView.update()
-        basicMetaDataView.update(infoList)
+    fun update(infoList : ArrayList<String>, isAllInJPEG : Boolean){
+        if(isAllInJPEG){
+
+            aimetaDataView.update()
+            basicMetaDataView.update(infoList)
+        }else{
+            basicMetaDataView.update(infoList)
+            tabPane.tabs[1].isDisable = false
+
+        }
+
     }
 
     fun focusView(type:String, index : Int){
