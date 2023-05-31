@@ -8,7 +8,7 @@
 <h2 align="center">OnePIC</h2>
 <div align = "center">
 
-  ![Generic badge](https://img.shields.io/badge/version-1.1.2-green.svg)
+  [![Generic badge](https://img.shields.io/badge/version-1.1.2-green.svg)](https://play.google.com/store/apps/details?id=com.goldenratio.onepic)
 
 </div>
 <br><br>
