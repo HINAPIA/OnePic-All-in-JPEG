@@ -11,6 +11,7 @@
   [![Generic badge](https://img.shields.io/badge/version-1.1.2-green.svg)](https://play.google.com/store/apps/details?id=com.goldenratio.onepic)
 
 </div>
+<p align="center">새로운 파일 포맷 All in JPEG을 기반으로<br>Multi Focus 촬영 및 다양한 편집이 가능한 카메라 앱</p>
 <h2>Installation</h2>
 <a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Google Playstore</a><br>
 
