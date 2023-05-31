@@ -442,9 +442,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 distanceFocusRadioBtn.id -> {
 
-                    viewFinder.isEnabled = true
                     distanceFocusRadioBtn.isChecked = true
-                    infoTextView.text = resources.getString(R.string.camera_distance_info)
 
                     imageToolModule.showView(overlay, false)
                     imageToolModule.showView(viewFinder, true)
@@ -452,12 +450,16 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageToolModule.showView(binding.infoConstraintLayout, true)
                     imageToolModule.showView(burstSizeConstraintLayout, false)
 
+                    viewFinder.isEnabled = true
+                    infoTextView.text = resources.getString(R.string.camera_distance_info)
+
                 }
             }
         }
 
         // burst size 기억하기
         if (BURST_SIZE != null && BURST_SIZE!! >= 0 && selectedRadioIndex == burstRadioBtn.id) {
+
             when(BURST_SIZE) {
                 BURST_OPTION1 -> {
                     burst1RadioBtn.isChecked = true
@@ -473,7 +475,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 }
             }
             camera2Module.setBurstSize(BURST_SIZE)
+
         }
+
 
         /**
          * radioGroup.setOnCheckedChangeListener
@@ -540,10 +544,20 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageToolModule.showView(burstSizeConstraintLayout, true)
 
                     when(BURST_SIZE) {
-                        BURST_OPTION1 -> infoTextView.text = resources.getString(R.string.burst1_info)
-                        BURST_OPTION2 -> infoTextView.text = resources.getString(R.string.burst2_info)
-                        BURST_OPTION3 -> infoTextView.text = resources.getString(R.string.burst3_info)
+                        BURST_OPTION1 -> {
+                            burst1RadioBtn.isChecked = true
+                            infoTextView.text = resources.getString(R.string.burst1_info)
+                        }
+                        BURST_OPTION2 -> {
+                            burst2RadioBtn.isChecked = true
+                            infoTextView.text = resources.getString(R.string.burst2_info)
+                        }
+                        BURST_OPTION3 -> {
+                            burst3RadioBtn.isChecked = true
+                            infoTextView.text = resources.getString(R.string.burst3_info)
+                        }
                     }
+                    camera2Module.setBurstSize(BURST_SIZE)
                 }
 
                 objectFocusRadioBtn.id -> {
