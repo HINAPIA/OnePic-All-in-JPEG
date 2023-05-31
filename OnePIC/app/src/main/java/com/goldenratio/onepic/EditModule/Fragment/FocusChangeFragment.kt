@@ -32,7 +32,8 @@ import kotlin.coroutines.suspendCoroutine
 
 class FocusChangeFragment : Fragment() {
 
-
+    // focus가 어디에 잡혔는지 표시되어있는 bitmap
+    private var focusCheckingBitmap: Bitmap? = null
     private var resultBitmap: Bitmap?  = null
     private var index: Int? = null
     private lateinit var binding: FragmentFocusChangeBinding
@@ -147,11 +148,11 @@ class FocusChangeFragment : Fragment() {
                 infoTextView()
             }
 
-        CoroutineScope(Dispatchers.Default).launch {
-            if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
-                setSeekBar()
-            }
-        }
+//        CoroutineScope(Dispatchers.Default).launch {
+//            if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
+//                setSeekBar()
+//            }
+//        }
 
         setClickEvent()
 
@@ -187,8 +188,9 @@ class FocusChangeFragment : Fragment() {
                             if(index == null) return@launch
                             else {
                                 val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-                                Log.d("faceRewind", "newBitmapList $newBitmapList")
+
                                 if (newBitmapList != null) {
+
                                     bitmapList = newBitmapList
                                     selectBitmap = bitmapList[index!!]
 
@@ -198,11 +200,14 @@ class FocusChangeFragment : Fragment() {
 
                                     val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
                                     val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
-                                    val resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+                                    resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
 
                                     withContext(Dispatchers.Main) {
                                         binding.focusMainView.setImageBitmap(resultBitmap)
                                     }
+
+                                    imageToolModule.showView(binding.blurSeekBar, true)
+                                    setSeekBar()
                                 }
                             }
 //                            if (boundingBox.size > 0) {
@@ -479,13 +484,13 @@ class FocusChangeFragment : Fragment() {
                         boundingBoxResizeList.add(arraylist)
                     }
 
-                    val resultBitmap =
+                    focusCheckingBitmap =
                         imageToolModule.drawFocusResult(selectBitmap, boundingBoxResizeList,
                             requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
 
                     // imageView 변환
                     withContext(Dispatchers.Main) {
-                        binding.focusMainView.setImageBitmap(resultBitmap)
+                        binding.focusMainView.setImageBitmap(focusCheckingBitmap)
                     }
                 } catch (e: IllegalStateException) {
                     println(e.message)
