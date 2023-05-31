@@ -11,9 +11,10 @@
   [![Generic badge](https://img.shields.io/badge/version-1.1.2-green.svg)](https://play.google.com/store/apps/details?id=com.goldenratio.onepic)
 
 </div>
-<br><br>
+<h2>Installation</h2>
+<a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Goole Playstore</a><br>
 
-
+<h2>Screenshot</h2>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350"/></p>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/09365a10-67c5-4780-91be-ee1612dec8a3.png" width="700" height="400"/></p>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/01ffa5ce-5ff0-4a6a-89fc-015c4b66b3cd.png" width="700" height="400"/></p>
