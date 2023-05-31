@@ -216,7 +216,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/frameLayout_hor1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor2">
+                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor2"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/infoTextView"

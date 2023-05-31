@@ -229,8 +229,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         // Initialize the detector object
         setDetecter()
 
-        imageToolModule.showView(binding.infoConstraintLayout, false)
-
         // warning Gif
         Glide.with(binding.warningLoadingImageView)
             .asGif()
@@ -379,7 +377,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", basicRadioBtn.id)
         BURST_SIZE = sharedPref?.getInt("selectedBurstSize", BURST_SIZE)!!
 
-
         if(selectedRadioIndex == 0) {
             selectedRadioIndex = basicRadioBtn.id
             isBackLens = true
@@ -436,7 +433,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageToolModule.showView(viewFinder, true)
                     imageToolModule.showView(textureView, false)
                     imageToolModule.showView(binding.infoConstraintLayout, true)
-                    imageToolModule.showView(burstSizeConstraintLayout, true)
+                    imageToolModule.showView(burstSizeConstraintLayout, false)
 
                     viewFinder.isEnabled = true
                     infoTextView.text = resources.getString(R.string.camera_object_info)
@@ -445,7 +442,9 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
                 distanceFocusRadioBtn.id -> {
 
+                    viewFinder.isEnabled = true
                     distanceFocusRadioBtn.isChecked = true
+                    infoTextView.text = resources.getString(R.string.camera_distance_info)
 
                     imageToolModule.showView(overlay, false)
                     imageToolModule.showView(viewFinder, true)
@@ -453,15 +452,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     imageToolModule.showView(binding.infoConstraintLayout, true)
                     imageToolModule.showView(burstSizeConstraintLayout, false)
 
-                    viewFinder.isEnabled = true
-                    infoTextView.text = resources.getString(R.string.camera_distance_info)
-
                 }
             }
         }
 
         // burst size 기억하기
-        if (BURST_SIZE != null && BURST_SIZE!! >= 0) {
+        if (BURST_SIZE != null && BURST_SIZE!! >= 0 && selectedRadioIndex == burstRadioBtn.id) {
             when(BURST_SIZE) {
                 BURST_OPTION1 -> {
                     burst1RadioBtn.isChecked = true
