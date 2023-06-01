@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="audio_item_padding">16dp</dimen>
-    <dimen name="text_item_padding">18dp</dimen>
+    <dimen name="audio_item_padding">24dp</dimen>
+    <dimen name="text_item_padding">25dp</dimen>
     <dimen name="info_marker_top_margin">15dp</dimen>
     <dimen name="info_marker_end_margin">-15dp</dimen>
 </resources>
