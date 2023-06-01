@@ -69,7 +69,7 @@ class FocusChangeFragment : Fragment() {
     private lateinit var objectExtractModule: ObjectExtractModule
 
     private val maxBlurRadius: Float = 24f
-    private var curBlurRadius = 10f
+    private var curBlurRadius = 10.0f
 
     enum class InfoLevel {
         BeforeMainSelect,
@@ -582,6 +582,8 @@ class FocusChangeFragment : Fragment() {
         binding.seekBar.max = maxBlurRadius.toInt()  // 0 ~ 24 ( 1 ~ 25 )
         binding.seekBar.progress = curBlurRadius.toInt() + 1 // 현재 10f면 11f로 설정
 
+        imageToolModule.showView(binding.apertureInfoTextView, false)
+
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 //                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
@@ -593,15 +595,31 @@ class FocusChangeFragment : Fragment() {
 //                    // 블러를 다시 적용하여 이미지 업데이트
 //                    applyBlur()
 //                }
+                // SeekBar의 진행 상태에 따라 블러 강도 조절
+                if(fromUser) {
+                    curBlurRadius = seekBar!!.progress.toFloat() + 1 + seekBar!!.progress.toFloat()/maxBlurRadius
+
+                    if (curBlurRadius < 1.4f)
+                        curBlurRadius = 1.4f
+                    if(curBlurRadius > 25.0f)
+                        curBlurRadius = 25.0f
+
+                    imageToolModule.showView(binding.apertureInfoTextView, true)
+                    binding.apertureInfoTextView.text = String.format("f  %.1f", curBlurRadius)
+                }
             }
 
             // 슬라이더를 터치하여 조작을 시작할 때
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+
+
+            }
+
             // 슬라이더 조작을 멈추고 손을 뗄 때
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                imageToolModule.showView(binding.apertureInfoTextView, false)
 
-                // SeekBar의 진행 상태에 따라 블러 강도 조절
-                curBlurRadius = seekBar!!.progress.toFloat() + 1
                 // 블러를 다시 적용하여 이미지 업데이트
                 applyBlur()
 

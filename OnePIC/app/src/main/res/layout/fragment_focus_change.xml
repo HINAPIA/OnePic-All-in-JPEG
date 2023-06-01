@@ -157,20 +157,20 @@
                 app:layout_constraintVertical_bias="0.48000002"
                 tools:srcCompat="@tools:sample/avatars" />
 
-
-            <ImageView
-                android:id="@+id/focusOverlayView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:adjustViewBounds="true"
-                android:contentDescription="@null"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
+            <TextView
+                android:id="@+id/apertureInfoTextView"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:text="f  1.4"
+                android:textSize="30dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:background="#99000000"
+                android:textColor="@color/dialog_button_color"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 android:visibility="gone"/>
 
             <ProgressBar
