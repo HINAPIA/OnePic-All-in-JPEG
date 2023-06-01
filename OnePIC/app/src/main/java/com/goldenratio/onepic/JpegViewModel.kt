@@ -108,9 +108,15 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     fun getMainSubImageIndex(): Int {
         if(mainSubImage == null) {
+            Log.d("mainSub Index", "mainSub Index : 0")
             return 0
         }
-        return jpegMCContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
+        val index =  jpegMCContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
+        if(index == -1) {
+            return 0
+        }
+        Log.d("mainSub Index", "mainSub Index : $index")
+        return index
     }
 
     fun updateImageUriData(uriList: MutableList<String>) {
