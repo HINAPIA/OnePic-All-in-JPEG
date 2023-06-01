@@ -56,6 +56,7 @@ import kotlin.Boolean
 import kotlin.ByteArray
 import kotlin.Double
 import kotlin.Exception
+import kotlin.IllegalArgumentException
 import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.Long
@@ -843,9 +844,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
      */
     @SuppressLint("MissingInflatedId")
     fun setContainer() {
+        try {
         for (i in 0 until pictureList.size) {
             val view = setSubImage(pictureList[i])
-            binding.linear.addView(view)
+                binding.linear.addView(view)
         }
 
         if (textContent.textList.size > 0) {
@@ -866,6 +868,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         val view = setContainerSubItem(R.drawable.edit_image_add_icon, clickedFunc = ::AddImage, deleteFunc = fun(_ : FrameLayout) {})
         binding.linear.addView(view)
+        }catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
     }
 
     fun viewBestImage() {
@@ -923,10 +928,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     showProgressBar(false, null)
 
                     Log.d("mainChange", "bestImage null")
-
-
-                    binding.successInfoTextView.text = getString(R.string.best_choice_animation);
-                    imageToolModule.fadeIn.start()
+                    try {
+                        binding.successInfoTextView.text =
+                            getString(R.string.best_choice_animation);
+                        imageToolModule.fadeIn.start()
+                    }
+                    catch (e: IllegalStateException) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -1110,143 +1119,148 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     fun setSubImage(picture: Picture): View? {
         // 넣고자 하는 layout 불러오기
-        val subLayout =
-            layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
+        try {
+            val subLayout =
+                layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
 
-        // 위 불러온 layout에서 변경을 할 view가져오기
-        val imageView: ImageView =
-            subLayout.findViewById(R.id.scrollImageView)
 
-        // 이미지뷰에 붙이기
-        CoroutineScope(Dispatchers.Main).launch {
-            Glide.with(imageView)
-                .load(imageContent.getJpegBytes(picture))
-                .into(imageView)
-        }
+            // 위 불러온 layout에서 변경을 할 view가져오기
+            val imageView: ImageView =
+                subLayout.findViewById(R.id.scrollImageView)
 
-        if (picture == jpegViewModel.selectedSubImage) {
+            // 이미지뷰에 붙이기
             CoroutineScope(Dispatchers.Main).launch {
-                imageView.setBackgroundResource(R.drawable.chosen_image_border)
-                imageView.setPadding(6)
-                mainSubView = imageView
-
-                if (picture != jpegViewModel.mainSubImage) {
-                    imageToolModule.showView(binding.mainChangeBtn, true)
-//                    imageToolModule.showView(binding.extractJpegBtn, true)
-                }
-
-                Glide.with(binding.mainImageView)
+                Glide.with(imageView)
                     .load(imageContent.getJpegBytes(picture))
-                    .into(binding.mainImageView)
-
-
-                setMoveScrollView(subLayout, pictureList.indexOf(picture))
+                    .into(imageView)
             }
-        }
 
-        if (jpegViewModel.getMainSubImageIndex() == pictureList.indexOf(picture)) {
+            if (picture == jpegViewModel.selectedSubImage) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    imageView.setBackgroundResource(R.drawable.chosen_image_border)
+                    imageView.setPadding(6)
+                    mainSubView = imageView
+
+                    if (picture != jpegViewModel.mainSubImage) {
+                        imageToolModule.showView(binding.mainChangeBtn, true)
+//                    imageToolModule.showView(binding.extractJpegBtn, true)
+                    }
+
+                    Glide.with(binding.mainImageView)
+                        .load(imageContent.getJpegBytes(picture))
+                        .into(binding.mainImageView)
+
+
+                    setMoveScrollView(subLayout, pictureList.indexOf(picture))
+                }
+            }
+
+            if (jpegViewModel.getMainSubImageIndex() == pictureList.indexOf(picture)) {
 //                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
 
-            jpegViewModel.mainSubImage = picture
+                jpegViewModel.mainSubImage = picture
 
-            CoroutineScope(Dispatchers.Main).launch {
-                mainTextView = subLayout.findViewById<TextView>(R.id.mainMark)
-                if (mainTextView != null)
-                    imageToolModule.showView(mainTextView!!, true)
+                CoroutineScope(Dispatchers.Main).launch {
+                    mainTextView = subLayout.findViewById<TextView>(R.id.mainMark)
+                    if (mainTextView != null)
+                        imageToolModule.showView(mainTextView!!, true)
+                }
             }
-        }
 
-        subLayout.setOnClickListener {
+            subLayout.setOnClickListener {
 
-            if(isMagicPlay) {
-                handler.removeCallbacksAndMessages(null)
-                binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
-                isMagicPlay = false
+                if (isMagicPlay) {
+                    handler.removeCallbacksAndMessages(null)
+                    binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+                    isMagicPlay = false
+                }
+                // 이미지인 경우
+                jpegViewModel.selectedSubImage = picture
+                val index = pictureList.indexOf(picture)
+                Log.d("main Change", "onClickListener : $index")
+                changeViewImage(index, imageView)
+
+                if (picture.contentAttribute == ContentAttribute.distance_focus) {
+                    binding.seekBar.progress = jpegViewModel.getSelectedSubImageIndex()
+                }
             }
-            // 이미지인 경우
-            jpegViewModel.selectedSubImage = picture
-            val index = pictureList.indexOf(picture)
-            Log.d("main Change", "onClickListener : $index" )
-            changeViewImage(index, imageView)
 
-            if(picture.contentAttribute == ContentAttribute.distance_focus) {
-                binding.seekBar.progress = jpegViewModel.getSelectedSubImageIndex()
-            }
-        }
-
-        // 삭제
-        subLayout.findViewById<ImageView>(R.id.deleteIcon).setOnClickListener {
-            // 이미지인 경우
+            // 삭제
+            subLayout.findViewById<ImageView>(R.id.deleteIcon).setOnClickListener {
+                // 이미지인 경우
 //            changeViewImage(index, imageView)
 
-            CoroutineScope(Dispatchers.Main).launch {
-                // 메인 이미지 설정
-                Glide.with(binding.mainImageView)
-                    .load(imageContent.getJpegBytes(picture))
-                    .into(binding.mainImageView)
-            }
-
-            val oDialog: AlertDialog.Builder = AlertDialog.Builder(
-                activity,
-                android.R.style.Theme_DeviceDefault_Light_Dialog
-            )
-
-            oDialog.setMessage("이미지를 삭제 하시겠습니까?")
-                .setPositiveButton(
-                    "아니요"
-                ) { _, _ ->
-                    CoroutineScope(Dispatchers.Main).launch {
-                        // 메인 이미지 설정
-                        Glide.with(binding.mainImageView)
-                            .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
-                            .into(binding.mainImageView)
-                    }
+                CoroutineScope(Dispatchers.Main).launch {
+                    // 메인 이미지 설정
+                    Glide.with(binding.mainImageView)
+                        .load(imageContent.getJpegBytes(picture))
+                        .into(binding.mainImageView)
                 }
-                .setNeutralButton("네") { _, _ ->
-                    CoroutineScope(Dispatchers.Main).launch {
-                        isPictureChanged.value = true
+
+                val oDialog: AlertDialog.Builder = AlertDialog.Builder(
+                    activity,
+                    android.R.style.Theme_DeviceDefault_Light_Dialog
+                )
+
+                oDialog.setMessage("이미지를 삭제 하시겠습니까?")
+                    .setPositiveButton(
+                        "아니요"
+                    ) { _, _ ->
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // 메인 이미지 설정
+                            Glide.with(binding.mainImageView)
+                                .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
+                                .into(binding.mainImageView)
+                        }
                     }
-                    binding.linear.removeView(subLayout)
-                    imageContent.removePicture(picture)
+                    .setNeutralButton("네") { _, _ ->
+                        CoroutineScope(Dispatchers.Main).launch {
+                            isPictureChanged.value = true
+                        }
+                        binding.linear.removeView(subLayout)
+                        imageContent.removePicture(picture)
 
-                    if (pictureList.size == 1) {
-                        imageToolModule.showView(binding.linear[0].findViewById<ImageView>(R.id.deleteIcon), false)
-                        jpegViewModel.mainSubImage = pictureList[0]
-                        mainSubView = binding.linear[0].findViewById<ImageView>(R.id.mainMark)
-                        imageToolModule.showView(mainSubView!!, true)
+                        if (pictureList.size == 1) {
+                            imageToolModule.showView(
+                                binding.linear[0].findViewById<ImageView>(R.id.deleteIcon),
+                                false
+                            )
+                            jpegViewModel.mainSubImage = pictureList[0]
+                            mainSubView = binding.linear[0].findViewById<ImageView>(R.id.mainMark)
+                            imageToolModule.showView(mainSubView!!, true)
 
-                        setViewDetailMenu()
-                    }
+                            setViewDetailMenu()
+                        }
 
-                    if(picture.contentAttribute == ContentAttribute.distance_focus) {
-                        binding.seekBar.max -= 1
-                    }
-                    setContainerTextSetting()
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        // 메인 이미지 설정
-                        Glide.with(binding.mainImageView)
-                            .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
-                            .into(binding.mainImageView)
-
-
-                        imageContent.checkEditChanged = true
-                        imageToolModule.showView(binding.saveBtn, true)
-                    }
-
-                    if (jpegViewModel.mainSubImage == picture && pictureList.size > 0) {
-                        jpegViewModel.mainSubImage = pictureList[0]
+                        if (picture.contentAttribute == ContentAttribute.distance_focus) {
+                            binding.seekBar.max -= 1
+                        }
+                        setContainerTextSetting()
 
                         CoroutineScope(Dispatchers.Main).launch {
-                            mainTextView = binding.linear.getChildAt(0)
-                                .findViewById<TextView>(R.id.mainMark)
-                            if (mainTextView != null)
-                                imageToolModule.showView(mainTextView!!, true)
+                            // 메인 이미지 설정
+                            Glide.with(binding.mainImageView)
+                                .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
+                                .into(binding.mainImageView)
+
+
+                            imageContent.checkEditChanged = true
+                            imageToolModule.showView(binding.saveBtn, true)
                         }
-                        mainPicture = pictureList[jpegViewModel.getSelectedSubImageIndex()]
-                    }
-                }.show()
-        }
+
+                        if (jpegViewModel.mainSubImage == picture && pictureList.size > 0) {
+                            jpegViewModel.mainSubImage = pictureList[0]
+
+                            CoroutineScope(Dispatchers.Main).launch {
+                                mainTextView = binding.linear.getChildAt(0)
+                                    .findViewById<TextView>(R.id.mainMark)
+                                if (mainTextView != null)
+                                    imageToolModule.showView(mainTextView!!, true)
+                            }
+                            mainPicture = pictureList[jpegViewModel.getSelectedSubImageIndex()]
+                        }
+                    }.show()
+            }
 
 //        CoroutineScope(Dispatchers.Main).launch {
 //            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
@@ -1260,7 +1274,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //            }
 //
 //        }
-        return subLayout
+            return subLayout
+        } catch (e: IllegalStateException) {
+            return null
+        }
     }
 
     fun setContainerSubItem(drawable_image: Int, clickedFunc: (imageView: ImageView) -> Unit, deleteFunc: (subLayout: FrameLayout) -> Unit): View? {

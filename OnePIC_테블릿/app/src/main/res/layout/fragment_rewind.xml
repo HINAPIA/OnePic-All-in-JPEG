@@ -270,7 +270,7 @@
 
                 <View
                     android:id="@+id/infoDialogView"
-                    android:layout_width="360dp"
+                    android:layout_width="370dp"
                     android:layout_height="75dp"
                     android:layout_marginTop="8dp"
                     android:background="#B2403D3D"
@@ -286,7 +286,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="16dp"
+                    android:textSize="17dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -326,7 +326,7 @@
                 android:text="@string/auto_option"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="13dp"
+                android:textSize="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -334,8 +334,8 @@
 
             <ImageButton
                 android:id="@+id/imageResetBtn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="centerInside"
                 android:src="@drawable/reset_icon"
@@ -347,8 +347,8 @@
 
             <ImageButton
                 android:id="@+id/imageCompareBtn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="fitCenter"
                 android:src="@drawable/compare_icon"
@@ -408,6 +408,7 @@
                     android:id="@+id/candidateLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:gravity="center"
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
@@ -436,8 +437,8 @@
 
                 <ImageButton
                     android:id="@+id/circleArrowBtn"
-                    android:layout_width="55dp"
-                    android:layout_height="60dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:background="@color/transparent_color"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toTopOf="@+id/guideline3"

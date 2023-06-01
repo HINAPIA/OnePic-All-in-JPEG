@@ -12,6 +12,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         app:layout_constraintBottom_toTopOf="@+id/guideline12"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +29,7 @@
             android:text="@string/cancle_text"
             android:textAlignment="textStart"
             android:textColor="@color/point_color"
-            android:textSize="18sp"
+            android:textSize="23sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline10"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/dark_purple"
             android:text="@string/save_text"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline11"
@@ -169,7 +170,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_end="41dp" />
+                    app:layout_constraintGuide_percent="0.9" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/vertical_centerline3"
@@ -180,7 +181,8 @@
 
                 <RelativeLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/vertical_centerline2"
                     app:layout_constraintStart_toStartOf="@+id/vertical_centerline1"
                     app:layout_constraintTop_toTopOf="@+id/horizontal_centerline"
@@ -189,7 +191,7 @@
                     <EditText
                         android:id="@+id/edit_text"
                         android:layout_width="match_parent"
-                        android:layout_height="100dp"
+                        android:layout_height="match_parent"
                         android:background="@drawable/edittext_rounded_corner_rectangle"
                         android:gravity="center"
                         android:inputType="textMultiLine"
@@ -210,10 +212,8 @@
                         android:layout_width="80dp"
                         android:layout_height="43dp"
                         android:layout_alignBottom="@+id/edit_text"
-                        android:layout_alignParentStart="true"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginStart="230dp"
                         android:layout_marginEnd="20dp"
                         android:layout_marginBottom="-1dp"
                         android:background="@drawable/check_selector"
@@ -223,10 +223,11 @@
                         android:paddingBottom="0dp"
                         android:text="수정"
                         android:textColor="#FFFFFF"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:visibility="invisible"
-                        app:iconPadding="1dp" />
+                        app:iconPadding="1dp"
+                        tools:visibility="visible" />
 
                 </RelativeLayout>
 
@@ -246,8 +247,8 @@
                 android:text="@string/rewind"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
-                android:textSize="11dp"
-                android:visibility="invisible"
+                android:textSize="15dp"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -256,7 +257,7 @@
                 android:id="@+id/currentAudioBarLaydout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="30dp"
                 android:background="#006C6C6C"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/mainImageView"
@@ -308,11 +309,11 @@
                     android:id="@+id/audioEditBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginEnd="10dp"
                     android:text="수정"
                     android:textColor="@color/point_color"
-                    android:textSize="16sp"
+                    android:textSize="17sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -347,8 +348,8 @@
                 android:text="@string/magicPicture"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
-                android:textSize="11dp"
-                android:visibility="invisible"
+                android:textSize="15dp"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
 
@@ -380,8 +381,8 @@
                 android:text="@string/choice_button"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
-                android:textSize="11dp"
-                android:visibility="invisible"
+                android:textSize="15dp"
+                android:visibility="visible"
                 app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -400,8 +401,8 @@
                 android:text="@string/focus_change"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
-                android:textSize="11dp"
-                android:visibility="invisible"
+                android:textSize="15dp"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/magicBtn" />
 
@@ -571,7 +572,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainChangeLayout"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="70dp"
             android:layout_marginBottom="3dp"
             android:padding="3dp">
 
@@ -581,7 +582,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/point_color"
                 android:text="@string/main_change"
-                android:textSize="14dp"
+                android:textSize="16dp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -614,7 +615,7 @@
                 android:background="#00FFFFFF"
                 android:text="@string/extract_jpeg"
                 android:textColor="@color/camera_mode_select_color"
-                android:textSize="12sp"
+                android:textSize="16dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -625,7 +626,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="170dp"
             android:layout_marginBottom="15dp"
             android:scaleType="fitCenter">
 
@@ -738,7 +739,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/containerLayout"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="match_parent"
                 android:visibility="visible">
                 \>
 
@@ -762,8 +763,8 @@
 
                     <ImageView
                         android:id="@+id/contentDeleteBtn"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
@@ -794,8 +795,8 @@
 
                         <ImageView
                             android:id="@+id/imageView3"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="3dp"
                             app:srcCompat="@drawable/gallery_icon" />
@@ -805,7 +806,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:textSize="12sp" />
+                            android:textSize="15sp" />
 
                     </LinearLayout>
 
@@ -819,7 +820,7 @@
                         android:rotation="90"
                         android:text="All in JPEG"
                         android:textColor="#000000"
-                        android:textSize="13dp"
+                        android:textSize="14dp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -884,7 +885,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="60dp" />
+        app:layout_constraintGuide_begin="80dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
