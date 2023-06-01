@@ -615,7 +615,8 @@
                 android:text="@string/extract_jpeg"
                 android:textColor="@color/camera_mode_select_color"
                 android:textSize="12sp"
-                android:visibility="invisible"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />

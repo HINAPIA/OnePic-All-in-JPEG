@@ -408,7 +408,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 저장 버튼 표시 | 메인 변경 버튼 없애기
             imageToolModule.showView(binding.saveBtn, true)
             imageToolModule.showView(binding.mainChangeBtn, false)
-            imageToolModule.showView(binding.extractJpegBtn, false)
+//            imageToolModule.showView(binding.extractJpegBtn, false)
         }
 
         // 컨텐츠 삭제
@@ -554,12 +554,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     }.show()
             } else {
+                setButtonDeactivation()
                 findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
             }
         }
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
             ViewerFragment.isEditStoraged = true
+            jpegViewModel.mainSubImage = null
             // 저장 중인지 확인하는 flag가 false일 경우만 저장 단계 실행 --> 두번 실행될 경우 오류를 예외처리하기 위해
             if (!isSaving) {
 //                imageTool.showView(binding.progressBar, true)
@@ -972,10 +974,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         if (jpegViewModel.getMainSubImageIndex() != index) {
             imageToolModule.showView(binding.mainChangeBtn, true)
-            imageToolModule.showView(binding.extractJpegBtn, true)
+//            imageToolModule.showView(binding.extractJpegBtn, true)
         } else {
             imageToolModule.showView(binding.mainChangeBtn, false)
-            imageToolModule.showView(binding.extractJpegBtn, false)
+//            imageToolModule.showView(binding.extractJpegBtn, false)
         }
 //        jpegViewModel.selectPictureIndex = index
 
@@ -1130,7 +1132,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                 if (picture != jpegViewModel.mainSubImage) {
                     imageToolModule.showView(binding.mainChangeBtn, true)
-                    imageToolModule.showView(binding.extractJpegBtn, true)
+//                    imageToolModule.showView(binding.extractJpegBtn, true)
                 }
 
                 Glide.with(binding.mainImageView)
@@ -1142,8 +1144,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
         }
 
-        if (picture == jpegViewModel.mainSubImage ||
-            jpegViewModel.mainSubImage == null && pictureList.indexOf(picture) == 0) {
+        if (jpegViewModel.getMainSubImageIndex() == pictureList.indexOf(picture)) {
 //                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
 
             jpegViewModel.mainSubImage = picture
@@ -1211,6 +1212,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     if (pictureList.size == 1) {
                         imageToolModule.showView(binding.linear[0].findViewById<ImageView>(R.id.deleteIcon), false)
                         jpegViewModel.mainSubImage = pictureList[0]
+                        mainSubView = binding.linear[0].findViewById<ImageView>(R.id.mainMark)
+                        imageToolModule.showView(mainSubView!!, true)
 
                         setViewDetailMenu()
                     }
