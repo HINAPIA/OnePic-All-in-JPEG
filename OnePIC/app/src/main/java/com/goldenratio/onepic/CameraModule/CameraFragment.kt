@@ -741,7 +741,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                 }
 
                                 withContext(Dispatchers.Main) {
-                                    mediaPlayer.start()
+//                                    mediaPlayer.start()
 
                                     shutterBtn.isEnabled = true
                                     galleryBtn.isEnabled = true

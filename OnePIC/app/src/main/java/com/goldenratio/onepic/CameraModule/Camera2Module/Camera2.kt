@@ -485,6 +485,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
 
                 // Capture the burst of images
                 captureBurst(captureRequestList, captureCallback, null)
+
+                mediaPlayer.start()
             }
 
         } catch (e: CameraAccessException) {
