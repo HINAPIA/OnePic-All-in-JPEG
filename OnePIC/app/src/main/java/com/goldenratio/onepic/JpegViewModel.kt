@@ -107,8 +107,9 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     }
 
     fun getMainSubImageIndex(): Int {
-        if(mainSubImage == null)
+        if(mainSubImage == null) {
             return 0
+        }
         return jpegMCContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
     }
 
