@@ -50,13 +50,13 @@
             android:background="@color/transparent_color"
             android:text="@string/edit_text"
             android:textAlignment="center"
-            android:textStyle="bold"
             android:textColor="@color/point_color"
-            android:textSize="18sp"
+            android:textSize="23sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/guideline4"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/guideline4"
             app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -292,7 +292,7 @@
                 android:layout_gravity="center_vertical|end"
                 android:rotation="90"
                 android:text="All in JPEG"
-                android:textSize="11dp"
+                android:textSize="15dp"
                 android:textStyle="bold" />
 
 
@@ -311,17 +311,17 @@
                     android:id="@+id/imageView3"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="3dp"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     app:srcCompat="@drawable/gallery_icon" />
 
                 <TextView
                     android:id="@+id/imageCntTextView"
-                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="TextView" />
+                    android:gravity="center"
+                    android:text="TextView"
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
@@ -412,7 +412,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="65dp" />
+        app:layout_constraintGuide_begin="80dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
