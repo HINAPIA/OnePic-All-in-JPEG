@@ -60,6 +60,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
     var dummyWidth : Int? = null
     var dummyHeight : Int? = null
 
+    val mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
+
     init {
         this.activity = activity
         this.binding = binding
@@ -466,8 +468,8 @@ class Camera2(activity: CameraEditorActivity, context: Context, binding: Fragmen
                                                 request: CaptureRequest,
                                                 result: TotalCaptureResult) {
                     unlockFocus()
-                    val mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
-                    mediaPlayer.start()
+
+//                    mediaPlayer.start()
                 }
             }
 

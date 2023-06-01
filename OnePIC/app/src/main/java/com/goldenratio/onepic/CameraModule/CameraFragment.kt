@@ -656,7 +656,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 CoroutineScope(Dispatchers.IO).launch {
 
                     val result = takePicture(0)
-                    mediaPlayer.start()
+
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
                     if (savedFile != null) {
@@ -689,6 +689,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                     }
 
                     withContext(Dispatchers.Main) {
+
+                        mediaPlayer.start()
 
                         shutterBtn.isEnabled = true
                         galleryBtn.isEnabled = true
@@ -739,6 +741,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                                 }
 
                                 withContext(Dispatchers.Main) {
+                                    mediaPlayer.start()
 
                                     shutterBtn.isEnabled = true
                                     galleryBtn.isEnabled = true
@@ -969,7 +972,6 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 while (previewByteArrayList.size < detectedObjectList.size) { }
 
                 if (previewByteArrayList.size == detectedObjectList.size) {
-                    mediaPlayer.start()
 
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
@@ -1000,6 +1002,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         }
 
                         withContext(Dispatchers.Main) {
+
+                            mediaPlayer.start()
 
                             shutterBtn.isEnabled = true
                             galleryBtn.isEnabled = true
@@ -1040,7 +1044,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
             Log.v("focus test", "[$index] isFocusSuccess? : $isFocusSuccess")
 
             if (isFocusSuccess == true) {
-                mediaPlayer.start()
+//                mediaPlayer.start()
 
                 previewToByteArray()
                 isFocusSuccess = false
@@ -1064,7 +1068,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                 while (previewByteArrayList.size < DISTANCE_FOCUS_PHOTO_COUNT) { }
 
                 if (previewByteArrayList.size == DISTANCE_FOCUS_PHOTO_COUNT) {
-                    mediaPlayer.start()
+
                     turnOnAFMode()
                     // 녹음 중단
                     val savedFile = audioResolver.stopRecording()
@@ -1091,6 +1095,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
                         }
 
                         withContext(Dispatchers.Main) {
+                            mediaPlayer.start()
 
                             shutterBtn.isEnabled = true
                             galleryBtn.isEnabled = true
@@ -1120,6 +1125,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
         imageCapture.takePicture(cameraExecutor, object :
             ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
+//                mediaPlayer.start()
+
                 incrementProgressBar()
 
                 controlLensFocusDistance(photoCnt + 1)
