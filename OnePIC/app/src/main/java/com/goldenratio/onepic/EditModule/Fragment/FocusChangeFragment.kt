@@ -299,6 +299,7 @@ class FocusChangeFragment : Fragment() {
 
         // info 확인
         binding.focusInfoBtn.setOnClickListener {
+            binding.infoText.text = "초점이 잡힌 객체를 선택하여 심도를 조절할 수 있습니다."
             imageToolModule.showView(binding.infoDialogLayout, true)
         }
 
