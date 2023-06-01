@@ -183,7 +183,7 @@
                     android:paddingRight="30dp"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
-                    android:textSize="20sp" />
+                    android:textSize="35sp" />
 
 
             </LinearLayout>
