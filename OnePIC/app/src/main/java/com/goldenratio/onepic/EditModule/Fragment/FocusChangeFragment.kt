@@ -108,6 +108,8 @@ class FocusChangeFragment : Fragment() {
         mainPicture = imageContent.mainPicture
         pictureList = imageContent.pictureList
 
+        imageToolModule.showView(binding.blurSettingLinearLayout, false)
+
         for(i in 0 until pictureList.size){
             boundingBoxList.add(pictureList[i].embeddedData!!)
         }
@@ -206,7 +208,7 @@ class FocusChangeFragment : Fragment() {
                                         binding.focusMainView.setImageBitmap(resultBitmap)
                                     }
 
-                                    imageToolModule.showView(binding.blurSeekBar, true)
+                                    imageToolModule.showView(binding.blurSettingLinearLayout, true)
                                     setSeekBar()
                                 }
                             }
@@ -224,6 +226,24 @@ class FocusChangeFragment : Fragment() {
 //                }
             }
             return@setOnTouchListener true
+        }
+
+        // compare 버튼 클릭시
+        binding.imageCompareBtn.setOnTouchListener { _, event ->
+//            CoroutineScope(Dispatchers.Main).launch {
+//                imageToolModule.showView(binding.infoDialogLayout, false)
+//            }
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    binding.focusMainView.setImageBitmap(focusCheckingBitmap)
+                    return@setOnTouchListener true
+                }
+                MotionEvent.ACTION_UP -> {
+                    binding.focusMainView.setImageBitmap(resultBitmap)
+                    return@setOnTouchListener true
+                }
+                else -> return@setOnTouchListener false
+            }
         }
 
         binding.focusSaveBtn.setOnClickListener {

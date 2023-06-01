@@ -397,7 +397,7 @@
                 android:paddingTop="12dp"
                 android:paddingEnd="14dp"
                 android:paddingBottom="12dp"
-                android:text="@string/focus_upgrade"
+                android:text="@string/focus_change"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
