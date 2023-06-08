@@ -55,15 +55,27 @@
 
 ## :wrench: 시스템 아키텍처
 
-&nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 다음과 같다. <br>
+&nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 [그림 1]과 같다. <br>
 
-<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/><p align="center">[ 시스템 구조도 ]</p></p><br>
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/><p align="center">[그림 1] 시스템 구조도 </p></p><br>
 
 &nbsp;안드로이드 애플리케이션에서 작동하는 5 개의 모듈은 안드로이드 위에서 작동하며 코틀린 언어로 구현되었다. 이는 카메라를 제어하는 Camera 모듈, All in JPEG 포맷 형식에 맞게 데이터를 생성 및 수정하는 All in JPEG 모듈, 사진 편집을 하는 Edit 모듈, 선택한 사진을 화면에 출력하는 Viewer 모듈, 마지막으로 파일 입출력을 담당하는 File IO 모듈이다.<br><br>
 &nbsp;Camera 모듈은 CameraX 와 Camera2 라이브러리를 사용하여 개발되었으며, 사진 촬영을 도와준다. All in JPEG 모듈은 촬영된 사진이나 파일에서 읽은 사진을 가지고 All in JPEG 제작에 필요한 데이터를 제작해준다. Edit 모듈은 MLKit 라이브러리를 사용하여 개발되었으며, Best 사진 추천, Face Blending, 매직 픽쳐 생성, 초점 업그레이드 등 사진 편집을 도와준다.
 데스크탑 애플리케이션에서 작동하는 3 개의 모듈은 TornadoFX 프레임워크로 구현되었다. 이는 File IO 모듈, Viewer 모듈, All in JPEG 모듈이며 모듈의 기능은 안드로이드 애플리케이션과 동일하다.
 
 <br><br>
+
+## All in JPEG 구조
+&nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다. All in JPEG 의 구조는 [그림 2]과 같다.
+
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/><p align="center">[그림 2] All in JPEG 구조 </p></p><br>
+
+&nbsp; JPEG 의 첫번 째 이미지가 끝나는 지점을 나타내는 EOI 마커 뒤에 추가할 이미지, 오디오 데이터가 삽입된다. All in JEPG 구조를 해석하기 위한 All-in Extension 데이터는 기존 JPEG 포맷의 APP3 마커 세그먼트에 추가된다. All-in Extension 데이터는 추가한 이미지, 텍스트, 오디오 정보를 나타내는 Image Content, Text Content, Audio Content 로 구성된다.<br><br>
+&nbsp; Image Content 와 Audio Content 는 데이터의 시작 위치를 나타내는 Offset 필드와 데이터의 사이즈를 나타 내는 Data Size 필드를 통해 EOI 마커 뒤에 삽입된 데이터를 찾는다. 이와 달리 Text Content 는 텍스트 데이터와 텍스트 관련 정보 모두 APP3 마커 세그먼트에 기록하여 관리한다.<br><br>
+&nbsp; 기존의 JPEG 뷰어로 All-in JPEG 파일을 열면 EOI 마커가 나오는 지점을 이미지의 끝으로 인식하여 All-in JPEG 의 첫번 째 이미지를 표시하고 EOI 마커 뒤에 삽입된 데이터는 해석하지 못한다. 이와같이 All in JPEG 은 기존 JPEG 포맷과 Backward Compatibility 을 유지한다.
+
+<br><br>
+
 
 ## 기대 효과
 - 새로운 형태의 멀티 콘텐츠 저장 기술 (All in JPEG) 개발
