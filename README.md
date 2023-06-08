@@ -63,7 +63,7 @@
 
 &nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 [그림 1]과 같다. <br>
 
-![Group 2066](https://github.com/HINAPIA/OnePIC/assets/109158497/3b90fb8e-2c79-4e3b-87c4-2cb9a815ac87)<p align="center">[그림 1] 시스템 구조도 </p></p><br>
+![Group 2066 (1)](https://github.com/HINAPIA/OnePIC/assets/109158497/a794e4f7-0a21-4768-a253-4b5f7af50e16)<p align="center">[그림 1] 시스템 구조도 </p></p><br>
 <!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/> -->
 
 &nbsp;안드로이드 애플리케이션에서 작동하는 5 개의 모듈은 안드로이드 위에서 작동하며 코틀린 언어로 구현되었다. 이는 카메라를 제어하는 Camera 모듈, All in JPEG 포맷 형식에 맞게 데이터를 생성 및 수정하는 All in JPEG 모듈, 사진 편집을 하는 Edit 모듈, 선택한 사진을 화면에 출력하는 Viewer 모듈, 마지막으로 파일 입출력을 담당하는 File IO 모듈이다.<br><br>
@@ -75,7 +75,7 @@
 ## :pushpin: All in JPEG 구조
 &nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다. All in JPEG 의 구조는 [그림 2]과 같다.
 
-![Group 2065](https://github.com/HINAPIA/OnePIC/assets/109158497/8b06de1c-a1db-4f15-9fb9-4a7dd3974e2a)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
+![Group 2065 (1)](https://github.com/HINAPIA/OnePIC/assets/109158497/ab129e54-bce0-4783-ab5f-e4686de498e4)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
 <!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
 
 &nbsp; JPEG 의 첫번 째 이미지가 끝나는 지점을 나타내는 EOI 마커 뒤에 추가할 이미지, 오디오 데이터가 삽입된다. All in JEPG 구조를 해석하기 위한 All-in Extension 데이터는 기존 JPEG 포맷의 APP3 마커 세그먼트에 추가된다. All-in Extension 데이터는 추가한 이미지, 텍스트, 오디오 정보를 나타내는 Image Content, Text Content, Audio Content 로 구성된다.<br><br>
