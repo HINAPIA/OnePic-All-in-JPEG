@@ -86,3 +86,12 @@
 - All in JPEG 으로 멀티 컨텐츠 공유 용이
 - Google Play 스토어 출시로 상업성 기대
 
+<br><br>
+
+### - 개발 도구
+<img src="https://img.shields.io/badge/Android Studio-3DDC84?style=for-the-badge&logo=Android Studio&logoColor=white"/> <img src="https://img.shields.io/badge/opencv-3DDC84?style=for-the-badge&logo=opencv&logoColor=white"/> <img src="https://img.shields.io/badge/tensorflow lite-3DDC84?style=for-the-badge&logo=tensorflow&logoColor=white"/> <img src="https://img.shields.io/badge/tornadoFX-3DDC84?style=for-the-badge"/>
+
+### - 개발 언어
+<img src="https://img.shields.io/badge/Kotlin-7EE5FC?style=for-the-badge&logo=kotlin&logoColor=black">
+
+
