@@ -57,7 +57,7 @@
 
 &nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 다음과 같다. <br>
 
-<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/>[ 시스템 구조도 ]</p><br>
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/><p align="center">[ 시스템 구조도 ]</p></p><br>
 
 &nbsp;안드로이드 애플리케이션에서 작동하는 5 개의 모듈은 안드로이드 위에서 작동하며 코틀린 언어로 구현되었다. 이는 카메라를 제어하는 Camera 모듈, All in JPEG 포맷 형식에 맞게 데이터를 생성 및 수정하는 All in JPEG 모듈, 사진 편집을 하는 Edit 모듈, 선택한 사진을 화면에 출력하는 Viewer 모듈, 마지막으로 파일 입출력을 담당하는 File IO 모듈이다.<br><br>
 &nbsp;Camera 모듈은 CameraX 와 Camera2 라이브러리를 사용하여 개발되었으며, 사진 촬영을 도와준다. All in JPEG 모듈은 촬영된 사진이나 파일에서 읽은 사진을 가지고 All in JPEG 제작에 필요한 데이터를 제작해준다. Edit 모듈은 MLKit 라이브러리를 사용하여 개발되었으며, Best 사진 추천, Face Blending, 매직 픽쳐 생성, 초점 업그레이드 등 사진 편집을 도와준다.
