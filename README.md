@@ -65,7 +65,7 @@
 
 <br><br>
 
-## All in JPEG 구조
+## :pushpin: All in JPEG 구조
 &nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다. All in JPEG 의 구조는 [그림 2]과 같다.
 
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/><p align="center">[그림 2] All in JPEG 구조 </p></p><br>
