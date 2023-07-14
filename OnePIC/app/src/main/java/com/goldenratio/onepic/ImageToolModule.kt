@@ -550,8 +550,8 @@ class ImageToolModule {
         val newMinMaxDiff = newMax - newMin
 
         for (i in arr.indices) {
-            val normalizedValue = (arr[i] - minValue) / minMaxDiff.toDouble() // 정규화된 값 계산
-            adjustedArr.add(normalizedValue * newMinMaxDiff.toDouble() + newMin) // 비율에 따라 값 변환
+            val normalizedValue = (arr[i] - minValue) / minMaxDiff // 정규화된 값 계산
+            adjustedArr.add(normalizedValue * newMinMaxDiff + newMin) // 비율에 따라 값 변환
 
             if(adjustedArr[i].isNaN()) {
                 adjustedArr[i] = 0.0
