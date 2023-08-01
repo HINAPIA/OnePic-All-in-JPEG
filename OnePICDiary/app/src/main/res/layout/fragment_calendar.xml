@@ -56,7 +56,7 @@
             android:paddingBottom="15dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/back_icon"
-            app:tint="#FFC6C6C6" />
+            app:tint="#FFFFFF" />
 
         <FrameLayout
             android:layout_width="0dp"
@@ -111,7 +111,7 @@
             android:rotation="180"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/back_icon"
-            app:tint="#C6C6C6" />
+            app:tint="#FFFFFF" />
 
     </LinearLayout>
 
