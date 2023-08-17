@@ -3,24 +3,27 @@ package com.goldenratio.onepic.ViewerModule.Adapter
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.R
 
-class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
+class GridAdapter(val fragment: Fragment, val context: Context, val currentPosition:MutableLiveData<Int>): BaseAdapter() {
 
     private lateinit var items: List<String>
+    private var selectedImageView:ImageView? = null
 
     fun setItems(uriArr:List<String>){
         items = uriArr
@@ -39,24 +42,29 @@ class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
         return position.toLong()
     }
 
-    override fun getView(p: Int, convertView: View?, parent: ViewGroup?): View {
 
+    override fun getView(p: Int, convertView: View?, parent: ViewGroup?): View {
         Log.d("gallery fragment", "갤러리가 비지 않아따")
         val imageView = ImageView(context)
         val display = context.getResources().getDisplayMetrics()
         imageView.setPadding(2,2,2,2)
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-        imageView.layoutParams = LinearLayout.LayoutParams(display.widthPixels/3,display.widthPixels/3)
+        imageView.layoutParams = LinearLayout.LayoutParams(display.widthPixels/4,display.widthPixels/4)
         imageView.setOnClickListener{
-            val bundle = Bundle()
-            bundle.putInt("currentPosition",p)
-            fragment.findNavController().navigate(R.id.action_galleryFragment_to_basicViewerFragment,bundle)
+            currentPosition.value = p
+            if (selectedImageView != null) {
+                selectedImageView!!.background = null
+                selectedImageView!!.setPadding(2,2,2,2)
+            }
+            selectedImageView = imageView
+            // 테두리 두께와 색상 설정
+           imageView.setBackgroundResource(R.drawable.chosen_gallery_border)
+           imageView.setPadding(6,6,6,6)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Glide.with(context).load(items[p]).into(imageView)
-        }
-        else {
+        } else {
             Glide.with(context).load(getUriFromPath(items[p])).into(imageView)
         }
 
@@ -111,4 +119,7 @@ class GridAdapter(val fragment: Fragment, val context: Context): BaseAdapter() {
         }
     }
 
+    class GridViewHolder(view: View) {
+        val imageView: ImageView = view.findViewById(R.id.gridImageView)
+    }
 }

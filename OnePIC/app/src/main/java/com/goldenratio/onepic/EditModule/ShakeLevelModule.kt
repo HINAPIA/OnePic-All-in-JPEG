@@ -64,7 +64,7 @@ class ShakeLevelModule {
                 }
         }
 
-        shakeLevelList = ImageToolModule().adjustMinMaxValues(shakeLevelList, 0.0,2.0)
+        shakeLevelList = ImageToolModule().adjustMinMaxValues(shakeLevelList, 0.0,1.0)
 
         return shakeLevelList
     }

@@ -408,10 +408,11 @@ class ViewerFragment : Fragment() {
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
                 for (i in 0..pictureList.size - 1) {
                     val picture = pictureList[i]
-                    val pictureByteArr = pictureByteArrList[i]
+
 
                     // 넣고자 하는 layout 불러오기
                     try {
+                        val pictureByteArr = pictureByteArrList[i]
                         val scollItemLayout =
                             layoutInflater.inflate(R.layout.scroll_item_layout, null)
 
@@ -447,6 +448,8 @@ class ViewerFragment : Fragment() {
                             firstImageView!!.performClick()
                         }
                     } catch (e: IllegalStateException) {
+                        println(e.message)
+                    } catch (e : IndexOutOfBoundsException){
                         println(e.message)
                     }
                 } // end of for..
@@ -584,17 +587,37 @@ class ViewerFragment : Fragment() {
     }
 
     /** back btn 눌렀을 때 처리 */
-    fun backPressed(){
-        Glide.get(requireContext()).clearMemory()  // Glide 메모리 비우기
-        if( isAudioBtnClicked && scrollAudioView != null ) { // 오디오 버튼 초기화
+    fun backPressed() {
+        // 제거 및 할당 해제
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.linear.removeAllViews()
+        }
+
+        jpegViewModel.jpegMCContainer.value!!.imageContent.resetBitmap()
+
+        jpegViewModel.clearPictureByteArrList()
+        // 앱의 onStop() 또는 onDestroy() 등의 메서드에서 호출하여 메모리 캐시를 비웁니다.
+        Glide.get(context).clearMemory()
+
+// 예를 들어 앱 설정에서 디스크 캐시를 비우는 버튼이 있는 경우, 해당 버튼 클릭 시 호출합니다.
+        // Glide 디스크 캐시 해제
+        GlobalScope.launch(Dispatchers.IO) {
+            Glide.get(context).clearDiskCache()
+        }
+
+        if (isAudioBtnClicked && scrollAudioView != null) { // 오디오 버튼 초기화
             scrollAudioView!!.performClick()
         }
-        if( isMagicBtnClicked ) { // 매직 버튼 초기화
+        if (isMagicBtnClicked) { // 매직 버튼 초기화
             binding.magicBtn.performClick()
         }
         val bundle = Bundle()
-        bundle.putInt("currentPosition",binding.viewPager2.currentItem)
-        findNavController().navigate(R.id.action_viewerFragment_to_basicViewerFragment,bundle)
+        bundle.putInt("currentPosition", binding.viewPager2.currentItem)
+        findNavController().navigate(R.id.action_viewerFragment_to_galleryFragment, bundle)
+
+        parentFragmentManager.beginTransaction()
+            .remove(this)
+            .commit()
     }
 
 }

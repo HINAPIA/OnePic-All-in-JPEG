@@ -50,6 +50,7 @@
     <string name="camera_object_info">인식된 객체에 각각 초점이 맞는 사진 촬영</string>
     <string name="camera_distance_info">가까운 곳부터 먼 곳까지 초점이 맞는 사진 촬영</string>
     <string name="camera_success_info">촬영 완료</string>
+    <string name="camera_object_detection_failed">촬영할 객체가 없습니다.</string>
 
     <string name="burst1">3</string>
     <string name="burst2">5</string>

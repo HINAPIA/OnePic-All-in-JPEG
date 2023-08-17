@@ -87,6 +87,10 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         return pictureByteArrayList
     }
 
+    fun clearPictureByteArrList() {
+        pictureByteArrayList.clear()
+    }
+
     fun setCurrentImageUri(position:Int){ // 현재 메인 이미지 filePath 설정
         if (currentImageUri != null) // 초기화
             currentImageUri = null

@@ -26,37 +26,9 @@
             android:textSize="30dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/topMenuVer2"
-            app:layout_constraintStart_toStartOf="@+id/topMenuVer1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuHor1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.2" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuHor2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.8" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuVer1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.33" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/topMenuVer2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.66" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -73,22 +45,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.camera.view.PreviewView
-                android:id="@+id/viewFinder"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:scaleType="fitStart"/>
-
             <com.example.test_camera2.CameraHelper.AutoFitTexutreView
                 android:id="@+id/textureView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.goldenratio.onepic.CameraModule.OverlayView
-                android:id="@+id/overlay"
                 android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:visibility="gone"/>
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <ImageView
+                android:id="@+id/objectDetectionImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@+id/textureView"
+                app:layout_constraintEnd_toEndOf="@+id/textureView"
+                app:layout_constraintStart_toStartOf="@+id/textureView"
+                app:layout_constraintTop_toTopOf="@+id/textureView" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/objectWarningConstraintLayout"
@@ -204,8 +176,6 @@
 
                 </LinearLayout>
 
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -254,14 +224,15 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/camera_success_info_background"
                 android:paddingLeft="30dp"
+                android:paddingTop="10dp"
                 android:paddingRight="30dp"
                 android:paddingBottom="10dp"
-                android:paddingTop="10dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/frameLayout_hor4"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor5"
-                android:visibility="gone">
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/successInfoTextView"
@@ -292,25 +263,26 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/camera_mode_background"
                 android:layout_margin="10dp"
+                android:background="@drawable/camera_mode_background"
                 android:padding="5dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/frameLayout_hor3"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor3">
 
                 <HorizontalScrollView
                     android:id="@+id/horizontalScrollView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -321,9 +293,9 @@
                             android:id="@+id/modeRadioGroup"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_gravity="center"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
                             <RadioButton
                                 android:id="@+id/basicRadioBtn"
@@ -333,13 +305,13 @@
                                 android:button="@drawable/null_radio_button"
                                 android:checked="true"
                                 android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
                                 android:paddingHorizontal="8dp"
                                 android:stateListAnimator="@null"
-                                android:textSize="12sp"
-                                android:textColor="@drawable/radio_text_selector"
                                 android:text="@string/basic_mode"
-                                android:lines="2"
-                                android:maxLines="2"/>
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
 
                             <RadioButton
                                 android:id="@+id/burstRadioBtn"
@@ -348,13 +320,13 @@
                                 android:layout_marginHorizontal="10dp"
                                 android:button="@drawable/null_radio_button"
                                 android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
                                 android:paddingHorizontal="8dp"
                                 android:stateListAnimator="@null"
-                                android:textSize="12sp"
-                                android:textColor="@drawable/radio_text_selector"
                                 android:text="@string/burst_mode"
-                                android:lines="2"
-                                android:maxLines="2"/>
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
 
                             <RadioButton
                                 android:id="@+id/objectFocusRadioBtn"
@@ -363,13 +335,13 @@
                                 android:layout_marginHorizontal="10dp"
                                 android:button="@drawable/null_radio_button"
                                 android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
                                 android:paddingHorizontal="8dp"
                                 android:stateListAnimator="@null"
-                                android:textSize="12sp"
-                                android:textColor="@drawable/radio_text_selector"
                                 android:text="@string/object_mode"
-                                android:lines="2"
-                                android:maxLines="2"/>
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
 
                             <RadioButton
                                 android:id="@+id/distanceFocusRadioBtn"
@@ -378,13 +350,13 @@
                                 android:layout_marginHorizontal="10dp"
                                 android:button="@drawable/null_radio_button"
                                 android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
                                 android:paddingHorizontal="8dp"
                                 android:stateListAnimator="@null"
-                                android:textSize="12sp"
                                 android:text="@string/distance_mode"
                                 android:textColor="@drawable/radio_text_selector"
-                                android:lines="2"
-                                android:maxLines="2"/>
+                                android:textSize="12sp" />
 
                         </RadioGroup>
 
@@ -451,30 +423,32 @@
         android:id="@+id/bottomMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@color/white"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/burstSizeConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
             android:layout_weight="1"
-            android:layout_marginTop="10dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <HorizontalScrollView
                 android:id="@+id/burstSizeSettingScrollView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 tools:ignore="MissingConstraints">
 
                 <LinearLayout
@@ -499,8 +473,8 @@
                             android:paddingHorizontal="8dp"
                             android:stateListAnimator="@null"
                             android:text="@string/burst1"
-                            android:textSize="13dp"
-                            android:textColor="@drawable/burst_size_setting_text_selector" />
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
 
                         <RadioButton
                             android:id="@+id/burst2RadioBtn"
@@ -514,8 +488,8 @@
                             android:paddingHorizontal="8dp"
                             android:stateListAnimator="@null"
                             android:text="@string/burst2"
-                            android:textSize="13dp"
-                            android:textColor="@drawable/burst_size_setting_text_selector" />
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
 
                         <RadioButton
                             android:id="@+id/burst3RadioBtn"
@@ -528,8 +502,8 @@
                             android:paddingHorizontal="8dp"
                             android:stateListAnimator="@null"
                             android:text="@string/burst3"
-                            android:textSize="13dp"
-                            android:textColor="@drawable/burst_size_setting_text_selector" />
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
 
                     </RadioGroup>
 
@@ -542,19 +516,20 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:layout_weight="5">
 
             <ImageView
                 android:id="@+id/galleryBtn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                app:srcCompat="@drawable/camera_gallery_icon"
-                app:tint="@color/middle_gray"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="SpeakableTextPresentCheck"/>
+                app:srcCompat="@drawable/camera_gallery_icon"
+                app:tint="@color/middle_gray"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <ImageView
                 android:id="@+id/shutterBtn"
@@ -570,12 +545,12 @@
                 android:id="@+id/convertBtn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                app:srcCompat="@drawable/repost"
-                app:tint="@color/middle_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:srcCompat="@drawable/repost"
+                app:tint="@color/middle_gray" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/bottomMenu_ver1"

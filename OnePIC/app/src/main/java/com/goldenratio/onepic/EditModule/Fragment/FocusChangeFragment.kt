@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import androidx.fragment.app.Fragment
@@ -145,10 +144,10 @@ class FocusChangeFragment : Fragment() {
 
         Log.d("error 잡기", "focusEdit picureList size ${pictureList.size}")
 
-            infoLevel.value = InfoLevel.BeforeMainSelect
-            infoLevel.observe(viewLifecycleOwner){ _ ->
-                infoTextView()
-            }
+        infoLevel.value = InfoLevel.BeforeMainSelect
+        infoLevel.observe(viewLifecycleOwner){ _ ->
+            infoTextView()
+        }
 
 //        CoroutineScope(Dispatchers.Default).launch {
 //            if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
@@ -168,61 +167,61 @@ class FocusChangeFragment : Fragment() {
         binding.focusMainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
 //                if (!isSelected) {
-                    showProgressBar(true, LoadingText.Change)
+                showProgressBar(true, LoadingText.Change)
 
-                    // click 좌표를 bitmap에 해당하는 좌표로 변환
-                    val touchPoint = ImageToolModule().getBitmapClickPoint(
-                        PointF(event.x, event.y),
-                        binding.focusMainView
-                    )
-                    println("------- click point:$touchPoint")
+                // click 좌표를 bitmap에 해당하는 좌표로 변환
+                val touchPoint = ImageToolModule().getBitmapClickPoint(
+                    PointF(event.x, event.y),
+                    binding.focusMainView
+                )
+                println("------- click point:$touchPoint")
 
-                    if (touchPoint != null) {
+                if (touchPoint != null) {
 
-                        CoroutineScope(Dispatchers.Default).launch {
-                            // Click 좌표가 포함된 Bounding Box 얻음
-//                            while (!rewindModule.getCheckFaceDetection()) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // Click 좌표가 포함된 Bounding Box 얻음
+//                            while (!FaceDetectionModule.getCheckFaceDetection()) {
 //                            }
-                            index = getIndex(touchPoint)
+                        index = getIndex(touchPoint)
 
-                            Log.d("focus test","getIndex out : $index")
+                        Log.d("focus test","getIndex out : $index")
 
-                            if(index == null) return@launch
-                            else {
-                                val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+                        if(index == null) return@launch
+                        else {
+                            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
-                                if (newBitmapList != null) {
+                            if (newBitmapList != null) {
 
-                                    bitmapList = newBitmapList
-                                    selectBitmap = bitmapList[index!!]
+                                bitmapList = newBitmapList
+                                selectBitmap = bitmapList[index!!]
 
-                                    // bitmap 자르기
-                                    val selectBoundingBox = boundingBoxResizeList[index!!]
-                                    selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
+                                // bitmap 자르기
+                                val selectBoundingBox = boundingBoxResizeList[index!!]
+                                selectObjRect = Rect(selectBoundingBox[0], selectBoundingBox[1], selectBoundingBox[2], selectBoundingBox[3])
 
-                                    val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
-                                    val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
-                                    resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
+                                val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
+                                val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
+                                resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
 
-                                    withContext(Dispatchers.Main) {
-                                        binding.focusMainView.setImageBitmap(resultBitmap)
-                                    }
-
-                                    imageToolModule.showView(binding.blurSettingLinearLayout, true)
-                                    setSeekBar()
+                                withContext(Dispatchers.Main) {
+                                    binding.focusMainView.setImageBitmap(resultBitmap)
                                 }
+
+                                imageToolModule.showView(binding.blurSettingLinearLayout, true)
+                                setSeekBar()
                             }
+                        }
 //                            if (boundingBox.size > 0) {
 //                                // Bounding Box로 이미지를 Crop한 후 보여줌
 //                                withContext(Dispatchers.Main) {
 //                                    cropImgAndView(boundingBox)
 //                                }
 //                            }
-                        }
-                    } else {
-//                    imageToolModule.showView(binding.progressBar, false)
-                        showProgressBar(false, null)
                     }
+                } else {
+//                    imageToolModule.showView(binding.progressBar, false)
+                    showProgressBar(false, null)
+                }
 //                }
             }
             return@setOnTouchListener true
@@ -253,9 +252,9 @@ class FocusChangeFragment : Fragment() {
 //                var result = imageContent.removePicture(mainPicture)
 //                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
 //                if (result) {
-                    Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
+                Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
 
-                    // 2. main 사진을 첫번 째로 삽입
+                // 2. main 사진을 첫번 째로 삽입
 //                    imageContent.insertPicture(0, mainPicture)
 //                    imageContent.mainPicture = mainPicture
 
@@ -369,18 +368,14 @@ class FocusChangeFragment : Fragment() {
             Log.v("focus test", "index : $index")
 
             if (index == null) {
-                withContext(Dispatchers.Main) {
-                    try {
-                        Toast.makeText(
-                            requireContext(),
-                            "해당 좌표에 객체가 존재 하지 않습니다.",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
-                    } catch (e: IllegalStateException) {
-                        println(e.message)
-                    }
-                }
+//                withContext(Dispatchers.Main) {
+//                    try {
+//                        Toast.makeText(requireContext(), "해당 좌표에 객체가 존재 하지 않습니다.", Toast.LENGTH_LONG).show()
+//                    } catch (e: IllegalStateException) {
+//                        println(e.message)
+//                    }
+//                }
+
                 // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
                 // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
 //                setMainImageBoundingBox()
@@ -449,73 +444,38 @@ class FocusChangeFragment : Fragment() {
      */
     open fun setMainImageBoundingBox() {
 
-//        if(infoLevel.value != RewindFragment.InfoLevel.EditFaceSelect) {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                infoLevel.value = RewindFragment.InfoLevel.EditFaceSelect
-//                isInfoViewed = false
-//
-//                imageToolModule.showView(binding.infoDialogLayout, false)
-//            }
-//        }
-
-//        //showView(binding.faceListView, false)
-//        imageToolModule.showView(binding.arrowBar, false)
-//        if (!binding.candidateLayout.isEmpty()) {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                withContext(Dispatchers.Main) {
-//                    binding.candidateLayout.removeAllViews()
-//                }
-//            }
-//        }
-
         CoroutineScope(Dispatchers.Default).launch {
-//            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
-//            val faceResult = rewindModule.runFaceDetection(0)
-////            val faceResult = rewindModule.runMainFaceDetection(selectBitmap)
-//            Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
-//
-//            if (faceResult.size == 0) {
-//                withContext(Dispatchers.Main) {
-//                    try {
-//                        Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
-//                            .show()
-////                        imageToolModule.showView(binding.progressBar, false)
-//                        showProgressBar(false, null)
-//                        imageToolModule.showView(binding.rewindMenuLayout, true)
-//                    } catch (e: IllegalStateException) {
-//                        println(e.message)
-//                    }
-//                }
-//            } else {
-                try {
-                    for (i in 0 until boundingBoxList.size) {
-                        val arraylist = arrayListOf<Int>()
-                        val scale = selectBitmap.width/480F
+            try {
 
-                        val left = (boundingBoxList[i][0].toFloat() * scale).toInt()
-                        val top = (boundingBoxList[i][1].toFloat() * scale).toInt()
-                        val right = (boundingBoxList[i][2].toFloat() * scale).toInt()
-                        val bottom = (boundingBoxList[i][3].toFloat() * scale).toInt()
+                for (i in 0 until boundingBoxList.size) {
+                    val arraylist = arrayListOf<Int>()
 
-                        arraylist.add(left)
-                        arraylist.add(top)
-                        arraylist.add(right)
-                        arraylist.add(bottom)
+                    val scale = selectBitmap.width.toFloat() / boundingBoxList[i][0].toFloat()
 
-                        boundingBoxResizeList.add(arraylist)
-                    }
+                    val left = (boundingBoxList[i][1].toFloat() * scale).toInt()
+                    val top = (boundingBoxList[i][2].toFloat() * scale).toInt()
+                    val right = (boundingBoxList[i][3].toFloat() * scale).toInt()
+                    val bottom = (boundingBoxList[i][4].toFloat() * scale).toInt()
 
-                    focusCheckingBitmap =
-                        imageToolModule.drawFocusResult(selectBitmap, boundingBoxResizeList,
-                            requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
+                    arraylist.add(left)
+                    arraylist.add(top)
+                    arraylist.add(right)
+                    arraylist.add(bottom)
 
-                    // imageView 변환
-                    withContext(Dispatchers.Main) {
-                        binding.focusMainView.setImageBitmap(focusCheckingBitmap)
-                    }
-                } catch (e: IllegalStateException) {
-                    println(e.message)
+                    boundingBoxResizeList.add(arraylist)
                 }
+
+                focusCheckingBitmap =
+                    imageToolModule.drawFocusResult(selectBitmap, boundingBoxResizeList,
+                        requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
+
+                // imageView 변환
+                withContext(Dispatchers.Main) {
+                    binding.focusMainView.setImageBitmap(focusCheckingBitmap)
+                }
+            } catch (e: IllegalStateException) {
+                println(e.message)
+            }
 //            }
             imageToolModule.showView(binding.progressBar, false)
             showProgressBar(false, null)

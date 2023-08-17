@@ -34,7 +34,7 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.EditModule.MagicPictureModule
-import com.goldenratio.onepic.EditModule.RewindModule
+import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.PictureModule.AudioContent
@@ -72,6 +72,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     private lateinit var imageToolModule: ImageToolModule
+    private lateinit var faceDetectionModule: FaceDetectionModule
     private var magicPictureModule: MagicPictureModule? = null
     private lateinit var loadResolver: LoadResolver
 
@@ -180,13 +181,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // imageToolModule 설정
         imageToolModule = ImageToolModule()
+        faceDetectionModule = FaceDetectionModule()
 
 //        imageToolModule.showView(binding.progressBar, true)
         showProgressBar(true, LoadingText.EditReady)
 
         CoroutineScope(Dispatchers.Default).launch {
             loadResolver = LoadResolver()
-
             // Content 설정
             imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
@@ -196,7 +197,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //        imageContent.setMainBitmap(null)
             textContent = jpegViewModel.jpegMCContainer.value!!.textContent
             audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
-
 
             // picture 리스트 만들어질때까지
             while (!imageContent.checkPictureList) { }
@@ -307,8 +307,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // Rewind 버튼 클릭 이벤트 리스너 등록
         binding.rewindBtn.setOnClickListener {
-            // RewindFragment로 이동
-            findNavController().navigate(R.id.action_editFragment_to_rewindFragment)
+            // FaceBlendingFragment로 이동
+            findNavController().navigate(R.id.action_editFragment_to_FaceBlendingFragment)
         }
         // 움직이는 Magic 버튼 클릭 이벤트 리스너 등록
         binding.magicBtn.setOnClickListener {
@@ -324,7 +324,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         // 얼굴 추천 버튼 클릭 이벤트 리스너 등록
         binding.bestMainBtn.setOnClickListener {
 //            imageToolModule.showView(binding.progressBar, true)
-            viewBestImage()
+            AlgorithmBestPictureRanking()
         }
 
         /* Format - JPEG, Ai JPEG*/
@@ -339,7 +339,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
 
         /* 텍스트 추가 */
-        addTextModuale()
+        addTextModual()
 
 
         /* 오디오 */
@@ -350,7 +350,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 it, "original"
             )
         }
-
 
 
         if(savedFile != null){
@@ -376,7 +375,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // 단일 사진 추출
         binding.extractJpegBtn.setOnClickListener {
-            // 한 장으로 저장출
+            // 한 장으로 저장 추출
             val currentImage = jpegViewModel.selectedSubImage
             jpegViewModel.jpegMCContainer.value!!.saveResolver.singleImageSave(currentImage!!)
             CoroutineScope(Dispatchers.Main).launch {
@@ -385,7 +384,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         }
 
-        // 메인 변경
+        // 대표 사진 변경
         binding.mainChangeBtn.setOnClickListener {
             // 기존 메인에 관한 설정 제거
             mainTextView?.visibility = View.INVISIBLE
@@ -399,6 +398,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val newMainSubView = binding.linear.getChildAt(selectPictureIndex)
                 .findViewById<TextView>(R.id.mainMark)
             newMainSubView.visibility = View.VISIBLE
+
             // 메인에 관한 설정
             mainTextView = newMainSubView
             mainPicture = pictureList[selectPictureIndex]
@@ -482,6 +482,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                 }
+
+
 //                    imageToolModule.showView(binding.magicPlayBtn, true)
                 isMagicPlay = true
 
@@ -490,15 +492,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         while(magicPictureModule == null ) {}
                         overlayBitmap = magicPictureModule!!.magicPictureProcessing()
                     }
-
                     Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
                     showProgressBar(false, null)
                     Log.d("magic", "magicPucture run ${overlayBitmap.size}")
                     magicPictureRun(overlayBitmap)
                 }
-            } else {
+            }
+            else {
                 handler.removeCallbacksAndMessages(null)
-
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
 
@@ -511,6 +512,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // 취소 버튼 (viewer로 이동)
         binding.backBtn.setOnClickListener {
+
+
             // 변경된 편집이 있을 경우 확인 창 띄우기
             if (imageContent.checkMainChanged || imageContent.checkRewind ||
                 imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
@@ -561,6 +564,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
+
+            imageContent.resetBitmap()
+
             ViewerFragment.isEditStoraged = true
             jpegViewModel.mainSubImage = null
             // 저장 중인지 확인하는 flag가 false일 경우만 저장 단계 실행 --> 두번 실행될 경우 오류를 예외처리하기 위해
@@ -579,14 +585,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         // 2. main 사진을 첫번 째로 삽입
                         imageContent.insertPicture(0, mainPicture)
                         imageContent.mainPicture = mainPicture
+
+                        // 3. meta data 변경
+                        imageContent.jpegMetaData = imageContent.chageMetaData(mainPicture._app1Segment!!)
                     }
                 }
-
                 // 덮어쓰기
                 val currentFilePath = jpegViewModel.currentImageUri
-
                 var fileName = ""
-                // 파일 이름 얻어내기
 
                 // 13버전 이상일 경우는 uri를 받아 옴 --> 전처리 거쳐서 파일 이름 얻어내기
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -598,14 +604,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
 
                 // Format 설정
-
                 if(isAllInJPEG) {
                     JpegViewModel.AllInJPEG = true
-                    Log.d("format_test" , "저장 할 때 AllInJPEG = true")
                 }
                 else {
                     JpegViewModel.AllInJPEG = false
-                    Log.d("format_test" , "저장 할 때 AllInJPEG = false")
                 }
 
                 CoroutineScope(Dispatchers.IO).launch {
@@ -618,6 +621,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         delay(500)
                     }
                     JpegViewModel.isUserInentFinish = false
+                    System.gc()
                     jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
                     Thread.sleep(3000)
                     Log.d("save_test", "뷰어로 넘어가기")
@@ -750,6 +754,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun setButtonDeactivation() {
+        imageContent.resetBitmap()
+
         imageContent.checkAdded = false
         imageContent.checkRewind = false
         imageContent.checkMagicCreated = false
@@ -778,65 +784,65 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
     }
 
-    fun remainOriginalPictureSave() {
-        val oDialog: AlertDialog.Builder = AlertDialog.Builder(
-            activity,
-            android.R.style.Theme_DeviceDefault_Light_Dialog
-        )
-//        imageTool.showView(binding.progressBar, false)
+//    fun remainOriginalPictureSave() {
+//        val oDialog: AlertDialog.Builder = AlertDialog.Builder(
+//            activity,
+//            android.R.style.Theme_DeviceDefault_Light_Dialog
+//        )
+////        imageTool.showView(binding.progressBar, false)
+//
+//        oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
+//            .setPositiveButton(
+//                "모두 저장",
+//                DialogInterface.OnClickListener { dialog, which ->
+//                    imageTool.showView(binding.progressBar, true)
+//                    if (!imageContent.checkMagicCreated || !imageContent.checkRewind) {
+//                        val mainPicture = imageContent.mainPicture
+//                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
+//                        imageContent.insertPicture(0, mainPicture)
+//                    }
+//                    jpegViewModel.jpegMCContainer.value?.save()
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        setButtonDeactivation()
+//                        Thread.sleep(2000)
+//                        withContext(Dispatchers.Main) {
+////                        imageTool.showView(binding.progressBar , false)
+//                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
+//                        }
+//                    }
+//                })
+//            .setNeutralButton("예",
+//                DialogInterface.OnClickListener { dialog, which ->
+//                    try {
+//                        singleSave()
+//                    } catch (e: IOException) {
+//                        Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
+//                            .show()
+//                    }
+//                })
+//            .show()
+//    }
 
-        oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-            .setPositiveButton(
-                "모두 저장",
-                DialogInterface.OnClickListener { dialog, which ->
-                    imageTool.showView(binding.progressBar, true)
-                    if (!imageContent.checkMagicCreated || !imageContent.checkRewind) {
-                        val mainPicture = imageContent.mainPicture
-                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-                        imageContent.insertPicture(0, mainPicture)
-                    }
-                    jpegViewModel.jpegMCContainer.value?.save()
-                    CoroutineScope(Dispatchers.Default).launch {
-                        setButtonDeactivation()
-                        Thread.sleep(2000)
-                        withContext(Dispatchers.Main) {
-//                        imageTool.showView(binding.progressBar , false)
-                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-                        }
-                    }
-                })
-            .setNeutralButton("예",
-                DialogInterface.OnClickListener { dialog, which ->
-                    try {
-                        singleSave()
-                    } catch (e: IOException) {
-                        Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                })
-            .show()
-    }
-
-    fun singleSave() {
-        try {
-//            imageTool.showView(binding.progressBar, true)
-            showProgressBar(true, LoadingText.Save)
-            val newImageContent =
-                jpegViewModel.jpegMCContainer.value?.imageContent!!
-            val singlePictureList: ArrayList<Picture> =
-                ArrayList<Picture>(1)
-            singlePictureList.add(newImageContent.mainPicture)
-            newImageContent.setContent(singlePictureList)
-
-            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-            //ViewerFragment.currentFilePath = savedFilePath.toString()
-
-        } catch (e: IOException) {
-            Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-                .show()
-        }
-
-    }
+//    fun singleSave() {
+//        try {
+////            imageTool.showView(binding.progressBar, true)
+//            showProgressBar(true, LoadingText.Save)
+//            val newImageContent =
+//                jpegViewModel.jpegMCContainer.value?.imageContent!!
+//            val singlePictureList: ArrayList<Picture> =
+//                ArrayList<Picture>(1)
+//            singlePictureList.add(newImageContent.mainPicture)
+//            newImageContent.setContent(singlePictureList)
+//
+//            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
+//            //ViewerFragment.currentFilePath = savedFilePath.toString()
+//
+//        } catch (e: IOException) {
+//            Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
+//                .show()
+//        }
+//
+//    }
 
     /**
      * setContainer()
@@ -873,17 +879,20 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
     }
 
-    fun viewBestImage() {
+    fun AlgorithmBestPictureRanking() {
         showProgressBar(true, LoadingText.BestImageRecommend)
         val newBitmapList = imageContent.getBitmapList()
         if (newBitmapList != null) {
             bitmapList = newBitmapList
-            val rewindModule = RewindModule()
             CoroutineScope(Dispatchers.IO).launch {
-
                 if (bestImageIndex == null ) {
-                    rewindModule.allFaceDetection(bitmapList)
-                    val faceDetectionResult = rewindModule.choiceBestImage(bitmapList)
+                    // 인공지능 모델을 통해 〖image〗_i  에 있는 모든 얼굴 f에 대한
+                    // re(오른쪽 눈을 뜬 정도), le(왼쪽 눈을 뜬 정도), sm(웃고 있는 정도)를 알아낸다.
+                    faceDetectionModule.allFaceDetection(bitmapList)
+
+
+                    val eyesDetectionResult = faceDetectionModule.getEyesAnalysisResults(bitmapList)
+                    val smilingDetectionResult = faceDetectionModule.getSmilingAnalysisResults()
                     Log.d("anaylsis", "end faceDetection")
 
                     val shakeDetectionResult =
@@ -895,13 +904,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     for (i in 0 until bitmapList.size) {
 
-                        Log.d("anaylsis", "[$i] =  faceDetectio ${faceDetectionResult[i]} ")
-                        Log.d("anaylsis", "[$i] =  shake ${shakeDetectionResult[i]}")
-
-                        analysisResults.add(faceDetectionResult[i] + shakeDetectionResult[i])
-                        if (analysisResults[preBestImageIndex] < analysisResults[i] ||
-                            analysisResults[preBestImageIndex] == analysisResults[i] && faceDetectionResult[preBestImageIndex] < faceDetectionResult[i]
-                        ) {
+                        analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
+                        if (analysisResults[preBestImageIndex] < analysisResults[i]) {
                             preBestImageIndex = i
                         }
                     }
@@ -929,8 +933,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     Log.d("mainChange", "bestImage null")
                     try {
-                        binding.successInfoTextView.text =
-                            getString(R.string.best_choice_animation);
+                        binding.successInfoTextView.text = getString(R.string.best_choice_animation)
                         imageToolModule.fadeIn.start()
                     }
                     catch (e: IllegalStateException) {
@@ -976,9 +979,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            // 메인 이미지 설정
+            // 메인 이미지 설정 (선택된 이미지로 변경)
             Glide.with(binding.mainImageView)
-                .load(imageContent.getJpegBytes(pictureList[index]))
+                .load(imageContent.getChagedJpegBytes(pictureList[index]))
                 .into(binding.mainImageView)
         }
         if (jpegViewModel.getMainSubImageIndex() != index) {
@@ -1008,9 +1011,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+
+    // 이미지 추가
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         val uriList = arrayListOf<Uri>()
 
         if (data == null) {   // 어떤 이미지도 선택하지 않은 경우
@@ -1022,7 +1026,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 if (imageUri != null) {
                     uriList.add(imageUri)
                 }
-            } else {      // 이미지를 여러장 선택한 경우
+            } else {  // 이미지를 여러장 선택한 경우
                 val clipData: ClipData? = data.clipData
                 Log.e("clipData", String.valueOf(clipData?.itemCount))
                 if (clipData != null) {
@@ -1044,50 +1048,62 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     }
                 }
             }
+
             if(uriList.size > 0) {
                 checkAllInJPEG()
+                val currentImageContent = imageContent
+                val jpegMCContainer = MCContainer(requireActivity())
                 for(i in 0 until uriList.size) {
                     val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
                     val sourceByteArray = imageToolModule.getBytes(iStream!!)
                     val isContainerChanged = MutableLiveData<Boolean>()
 
+                    // 사진간 호환성 확인 - 기본 카메라로 찍은 사진일 때
+                    //if(currentImageContent.isBasicPicture(currentImageContent.getJpegBytes(pictureList.get(0)))){
+                    if(!JpegViewModel.AllInJPEG){
+                        Log.d("testTest", "기본 카메라로 찍은 사진")
+                        // 기본 카메라로 찍은 사진을 제외한 이미지 추가 불가 - APP1만 존재하는 사진이여야 함
+                        if(currentImageContent.isComplicatedPictue(sourceByteArray)){
+                            Toast.makeText(requireContext(), "호환 되지 않는 사진은 추가할 수 없습니다.", Toast.LENGTH_SHORT)
+                                .show()
+                            Log.d("testTest", "기본 카메라로 찍은 사진을 추가한 것이 아님")
+                            continue
+                        }
+                        Log.d("testTest", "기본 카메라로 찍은 사진을 추가")
+                    }
                     CoroutineScope(Dispatchers.Main).launch {
-                        val jpegMCContainer = MCContainer(requireActivity())
+                        Log.d("tesetTest", "j : [${i}]")
                         loadResolver.createMCContainer(jpegMCContainer, sourceByteArray)
                         while (!jpegMCContainer.imageContent.checkPictureList) {
                         }
-
                         val newPictureList = jpegMCContainer.imageContent.pictureList
-//                        pictureList.addAll(newPictureList)
-
-//                        pictureByteList.add(sourceByteArray)
+//
                         for (j in 0 until newPictureList.size) {
-//                            newImageByteArrayList.add(
-//                                jpegMCContainer.imageContent.getJpegBytes(
-//                                    newPictureList[j]
-//                                )
-//                            )
                             newPictureList[j].embeddedData = null
                             newPictureList[j].embeddedSize = 0
                             newPictureList[j].contentAttribute = ContentAttribute.basic
-
                             pictureList.add(newPictureList[j])
+
+                            // subLayer 동적 추가
                             val subLayout = setSubImage(pictureList[pictureList.size - 1])
                             binding.linear.addView(subLayout, pictureList.size - 1)
                             val imageView = subLayout?.findViewById<ImageView>(R.id.scrollImageView)
 
-                            CoroutineScope(Dispatchers.Default).launch {
-                                imageContent.addBitmapList(
-                                    imageToolModule.byteArrayToBitmap(
-                                        jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
+                            if(newPictureList.size >= j){
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    imageContent.addBitmapList(
+                                        imageToolModule.byteArrayToBitmap(
+                                            jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
+                                        )
                                     )
-                                )
+                                }
                             }
 
+                            // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
                             if (j == newPictureList.size - 1) {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     Glide.with(binding.mainImageView)
-                                        .load(imageContent.getJpegBytes(pictureList[pictureList.size - 1]))
+                                        .load(imageContent.getChagedJpegBytes(pictureList[pictureList.size - 1]))
                                         .into(binding.mainImageView)
 
                                     mainSubView?.background = null
@@ -1102,10 +1118,16 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                         setMoveScrollView(mainSubView!!, pictureList.size)
                                 }
                             }
+
+                            // picture 변경
                             imageContent.pictureList = pictureList
+
+                            // 이제 사진이 수정됨
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
+
+                        // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
                         setViewDetailMenu()
                         setContainerTextSetting()
                     }
@@ -1123,7 +1145,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             val subLayout =
                 layoutInflater.inflate(R.layout.scroll_item_layout_edit, null)
 
-
             // 위 불러온 layout에서 변경을 할 view가져오기
             val imageView: ImageView =
                 subLayout.findViewById(R.id.scrollImageView)
@@ -1131,10 +1152,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 이미지뷰에 붙이기
             CoroutineScope(Dispatchers.Main).launch {
                 Glide.with(imageView)
-                    .load(imageContent.getJpegBytes(picture))
+                    .load(imageContent.getChagedJpegBytes(picture))
                     .into(imageView)
             }
 
+            // 처음부터 선택한 이미지 보여주기
             if (picture == jpegViewModel.selectedSubImage) {
                 CoroutineScope(Dispatchers.Main).launch {
                     imageView.setBackgroundResource(R.drawable.chosen_image_border)
@@ -1147,9 +1169,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     }
 
                     Glide.with(binding.mainImageView)
-                        .load(imageContent.getJpegBytes(picture))
+                        .load(imageContent.getChagedJpegBytes(picture))
                         .into(binding.mainImageView)
-
 
                     setMoveScrollView(subLayout, pictureList.indexOf(picture))
                 }
@@ -1157,7 +1178,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
             if (jpegViewModel.getMainSubImageIndex() == pictureList.indexOf(picture)) {
 //                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
-
                 jpegViewModel.mainSubImage = picture
 
                 CoroutineScope(Dispatchers.Main).launch {
@@ -1168,7 +1188,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             subLayout.setOnClickListener {
-
                 if (isMagicPlay) {
                     handler.removeCallbacksAndMessages(null)
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
@@ -1228,7 +1247,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             jpegViewModel.mainSubImage = pictureList[0]
                             mainSubView = binding.linear[0].findViewById<ImageView>(R.id.mainMark)
                             imageToolModule.showView(mainSubView!!, true)
-
                             setViewDetailMenu()
                         }
 
@@ -1242,12 +1260,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             Glide.with(binding.mainImageView)
                                 .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
                                 .into(binding.mainImageView)
-
-
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
-
                         if (jpegViewModel.mainSubImage == picture && pictureList.size > 0) {
                             jpegViewModel.mainSubImage = pictureList[0]
 
@@ -2045,7 +2060,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     var isTextOn : Boolean = false
     var textList : java.util.ArrayList<kotlin.String> = arrayListOf()
 
-    fun addTextModuale(){
+    fun addTextModual(){
 
         binding.editText.apply {
             // 그림자 효과 추가

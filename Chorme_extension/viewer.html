@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JPEG Viewer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <section id="header">
+      <div class="wrapper">
+        <div class = "title">
+          <i class="fa-regular fa-image"></i>All-in JPEG Viewer</div>
+        </div>
+      </div>
+      <div id="file-name">
+      </div>
+    </section>
+    <section id="main">
+      <div class="main-image-container">
+        <!-- jpeg 분석한 이미지가 들어갈 공간 -->
+          <img src="" id="main_image" style="max-width: 100%;">
+        </div>
+        <div id="contents-container" width = "" height="">
+          <img src="" class="sub_image" id="sub_image1" style="max-width: 100%;">
+          <img src="" class="sub_image" id="sub_image2" style="max-width: 100%;">
+        </div>
+        <div></div>
+    </section>
+
+       <script src="contentScript/fileIO.js"></script>
+    <script type="module" src="contentScript/viewer.js"></script>
+    </body>
+</html>

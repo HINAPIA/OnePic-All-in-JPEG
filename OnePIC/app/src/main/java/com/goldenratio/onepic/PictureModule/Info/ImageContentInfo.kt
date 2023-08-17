@@ -5,9 +5,14 @@ import com.goldenratio.onepic.PictureModule.Contents.Picture
 import java.nio.ByteBuffer
 
 class ImageContentInfo(imageContent: ImageContent) {
+
     var contentInfoSize: Int = 0
     var imageCount : Int = 0
     var imageInfoList : ArrayList<ImageInfo> = arrayListOf()
+
+    companion object{
+        const val XOI_MARKER_SIZE : Int = 2
+    }
 
     init{
         imageCount = imageContent.pictureCount
@@ -22,10 +27,14 @@ class ImageContentInfo(imageContent: ImageContent) {
         for(i in 0..pictureList.size - 1){
             // 각 Picture의 ImageInfo 생성
             var imageInfo : ImageInfo = ImageInfo(pictureList.get(i))
+            if(i==0){
+                preSize = imageInfo.imageDataSize
+            }
             if(i > 0){
                 offset = offset + preSize
+                preSize = 2 + imageInfo.app1DataSize + imageInfo.imageDataSize
             }
-            preSize = imageInfo.dataSize
+
             // offset 지정
             imageInfo.offset = offset
             //imageInfoList에 삽입
@@ -54,7 +63,8 @@ class ImageContentInfo(imageContent: ImageContent) {
         for(j in 0..imageCount - 1){
             var imageInfo = imageInfoList.get(j)
             buffer.putInt(imageInfo.offset)
-            buffer.putInt(imageInfo.dataSize)
+            buffer.putInt(imageInfo.app1DataSize)
+            buffer.putInt(imageInfo.imageDataSize)
             buffer.putInt(imageInfo.attribute)
             buffer.putInt(imageInfo.embeddedDataSize)
             // Image Content - Image Info - embeddedData
@@ -63,11 +73,15 @@ class ImageContentInfo(imageContent: ImageContent) {
                     buffer.putInt(imageInfo.embeddedData.get(p))
                 }
             } // end of embeddedData
-        }// end of Image Info
+        } // end of Image Info
         // end of Image Content ...
         return buffer.array()
     }
+
     fun getEndOffset():Int{
-        return imageInfoList.get(imageCount-1).offset + imageInfoList.get(imageCount-1).dataSize -1
+        var lastImageInfo = imageInfoList.last()
+        var extendImageDataSize = XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
+        //return lastImageInfo.offset + extendImageDataSize -1
+        return lastImageInfo.offset + extendImageDataSize
     }
 }

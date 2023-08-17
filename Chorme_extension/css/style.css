@@ -1,0 +1,86 @@
+body {
+    background-color: #EEECFF;
+    margin: 0;
+}
+
+#header{
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+    width:100%;
+    margin:0;
+    padding: 0;
+    border: none;
+}
+
+#main {
+    margin:1rem;
+}
+
+.wrapper{
+    width: 100%;
+    min-height: 2.5rem;
+    background-color: #9177D0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#file-name {
+    width: 100%;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    min-height: 1rem;
+    color:black;
+    text-align: center;
+    margin-top:1rem;
+}
+
+
+.title{
+    font-size: 20px;
+    margin-left: 30px;
+}
+
+.fa-image {
+    margin-right:10px;
+    color:#FFFFFF;
+}
+
+/* 이미지를 감싸는 컨테이너 */
+.main-image-container {
+    /* 원하는 이미지 크기로 조절합니다. */
+    max-width: 58%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
+    max-height: 100vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
+    /* 다른 스타일링을 적용할 수도 있습니다. */
+    margin: auto;
+}
+  
+  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
+#main_image {
+    width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
+    height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
+}
+
+  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
+.sub_image {
+    /* 원하는 이미지 크기로 조절합니다. */
+    max-width: 58%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
+    max-height: 100vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
+    /* 다른 스타일링을 적용할 수도 있습니다. */
+    margin: auto;
+    
+    width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
+    height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
+}
+  
+#contents-container {
+    background-image: url("../resource/container.png");
+     /* 원하는 이미지 크기로 조절합니다. */
+     max-width: 58%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
+     max-height: 20vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
+     /* 다른 스타일링을 적용할 수도 있습니다. */
+     margin: auto;
+}
+

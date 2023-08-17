@@ -3,7 +3,6 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.navigation.findNavController
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.R
-import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity.Companion.LAUNCH_ACTIVITY
 import com.goldenratio.onepic.databinding.FragmentPermissionBinding
 

@@ -18,6 +18,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRectF
 import androidx.exifinterface.media.ExifInterface
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.mlkit.vision.face.Face
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +69,7 @@ class ImageToolModule {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
 
-        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        var bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
         if (bitmap == null) {
             // bitmap이 null인 경우 예외 처리를 수행합니다.
@@ -81,13 +87,15 @@ class ImageToolModule {
 
     }
 
+    // InpustStream을 통해 읽어온 데이터를 byteArray로 변환 후 리턴
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
         val byteBuffer = ByteArrayOutputStream()
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
         var len = 0
-        while (inputStream.read(buffer).also { len = it } != -1) {
+
+        while (inputStream.read(buffer, 0, bufferSize).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
         byteBuffer.close()
@@ -550,8 +558,8 @@ class ImageToolModule {
         val newMinMaxDiff = newMax - newMin
 
         for (i in arr.indices) {
-            val normalizedValue = (arr[i] - minValue) / minMaxDiff // 정규화된 값 계산
-            adjustedArr.add(normalizedValue * newMinMaxDiff + newMin) // 비율에 따라 값 변환
+            val normalizedValue = (arr[i] - minValue) / minMaxDiff.toDouble() // 정규화된 값 계산
+            adjustedArr.add(normalizedValue * newMinMaxDiff.toDouble() + newMin) // 비율에 따라 값 변환
 
             if(adjustedArr[i].isNaN()) {
                 adjustedArr[i] = 0.0
@@ -599,6 +607,34 @@ class ImageToolModule {
         })
     }
 
+    // 무한 반복 gif 설정
+    fun settingLoopGif(imageView: ImageView, imageId: Int){
+        Glide.with(imageView)
+            .asGif()
+            .load(imageId)
+            .listener(object : RequestListener<GifDrawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<GifDrawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
 
+                override fun onResourceReady(
+                    resource: GifDrawable?,
+                    model: Any?,
+                    target: Target<GifDrawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    resource?.setLoopCount(GifDrawable.LOOP_FOREVER)
+                    return false
+                }
+
+            })
+            .into(imageView)
+    }
 
 }

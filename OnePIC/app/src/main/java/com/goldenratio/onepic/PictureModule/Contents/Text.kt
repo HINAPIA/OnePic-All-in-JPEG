@@ -11,9 +11,9 @@ class Text (_data : String, _Content_attribute: ContentAttribute) {
     init {
         data = _data
         contentAttribute = _Content_attribute
-        Log.d("Picture Module",
-            "[create Text]")
     }
 
-
+    override fun toString(): String {
+        return "[Text] data : ${data}"
+    }
 }

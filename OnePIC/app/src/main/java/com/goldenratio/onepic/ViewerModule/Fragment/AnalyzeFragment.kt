@@ -1,6 +1,7 @@
 package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
@@ -31,15 +32,14 @@ import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
+import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.lang.Runnable
 
 
 @SuppressLint("LongLogTag")
@@ -307,6 +307,7 @@ class AnalyzeFragment : Fragment() {
 
             val iStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
             var sourceByteArray = getBytes(iStream!!)
+            System.gc()
 
             val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
             imageContent.checkPictureList = false
@@ -331,13 +332,16 @@ class AnalyzeFragment : Fragment() {
         var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
 
         if (pictureList != null) {
-
             CoroutineScope(Dispatchers.IO).launch {
                 val pictureByteArrayList = mutableListOf<ByteArray>()
                 for (picture in pictureList){
                     val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
                     pictureByteArrayList.add(pictureByteArr!!)
                 } // end of for..
+
+//                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(pictureList[0])
+//                    pictureByteArrayList.add(pictureByteArr!!)
+
                 jpegViewModel.setpictureByteArrList(pictureByteArrayList)
                 CoroutineScope(Dispatchers.Main).launch{
                     isFinished.value = true
@@ -369,26 +373,42 @@ class AnalyzeFragment : Fragment() {
         }
     }
 
+
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
         val byteBuffer = ByteArrayOutputStream()
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
         var len = 0
-        while (inputStream.read(buffer).also { len = it } != -1) {
+
+//        val activityManager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+//        val memoryInfo = ActivityManager.MemoryInfo()
+//        activityManager.getMemoryInfo(memoryInfo)
+//
+//        val availableMemory = memoryInfo.availMem
+//        Log.d("analyzeByteArray","Available memory: $availableMemory bytes")
+
+        while (inputStream.read(buffer, 0, bufferSize).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
+        byteBuffer.flush()
         byteBuffer.close()
         inputStream.close()
+
+        val currentSize = byteBuffer.size()
+        Log.d("analyzeByteArray","Current byteBuffer size: $currentSize bytes")
         return byteBuffer.toByteArray()
     }
 
     fun backPressed(){
+
+        jpegViewModel.jpegMCContainer.value!!.imageContent.resetBitmap()
+
         jpegViewModel.jpegMCContainer.value!!.init()
         handler.removeCallbacksAndMessages(null)
         val bundle = Bundle()
         bundle.putInt("currentPosition",currentPosition!!)
-        findNavController().navigate(R.id.action_analyzeFragment_to_basicViewerFragment,bundle)
+        findNavController().navigate(R.id.action_analyzeFragment_to_galleryFragment,bundle)
     }
 
 }

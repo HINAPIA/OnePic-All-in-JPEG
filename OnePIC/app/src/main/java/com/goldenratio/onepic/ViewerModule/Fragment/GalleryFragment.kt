@@ -9,17 +9,23 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavOptions
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
+import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.GridAdapter
-import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
+import com.goldenratio.onepic.ViewerModule.Adapter.RecyclerViewGridAdapter
 import com.goldenratio.onepic.databinding.FragmentGalleryBinding
 
 
@@ -29,8 +35,10 @@ class GalleryFragment : Fragment() {
 
     private lateinit var binding: FragmentGalleryBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
-    private lateinit var gridAdapter: GridAdapter
-
+    private var imageTool = ImageToolModule()
+//    private lateinit var gridAdapter: GridAdapter
+    private lateinit var recyclerViewAdapter:RecyclerViewGridAdapter
+    private var currentPosition = MutableLiveData(0) // 매직픽쳐 관련 작업 수행 완료
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -49,9 +57,38 @@ class GalleryFragment : Fragment() {
 
         binding = FragmentGalleryBinding.inflate(inflater, container, false)
 
-        gridAdapter = GridAdapter(this, requireContext())
-        gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
+        val curr = arguments?.getInt("currentPosition")
+        if (curr != null) {
+            currentPosition.value = curr
+        }
 
+        currentPosition.observe(viewLifecycleOwner){ position ->
+            if (position != null){
+                val value = jpegViewModel.imageUriLiveData.value!!.get(position)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    Glide.with(this)
+                        .load(value)
+                        .into(binding.selectedImageView)
+                }
+                else {
+                    Glide.with(this)
+                        .load(imageTool.getUriFromPath(this.requireContext(),value))
+                        .into(binding.selectedImageView)
+                }
+            }
+        }
+
+//        gridAdapter = GridAdapter(this, requireContext(),currentPosition)
+//        gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
+
+
+        val recyclerView: RecyclerView = binding.recyclerView
+        val layoutManager = GridLayoutManager(this.requireContext(), 4) // 4열의 그리드 레이아웃
+        recyclerView.layoutManager = layoutManager
+
+        recyclerViewAdapter = RecyclerViewGridAdapter(this.requireContext(), currentPosition)
+        recyclerViewAdapter.setItem(jpegViewModel.imageUriLiveData.value!!)
+        recyclerView.adapter = recyclerViewAdapter
 
         return binding.root
     }
@@ -61,8 +98,8 @@ class GalleryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         Log.d("OnViewCreated",": gallery fragment")
-        binding.gridView.numColumns = 3 // 갤러리 이미지 3개씩 보이기
-        binding.gridView.adapter = gridAdapter
+//        binding.gridView.numColumns = 4 // 갤러리 이미지 4개씩 보이기
+//        binding.gridView.adapter = gridAdapter
 
         ViewerFragment.currentFilePath = ""
         BasicViewerFragment.currentFilePath =""
@@ -71,18 +108,47 @@ class GalleryFragment : Fragment() {
 
             if (jpegViewModel.imageUriLiveData.value!!.size == 0){ // 갤러리에 이미지가 아무것도 없을 때
                 binding.emptyLinearLayout.visibility = View.VISIBLE
-                binding.gridView.visibility = View.GONE
+//                binding.gridView.visibility = View.GONE
+                binding.recyclerView.visibility = View.GONE
             }
             else {
                 binding.emptyLinearLayout.visibility = View.GONE
-                binding.gridView.visibility = View.VISIBLE
+//                binding.gridView.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.VISIBLE
             }
 
-            gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
+            //gridAdapter.setItems(jpegViewModel.imageUriLiveData.value!!)
+            recyclerViewAdapter.setItem(jpegViewModel.imageUriLiveData.value!!)
         }
 
         binding.backBtn.setOnClickListener{ //Camera Activity로 이동
           backPressed()
+        }
+
+        binding.selectedImageView.setOnClickListener{
+            if (binding.analyzeBtn.visibility == View.VISIBLE){
+                binding.analyzeBtn.visibility = View.INVISIBLE
+            }
+            else {
+                binding.analyzeBtn.visibility = View.VISIBLE
+            }
+        }
+
+        binding.analyzeBtn.setOnClickListener{
+            val bundle = Bundle()
+            bundle.putInt("currentPosition",currentPosition.value!!)
+            this.findNavController().navigate(R.id.action_galleryFragment_to_analyzeFragment,bundle)
+        }
+
+//        binding.gridView.post {
+//            if (currentPosition.value != null){
+//                val firstItemView = binding.gridView[currentPosition.value!!]
+//                firstItemView?.performClick()
+//            }
+//        }
+
+        binding.recyclerView.post {
+            recyclerViewAdapter.performClickOnItem(currentPosition.value!!)
         }
 
     }

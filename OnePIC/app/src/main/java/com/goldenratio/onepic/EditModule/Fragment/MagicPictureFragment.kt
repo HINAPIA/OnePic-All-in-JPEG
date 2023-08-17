@@ -17,7 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
-import com.goldenratio.onepic.EditModule.RewindModule
+import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.Picture
@@ -28,7 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MagicPictureFragment : RewindFragment() {
+class MagicPictureFragment : FaceBlendingFragment() {
 
     private lateinit var binding: FragmentMagicPictureBinding
 
@@ -80,7 +80,7 @@ class MagicPictureFragment : RewindFragment() {
         imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
-        rewindModule = RewindModule()
+        faceDetectionModule = FaceDetectionModule()
 
         while (!imageContent.checkPictureList) {}
 
@@ -114,7 +114,7 @@ class MagicPictureFragment : RewindFragment() {
                 }
                 bitmapList = newBitmapList
 
-                rewindModule.allFaceDetection(bitmapList)
+                faceDetectionModule.allFaceDetection(bitmapList)
 
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
@@ -217,7 +217,7 @@ class MagicPictureFragment : RewindFragment() {
                     showProgressBar(true, LoadingText.MagicCreate)
                     CoroutineScope(Dispatchers.IO).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
-                        while (!rewindModule.getCheckFaceDetection()) {
+                        while (!faceDetectionModule.getCheckFaceDetection()) {
                         }
                         Log.d("magic", "getCheckFaceDetection")
 
@@ -320,7 +320,7 @@ class MagicPictureFragment : RewindFragment() {
 
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("magic", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
-            val faceResult = rewindModule.runFaceDetection(0)
+            val faceResult = faceDetectionModule.runFaceDetection(0)
 
             Log.d("magic", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
@@ -544,7 +544,7 @@ class MagicPictureFragment : RewindFragment() {
     override fun changeMainView(bitmap: Bitmap) {
         if(selectFaceRect != null) {
             CoroutineScope(Dispatchers.IO).launch {
-                val faceResult = rewindModule.runFaceDetection(0)
+                val faceResult = faceDetectionModule.runFaceDetection(0)
                 var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
                 resultBitmap = imageToolModule.drawDetectionResult(resultBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
                 binding.mainView.setImageBitmap(resultBitmap)
