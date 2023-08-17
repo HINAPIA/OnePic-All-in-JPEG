@@ -38,18 +38,14 @@ class CenterView (imageViewer : ImageViewer) : View(){
     val subImagesView : SubImagesView = SubImagesView(this)
     val mainImageView: ImageView =ImageView()
 
-   // val analysisButton = Button()
     var analysisButton : ImageView = ImageView()
     var analysisLabels : VBox = VBox()
-    var backgroudView : VBox = VBox()
     var analysisContent : Label = Label()
 
-    val rightImageView: ImageView = ImageView()
     val gifImageVeiew : ImageView = ImageView()
     var isAnalsys : Boolean = false
 
     val imageSourcePath = "src/main/kotlin/com/example/demo/resource/"
-    val fontSourcePath = "src/main/kotlin/com/example/demo/resource/font/"
 
     lateinit var preAnalsImage : Image
     lateinit var analsImage : Image
@@ -238,16 +234,6 @@ class CenterView (imageViewer : ImageViewer) : View(){
         gifImageVeiew.fitWidth = 100.0
         gifImageVeiew.isPreserveRatio = true
         StackPane.setMargin(gifImageVeiew, Insets(0.0, 0.0, 230.0, 00.0))
-
-//        backgroudView.apply {
-//            setMaxSize(330.0, 330.0)
-//            isVisible = false
-//            style{
-//                // 둥글게
-//                paddingAll = 5.0
-//                background = Background(BackgroundFill(Color.web("#000000BE"), CornerRadii(10.0), Insets.EMPTY))
-//            }
-//        }
 
         //file name label
         fileNameLabel.apply{

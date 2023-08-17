@@ -4,7 +4,6 @@ export default class AudioContentInfo {
         this.dataStartOffset = 0;
         this.datasize = 0;
         this.attribute = 0;
-        
         this.FIELD_SIZE = 4;
         this.XOA_MARKER_SIZE = 2;
 
