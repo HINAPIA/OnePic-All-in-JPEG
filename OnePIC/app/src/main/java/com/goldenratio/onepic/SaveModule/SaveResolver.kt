@@ -48,9 +48,9 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
+//            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
 //            saveByteArray.value = resultByteArray
-//            saveJPEG(resultByteArray, isSaved)
+            saveJPEG(resultByteArray, isSaved)
         } else {
             // Q 버전 미만일 경우. (안드로이드 10, API 29 미만일 경우)
             lowSDKVersionSave()
