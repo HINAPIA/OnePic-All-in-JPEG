@@ -19,8 +19,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.ImageToolModule
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentMagicPictureBinding
 import kotlinx.coroutines.CoroutineScope
@@ -77,7 +77,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         faceDetectionModule = FaceDetectionModule()
@@ -86,7 +86,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
         // magic 가능한 연속 사진 속성의 picture list 얻음
         pictureList =
-            jpegViewModel.jpegMCContainer.value!!.getPictureList(ContentAttribute.burst)
+            jpegViewModel.jpegAiContainer.value!!.getPictureList(ContentAttribute.burst)
 
 //        imageToolModule.showView(binding.progressBar, true)
         showProgressBar(true, LoadingText.FaceDetection)

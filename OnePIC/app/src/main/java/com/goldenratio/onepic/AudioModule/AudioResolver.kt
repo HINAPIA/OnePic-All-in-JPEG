@@ -9,16 +9,14 @@ import android.os.Environment
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.goldenratio.onepic.PictureModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AudioResolver(val context : Context) {

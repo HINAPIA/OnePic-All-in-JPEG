@@ -21,9 +21,9 @@ import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.databinding.FragmentRewindBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
@@ -96,7 +96,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
         // 뷰 바인딩 설정
         binding = FragmentRewindBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
         imageToolModule = ImageToolModule()
         faceDetectionModule = FaceDetectionModule()

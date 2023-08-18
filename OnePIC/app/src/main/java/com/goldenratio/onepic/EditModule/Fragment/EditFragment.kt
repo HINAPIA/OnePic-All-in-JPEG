@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -37,12 +36,12 @@ import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
 import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.PictureModule.AudioContent
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
-import com.goldenratio.onepic.PictureModule.MCContainer
-import com.goldenratio.onepic.PictureModule.TextContent
+import com.goldenratio.onepic.AllinJPEGModule.AudioContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
+import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
@@ -189,14 +188,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         CoroutineScope(Dispatchers.Default).launch {
             loadResolver = LoadResolver()
             // Content 설정
-            imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+            imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
             val selected = jpegViewModel.selectedSubImage
             if(selected != null)
                 magicPictureModule = MagicPictureModule(imageContent, selected)
 //        imageContent.setMainBitmap(null)
-            textContent = jpegViewModel.jpegMCContainer.value!!.textContent
-            audioContent = jpegViewModel.jpegMCContainer.value!!.audioContent
+            textContent = jpegViewModel.jpegAiContainer.value!!.textContent
+            audioContent = jpegViewModel.jpegAiContainer.value!!.audioContent
 
             // picture 리스트 만들어질때까지
             while (!imageContent.checkPictureList) { }
@@ -345,7 +344,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         /* 오디오 */
         // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
         var savedFile : File? = null
-        jpegViewModel.jpegMCContainer.value!!.audioContent.audio?._audioByteArray?.let {
+        jpegViewModel.jpegAiContainer.value!!.audioContent.audio?._audioByteArray?.let {
             savedFile = audioResolver.saveByteArrToAacFile(
                 it, "original"
             )
@@ -377,8 +376,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         binding.extractJpegBtn.setOnClickListener {
             // 한 장으로 저장 추출
             val currentImage = jpegViewModel.selectedSubImage
-            jpegViewModel.jpegMCContainer.value!!.saveResolver.singleImageSave(currentImage!!)
             CoroutineScope(Dispatchers.Main).launch {
+
+                jpegViewModel.jpegAiContainer.value!!.saveResolver.singleImageSave(currentImage!!)
                 Toast.makeText(activity, "사진이 저장 되었습니다.", Toast.LENGTH_SHORT).show();
             }
 
@@ -545,7 +545,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         CoroutineScope(Dispatchers.Main).launch {
                             imageContent.checkPictureList = false
                             val job = async {
-                                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
+                                loadResolver.createMCContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
                             job.await()
 
                             while(!imageContent.checkPictureList) {}
@@ -614,7 +614,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 CoroutineScope(Dispatchers.IO).launch {
                     jpegViewModel.currentFileName = fileName
                     // 기존 파일 삭제
-                    jpegViewModel.jpegMCContainer.value?.saveResolver?.deleteImage(fileName)
+                    jpegViewModel.jpegAiContainer.value?.saveResolver?.deleteImage(fileName)
                     var i =0
                     while (!JpegViewModel.isUserInentFinish) {
                         Log.d("save_test", "${i++}")
@@ -622,7 +622,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     }
                     JpegViewModel.isUserInentFinish = false
                     System.gc()
-                    jpegViewModel.jpegMCContainer.value?.overwiteSave(fileName)
+                    jpegViewModel.jpegAiContainer.value?.overwiteSave(fileName)
                     Thread.sleep(3000)
                     Log.d("save_test", "뷰어로 넘어가기")
                     setButtonDeactivation()
@@ -678,7 +678,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 녹음 내역 저장
             if(tempAudioFile != null){
                 saveAudioInMCContainer(tempAudioFile!!)
-                jpegViewModel.jpegMCContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
+                jpegViewModel.jpegAiContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
                     audioResolver.saveByteArrToAacFile(
                         it1, "viewer_record")
                 }
@@ -765,7 +765,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun setCurrentPictureByteArrList() {
-        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
+        var pictureList = jpegViewModel.jpegAiContainer.value?.getPictureList()
 
         if (pictureList != null) {
 
@@ -773,7 +773,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 val pictureByteArrayList = mutableListOf<ByteArray>()
                 for (picture in pictureList) {
                     val pictureByteArr =
-                        jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+                        jpegViewModel.jpegAiContainer.value?.imageContent?.getJpegBytes(picture)
                     pictureByteArrayList.add(pictureByteArr!!)
                 } // end of for..
                 jpegViewModel.setpictureByteArrList(pictureByteArrayList)
@@ -1052,7 +1052,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             if(uriList.size > 0) {
                 checkAllInJPEG()
                 val currentImageContent = imageContent
-                val jpegMCContainer = MCContainer(requireActivity())
+                val jpegAiContainer = AiContainer(requireActivity())
                 for(i in 0 until uriList.size) {
                     val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
                     val sourceByteArray = imageToolModule.getBytes(iStream!!)
@@ -1073,10 +1073,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     }
                     CoroutineScope(Dispatchers.Main).launch {
                         Log.d("tesetTest", "j : [${i}]")
-                        loadResolver.createMCContainer(jpegMCContainer, sourceByteArray)
-                        while (!jpegMCContainer.imageContent.checkPictureList) {
+                        loadResolver.createMCContainer(jpegAiContainer, sourceByteArray)
+                        while (!jpegAiContainer.imageContent.checkPictureList) {
                         }
-                        val newPictureList = jpegMCContainer.imageContent.pictureList
+                        val newPictureList = jpegAiContainer.imageContent.pictureList
 //
                         for (j in 0 until newPictureList.size) {
                             newPictureList[j].embeddedData = null
@@ -1093,7 +1093,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                 CoroutineScope(Dispatchers.Default).launch {
                                     imageContent.addBitmapList(
                                         imageToolModule.byteArrayToBitmap(
-                                            jpegMCContainer.imageContent.getJpegBytes(newPictureList[j])
+                                            jpegAiContainer.imageContent.getJpegBytes(newPictureList[j])
                                         )
                                     )
                                 }
@@ -1975,7 +1975,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     fun saveAudioInMCContainer(savedFile : File){
         //MC Container에 추가
         var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
-        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+        jpegViewModel.jpegAiContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
     }
     fun playinAudioUIStart(_time : Int, ){
         if(playingTimerTask != null)
@@ -2118,7 +2118,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             checkAllInJPEG()
         }
         // text 입력 UI에 기존의 텍스트 메시지 띄우기
-        var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+        var textList = jpegViewModel.jpegAiContainer.value!!.textContent.textList
         if(textList != null && textList.size !=0){
             val _text = textList.get(0).data.toString()
             binding.editText.setText(textList.get(0).data)
@@ -2132,7 +2132,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         textList.add(textMessage)
         if (textMessage != "") {
-            jpegViewModel.jpegMCContainer.value!!.setTextConent(
+            jpegViewModel.jpegAiContainer.value!!.setTextConent(
                 ContentAttribute.basic,
                 textList
             )

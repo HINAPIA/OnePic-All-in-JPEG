@@ -2,10 +2,11 @@ package com.goldenratio.onepic.PictureModule
 
 
 //import com.goldenratio.onepic.AudioModule.AudioResolver
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.ContentType
-import com.goldenratio.onepic.PictureModule.Contents.Picture
 
 
 class AiContainer() {

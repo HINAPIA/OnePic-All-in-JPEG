@@ -1,4 +1,4 @@
-
+import TextInfo from './TextInfo.js'
 export default class TextContentInfo {
     constructor(textContent, startOffset) {
         this.contentInfoSize = 0;
