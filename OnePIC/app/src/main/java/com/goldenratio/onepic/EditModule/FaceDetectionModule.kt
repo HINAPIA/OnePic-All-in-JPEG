@@ -48,7 +48,7 @@ class FaceDetectionModule() {
     }
 
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
-        Log.d("faceRewind", "allFaceDetection call")
+        Log.d("faceBlending", "allFaceDetection call")
         checkFaceDetectionCall = true
         checkFaceDetection = false
 

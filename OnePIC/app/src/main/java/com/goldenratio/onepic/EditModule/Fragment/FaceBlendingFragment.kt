@@ -24,15 +24,15 @@ import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AllinJPEGModule.ImageContent
-import com.goldenratio.onepic.databinding.FragmentRewindBinding
+import com.goldenratio.onepic.databinding.FragmentFaceBlendingBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
-open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
+open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
-    private lateinit var binding: FragmentRewindBinding
+    private lateinit var binding: FragmentFaceBlendingBinding
 
     protected lateinit var imageToolModule: ImageToolModule
     protected lateinit var faceDetectionModule: FaceDetectionModule
@@ -78,7 +78,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
         FaceDetection,
         Save,
         Change,
-        AutoRewind
+        AutoBlending
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -94,7 +94,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
         window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
 
         // 뷰 바인딩 설정
-        binding = FragmentRewindBinding.inflate(inflater, container, false)
+        binding = FragmentFaceBlendingBinding.inflate(inflater, container, false)
 
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
@@ -104,8 +104,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 //        imageToolModule.showView(binding.progressBar, true)
 //        imageToolModule.showView(binding.loadingText, true)
 //        showProgressBar(true, LoadingText.FaceDetection)
-        showProgressBar(true, LoadingText.AutoRewind)
-        imageToolModule.showView(binding.rewindMenuLayout, false)
+        showProgressBar(true, LoadingText.AutoBlending)
+        imageToolModule.showView(binding.blendingMenuLayout, false)
 
         while(!imageContent.checkPictureList) {}
 
@@ -132,10 +132,10 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 
         }
         CoroutineScope(Dispatchers.IO).launch {
-            // rewind 가능한 연속 사진 속성의 picture list 얻음
-            Log.d("faceRewind", "newBitmapList call before")
+            // Blending 가능한 연속 사진 속성의 picture list 얻음
+            Log.d("faceBlending", "newBitmapList call before")
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-            Log.d("faceRewind", "newBitmapList $newBitmapList")
+            Log.d("faceBlending", "newBitmapList $newBitmapList")
             if (newBitmapList != null) {
                 bitmapList = newBitmapList
 
@@ -169,7 +169,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
     @SuppressLint("ClickableViewAccessibility")
     fun SetClickEvent() {
         // save btn 클릭 시
-        binding.rewindSaveBtn.setOnClickListener {
+        binding.blendingSaveBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
@@ -207,7 +207,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 //                imageContent.setMainBitmap(selectBitmap)
                 withContext(Dispatchers.Main) {
                     //jpegViewModel.jpegMCContainer.value?.save()
-                    imageContent.checkRewind = true
+                    imageContent.checkBlending = true
                     findNavController().navigate(R.id.action_fregemnt_to_editFragment)
                 }
 
@@ -217,7 +217,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
         }
 
         // close btn 클릭 시
-        binding.rewindCloseBtn.setOnClickListener {
+        binding.blendingCloseBtn.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_fregemnt_to_editFragment)
             } catch (e: IllegalArgumentException) {
@@ -225,8 +225,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
             }
         }
 
-        // autoRewind 클릭시
-        binding.autoRewindBtn.setOnClickListener {
+        // autoBlending 클릭시
+        binding.autoBlendingBtn.setOnClickListener {
 
             CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
@@ -236,8 +236,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 
 //            imageToolModule.showView(binding.progressBar, true)
             imageToolModule.showView(binding.arrowBar, false)
-            imageToolModule.showView(binding.rewindMenuLayout, false)
-            showProgressBar(true, LoadingText.AutoRewind)
+            imageToolModule.showView(binding.blendingMenuLayout, false)
+            showProgressBar(true, LoadingText.AutoBlending)
             binding.candidateLayout.removeAllViews()
 
             if (bitmapList.size != 0) {
@@ -250,13 +250,13 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
                     withContext(Dispatchers.Main) {
                         imageToolModule.fadeIn.start()
                     }
-                    imageToolModule.showView(binding.rewindMenuLayout, true)
+                    imageToolModule.showView(binding.blendingMenuLayout, true)
                     showProgressBar(false, null)
 
                 }
             }
             else {
-                imageToolModule.showView(binding.rewindMenuLayout, true)
+                imageToolModule.showView(binding.blendingMenuLayout, true)
                 showProgressBar(false, null)
             }
         }
@@ -294,7 +294,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
         }
 
         // info 확인
-        binding.rewindInfoBtn.setOnClickListener {
+        binding.blendingInfoBtn.setOnClickListener {
             isInfoViewed = true
             imageToolModule.showView(binding.infoDialogLayout, true)
         }
@@ -316,7 +316,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
                 if (!isSelected) {
 //                imageToolModule.showView(binding.progressBar, true)
                     showProgressBar(true, LoadingText.Change)
-                    imageToolModule.showView(binding.rewindMenuLayout, false)
+                    imageToolModule.showView(binding.blendingMenuLayout, false)
 
 //                    if (PreSelectBitmap != null) {
 //                        selectBitmap = PreSelectBitmap!!
@@ -363,9 +363,9 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
             }
 
             binding.mainView.setImageBitmap(selectBitmap)
-            imageToolModule.showView(binding.faceRewindMenuLayout, false)
-            imageToolModule.showView(binding.rewindSaveBtn, true)
-            imageToolModule.showView(binding.rewindCloseBtn, true)
+            imageToolModule.showView(binding.faceBlendingMenuLayout, false)
+            imageToolModule.showView(binding.blendingSaveBtn, true)
+            imageToolModule.showView(binding.blendingCloseBtn, true)
             setMainImageBoundingBox()
         }
 
@@ -376,9 +376,9 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
             PreSelectBitmap = null
 
             binding.mainView.setImageBitmap(selectBitmap)
-            imageToolModule.showView(binding.faceRewindMenuLayout, false)
-            imageToolModule.showView(binding.rewindSaveBtn, true)
-            imageToolModule.showView(binding.rewindCloseBtn, true)
+            imageToolModule.showView(binding.faceBlendingMenuLayout, false)
+            imageToolModule.showView(binding.blendingSaveBtn, true)
+            imageToolModule.showView(binding.blendingCloseBtn, true)
             setMainImageBoundingBox()
         }
     }
@@ -422,7 +422,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
                         .show()
 //                        imageToolModule.showView(binding.progressBar, false)
                         showProgressBar(false, null)
-                        imageToolModule.showView(binding.rewindMenuLayout, true)
+                        imageToolModule.showView(binding.blendingMenuLayout, true)
                     } catch (e: IllegalStateException) {
                         println(e.message)
                     }
@@ -443,7 +443,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 //            imageToolModule.showView(binding.progressBar, false)
             showProgressBar(false, null)
 
-            imageToolModule.showView(binding.rewindMenuLayout, true)
+            imageToolModule.showView(binding.blendingMenuLayout, true)
 
         }
     }
@@ -537,9 +537,9 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
-        imageToolModule.showView(binding.faceRewindMenuLayout, true)
-        imageToolModule.showView(binding.rewindSaveBtn, false)
-        imageToolModule.showView(binding.rewindCloseBtn, false)
+        imageToolModule.showView(binding.faceBlendingMenuLayout, true)
+        imageToolModule.showView(binding.blendingSaveBtn, false)
+        imageToolModule.showView(binding.blendingCloseBtn, false)
         isSelected = true
         changeMainView(selectBitmap)
 
@@ -577,7 +577,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
 
                 // 자른 사진 이미지뷰에 붙이기
                 cropImageView.setImageBitmap(cropImage)
-                // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (rewind)
+                // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (face Blending)
                 cropImageView.setOnClickListener {
 
                         mainSubView?.background = null
@@ -697,7 +697,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_rewind) {
                 LoadingText.Save -> {
                     "편집 저장 중.."
                 }
-                LoadingText.AutoRewind -> {
+                LoadingText.AutoBlending -> {
                     "최적의 Blending 사진 제작 중.."
                 }
                 else -> {

@@ -211,7 +211,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             // 만약 편집을 했다면 저장 버튼이 나타나게 설정
-            if (imageContent.checkMainChanged || imageContent.checkRewind ||
+            if (imageContent.checkMainChanged || imageContent.checkBlending ||
                 imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
             ) {
                 imageToolModule.showView(binding.saveBtn, true)
@@ -280,20 +280,20 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         if(pictureList.size <= 1) {
             CoroutineScope(Dispatchers.Main).launch {
                 binding.bestMainBtn.visibility = View.GONE
-                binding.rewindBtn.visibility = View.GONE
+                binding.blendingBtn.visibility = View.GONE
                 binding.magicBtn.visibility = View.GONE
             }
         } else {
             CoroutineScope(Dispatchers.Main).launch {
                 binding.bestMainBtn.visibility = View.VISIBLE
-                binding.rewindBtn.visibility = View.VISIBLE
+                binding.blendingBtn.visibility = View.VISIBLE
                 binding.magicBtn.visibility = View.VISIBLE
             }
 
             if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.bestMainBtn.visibility = View.GONE
-                    binding.rewindBtn.visibility = View.GONE
+                    binding.blendingBtn.visibility = View.GONE
                     binding.magicBtn.visibility = View.GONE
                 }
             }
@@ -304,8 +304,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Rewind 버튼 클릭 이벤트 리스너 등록
-        binding.rewindBtn.setOnClickListener {
+        // Blending 버튼 클릭 이벤트 리스너 등록
+        binding.blendingBtn.setOnClickListener {
             // FaceBlendingFragment로 이동
             findNavController().navigate(R.id.action_editFragment_to_FaceBlendingFragment)
         }
@@ -515,7 +515,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
 
             // 변경된 편집이 있을 경우 확인 창 띄우기
-            if (imageContent.checkMainChanged || imageContent.checkRewind ||
+            if (imageContent.checkMainChanged || imageContent.checkBlending ||
                 imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
             ) {
                 val oDialog: AlertDialog.Builder = AlertDialog.Builder(
@@ -736,7 +736,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // binding.constraintLayout.visibility = View.INVISIBLE
 
 //            binding.bestMainBtn.visibility = View.GONE
-//            binding.rewindBtn.visibility = View.GONE
+//            binding.blendingBtn.visibility = View.GONE
 //            binding.magicBtn.visibility = View.GONE
 
             // 오디오 비활성화
@@ -757,7 +757,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         imageContent.resetBitmap()
 
         imageContent.checkAdded = false
-        imageContent.checkRewind = false
+        imageContent.checkBlending = false
         imageContent.checkMagicCreated = false
         imageContent.checkMainChanged = false
         imageContent.checkEditChanged = false
@@ -796,7 +796,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                "모두 저장",
 //                DialogInterface.OnClickListener { dialog, which ->
 //                    imageTool.showView(binding.progressBar, true)
-//                    if (!imageContent.checkMagicCreated || !imageContent.checkRewind) {
+//                    if (!imageContent.checkMagicCreated || !imageContent.checkBlending) {
 //                        val mainPicture = imageContent.mainPicture
 //                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
 //                        imageContent.insertPicture(0, mainPicture)

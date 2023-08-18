@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/faceRewindMenuLayout"
+        android:id="@+id/faceBlendingMenuLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.7"
@@ -52,7 +52,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/rewindCloseBtn"
+            android:id="@+id/blendingCloseBtn"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@color/transparent_color"
@@ -68,23 +68,23 @@
 
 
         <TextView
-            android:id="@+id/rewindOption"
+            android:id="@+id/blendingOption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/rewind"
+            android:text="@string/blending"
             android:textColor="@color/point_color"
             android:textSize="19dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
-            app:layout_constraintEnd_toStartOf="@+id/rewindSaveBtn"
+            app:layout_constraintEnd_toStartOf="@+id/blendingSaveBtn"
             app:layout_constraintHorizontal_bias="0.46"
-            app:layout_constraintStart_toEndOf="@+id/rewindCloseBtn"
+            app:layout_constraintStart_toEndOf="@+id/blendingCloseBtn"
             app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
         <ImageButton
-            android:id="@+id/rewindSaveBtn"
+            android:id="@+id/blendingSaveBtn"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@color/transparent_color"
@@ -142,18 +142,18 @@
             app:layout_constraintGuide_percent="0.87" />
 
         <ImageButton
-            android:id="@+id/rewindInfoBtn"
+            android:id="@+id/blendingInfoBtn"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="8dp"
             android:background="@color/transparent_color"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/rewindSaveBtn"
+            app:layout_constraintEnd_toStartOf="@+id/blendingSaveBtn"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/rewindOption"
+            app:layout_constraintStart_toEndOf="@+id/blendingOption"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/info_icon"
+            app:srcCompat="@drawable/edit_info_icon"
             app:tint="@color/info_color" />
 
 
@@ -311,17 +311,17 @@
         </FrameLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/rewindMenuLayout"
+            android:id="@+id/blendingMenuLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="10dp"
             android:layout_weight="1">
 
             <Button
-                android:id="@+id/autoRewindBtn"
+                android:id="@+id/autoBlendingBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:backgroundTint="@color/rewind_button_color"
+                android:backgroundTint="@color/blending_button_color"
                 android:includeFontPadding="false"
                 android:text="@string/auto_option"
                 android:textAllCaps="false"

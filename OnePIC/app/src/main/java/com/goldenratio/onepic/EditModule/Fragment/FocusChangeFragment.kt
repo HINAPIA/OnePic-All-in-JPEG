@@ -131,7 +131,7 @@ class FocusChangeFragment : Fragment() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            // blending 가능한 연속 사진 속성의 picture list 얻음
             Log.d("focus", "newBitmapList call before")
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
             Log.d("focus", "newBitmapList $newBitmapList")
@@ -498,7 +498,7 @@ class FocusChangeFragment : Fragment() {
 //                LoadingText.Save -> {
 //                    "편집을 저장 중.."
 //                }
-//                LoadingText.AutoRewind -> {
+//                LoadingText.AutoBlending -> {
 //                    "최적의 Blending 사진 제작 중.."
 //                }
 //                else -> {

@@ -75,7 +75,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/focusOption"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/info_icon"
+        app:srcCompat="@drawable/edit_info_icon"
         app:tint="@color/info_color" />
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
