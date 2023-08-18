@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -16,10 +17,14 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.PictureModule.Contents.Picture
 import com.goldenratio.onepic.PictureModule.MCContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.*
 import java.nio.ByteBuffer
 
@@ -33,19 +38,21 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         mainActivity = _mainActivity
     }
 
-    fun save(): String {
+    fun save(isSaved: MutableLiveData<Uri>): String {
         var savedFile: String = ""
         var resultByteArray = MCContainerToBytes()
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName)
+//            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
+//            saveByteArray.value = resultByteArray
+            saveJPEG(resultByteArray, isSaved)
         } else {
             // Q 버전 미만일 경우. (안드로이드 10, API 29 미만일 경우)
             lowSDKVersionSave()
         }
-        return savedFile!!
+        return savedFile
     }
 
     fun overwriteSave(fileName: String): String {
@@ -54,7 +61,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName)
+            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, null)
         } else {
             lowSDKVersionSave()
         }
@@ -69,7 +76,11 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
     //Android Q (Android 10, API 29 이상에서는 이 메서드를 통해서 이미지를 저장한다.)
     @SuppressLint("Range", "Recycle")
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun saveImageOnAboveAndroidQ(byteArray: ByteArray, fileName: String): String {
+    fun saveImageOnAboveAndroidQ(
+        byteArray: ByteArray,
+        fileName: String,
+        isSaved: MutableLiveData<Uri>?
+    ): String {
         var result: Boolean = true
         var uri: Uri
 
@@ -78,10 +89,12 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ImageSave")
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+
         uri = mainActivity.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             values
         )!!
+
         ViewerFragment.currentFilePath = uri.toString()
 
         val outputStream: OutputStream? = uri?.let {
@@ -94,6 +107,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             Thread.sleep(100) // 약간의 딜레이
             outputStream.close()
         }
+
+        isSaved?.value = uri
         if (result) {
             return ""
         } else {
@@ -225,7 +240,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-            saveImageOnAboveAndroidQ(singleJpegBytes, fileName)
+            saveImageOnAboveAndroidQ(singleJpegBytes, fileName, null)
         } else {
             // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
             lowSDKVersionSave()
@@ -451,6 +466,31 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 permissionStorage,
                 requestExternalStorageCode
             )
+        }
+    }
+
+    fun saveJPEG(byteArray: ByteArray, isSaved: MutableLiveData<Uri>) {
+        val fileName = System.currentTimeMillis().toString() + ".jpg" // 현재 시간
+        val externalStorage = Environment.getExternalStorageDirectory().absolutePath
+        val path = "$externalStorage/DCIM/imageSave"
+        val dir = File(path)
+        if (dir.exists().not()) {
+            dir.mkdirs() // 폴더 없을경우 폴더 생성
+        }
+        try {
+            val fos = FileOutputStream("$dir/$fileName")
+            fos.write(byteArray) // ByteArray의 이미지 데이터를 파일에 쓰기
+            fos.close()
+
+            // 미디어 스캐닝을 통해 갤러리에 이미지를 등록
+            MediaScannerConnection.scanFile(mainActivity, arrayOf("$dir/$fileName"), null) { _, uri ->
+                // 미디어 스캐닝이 끝났을 때의 동작을 여기에 작성
+                CoroutineScope(Dispatchers.Main).launch {
+                    isSaved.value = uri
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 

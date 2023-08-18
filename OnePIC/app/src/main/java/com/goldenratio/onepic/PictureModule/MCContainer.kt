@@ -1,14 +1,15 @@
 package com.goldenratio.onepic.PictureModule
 
 import android.app.Activity
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepic.PictureModule.Contents.ContentType
 import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.Contents.Text
 import com.goldenratio.onepic.SaveModule.SaveResolver
 import kotlinx.coroutines.*
 
@@ -95,8 +96,8 @@ class MCContainer(_activity: Activity) {
     }
 
     //Container의 데이터를 파일로 저장
-     fun save() : String {
-        return saveResolver.save()
+     fun save(isSaved: MutableLiveData<Uri>): String {
+        return saveResolver.save(isSaved)
     }
 
     // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
