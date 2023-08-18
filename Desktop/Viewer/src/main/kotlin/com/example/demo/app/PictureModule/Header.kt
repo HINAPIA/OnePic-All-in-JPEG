@@ -1,8 +1,5 @@
 package com.goldenratio.onepic.PictureModule
 
-import com.goldenratio.camerax.PictureModule.Info.AudioContentInfo
-import com.goldenratio.camerax.PictureModule.Info.ImageContentInfo
-import com.goldenratio.camerax.PictureModule.Info.TextContentInfo
 import java.nio.ByteBuffer
 
 class Header(_MC_container : AiContainer) {

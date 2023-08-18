@@ -24,7 +24,7 @@ export default class Header {
     }
 
     settingHeaderInfo() {
-        this.imageContentInfo = new PictureContentInfo(this.AiContainer.imageContent);
+        this.imageContentInfo = new ImageContentInfo(this.AiContainer.imageContent);
         this.textContentInfo = new TextContentInfo(this.AiContainer.textContent, this.imageContentInfo.getEndOffset());
         this.audioContentInfo = new AudioContentInfo(this.AiContainer.audioContent, this.textContentInfo.getEndOffset());
         this.headerDataLength = this.getAPP3FieldLength();

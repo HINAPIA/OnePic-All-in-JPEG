@@ -19,35 +19,38 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
 
 
-class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
-    private var MCContainer: MCContainer
+class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
+    private var AiContainer: AiContainer
     private var mainActivity: Activity
 
     init {
-        MCContainer = _MC_Container
+        AiContainer = _MC_Container
         mainActivity = _mainActivity
     }
 
-    fun save(isSaved: MutableLiveData<Uri>): String {
+    suspend fun save(isSaved: MutableLiveData<Uri>): String {
+
         var savedFile: String = ""
-        var resultByteArray = MCContainerToBytes()
+        //var resultByteArray = MCContainerToBytes()
+        val resultByteArray = withContext(Dispatchers.Default) {
+            AiContainerToBytes()
+        }
+
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-//            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
+            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
 //            saveByteArray.value = resultByteArray
-            saveJPEG(resultByteArray, isSaved)
+//            saveJPEG(resultByteArray, isSaved)
         } else {
             // Q 버전 미만일 경우. (안드로이드 10, API 29 미만일 경우)
             lowSDKVersionSave()
@@ -55,9 +58,11 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         return savedFile
     }
 
-    fun overwriteSave(fileName: String): String {
+    suspend fun overwriteSave(fileName: String): String {
         var savedFile: String = ""
-        var resultByteArray = MCContainerToBytes()
+        var resultByteArray =  withContext(Dispatchers.Default) {
+            AiContainerToBytes()
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
@@ -214,10 +219,10 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         return fileItem.toString()
     }
 
-    fun singleImageSave(picture: Picture) {
+    suspend fun singleImageSave(picture: Picture) {
         val byteBuffer = ByteArrayOutputStream()
         var newJpegMetaData : ByteArray? = null
-        var jpegMetaData = MCContainer.imageContent.jpegMetaData
+        var jpegMetaData = AiContainer.imageContent.jpegMetaData
         newJpegMetaData = jpegMetaData
 
         // 메타 데이터 변경
@@ -225,7 +230,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             newJpegMetaData = jpegMetaData
         else{
             if(jpegMetaData != null){
-                newJpegMetaData = MCContainer.imageContent.chageMetaData(picture._app1Segment!!)
+                newJpegMetaData = AiContainer.imageContent.chageMetaData(picture._app1Segment!!)
             }
         }
 
@@ -235,7 +240,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         byteBuffer.write(0xd9)
 
         val singleJpegBytes = byteBuffer.toByteArray()
-        MCContainer.exploreMarkers(singleJpegBytes)
+        AiContainer.exploreMarkers(singleJpegBytes)
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -253,7 +258,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
         var findMarker : Boolean = false
         var lastAppMarkerOffset = 0
         var lastAppMarkerDataLength = 0
-        val SOFMarkerPosList = MCContainer.imageContent.getSOFMarkerPosList(jpegMetaData)
+        val SOFMarkerPosList = AiContainer.imageContent.getSOFMarkerPosList(jpegMetaData)
 
         while (pos < jpegMetaData.size -1) {
             // APP0
@@ -276,7 +281,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             lastAppMarkerDataLength = ((jpegMetaData[lastAppMarkerOffset + 2].toInt() and 0xFF) shl 8) or
                     ((jpegMetaData[lastAppMarkerOffset + 3].toInt() and 0xFF) shl 0)
 
-            //  APPn 데이터 크기가 없을 때
+            // APPn 데이터 크기가 없을 때
             if(lastAppMarkerOffset + 2 + lastAppMarkerDataLength > jpegMetaData.size || lastAppMarkerDataLength == 0){
                 // 마커의 크기만 지정
                 lastAppMarkerDataLength = -2
@@ -289,22 +294,22 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
 
     fun getApp3ExtensionByteData() : ByteArray{
         // APP3 info 클래스 데이터 초기화
-        MCContainer.settingHeaderInfo()
-        return MCContainer.convertHeaderToBinaryData()
+        AiContainer.settingHeaderInfo()
+        return AiContainer.convertHeaderToBinaryData()
     }
 
-    fun MCContainerToBytes(): ByteArray {
+    suspend fun AiContainerToBytes(): ByteArray = coroutineScope {
         // 순서는 이미지 > 텍스트 > 오디오
         val byteBuffer = ByteArrayOutputStream()
         //Jpeg Meta
-        var jpegMetaData = MCContainer.imageContent.jpegMetaData
+        var jpegMetaData = AiContainer.imageContent.jpegMetaData
 
         // 일반 JPEG으로 저장
         if (!JpegViewModel.AllInJPEG) {
             Log.d("save_test", "1. 일반 JPEG으로 저장하기")
             Log.d("save_test", "저장하는 메타데이터 사이즈 ${byteBuffer.size()}")
             byteBuffer.write(jpegMetaData, 0, jpegMetaData.size)
-            var picture = MCContainer.imageContent.getPictureAtIndex(0)
+            var picture = AiContainer.imageContent.getPictureAtIndex(0)
             byteBuffer.write(picture!!._pictureByteArray)
             byteBuffer.write(0xff)
             byteBuffer.write(0xd9)
@@ -333,8 +338,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
                 Log.d("save_test", "작성한 APP3 크기 : ${App3ExtensionData.size}")
                 Log.d("save_test", "나머지 메타 데이터 크기 : ${jpegMetaData.size - (lastAppMarkerOffset + lastAppMarkerDataLength + 4)}")
                 Log.d("save_test", "총 작성한 메타 데이터 크기 : ${byteBuffer.size()}")
-
             }
+
             else{
                 // APPn(0,1,2) 마커가 없음
                 byteBuffer.write(jpegMetaData, 0, 2)
@@ -353,8 +358,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             }
 
             // Imgaes Data write
-            for (i in 0..MCContainer.imageContent.pictureCount - 1) {
-                var picture = MCContainer.imageContent.getPictureAtIndex(i)
+            for (i in 0..AiContainer.imageContent.pictureCount - 1) {
+                var picture = AiContainer.imageContent.getPictureAtIndex(i)
                 //byteBuffer.write(/* b = */ picture!!._pictureByteArray)
                 if (i == 0) {
                     byteBuffer.write(/* b = */ picture!!._pictureByteArray)
@@ -371,8 +376,8 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             }
 
             // Text Data write
-            for (i in 0..MCContainer.textContent.textList.size - 1) {
-                var text = MCContainer.textContent.getTextAtIndex(i)
+            for (i in 0..AiContainer.textContent.textList.size - 1) {
+                var text = AiContainer.textContent.getTextAtIndex(i)
 
                 // XOT 마커
                 byteBuffer.write(0xff)
@@ -392,56 +397,23 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: MCContainer) {
             }
 
             // Audio Write
-            if (MCContainer.audioContent.audio != null) {
-                var audio = MCContainer.audioContent.audio
+            if (AiContainer.audioContent.audio != null) {
+                var audio = AiContainer.audioContent.audio
                 // XOI 마커
                 byteBuffer.write(0xff)
                 byteBuffer.write(0x30)
                 byteBuffer.write(/* b = */ audio!!._audioByteArray)
             }
         }
-        /* APP1뒤에 APP3를 쓰는 작업*/
-        // APP1 세그먼트의 시작 위치를 찾음
-        //var pos = 2
-//            var exifDataLength = 0
-//            while (pos < jpegMetaData.size - 1) {
-//                // APP1 마커가 존재하면
-//                if (jpegMetaData[pos] == 0xFF.toByte() && jpegMetaData[pos + 1] == 0xE1.toByte()) {
-//                    // APP1 데이터 크기 (마커 포함)
-//                    exifDataLength = ((jpegMetaData[pos + 2].toInt() and 0xFF) shl 8) or
-//                            ((jpegMetaData[pos + 3].toInt() and 0xFF) shl 0)
-//                    //SOI + APP1(EXIF) 쓰기 (4 -> 2로 고침)
-//                    byteBuffer.write(jpegMetaData, 0, 2 + exifDataLength)
-//                    break
-//                }
-//                pos++
-//            }
-//            // APP1 미존재
-//            if (pos == jpegMetaData.size - 1) {
-//                // SOI 쓰기
-//                byteBuffer.write(jpegMetaData, 0, 2)
-//            }
-        //byteBuffer.write(jpegMetaData,0,jpegMetaData.size)
-        //헤더 쓰기
-        //App3 Extension 데이터 생성
-//            MCContainer.settingHeaderInfo()
-//            var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
-//            byteBuffer.write(APP3ExtensionByteArray)
-//            //나머지 첫번째 사진의 메타 데이터 쓰기
-//            byteBuffer.write(
-//                jpegMetaData,
-//                2 + exifDataLength,
-//                jpegMetaData.size - (2 + exifDataLength)
-//            )
-
-
-        return byteBuffer.toByteArray()
+        return@coroutineScope byteBuffer.toByteArray()
     }
 
 
-    fun lowSDKVersionSave(){
+    suspend fun lowSDKVersionSave(){
         var savedFile: String = ""
-        var resultByteArray = MCContainerToBytes()
+        var resultByteArray = withContext(Dispatchers.Default) {
+            AiContainerToBytes()
+        }
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
         // Q 버전 이하일 경우. 저장소 권한을 얻어온다.

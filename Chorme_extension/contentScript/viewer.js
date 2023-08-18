@@ -1,6 +1,9 @@
 import AiContainer from './All-in-JPEG/AiContainer.js';
 import LoadResolver from './All-in-JPEG/LoadResolver.js';
+import { chageMainImagetoSelectedImage, extractBasicMetadata, extractAiMetadata } from './All-in-JPEG/ImageView.js';
 
+var aiContainer;
+var loadResolver;
 
 document.addEventListener("DOMContentLoaded", function(event) { // 웹 페이지의 DOM이 로드되면 실행되는 코드
   console.log("DOM is loaded");
@@ -26,11 +29,9 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
     .then(async byteArray => {
       if (byteArray) {
         console.log('Image Byte Array:', byteArray);
-        let aiContainer = new AiContainer();
-        let loadResolver = new LoadResolver();
+        aiContainer = new AiContainer();
+        loadResolver = new LoadResolver();
         await loadResolver.createAiContainer(aiContainer, byteArray);
-        
-
         // while(true){
         //   await new Promise(resolve => setTimeout(resolve, 1000));
         //   break;
@@ -42,6 +43,12 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         testPicture = aiContainer.imageContent.pictureList[2]
         const testImageElement2 = document.getElementById("sub_image2");
         testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
+      
+        addSubImageEvent();
+        console.log(await getBasicMetadata());
+        getAiMetadata();
+
+        aiContainer.playAudio();
       }
     });
 }
@@ -54,4 +61,24 @@ function getFileNameFromUrl(imageUrl) {
   return decodeURIComponent(fileName);
 }
 
-  
+// sub_image 클래스의 element를 클릭하면 메인 이미지 변경 리스너 추가
+function addSubImageEvent(){
+  var subImageElements = document.querySelectorAll('.sub_image');
+  subImageElements.forEach((element, i)=>{
+    element.addEventListener('click', (e) =>{
+      chageMainImagetoSelectedImage(e, aiContainer, i)
+    });
+  });
+}
+
+async function  getBasicMetadata(){
+  var firstImageBytes =
+  aiContainer.imageContent.getJpegBytes(aiContainer.imageContent.pictureList[0])
+
+  console.log(await extractBasicMetadata(firstImageBytes));
+ // console.log(jsonData);
+}
+
+function getAiMetadata(){
+  extractAiMetadata(aiContainer)
+}

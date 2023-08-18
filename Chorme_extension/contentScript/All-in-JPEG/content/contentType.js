@@ -16,7 +16,7 @@
     fromCode: function(code) {
         for (const attr in this) {
             if (this[attr].code === code) {
-                return this[attr];
+                return attr;
             }
         }
         return this.none;

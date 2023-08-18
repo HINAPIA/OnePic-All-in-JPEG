@@ -1,12 +1,10 @@
 package com.goldenratio.onepic.AudioModule
 
 import com.example.demo.view.SubImagesView
-import com.goldenratio.onepic.PictureModule.Contents.Audio
 import javafx.scene.layout.StackPane
 import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.scene.media.MediaView
-import javafx.util.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

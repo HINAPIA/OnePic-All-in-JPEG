@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dayjs": "^1.11.9",
+    "exif-js": "^2.3.0",
+    "exifr": "^7.1.3"
+  }
+}

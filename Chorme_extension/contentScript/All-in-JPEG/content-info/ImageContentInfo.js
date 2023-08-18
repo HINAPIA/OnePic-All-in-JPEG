@@ -1,3 +1,4 @@
+import ImageInfo from "./ImageInfo.js"
 export default class ImageContentInfo {
     constructor(imageContent) {
         this.contentInfoSize = 0;
@@ -21,7 +22,7 @@ export default class ImageContentInfo {
         let imageInfoList = [];
         
         for (let i = 0; i < pictureList.length; i++) {
-            let imageInfo = new PictureInfo(pictureList[i]);
+            let imageInfo = new ImageInfo(pictureList[i]);
             
             if (i === 0) {
                 preSize = imageInfo.imageDataSize;

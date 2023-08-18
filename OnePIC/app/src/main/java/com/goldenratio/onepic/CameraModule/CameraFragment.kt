@@ -27,9 +27,9 @@ import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2Module
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.ContentType
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
@@ -162,7 +162,7 @@ class CameraFragment : Fragment() {
         )
 
         // imageContent 설정
-        imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+        imageContent = jpegViewModel.jpegAiContainer.value!!.imageContent
 
         // 촬영 완료음 설정
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
@@ -477,7 +477,7 @@ class CameraFragment : Fragment() {
                 val savedFile = audioResolver.stopRecording()
                 if (savedFile != null) {
                     val audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                    jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                    jpegViewModel.jpegAiContainer.value!!.setAudioContent(
                         audioBytes,
                         contentAttribute
                     )
@@ -486,7 +486,7 @@ class CameraFragment : Fragment() {
 
                 // 이미지 저장
                 val jop = async {
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                    jpegViewModel.jpegAiContainer.value!!.setImageContent(
                         previewByteArrayList.value!!,
                         ContentType.Image, contentAttribute
                     )
@@ -499,7 +499,7 @@ class CameraFragment : Fragment() {
                     val objectDetectionModule = camera2Module.objectDetectionModule
 
                     val detectionResult = objectDetectionModule.getDetectionResults()
-                    val pictureList = jpegViewModel.jpegMCContainer.value!!.imageContent.pictureList
+                    val pictureList = jpegViewModel.jpegAiContainer.value!!.imageContent.pictureList
 
                     for (i in 0 until pictureList.size) {
                         val boundingBox = detectionResult[i].boundingBox
@@ -516,7 +516,8 @@ class CameraFragment : Fragment() {
                 }
 
                 JpegViewModel.AllInJPEG = true
-                jpegViewModel.jpegMCContainer.value?.save(isSaved)
+                jpegViewModel.jpegAiContainer.value?.save(isSaved)
+            }
 
 //                binding.shutterBtn.isEnabled = true
 //                binding.galleryBtn.isEnabled = true
@@ -530,7 +531,6 @@ class CameraFragment : Fragment() {
 //
 //                imageToolModule.fadeIn.start()
 //                rotation.cancel()
-            }
         }
     }
 
@@ -647,6 +647,6 @@ class CameraFragment : Fragment() {
 
         private val BURST_OPTION1 = 3
         private val BURST_OPTION2 = 5
-        private val BURST_OPTION3 = 7
+        private val BURST_OPTION3 = 17
     }
 }

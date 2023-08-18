@@ -1,7 +1,6 @@
 package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
@@ -31,8 +30,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
 import kotlinx.coroutines.*
@@ -72,7 +70,7 @@ class AnalyzeFragment : Fragment() {
             if (progress == 23) {
 
                 var curr = binding.analyzeDataTextView.text
-                var container = jpegViewModel.jpegMCContainer.value!!
+                var container = jpegViewModel.jpegAiContainer.value!!
 
                 var imageCount = container.imageContent.pictureCount
                 CoroutineScope(Dispatchers.Main).launch{
@@ -82,9 +80,9 @@ class AnalyzeFragment : Fragment() {
             }
 
             if (progress == 31) {
-                if (jpegViewModel.jpegMCContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
+                if (jpegViewModel.jpegAiContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
                     var curr = binding.analyzeDataTextView.text
-                    var container = jpegViewModel.jpegMCContainer.value!!
+                    var container = jpegViewModel.jpegAiContainer.value!!
 
 
                     CoroutineScope(Dispatchers.Main).launch {
@@ -97,7 +95,7 @@ class AnalyzeFragment : Fragment() {
             // 오디오
             if (progress == 41) {
                 var curr = binding.analyzeDataTextView.text
-                var container = jpegViewModel.jpegMCContainer.value!!
+                var container = jpegViewModel.jpegAiContainer.value!!
 
                 if (container.audioContent.audio != null){
 
@@ -110,7 +108,7 @@ class AnalyzeFragment : Fragment() {
             // 텍스트
             if (progress == 69) {
                 var curr = binding.analyzeDataTextView.text
-                var container = jpegViewModel.jpegMCContainer.value!!
+                var container = jpegViewModel.jpegAiContainer.value!!
 
                 if (container.textContent.textCount != 0){
                     CoroutineScope(Dispatchers.Main).launch{
@@ -309,11 +307,11 @@ class AnalyzeFragment : Fragment() {
             var sourceByteArray = getBytes(iStream!!)
             System.gc()
 
-            val imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+            val imageContent = jpegViewModel.jpegAiContainer.value!!.imageContent
             imageContent.checkPictureList = false
 
             var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegMCContainer.value!!,sourceByteArray) }
+                loadResolver.createMCContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
             jop.await()
 
             while(!imageContent.checkPictureList) { }
@@ -329,13 +327,13 @@ class AnalyzeFragment : Fragment() {
 
     fun setCurrentPictureByteArrList(){
 
-        var pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()
+        var pictureList = jpegViewModel.jpegAiContainer.value?.getPictureList()
 
         if (pictureList != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 val pictureByteArrayList = mutableListOf<ByteArray>()
                 for (picture in pictureList){
-                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(picture)
+                    val pictureByteArr = jpegViewModel.jpegAiContainer.value?.imageContent?.getJpegBytes(picture)
                     pictureByteArrayList.add(pictureByteArr!!)
                 } // end of for..
 
@@ -402,9 +400,9 @@ class AnalyzeFragment : Fragment() {
 
     fun backPressed(){
 
-        jpegViewModel.jpegMCContainer.value!!.imageContent.resetBitmap()
+        jpegViewModel.jpegAiContainer.value!!.imageContent.resetBitmap()
 
-        jpegViewModel.jpegMCContainer.value!!.init()
+        jpegViewModel.jpegAiContainer.value!!.init()
         handler.removeCallbacksAndMessages(null)
         val bundle = Bundle()
         bundle.putInt("currentPosition",currentPosition!!)

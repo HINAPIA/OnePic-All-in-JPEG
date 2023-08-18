@@ -1,14 +1,11 @@
 package com.example.demo.view
 
 import com.example.demo.app.CustomColor
-import com.example.demo.app.ImageTool
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import javafx.geometry.Pos
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import tornadofx.*

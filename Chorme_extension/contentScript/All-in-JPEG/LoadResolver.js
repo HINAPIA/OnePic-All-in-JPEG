@@ -1,6 +1,6 @@
 import ContentAttribute from "./content/contentType.js";
 import Picture from "./content/Picture.js";
-import Audio from "./content/Audio.js";
+import Aiaudio from "./content/Aiaudio.js";
 import Text from "./content/Text.js";
 
 export default class LoadResolver {
@@ -76,7 +76,7 @@ export default class LoadResolver {
                             textContentStartOffset + textContentInfoSize
                         )
                     );
-                    AiContainer.textContent.setContent(textList);
+                    AiContainer.textContent.setContentFromTextList(textList);
                 }
                 
                 // 3. Audio Content Parsing
@@ -100,9 +100,9 @@ export default class LoadResolver {
                         );
                         console.log(`audioBytes : ${audioBytes.length}`);
                         
-                        let audio = new Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
+                        //let audio = new Aiaudio(audioBytes, ContentAttribute.fromCode(audioAttribute))
                         
-                        AiContainer.audioContent.setContent(audio);
+                        AiContainer.audioContent.setContent(audioBytes, ContentAttribute.fromCode(audioAttribute));
                         // AiContainer.audioResolver.saveByteArrToAacFile(audioBytes, "viewer_record");
                     }
                 }

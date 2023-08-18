@@ -1,20 +1,16 @@
 package com.example.demo.view
 
 import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.PictureModule.AiContainer
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.PictureModule.AiContainer
-import com.sun.org.apache.xpath.internal.operations.Bool
 import javafx.application.Platform
-import javafx.scene.control.Label
 import javafx.scene.image.Image
 import javafx.stage.FileChooser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tornadofx.*
-import java.io.File
 import java.nio.file.Files
 
 //class MainView : View("Hello TornadoFX") {

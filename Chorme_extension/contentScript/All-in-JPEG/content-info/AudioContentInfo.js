@@ -1,10 +1,10 @@
+import ContentAttribute from "../content/contentType.js"
 export default class AudioContentInfo {
     constructor(audioContent, audioDataStartOffset) {
         this.contentInfoSize = 0;
         this.dataStartOffset = 0;
         this.datasize = 0;
         this.attribute = 0;
-        
         this.FIELD_SIZE = 4;
         this.XOA_MARKER_SIZE = 2;
 
@@ -15,9 +15,9 @@ export default class AudioContentInfo {
         this.contentInfoSize = this.FIELD_SIZE * 4;
         this.dataStartOffset = audioDataStartOffset;
 
-        if (audioContent.audio !== null) {
-            this.attribute = audioContent.audio.attribute.code;
-            this.datasize = this.XOA_MARKER_SIZE + audioContent.audio._audioByteArray.length;
+        if (audioContent.aiAudio !== null) {
+            this.attribute = audioContent.aiAudio.attribute;
+            this.datasize = this.XOA_MARKER_SIZE + audioContent.aiAudio._audioByteArray.length;
         } else {
             this.attribute = ContentAttribute.basic.code;
             this.datasize = 0;

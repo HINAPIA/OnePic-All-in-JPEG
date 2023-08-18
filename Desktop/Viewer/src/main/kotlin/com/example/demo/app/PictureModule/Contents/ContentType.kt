@@ -1,4 +1,4 @@
-package com.goldenratio.onepic.PictureModule.Contents
+package com.goldenratio.onepic.AllinJPEGModule.Contents
 
 enum class ContentType {
     Image,
@@ -6,17 +6,12 @@ enum class ContentType {
     Text
 }
 
-enum class ActivityType {
-    Camera,
-    Viewer
-}
-
 enum class ContentAttribute(val code: Int ) {
     none(0),
     Basic(1),
     Burst(2),
     object_focus(3),
-    Focus(4),
+    distance_focus(4),
     magic(5),
     edited(6);
 
