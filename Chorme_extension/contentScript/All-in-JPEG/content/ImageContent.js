@@ -102,18 +102,18 @@ export default class ImageContent {
      * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JPEG 파일의 Bytes를 리턴하는 함수
      */
     // // TODO: ("APP1 삭제 후 변경 필요")
-    // getJpegBytes(picture) {
-    //     console.log("getJpegBytes : 호출");
-    //     while (!checkPictureList) { }
-    //     var buffer = new Uint8Array(0);
-    //     var jpegMetaData = new Uint8Array(/* Initialize this with your metaData array content */);
-    //     buffer = new Uint8Array(jpegMetaData.length + picture.imageSize + 2);
-    //     buffer.set(jpegMetaData, 0);
-    //     buffer.set(picture._pictureByteArray, jpegMetaData.length);
-    //     buffer[jpegMetaData.length + picture.imageSize] = 0xFF;
-    //     buffer[jpegMetaData.length + picture.imageSize + 1] = 0xD9;
-    //     return buffer;
-    // }
+    getJpegBytes(picture) {
+        console.log("getJpegBytes : 호출");
+        //while (!checkPictureList) { }
+        var buffer = new Uint8Array(0);
+        var jpegMetaData = this.jpegMetaData;
+        buffer = new Uint8Array(jpegMetaData.length + picture.imageSize + 2);
+        buffer.set(jpegMetaData, 0);
+        buffer.set(picture._pictureByteArray, jpegMetaData.length);
+        buffer[jpegMetaData.length + picture.imageSize] = 0xFF;
+        buffer[jpegMetaData.length + picture.imageSize + 1] = 0xD9;
+        return buffer;
+    }
 
     // TODO: ("APP1 삭제 후 변경 필요")
     getBlobURL(picture) {

@@ -1,3 +1,4 @@
+
 export default class TextContentInfo {
     constructor(textContent, startOffset) {
         this.contentInfoSize = 0;

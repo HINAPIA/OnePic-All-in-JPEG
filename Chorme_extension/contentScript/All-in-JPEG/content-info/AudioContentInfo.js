@@ -1,3 +1,4 @@
+import ContentAttribute from "../content/contentType.js"
 export default class AudioContentInfo {
     constructor(audioContent, audioDataStartOffset) {
         this.contentInfoSize = 0;
