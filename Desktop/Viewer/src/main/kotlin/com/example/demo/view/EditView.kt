@@ -23,7 +23,6 @@ class EditView (val centerView : CenterView) : View(){
 
     // Ai meta
     private var aiMetaDataImageView : ImageView = ImageView()
-    private val aiTextField : Label = Label("")
     private lateinit var aiScrollPane : ScrollPane
     private val aimetaDataView = AimetaDataView(centerView)
 

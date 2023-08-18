@@ -12,7 +12,7 @@ export default class AiContainer {
         this.audioContent = new AudioContent();
         this.textContent = new TextContent();
 
-       // this.audioResolver = new AudioResolver();
+       // this.audioResolver = new AiaudioResolver();
         this.groupCount = 0;
         this.jpegConstant = new JpegConstant();
     }
@@ -93,6 +93,11 @@ export default class AiContainer {
 
     convertHeaderToBinaryData() {
         return this.header.convertBinaryData();
+    }
+
+    // 음악 재생 시작
+    playAudio(){
+        this.audioContent.playAudio();
     }
 
     // audioPlay() {

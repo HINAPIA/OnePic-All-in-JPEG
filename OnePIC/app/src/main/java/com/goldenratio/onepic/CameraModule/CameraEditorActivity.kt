@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import com.goldenratio.onepic.databinding.ActivityCameraEditorBinding
 
 class CameraEditorActivity : AppCompatActivity() {
@@ -24,8 +24,8 @@ class CameraEditorActivity : AppCompatActivity() {
         jpegViewModelFactory = JpegViewModelFactory(this)
         jpegViewModels = ViewModelProvider(this, jpegViewModelFactory).get(JpegViewModel::class.java)
 
-        var MCContainer = MCContainer(this)
-        jpegViewModels.setContainer(MCContainer)
+        var AiContainer = AiContainer(this)
+        jpegViewModels.setContainer(AiContainer)
 
     }
 }

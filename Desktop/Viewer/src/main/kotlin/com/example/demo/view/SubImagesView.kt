@@ -2,54 +2,36 @@ package com.example.demo.view
 
 import com.example.demo.app.CustomColor
 import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.AiContainer
-import com.goldenratio.onepic.PictureModule.Contents.Picture
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
 import javafx.animation.ScaleTransition
 import javafx.animation.Timeline
 import javafx.application.Platform
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import javafx.geometry.Insets
-import javafx.geometry.Orientation
 import javafx.geometry.Pos
-import javafx.scene.Parent
 import javafx.scene.control.Label
-import javafx.scene.control.ScrollBar
 import javafx.scene.control.ScrollPane
 import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
-import javafx.scene.layout.HBox.setMargin
-import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.util.Duration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import tornadofx.*
-import tornadofx.Stylesheet.Companion.content
-import tornadofx.Stylesheet.Companion.imageView
-import tornadofx.Stylesheet.Companion.root
-import tornadofx.WizardStyles.Companion.content
-import java.beans.EventHandler
 import java.io.File
 
 class SubImagesView(val centerView : CenterView) : View() {
     var pictureListChangeListener : PictureListChangeListener
     private val pictureList: ObservableList<Picture> = FXCollections.observableArrayList()
-    private var picturesHBox: HBox = HBox()
-    val AiContainer : AiContainer = AiContainerSingleton.aiContainer
     var picturesPane : HBox = HBox()
     var picturesScrollPane : ScrollPane= ScrollPane()
 
@@ -58,14 +40,8 @@ class SubImagesView(val centerView : CenterView) : View() {
     lateinit var audioView : StackPane
     var audioTextLabel : Label = Label()
 
-    var subImageView = ImageView()
     var audioResolver = AudioResolver()
-
     val imageSourcePath = "src/main/kotlin/com/example/demo/resource/"
-    val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
-
-    var animationTime = 0.5
-    var mediaPlayer : MediaPlayer? = null
 
     var singlePictureView = ImageView()
 

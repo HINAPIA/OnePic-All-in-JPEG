@@ -1,13 +1,12 @@
 package com.goldenratio.onepic.LoadModule
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.Audio
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.Contents.Text
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import kotlinx.coroutines.*
 import java.io.IOException
 
@@ -43,10 +42,10 @@ class LoadResolver() {
     }
 
     suspend fun createMCContainer(
-        MCContainer: MCContainer,
+        AiContainer: AiContainer,
         sourceByteArray: ByteArray
     ) {
-        MCContainer.exploreMarkers(sourceByteArray)
+        AiContainer.exploreMarkers(sourceByteArray)
 
         Log.d("MCContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
         CoroutineScope(Dispatchers.IO).launch {
@@ -58,7 +57,7 @@ class LoadResolver() {
                     // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
                     Log.d("MCContainer", "createMCContainer() 일반 JPEG 생성")
-                    MCContainer.setBasicJepg(sourceByteArray)
+                    AiContainer.setBasicJepg(sourceByteArray)
                     JpegViewModel.AllInJPEG = false
                 }catch (e : IOException){
                     Log.e("MCcontainer", "createMCContainer() Basic JPEG Parsing 불가")
@@ -77,7 +76,7 @@ class LoadResolver() {
                     var imageContentInfoSize = ByteArraytoInt(sourceByteArray, imageContentStartOffset)
                     var pictureList = async {
                         imageContentParsing(
-                            MCContainer,
+                            AiContainer,
                             sourceByteArray,
                             sourceByteArray.copyOfRange(
                                 imageContentStartOffset,
@@ -85,14 +84,14 @@ class LoadResolver() {
                             )
                         )
                     }
-                    MCContainer.imageContent.setContent(pictureList.await())
+                    AiContainer.imageContent.setContent(pictureList.await())
 
                     // 2. TextContent Pasrsing
                     var textContentStartOffset = APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE+  FIELD_SIZE +  imageContentInfoSize
                     var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
                     if (textContentInfoSize > 0) {
                         var textList = textContentParsing(
-                            MCContainer,  sourceByteArray,
+                            AiContainer,  sourceByteArray,
 //                            sourceByteArray.copyOfRange(
 //                                textContentStartOffset + 4,
 //                                textContentStartOffset + 8 + textContentInfoSize
@@ -102,7 +101,7 @@ class LoadResolver() {
                                 textContentStartOffset + 4 + textContentInfoSize
                             )
                         )
-                        MCContainer.textContent.setContent(textList)
+                        AiContainer.textContent.setContent(textList)
                     }
 
                     // 3. AudioContent Pasrsing
@@ -122,8 +121,8 @@ class LoadResolver() {
                             var audioBytes = sourceByteArray.copyOfRange(audioDataStartOffset + MARKER_SIZE, audioDataStartOffset  + audioDataLength)
                             Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
                             var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
-                            MCContainer.audioContent.setContent(audio)
-                            MCContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!,"viewer_record")
+                            AiContainer.audioContent.setContent(audio)
+                            AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!,"viewer_record")
 
                         }
                         // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
@@ -146,7 +145,7 @@ class LoadResolver() {
                 ((byteArray[stratOffset+3].toInt() and 0xFF))
         return intNum
     }
-    suspend fun imageContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray): ArrayList<Picture> = withContext(Dispatchers.Default) {
+    suspend fun imageContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray): ArrayList<Picture> = withContext(Dispatchers.Default) {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
 
@@ -179,12 +178,12 @@ class LoadResolver() {
             if(i==0){
                 val jpegBytes = sourceByteArray.copyOfRange(offset,  offset + size - 1)
                 // Jpeg Meta 데이터 떼기
-                var jpegMetaData = MCContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
+                var jpegMetaData = AiContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
                     offset + size -1), ContentAttribute.fromCode(attribute))
-                MCContainer.setJpegMetaBytes(jpegMetaData)
-                val app1Segment = MCContainer.imageContent.extractAPP1(jpegBytes)
+                AiContainer.setJpegMetaBytes(jpegMetaData)
+                val app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
                 val frame =async {
-                    MCContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
+                    AiContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
                 }
                 picture = Picture(offset, app1Segment, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
@@ -203,7 +202,7 @@ class LoadResolver() {
         return@withContext pictureList
     }
 
-    fun textContentParsing(MCContainer: MCContainer, sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
+    fun textContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
         var textList : ArrayList<Text> = arrayListOf()
         var startIndex = 0
         var textContentInfoSize = ByteArraytoInt(textInfoByteArray, startIndex)

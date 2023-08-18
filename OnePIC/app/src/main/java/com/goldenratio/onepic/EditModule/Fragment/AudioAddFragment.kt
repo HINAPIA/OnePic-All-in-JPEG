@@ -1,6 +1,5 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
-import android.app.Activity
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -9,26 +8,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.ConfirmDialogInterface
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
-import com.goldenratio.onepic.databinding.AudioDialogBinding
-import com.goldenratio.onepic.databinding.FragmentAddBinding
 import com.goldenratio.onepic.databinding.FragmentAudioAddBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -82,7 +75,7 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
         // Inflate the layout for this fragment
         binding = FragmentAudioAddBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
 
         val mainBitmap = imageContent.getMainBitmap()
@@ -92,7 +85,7 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
 
         // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
         var savedFile : File? = null
-        jpegViewModel.jpegMCContainer.value!!.audioContent.audio?._audioByteArray?.let {
+        jpegViewModel.jpegAiContainer.value!!.audioContent.audio?._audioByteArray?.let {
             savedFile = audioResolver.saveByteArrToAacFile(
                 it, "original"
             )
@@ -191,7 +184,7 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
             // 녹음 내역 저장
             if(tempAudioFile != null){
                 saveAudioInMCContainer(tempAudioFile!!)
-                jpegViewModel.jpegMCContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
+                jpegViewModel.jpegAiContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
                     audioResolver.saveByteArrToAacFile(
                         it1, "viewer_record")
                 }
@@ -387,7 +380,7 @@ class AudioAddFragment : Fragment(), ConfirmDialogInterface {
     fun saveAudioInMCContainer(savedFile : File){
         //MC Container에 추가
         var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
-        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+        jpegViewModel.jpegAiContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
     }
     fun playinAudioUIStart(_time : Int){
         if(playingTimerTask != null)

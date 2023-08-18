@@ -15,9 +15,9 @@ export default class AudioContentInfo {
         this.contentInfoSize = this.FIELD_SIZE * 4;
         this.dataStartOffset = audioDataStartOffset;
 
-        if (audioContent.audio !== null) {
-            this.attribute = audioContent.audio.attribute.code;
-            this.datasize = this.XOA_MARKER_SIZE + audioContent.audio._audioByteArray.length;
+        if (audioContent.aiAudio !== null) {
+            this.attribute = audioContent.aiAudio.attribute;
+            this.datasize = this.XOA_MARKER_SIZE + audioContent.aiAudio._audioByteArray.length;
         } else {
             this.attribute = ContentAttribute.basic.code;
             this.datasize = 0;

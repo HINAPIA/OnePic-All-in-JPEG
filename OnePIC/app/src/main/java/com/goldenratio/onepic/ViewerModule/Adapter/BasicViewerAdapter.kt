@@ -16,8 +16,8 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Fragment.BasicViewerFragment
 

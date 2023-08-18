@@ -44,9 +44,11 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         const testImageElement2 = document.getElementById("sub_image2");
         testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
       
-        addSubImageEvent()
-        console.log(await getBasicMetadata()) 
-        getAiMetadata()
+        addSubImageEvent();
+        console.log(await getBasicMetadata());
+        getAiMetadata();
+
+        aiContainer.playAudio();
       }
     });
 }

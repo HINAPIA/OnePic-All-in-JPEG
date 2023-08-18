@@ -12,15 +12,15 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 
 
 class JpegViewModel(private val context:Context) : ViewModel() {
 
     val GALLERY_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-    var jpegMCContainer = MutableLiveData<MCContainer>()
+    var jpegAiContainer = MutableLiveData<AiContainer>()
 
     private var imageUriList = mutableListOf<String>() // 임시 데이터(원본이 사라져도)
     private val _imageUriLiveData = MutableLiveData<List<String>>() // 내부처리 데이터
@@ -70,8 +70,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 //        mainPictureIndex = 0
     }
 
-    fun setContainer(MCContainer: MCContainer) {
-        jpegMCContainer.value = MCContainer
+    fun setContainer(AiContainer: AiContainer) {
+        jpegAiContainer.value = AiContainer
     }
 
     fun setpictureByteArrList(byteArrayList:MutableList<ByteArray>){
@@ -105,7 +105,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     }
 
     fun getSelectedSubImageIndex(): Int {
-        val index = jpegMCContainer.value!!.imageContent.pictureList.indexOf(selectedSubImage)
+        val index = jpegAiContainer.value!!.imageContent.pictureList.indexOf(selectedSubImage)
         return if(index == -1) 0
         else index
     }
@@ -115,7 +115,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             Log.d("mainSub Index", "mainSub Index : 0")
             return 0
         }
-        val index =  jpegMCContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
+        val index =  jpegAiContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
         if(index == -1) {
             return 0
         }

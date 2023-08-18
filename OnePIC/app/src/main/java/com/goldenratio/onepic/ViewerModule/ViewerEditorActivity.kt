@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import com.goldenratio.onepic.databinding.ActivityViewerEditorBinding
 
 
@@ -43,8 +43,8 @@ class ViewerEditorActivity : AppCompatActivity() {
         jpegViewModelFactory = JpegViewModelFactory(this)
         jpegViewModels = ViewModelProvider(this, jpegViewModelFactory).get(JpegViewModel::class.java)
 
-        var MCContainer : MCContainer = MCContainer(this)
-        jpegViewModels.setContainer(MCContainer)
+        var AiContainer : AiContainer = AiContainer(this)
+        jpegViewModels.setContainer(AiContainer)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(
@@ -79,7 +79,7 @@ class ViewerEditorActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 // 사용자가 승인한 경우 삭제 진행
                 Log.d("save_test", "사용자 허가를 받고 삭제 다시 진행")
-                jpegViewModels.jpegMCContainer.value?.saveResolver!!.deleteImage( jpegViewModels.currentFileName!!)
+                jpegViewModels.jpegAiContainer.value?.saveResolver!!.deleteImage( jpegViewModels.currentFileName!!)
                 JpegViewModel.isUserInentFinish = true
             } else {
                 // 사용자가 거부한 경우 또는 오류가 발생한 경우

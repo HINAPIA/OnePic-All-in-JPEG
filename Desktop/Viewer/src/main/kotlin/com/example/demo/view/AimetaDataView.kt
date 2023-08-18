@@ -1,13 +1,8 @@
 package com.example.demo.view
 
 import com.example.demo.app.CustomColor
-import com.goldenratio.camerax.PictureModule.Info.ImageContentInfo
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.ImageContent
-import javafx.geometry.Insets
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import javafx.scene.layout.*
-import javafx.scene.paint.Color
-import javafx.scene.shape.Box
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -190,7 +185,7 @@ class AimetaDataView (val centerView : CenterView) : View() {
                         // 1개의 image info
                          vbox {
                             padding = insets(0,0,0,20)
-                            add(createHbox("Size","${((imageInfo.dataSize).toDouble()/1000).toInt()}kb", 85.0))
+                            add(createHbox("Size","${((imageInfo.imageDataSize).toDouble()/1000).toInt()}kb", 85.0))
                             var attribute = ContentAttribute.fromCode(imageInfo.attribute)
                             add(createHbox("Attribute", attribute.toString(), 70.0))
                             spacing = 5.0

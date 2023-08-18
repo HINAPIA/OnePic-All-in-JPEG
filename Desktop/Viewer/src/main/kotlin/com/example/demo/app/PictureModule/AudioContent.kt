@@ -1,7 +1,7 @@
 package com.goldenratio.onepic.PictureModule
 
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 
 class AudioContent {
     var audio : Audio? = null

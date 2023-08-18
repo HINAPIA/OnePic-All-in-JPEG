@@ -8,7 +8,7 @@ import android.graphics.*
 import android.hardware.camera2.*
 import android.media.MediaPlayer
 import android.media.MediaScannerConnection
-import android.opengl.Visibility
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -22,13 +22,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+import com.bumptech.glide.Glide
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2Module
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.ContentType
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
@@ -60,6 +61,9 @@ class CameraFragment : Fragment() {
     private lateinit var imageToolModule: ImageToolModule
 
     var previewByteArrayList = MutableLiveData<ArrayList<ByteArray>>(arrayListOf())
+
+    var isSaved = MutableLiveData<Uri>()
+    var saveByteArray = MutableLiveData<ByteArray>()
 
     private var PICTURE_SIZE = 1
     private var BURST_SIZE = 3
@@ -109,6 +113,39 @@ class CameraFragment : Fragment() {
             }
         }
 
+//        saveByteArray.observe(viewLifecycleOwner) {
+//            System.gc()
+//            if(it != null) {
+//                CoroutineScope(Dispatchers.Main).launch {
+////                    imageToolModule.showView(binding.objectDetectionImageView, true)
+//                    Glide.with(binding.testView2)
+//                        .load(it)
+//                        .into(binding.testView2)
+//                }
+//            }
+//        }
+
+        isSaved.observe(viewLifecycleOwner) {
+            if (it != null) {
+                CoroutineScope(Dispatchers.Main).launch {
+//                    binding.testView.setImageURI(it)
+
+                    binding.shutterBtn.isEnabled = true
+                    binding.galleryBtn.isEnabled = true
+                    binding.convertBtn.isEnabled = true
+                    binding.basicRadioBtn.isEnabled = true
+                    binding.burstRadioBtn.isEnabled = true
+                    binding.objectFocusRadioBtn.isEnabled = true
+                    binding.distanceFocusRadioBtn.isEnabled = true
+                    binding.successInfoTextView.text = getText(R.string.camera_success_info)
+                    imageToolModule.showView(binding.successInfoConstraintLayout, true)
+
+                    imageToolModule.fadeIn.start()
+                    rotation.cancel()
+                }
+            }
+        }
+
         return binding.root
     }
 
@@ -125,7 +162,7 @@ class CameraFragment : Fragment() {
         )
 
         // imageContent 설정
-        imageContent = jpegViewModel.jpegMCContainer.value!!.imageContent
+        imageContent = jpegViewModel.jpegAiContainer.value!!.imageContent
 
         // 촬영 완료음 설정
         mediaPlayer = MediaPlayer.create(context, R.raw.end_sound)
@@ -440,7 +477,7 @@ class CameraFragment : Fragment() {
                 val savedFile = audioResolver.stopRecording()
                 if (savedFile != null) {
                     val audioBytes = audioResolver.getByteArrayInFile(savedFile)
-                    jpegViewModel.jpegMCContainer.value!!.setAudioContent(
+                    jpegViewModel.jpegAiContainer.value!!.setAudioContent(
                         audioBytes,
                         contentAttribute
                     )
@@ -449,7 +486,7 @@ class CameraFragment : Fragment() {
 
                 // 이미지 저장
                 val jop = async {
-                    jpegViewModel.jpegMCContainer.value!!.setImageContent(
+                    jpegViewModel.jpegAiContainer.value!!.setImageContent(
                         previewByteArrayList.value!!,
                         ContentType.Image, contentAttribute
                     )
@@ -458,41 +495,42 @@ class CameraFragment : Fragment() {
                 Log.d("error 잡기", "넘어가기 전")
 
                 // objectFocus일 경우, 관련 데이터 EmbeddedData에 추가
-                if(binding.objectFocusRadioBtn.isChecked) {
+                if (binding.objectFocusRadioBtn.isChecked) {
                     val objectDetectionModule = camera2Module.objectDetectionModule
 
                     val detectionResult = objectDetectionModule.getDetectionResults()
-                    val pictureList = jpegViewModel.jpegMCContainer.value!!.imageContent.pictureList
+                    val pictureList = jpegViewModel.jpegAiContainer.value!!.imageContent.pictureList
 
-                    for(i in 0 until pictureList.size) {
+                    for (i in 0 until pictureList.size) {
                         val boundingBox = detectionResult[i].boundingBox
-                        pictureList[i].insertEmbeddedData(arrayListOf(
-                            objectDetectionModule.bitmapWidth,
-                            boundingBox.left.toInt(), boundingBox.top.toInt(),
-                            boundingBox.right.toInt(), boundingBox.bottom.toInt()))
+                        pictureList[i].insertEmbeddedData(
+                            arrayListOf(
+                                objectDetectionModule.bitmapWidth,
+                                boundingBox.left.toInt(), boundingBox.top.toInt(),
+                                boundingBox.right.toInt(), boundingBox.bottom.toInt()
+                            )
+                        )
                     }
                     imageToolModule.showView(binding.objectWarningConstraintLayout, false)
                     objectDetectionModule.resetDetectionResult()
                 }
 
                 JpegViewModel.AllInJPEG = true
-                jpegViewModel.jpegMCContainer.value?.save()
+                jpegViewModel.jpegAiContainer.value?.save(isSaved)
             }
 
-            withContext(Dispatchers.Main) {
-                binding.shutterBtn.isEnabled = true
-                binding.galleryBtn.isEnabled = true
-                binding.convertBtn.isEnabled = true
-                binding.basicRadioBtn.isEnabled = true
-                binding.burstRadioBtn.isEnabled = true
-                binding.objectFocusRadioBtn.isEnabled = true
-                binding.distanceFocusRadioBtn.isEnabled = true
-                binding.successInfoTextView.text = getText(R.string.camera_success_info)
-                binding.successInfoConstraintLayout.visibility = View.VISIBLE
-
-                imageToolModule.fadeIn.start()
-                rotation.cancel()
-            }
+//                binding.shutterBtn.isEnabled = true
+//                binding.galleryBtn.isEnabled = true
+//                binding.convertBtn.isEnabled = true
+//                binding.basicRadioBtn.isEnabled = true
+//                binding.burstRadioBtn.isEnabled = true
+//                binding.objectFocusRadioBtn.isEnabled = true
+//                binding.distanceFocusRadioBtn.isEnabled = true
+//                binding.successInfoTextView.text = getText(R.string.camera_success_info)
+//                binding.successInfoConstraintLayout.visibility = View.VISIBLE
+//
+//                imageToolModule.fadeIn.start()
+//                rotation.cancel()
         }
     }
 
@@ -504,7 +542,6 @@ class CameraFragment : Fragment() {
         val externalStorage = Environment.getExternalStorageDirectory().absolutePath
         val path = "$externalStorage/DCIM/imageSave"
         val dir = File(path)
-        val fileItem = File("$dir/$fileName")
         if (dir.exists().not()) {
             dir.mkdirs() // 폴더 없을경우 폴더 생성
         }
@@ -519,20 +556,20 @@ class CameraFragment : Fragment() {
             e.printStackTrace()
         }
 
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.shutterBtn.isEnabled = true
-                binding.galleryBtn.isEnabled = true
-                binding.convertBtn.isEnabled = true
-                binding.basicRadioBtn.isEnabled = true
-                binding.burstRadioBtn.isEnabled = true
-                binding.objectFocusRadioBtn.isEnabled = true
-                binding.distanceFocusRadioBtn.isEnabled = true
-                binding.successInfoTextView.text = getText(R.string.camera_success_info)
-                binding.successInfoConstraintLayout.visibility = View.VISIBLE
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.shutterBtn.isEnabled = true
+            binding.galleryBtn.isEnabled = true
+            binding.convertBtn.isEnabled = true
+            binding.basicRadioBtn.isEnabled = true
+            binding.burstRadioBtn.isEnabled = true
+            binding.objectFocusRadioBtn.isEnabled = true
+            binding.distanceFocusRadioBtn.isEnabled = true
+            binding.successInfoTextView.text = getText(R.string.camera_success_info)
+            binding.successInfoConstraintLayout.visibility = View.VISIBLE
 
-                imageToolModule.fadeIn.start()
-                rotation.cancel()
-            }
+            imageToolModule.fadeIn.start()
+            rotation.cancel()
+        }
     }
 
     // 라디오 버튼 볼드 처리
@@ -610,6 +647,6 @@ class CameraFragment : Fragment() {
 
         private val BURST_OPTION1 = 3
         private val BURST_OPTION2 = 5
-        private val BURST_OPTION3 = 7
+        private val BURST_OPTION3 = 17
     }
 }

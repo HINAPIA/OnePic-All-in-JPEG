@@ -1,17 +1,13 @@
 package com.goldenratio.onepic.ViewerModule.Fragment
 
 import android.annotation.SuppressLint
-import android.content.ContentUris
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.util.Log
-import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -28,9 +24,9 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
@@ -213,7 +209,7 @@ class ViewerFragment : Fragment() {
      * savedText 데이터 & UI 설정 */
     fun setViewerBasicUI() {
 
-        var container = jpegViewModel.jpegMCContainer.value!!
+        var container = jpegViewModel.jpegAiContainer.value!!
         val isAiJPEG = isAllInJPEG(container)
 
         // All in JPEG 로고 설정(일반 jpeg vs all in jpeg)
@@ -259,7 +255,7 @@ class ViewerFragment : Fragment() {
         }
 
         if (container.textContent.textCount != 0){//  Text 있을 경우
-            var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+            var textList = jpegViewModel.jpegAiContainer.value!!.textContent.textList
 
             if(textList != null && textList.size !=0){
                 val text = textList.get(0).data
@@ -319,7 +315,7 @@ class ViewerFragment : Fragment() {
         }
     }
 
-    fun isAllInJPEG(container: MCContainer):Boolean{
+    fun isAllInJPEG(container: AiContainer):Boolean{
         if (jpegViewModel.getPictureByteArrList().size != 1 || container.textContent.textCount != 0 || container.audioContent.audio != null){
             return true
         }
@@ -328,7 +324,7 @@ class ViewerFragment : Fragment() {
 
     fun setMagicPicture() {
 
-        val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
         mainViewPagerAdapter.resetMagicPictureList()
 
@@ -347,7 +343,7 @@ class ViewerFragment : Fragment() {
                     /* layout 변경 */
                     binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                     isMagicBtnClicked = true
-                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegMCContainer.value?.imageContent!!)
+                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegAiContainer.value?.imageContent!!)
                     mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
                 }
 
@@ -381,12 +377,12 @@ class ViewerFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun setCurrentOtherImage() {
 
-        pictureList = jpegViewModel.jpegMCContainer.value?.getPictureList()!!
+        pictureList = jpegViewModel.jpegAiContainer.value?.getPictureList()!!
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
 
 
         // bitmap list (seek bar 속도 개선)
-        val imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         CoroutineScope(Dispatchers.Default).launch {
             while (!imageContent.checkPictureList) {
             }
@@ -454,7 +450,7 @@ class ViewerFragment : Fragment() {
                     }
                 } // end of for..
 
-                var container = jpegViewModel.jpegMCContainer.value!!
+                var container = jpegViewModel.jpegAiContainer.value!!
 
                 // 오디오 있는 경우
                 if (container.audioContent.audio != null) {
@@ -471,13 +467,13 @@ class ViewerFragment : Fragment() {
                                 // TODO: 음악 재생
                                 isAudioBtnClicked = true
                                 if (isAudioPlaying.value != true) {
-                                    jpegViewModel.jpegMCContainer.value!!.audioPlay()
+                                    jpegViewModel.jpegAiContainer.value!!.audioPlay()
                                     isAudioPlaying.value = true
                                 }
                             } else {
                                 // TODO: 음악 멈춤
                                 isAudioBtnClicked = false
-                                jpegViewModel.jpegMCContainer.value!!.audioStop()
+                                jpegViewModel.jpegAiContainer.value!!.audioStop()
                                 isAudioPlaying.value = false
                             }
                         }
@@ -593,7 +589,7 @@ class ViewerFragment : Fragment() {
             binding.linear.removeAllViews()
         }
 
-        jpegViewModel.jpegMCContainer.value!!.imageContent.resetBitmap()
+        jpegViewModel.jpegAiContainer.value!!.imageContent.resetBitmap()
 
         jpegViewModel.clearPictureByteArrList()
         // 앱의 onStop() 또는 onDestroy() 등의 메서드에서 호출하여 메모리 캐시를 비웁니다.

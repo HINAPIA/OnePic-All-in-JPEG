@@ -16,9 +16,9 @@ import com.goldenratio.onepic.EditModule.BlurBitmapUtil
 import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentFocusChangeBinding
 import kotlinx.coroutines.CoroutineScope
@@ -95,7 +95,7 @@ class FocusChangeFragment : Fragment() {
         // 뷰 바인딩 설정
         binding = FragmentFocusChangeBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
         objectExtractModule = ObjectExtractModule()
 

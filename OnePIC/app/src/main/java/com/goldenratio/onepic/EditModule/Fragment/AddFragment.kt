@@ -13,7 +13,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -22,12 +21,11 @@ import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.ConfirmDialogInterface
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Picture
-import com.goldenratio.onepic.PictureModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
-import com.goldenratio.onepic.databinding.AudioDialogBinding
 import com.goldenratio.onepic.databinding.FragmentAddBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -84,7 +82,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
         // Inflate the layout for this fragment
         binding = FragmentAddBinding.inflate(inflater, container, false)
 
-        imageContent = jpegViewModel.jpegMCContainer.value?.imageContent!!
+        imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
         textInit()
 
@@ -95,7 +93,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
 
         // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
         var savedFile : File? = null
-        jpegViewModel.jpegMCContainer.value!!.audioContent.audio?._audioByteArray?.let {
+        jpegViewModel.jpegAiContainer.value!!.audioContent.audio?._audioByteArray?.let {
             savedFile = audioResolver.saveByteArrToAacFile(
                 it, "original"
             )
@@ -152,7 +150,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
                 //binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
                 binding.textContentLayout.visibility = View.VISIBLE
                 // text 입력 UI에 기존의 텍스트 메시지 띄우기
-                var textList = jpegViewModel.jpegMCContainer.value!!.textContent.textList
+                var textList = jpegViewModel.jpegAiContainer.value!!.textContent.textList
                 if(textList != null && textList.size !=0){
                     binding.editText.setText(textList.get(0).data)
                 }
@@ -178,7 +176,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             var textList: ArrayList<String> = arrayListOf()
             textList.add(textMessage)
             if (textMessage != "") {
-                jpegViewModel.jpegMCContainer.value!!.setTextConent(
+                jpegViewModel.jpegAiContainer.value!!.setTextConent(
                     ContentAttribute.basic,
                     textList
                 )
@@ -222,7 +220,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             // 녹음 내역 저장
             if(tempAudioFile != null){
                 saveAudioInMCContainer(tempAudioFile!!)
-                jpegViewModel.jpegMCContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
+                jpegViewModel.jpegAiContainer.value!!.audioContent.audio!!._audioByteArray?.let { it1 ->
                     audioResolver.saveByteArrToAacFile(
                         it1, "viewer_record")
                 }
@@ -427,7 +425,7 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
     fun saveAudioInMCContainer(savedFile : File){
         //MC Container에 추가
         var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
-        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+        jpegViewModel.jpegAiContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
     }
     fun playinAudioUIStart(_time : Int){
         if(playingTimerTask != null)
