@@ -2,6 +2,7 @@ package com.example.demo.view
 
 import com.example.demo.app.CustomColor
 import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.PictureModule.AiContainer
 import javafx.animation.Interpolator
@@ -31,8 +32,6 @@ import java.io.File
 class SubImagesView(val centerView : CenterView) : View() {
     var pictureListChangeListener : PictureListChangeListener
     private val pictureList: ObservableList<Picture> = FXCollections.observableArrayList()
-    private var picturesHBox: HBox = HBox()
-    val AiContainer : AiContainer = AiContainerSingleton.aiContainer
     var picturesPane : HBox = HBox()
     var picturesScrollPane : ScrollPane= ScrollPane()
 
@@ -41,14 +40,8 @@ class SubImagesView(val centerView : CenterView) : View() {
     lateinit var audioView : StackPane
     var audioTextLabel : Label = Label()
 
-    var subImageView = ImageView()
     var audioResolver = AudioResolver()
-
     val imageSourcePath = "src/main/kotlin/com/example/demo/resource/"
-    val audioSourcePath = "src/main/kotlin/com/example/demo/resource/audio/"
-
-    var animationTime = 0.5
-    var mediaPlayer : MediaPlayer? = null
 
     var singlePictureView = ImageView()
 

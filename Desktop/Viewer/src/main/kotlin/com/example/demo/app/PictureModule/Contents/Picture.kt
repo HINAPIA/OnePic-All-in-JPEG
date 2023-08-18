@@ -1,8 +1,5 @@
 package com.goldenratio.onepic.AllinJPEGModule.Contents
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-
 class Picture(
     var contentAttribute: ContentAttribute,
     var app1Segment : ByteArray? = null,
@@ -54,10 +51,7 @@ class Picture(
         this.embeddedSize = data.size * 4
     }
 
-    // Byte를 Bitmap으로 변환
-    fun byteArrayToBitmap(_byteArray: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(_byteArray, 0, _byteArray.size)
-    }
+
 
     fun waitForByteArrayInitialized() {
         while (!isByteArrayInitialized()) {

@@ -4,31 +4,55 @@
   <title>JPEG Viewer</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!--https://fontawesome.com/search-->
 </head>
 <body>
-    <section id="header">
-      <div class="wrapper">
-        <div class = "title">
-          <i class="fa-regular fa-image"></i>All-in JPEG Viewer</div>
+  <header id="header">
+    <div class="wrapper">
+      <div class = "title">
+        All-in JPEG Viewer <!--<i class="fa-regular fa-image"></i>-->
+      </div>
+    </div>
+    <!-- <div id="file-name"> </div>-->
+    </div>
+  </header>
+  <main>
+    <nav>
+      <div class="radio-wrapper">
+        <div class="spacer"></div>
+        <div class="radio-container">
+          <label class="radio-button">
+            <input type="radio" name="iconRadio" value="layer-group">
+            <i class="fa-solid fa-layer-group fa-2x" style="color: #ffffff;"></i>
+          </label>
         </div>
       </div>
-      <div id="file-name">
+      <div  class="radio-wrapper">
+        <div class="spacer"></div>
+        <div class="radio-container">
+          <label class="radio-button" style="padding:16px">
+            <input type="radio" name="iconRadio" value="file-lines">
+            <i class="fa-solid fa-file-lines fa-2x" style="color: #ffffff;"></i>
+          </label>
+        </div>
       </div>
-    </section>
-    <section id="main">
+    </nav>
+    <aside>
+      <div id="tab" style="background-color:aqua;height:100%;"></div>
+      <div id="tab" style="background-color:red;height:100%;display:none;"></div>
+    </aside>
+    <section id="main-section">
       <div class="main-image-container">
-        <!-- jpeg 분석한 이미지가 들어갈 공간 -->
           <img src="" id="main_image" style="max-width: 100%;">
-        </div>
-        <div id="contents-container" width = "" height="">
+      </div>
+      <div id="contents-container" width = "" height="">
           <img src="" class="sub_image" id="sub_image1" value="1" style="max-width: 100%;">
           <img src="" class="sub_image" id="sub_image2" value="1" style="max-width: 100%;">
-        </div>
-        <div></div>
+      </div>
     </section>
-      <script src="node_modules/exif-js/exif.js"></script>
-       <script src="contentScript/fileIO.js"></script>
-    <script type="module" src="contentScript/viewer.js"></script>
-    </body>
+  </main>
+  <script src="node_modules/exif-js/exif.js"></script>
+  <script src="contentScript/fileIO.js"></script>
+  <script type="module" src="contentScript/viewer.js"></script>
+  </body>
 </html>
