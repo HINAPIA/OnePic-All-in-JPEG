@@ -49,12 +49,12 @@ metaDataRadioBtn.addEventListener("change",function()
 });
 
 
+const imageContentSection = document.getElementById("image-contents-section");
 
 async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
     const imageElement = document.getElementById("main_image")
-    console.log(imageUrl+"이다!!!!!")
     imageElement.src = imageUrl;
-    document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
+    // document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
     getImageByteArrayFromURL(imageUrl)
     .then(async byteArray => {
       if (byteArray) {
@@ -66,15 +66,29 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         //   await new Promise(resolve => setTimeout(resolve, 1000));
         //   break;
         // }
-        let testPicture = aiContainer.imageContent.pictureList[1]
-        const testImageElement = document.getElementById("sub_image1");
-        testImageElement.src = aiContainer.imageContent.getBlobURL(testPicture);
-
-        testPicture = aiContainer.imageContent.pictureList[2]
-        const testImageElement2 = document.getElementById("sub_image2");
-        testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
+     
+        for (let i = 0; i < aiContainer.imageContent.pictureList.length; i++) {
+          console.log(i);
+          let pictureData = aiContainer.imageContent.pictureList[i]
+          const img = document.createElement("img");
+          img.src = aiContainer.imageContent.getBlobURL(pictureData);; // 이미지 파일 경로 설정
+          img.classList.add("sub_image");
+       
+          img.addEventListener('click', (e) =>{
+            chageMainImagetoSelectedImage(e, aiContainer, i)
+          })
+          imageContentSection.appendChild(img);
+        }
       
-        addSubImageEvent();
+        // let testPicture = aiContainer.imageContent.pictureList[1]
+        // const testImageElement = document.getElementById("sub_image1");
+        // testImageElement.src = aiContainer.imageContent.getBlobURL(testPicture);
+
+        // testPicture = aiContainer.imageContent.pictureList[2]
+        // const testImageElement2 = document.getElementById("sub_image2");
+        // testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
+      
+        //addSubImageEvent();
         console.log(await getBasicMetadata());
         getAiMetadata();
 
