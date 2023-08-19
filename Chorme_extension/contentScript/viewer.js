@@ -20,6 +20,36 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
 });
 
 
+/* nav menu 선택 처리 */
+const contentsRadioBtn = document.getElementById("contents-menu-btn"); // contents-menu radio btn
+const metaDataRadioBtn = document.getElementById("meta-data-menu-btn"); // meta-data-menu radio btn
+const contentMenuSpacer = document.getElementById("contents-menu-spacer");
+const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
+const contentsMenuTab = document.getElementById("contents-menu-tab");
+const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
+
+// 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
+contentsRadioBtn.addEventListener("change", function() {
+    if (this.checked) {
+        contentMenuSpacer.style.visibility = "visible"
+        metaDataMenuSpacer.style.visibility = "hidden"
+        contentsMenuTab.style.display = "block"
+        meataDataMenuTab.style.display ="none"
+    }
+});
+
+metaDataRadioBtn.addEventListener("change",function()
+{
+  if (this.checked) {
+    metaDataMenuSpacer.style.visibility = "visible"
+    contentMenuSpacer.style.visibility = "hidden"
+    contentsMenuTab.style.display = "none"
+    meataDataMenuTab.style.display ="block"
+  }
+});
+
+
+
 async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
     const imageElement = document.getElementById("main_image")
     console.log(imageUrl+"이다!!!!!")

@@ -7,6 +7,8 @@ body {
     height:100%;
 }
 
+/* Header section style*/
+
 #header{
     font-weight: bold;
     font-size: 20px;
@@ -17,10 +19,6 @@ body {
     border: none;
 }
 
-main {
-    display: flex;
-    height:100%;
-}
 
 .wrapper{
     width: 100%;
@@ -29,6 +27,12 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+
+.title{
+    font-size: 20px;
+    margin-left: 30px;
 }
 
 #file-name {
@@ -43,14 +47,75 @@ main {
 }
 
 
-.title{
-    font-size: 20px;
-    margin-left: 30px;
-}
-
 .fa-image {
     margin-right:10px;
     color:#FFFFFF;
+}
+
+/* Main section style*/
+
+main {
+    display: flex;
+    height:100%;
+}
+
+
+/* nav section styles*/
+nav {
+    flex-basis: 4%;
+    background-color: #333639;
+}
+
+
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 0;
+    height: 0;
+    position: absolute;
+    opacity: 0;
+  }
+
+.radio-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.spacer {
+    background-color: yellow;
+    width: 5px;
+    height: 30px;
+    margin-top:7px;
+}
+
+.radio-container {
+    display: inline-block;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.radio-button {
+    display: inline-block;
+    padding: 10px;
+}
+
+.radio-button i {
+    color: #ffffff;
+    font-size: 2rem;
+}
+
+/* left aside section style */
+aside {
+    flex-basis: 16%;
+    background-color: #BBBDBF;
+}
+  
+#main-section {
+    flex-basis: 80%;
+    background-color: #E1E3E6;
+    
 }
 
 /* 이미지를 감싸는 컨테이너 */
@@ -78,60 +143,6 @@ main {
     
     width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
     height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
-}
-
-nav {
-    flex-basis: 4%;
-    background-color: #333639;
-}
-
-aside {
-    flex-basis: 16%;
-    background-color: #BBBDBF;
-}
-  
-#main-section {
-    flex-basis: 80%;
-    background-color: #E1E3E6;
-    
-}
-
-input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 0;
-    height: 0;
-    position: absolute;
-    opacity: 0;
-  }
-
-.radio-wrapper {
-    display: flex;
-    align-items: center;
-}
-
-.spacer {
-    background-color: yellow;
-    width: 5px;
-    height: 25px;
-}
-
-.radio-container {
-display: inline-block;
-text-align: center;
-margin-top: 20px;
-margin-bottom: 20px;
-}
-
-.radio-button {
-    display: inline-block;
-    padding: 10px;
-}
-
-.radio-button i {
-    color: #ffffff;
-    font-size: 2rem;
 }
 
 
