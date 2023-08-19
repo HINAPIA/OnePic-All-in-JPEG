@@ -42,12 +42,12 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
         suspendCoroutine { result ->
             val overlayImg: ArrayList<Bitmap> = arrayListOf()
 
-            Log.d("faceRewind","while start")
+            Log.d("faceBlending","while start")
             while (!isInit) {}
-            Log.d("faceRewind","while end")
+            Log.d("faceBlending","while end")
 
 //             val overlayImg: ArrayList<Bitmap> = arrayListOf()
-            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            // blending 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
                 val newBitmapList = getBitmapList()
@@ -110,20 +110,20 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
     }
     @Synchronized
     fun  getBitmapList() : ArrayList<Bitmap>? {
-        Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        Log.d("faceRewind", "getBitmapList 호출")
+        Log.d("faceBlending", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        Log.d("faceBlending", "getBitmapList 호출")
 
 //        checkTransformBitmap = true
         try {
-            Log.d("faceRewind", "checkPictureList bitmapList.size ${bitmapList.size}")
+            Log.d("faceBlending", "checkPictureList bitmapList.size ${bitmapList.size}")
             if (bitmapList.size == 0) {
-                Log.d("faceRewind", "checkPictureList while start")
+                Log.d("faceBlending", "checkPictureList while start")
                 while (!imageContent.checkPictureList) {
 //                if(!checkTransformBitmap)
 //                    return null
                 }
                 val pictureListSize = pictureList.size
-                Log.d("faceRewind", "pictureListSize : $pictureListSize")
+                Log.d("faceBlending", "pictureListSize : $pictureListSize")
                 val checkFinish = BooleanArray(pictureListSize)
 
                 val exBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[0]))
@@ -132,12 +132,12 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
                     checkFinish[i] = false
                     bitmapList.add(exBitmap)
                 }
-                Log.d("faceRewind", "==============================")
+                Log.d("faceBlending", "==============================")
                 for (i in 0 until pictureListSize) {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
-                            Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
+                            Log.d("faceBlending", "coroutine in pictureListSize : $pictureListSize")
                             val bitmap =
                                 imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
 //                    if(checkTransformBitmap) {

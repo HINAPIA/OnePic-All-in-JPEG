@@ -3,6 +3,6 @@
     <item
         android:width="15dp"
         android:height="15dp"
-        android:drawable="@drawable/add_icon"
+        android:drawable="@drawable/edit_menu_focus_icon"
         />
 </layer-list>

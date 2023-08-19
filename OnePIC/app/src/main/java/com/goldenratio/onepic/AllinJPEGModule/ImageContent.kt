@@ -34,7 +34,7 @@ class ImageContent {
 //    private var checkTransformMain = false
 
     var checkMagicCreated = false
-    var checkRewind = false
+    var checkBlending = false
     var checkAdded = false
     var checkMainChanged = false
     var checkEditChanged = false
@@ -69,7 +69,7 @@ class ImageContent {
 
     fun setCheckAttribute() {
         checkMagicCreated = false
-        checkRewind = false
+        checkBlending = false
         checkAdded = false
         checkMainChanged = false
         checkEditChanged = false
@@ -604,7 +604,7 @@ class ImageContent {
         if (attributeBitmapList.size == 0) {
             val newBitmapList = arrayListOf<Bitmap>()
             while (!checkBitmapList || !checkPictureList) {
-                Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+                Log.d("faceblending", "!!!! $checkBitmapList || $checkPictureList")
                 Thread.sleep(200)
             }
             for (i in 0 until pictureList.size) {
@@ -629,7 +629,7 @@ class ImageContent {
 
     fun  getBitmapList() : ArrayList<Bitmap>? {
         while (!checkBitmapList || !checkPictureList) {
-            Log.d("faceRewind","!!!! $checkBitmapList || $checkPictureList")
+            Log.d("faceblending","!!!! $checkBitmapList || $checkPictureList")
             Thread.sleep(200)
         }
         return bitmapList
@@ -637,7 +637,7 @@ class ImageContent {
 
     fun addBitmapList( index: Int, bitmap: Bitmap) {
         while (!checkBitmapList || !checkPictureList || bitmapList.size < index) {
-            Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
         }
         bitmapList.add(index, bitmap)
         attributeBitmapList.clear()
@@ -645,7 +645,7 @@ class ImageContent {
     }
     fun addBitmapList( bitmap: Bitmap) {
         while (!checkBitmapList || !checkPictureList) {
-            Log.d("faceRewind", "!!!! $checkBitmapList || $checkPictureList")
+            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
         }
         bitmapList.add(bitmap)
         attributeBitmapList.clear()
@@ -656,21 +656,21 @@ class ImageContent {
     fun setBitmapList() {
         isSetBitmapListStart = true
 
-        Log.d("faceRewind", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        Log.d("faceRewind", "getBitmapList 호출")
+        Log.d("faceBlending", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        Log.d("faceBlending", "getBitmapList 호출")
 
         val newBitmapList = arrayListOf<Bitmap>()
 
         try {
-//            Log.d("faceRewind", "checkPictureList bitmapList.size ${bitmapList.size}")
+//            Log.d("faceBlending", "checkPictureList bitmapList.size ${bitmapList.size}")
 //
-//            Log.d("faceRewind", "checkPictureList while start")
+//            Log.d("faceBlending", "checkPictureList while start")
 //
             while (!checkPictureList) { }
 
-//            Log.d("faceRewind", "checkPictureList $checkPictureList")
+//            Log.d("faceBlending", "checkPictureList $checkPictureList")
             val pictureListSize = pictureList.size
-//            Log.d("faceRewind", "pictureListSize : $pictureListSize")
+//            Log.d("faceBlending", "pictureListSize : $pictureListSize")
             val checkFinish = BooleanArray(pictureListSize)
 
             val exBitmap = ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[0]))
@@ -679,12 +679,12 @@ class ImageContent {
                 checkFinish[i] = false
                 newBitmapList.add(exBitmap)
             }
-            Log.d("faceRewind", "==============================")
+            Log.d("faceBlending", "==============================")
             for (i in 0 until pictureListSize) {
 
                 CoroutineScope(Dispatchers.Default).launch {
                     try {
-                        Log.d("faceRewind", "coroutine in pictureListSize : $pictureListSize")
+                        Log.d("faceBlending", "coroutine in pictureListSize : $pictureListSize")
                         val bitmap =
                             ImageToolModule().byteArrayToBitmap(getJpegBytes(pictureList[i]))
 
@@ -713,7 +713,7 @@ class ImageContent {
             bitmapList = newBitmapList
             checkBitmapList = true
             isSetBitmapListStart = false
-            Log.d("faceRewind", "getBitmap end!!!")
+            Log.d("faceBlending", "getBitmap end!!!")
 //        checkTransformBitmap = fals
         } catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드

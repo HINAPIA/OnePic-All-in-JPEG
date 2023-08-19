@@ -3,6 +3,6 @@
     <item
         android:width="15dp"
         android:height="15dp"
-        android:drawable="@drawable/rewind_icon"
+        android:drawable="@drawable/edit_menu_best_recommendation_icon"
         />
 </layer-list>

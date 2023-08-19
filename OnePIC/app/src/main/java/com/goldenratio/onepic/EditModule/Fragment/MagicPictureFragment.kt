@@ -104,7 +104,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            // rewind 가능한 연속 사진 속성의 picture list 얻음
+            // blending 가능한 연속 사진 속성의 picture list 얻음
             val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
             if (newBitmapList != null) {

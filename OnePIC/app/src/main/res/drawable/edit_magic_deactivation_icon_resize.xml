@@ -3,6 +3,6 @@
         <item
             android:width="20dp"
             android:height="20dp"
-            android:drawable="@drawable/magic_deactivation"
+            android:drawable="@drawable/edit_magic_deactivation_icon"
             />
     </layer-list>

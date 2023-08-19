@@ -3,6 +3,6 @@
     <item
         android:width="15dp"
         android:height="15dp"
-        android:drawable="@drawable/best_main_icon"
+        android:drawable="@drawable/edit_menu_magic_icon"
         />
 </layer-list>

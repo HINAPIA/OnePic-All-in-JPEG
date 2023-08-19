@@ -233,17 +233,17 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
-                android:id="@+id/rewindBtn"
+                android:id="@+id/blending_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/menu_round"
-                android:drawableLeft="@drawable/rewind_icon_resize"
+                android:background="@drawable/edit_menu_round"
+                android:drawableLeft="@drawable/edit_menu_blending_icon_resize"
                 android:paddingStart="14dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="14dp"
                 android:paddingBottom="12dp"
-                android:text="@string/rewind"
+                android:text="@string/blending"
                 android:textAllCaps="false"
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
@@ -338,8 +338,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="13dp"
                 android:layout_weight="1"
-                android:background="@drawable/menu_round"
-                android:drawableLeft="@drawable/magic_icon_resize"
+                android:background="@drawable/edit_menu_round"
+                android:drawableLeft="@drawable/edit_menu_magic_icon_resize"
                 android:paddingStart="14dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="14dp"
@@ -350,7 +350,7 @@
                 android:textSize="11dp"
                 android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rewindBtn" />
+                app:layout_constraintTop_toBottomOf="@+id/blending_btn" />
 
 
             <!--            오디오 layout-->
@@ -371,8 +371,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="13dp"
                 android:layout_weight="1"
-                android:background="@drawable/menu_round"
-                android:drawableLeft="@drawable/best_main_icon_resize"
+                android:background="@drawable/edit_menu_round"
+                android:drawableLeft="@drawable/edit_menu_best_recommendation_icon_resize"
                 android:paddingStart="14dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="14dp"
@@ -382,7 +382,7 @@
                 android:textColor="@color/menu_color"
                 android:textSize="11dp"
                 android:visibility="invisible"
-                app:layout_constraintBottom_toTopOf="@+id/rewindBtn"
+                app:layout_constraintBottom_toTopOf="@+id/blending_btn"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
@@ -391,8 +391,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="13dp"
                 android:layout_weight="1"
-                android:background="@drawable/menu_round"
-                android:drawableLeft="@drawable/focus_icon_resize"
+                android:background="@drawable/edit_menu_round"
+                android:drawableLeft="@drawable/edit_menu_focus_icon_resize"
                 android:paddingStart="14dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="14dp"

@@ -38,7 +38,7 @@
         android:id="@+id/FaceBlendingFragment"
         android:name="com.goldenratio.onepic.EditModule.Fragment.FaceBlendingFragment"
         android:label="FaceBlendingFragment"
-        tools:layout="@layout/fragment_rewind">
+        tools:layout="@layout/fragment_face_blending">
         <action
             android:id="@+id/action_fregemnt_to_editFragment"
             app:destination="@id/editFragment"

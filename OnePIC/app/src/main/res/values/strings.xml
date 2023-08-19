@@ -4,7 +4,7 @@
     <string name="focus"> 사진 초점 변경</string>
 
     <string name="choice_button"> &#160;&#160;Best 사진 추천&#160; </string>
-    <string name="rewind"> &#160;&#160;Face Blending&#160; </string>
+    <string name="blending"> &#160;&#160;Face Blending&#160; </string>
     <string name="magicPicture"> &#160;&#160;매직픽쳐 생성&#160; </string>
     <string name="focus_change"> &#160;&#160;사진 초점 변경&#160; </string>
 
@@ -37,7 +37,6 @@
     <string name="basic_option">Basic</string>
     <string name="object_focus_option">Object Focus</string>
     <string name="distance_focus_option">Distance Focus</string>
-    <string name="auto_rewind_option">Auto Rewind</string>
     <string name="burst_mode_edit">Burst Mode</string>
     <string name="basic_mode_edit">Basic Mode</string>
 
