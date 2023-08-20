@@ -27,7 +27,7 @@ const contentMenuSpacer = document.getElementById("contents-menu-spacer");
 const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
 const contentsMenuTab = document.getElementById("contents-menu-tab");
 const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
-
+const audioContent =  document.getElementById("audio-content");
 // 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
 contentsRadioBtn.addEventListener("change", function() {
     if (this.checked) {
@@ -54,7 +54,7 @@ const imageContentSection = document.getElementById("image-contents-section");
 async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
     const imageElement = document.getElementById("main_image")
     imageElement.src = imageUrl;
-    // document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
+    document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
     getImageByteArrayFromURL(imageUrl)
     .then(async byteArray => {
       if (byteArray) {
@@ -66,8 +66,9 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         //   await new Promise(resolve => setTimeout(resolve, 1000));
         //   break;
         // }
-     
-        for (let i = 0; i < aiContainer.imageContent.pictureList.length; i++) {
+        const SIZE = aiContainer.imageContent.pictureList.length
+        document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
+        for (let i = 0; i < SIZE; i++) {
           console.log(i);
           let pictureData = aiContainer.imageContent.pictureList[i]
           const img = document.createElement("img");
@@ -79,20 +80,15 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
           })
           imageContentSection.appendChild(img);
         }
-      
-        // let testPicture = aiContainer.imageContent.pictureList[1]
-        // const testImageElement = document.getElementById("sub_image1");
-        // testImageElement.src = aiContainer.imageContent.getBlobURL(testPicture);
-
-        // testPicture = aiContainer.imageContent.pictureList[2]
-        // const testImageElement2 = document.getElementById("sub_image2");
-        // testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
-      
-        //addSubImageEvent();
+  
         console.log(await getBasicMetadata());
         getAiMetadata();
 
-        aiContainer.playAudio();
+      // TODO: audio 만드는것만 하는 걸로 변경해야할 듯
+       aiContainer.playAudio();
+       console.log("here" +aiContainer.audioContent.blobUrl)
+       audioContent.src = aiContainer.audioContent.blobUrl
+      
       }
     });
 }

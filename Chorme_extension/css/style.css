@@ -35,17 +35,6 @@ body {
     margin-left: 30px;
 }
 
-#file-name {
-    width: 100%;
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    min-height: 1rem;
-    color:black;
-    text-align: center;
-    margin-top:1rem;
-}
-
 
 .fa-image {
     margin-right:10px;
@@ -115,7 +104,21 @@ aside {
 #main-section {
     flex-basis: 80%;
     background-color: #E1E3E6;
-    
+  
+}
+
+#file-name {
+    width: 100%;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    min-height: 1rem;
+    color:black;
+    text-align: center;
+    font-weight: bold;
+    margin-top:1rem;
+    margin-bottom:1rem;
+    font-size: 20px;
 }
 
 /* 이미지를 감싸는 컨테이너 */
@@ -123,7 +126,7 @@ aside {
     /* 원하는 이미지 크기로 조절합니다. */
     text-align:center;
     max-width: 80%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
-    max-height: 100vh; /*브라우저 창의 높이에 맞게 이미지를 축소합니다.*/
+    max-height: 90vh; /*브라우저 창의 높이에 맞게 이미지를 축소합니다.*/
     /* 다른 스타일링을 적용할 수도 있습니다. */
     margin: auto;
 }
@@ -131,20 +134,8 @@ aside {
   /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
 #main_image {
     width: auto; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
-    max-height: 100vh;
+    max-height: 90vh;
     /* height: auto; 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
-}
-
-  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
-.sub_image {
-    /* 원하는 이미지 크기로 조절합니다. */
-    max-width: 58%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
-    max-height: 100vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
-    /* 다른 스타일링을 적용할 수도 있습니다. */
-    margin: auto;
-    
-    width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
-    height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
 }
 
 #image-contents-section {
@@ -152,6 +143,16 @@ aside {
     padding-top:15px;
     height:74%;
     overflow-y: auto;
+    background-color: #F0F1F2;
+}
+
+#image-content-logo{
+    display:inline-block;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 0;
+    margin-right: 10px;
+    margin-bottom: 15px;
 }
 
 .sub_image {
@@ -159,3 +160,26 @@ aside {
     margin-bottom: 15px;
 }
 
+#audio-content-section {
+    height:9%;
+    position: relative;
+}
+
+audio {
+    width:100%;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+#text-content-section {
+    padding:10px;
+    text-align: center;
+    height:9%;
+}
+
+#text-content {
+    background-color: red;
+    height:80%;
+    border-radius: 1rem;
+}
