@@ -918,6 +918,8 @@ class Camera2Module(
      * 해당 위치에 초점을 맞춰주는 함수
      */
     fun setTouchPointDistanceChange(x: Float, y: Float, halfTouchWidth: Int, halfTouchHeight: Int) {
+        var isCaptured = false
+
         val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         // 카메라 정보 알아내기
         val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -942,7 +944,8 @@ class Camera2Module(
             ) {
                 //the focus trigger is complete -
                 //resume repeating (preview surface will get frames), clear AF trigger
-                if (request.tag == "FOCUS_TAG")  {
+                if (request.tag == "FOCUS_TAG" && !isCaptured)  {
+                    isCaptured = true
                     previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
                     captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
                     if(objectDetectionModule.getIsDetectionStop()) {

@@ -21,10 +21,7 @@ import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentFocusChangeBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -264,12 +261,15 @@ class FocusChangeFragment : Fragment() {
                         resultBitmap!!,
                         imageContent.getJpegBytes(pictureList[index!!])
                     )
-
-                    imageContent.pictureList.add(index!!,
-                        Picture(ContentAttribute.edited, imageContent.extractSOI(allBytes)))
+                    val app1Segment = imageContent.extractAPP1(allBytes)
+                    val frame =async {
+                        imageContent.extractSOI(allBytes)
+                    }
+                    val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
+                    imageContent.pictureList.add(index!!, picture)
 //                    imageContent.addBitmapList(index!!, selectBitmap)
 
-                    imageContent.pictureList[index!!].waitForByteArrayInitialized()
+                    picture.waitForByteArrayInitialized()
 
                     jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[index!!]), index!!)
 
