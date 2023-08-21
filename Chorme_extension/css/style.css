@@ -97,8 +97,9 @@ input[type="radio"] {
 
 /* left aside section style */
 aside {
-    flex-basis: 16%;
+    flex-basis: 200px;
     background-color: #BBBDBF;
+    flex-shrink: 0; 
 }
   
 #main-section {
