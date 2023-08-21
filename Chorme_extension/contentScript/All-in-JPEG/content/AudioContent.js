@@ -3,6 +3,7 @@ export default class AudioContent {
     constructor() {
         this.aiAudio = null;
         this.audioPlayer = null;
+        this.blobUrl = null;
     }
 
     init() {
@@ -51,10 +52,9 @@ export default class AudioContent {
     createNewAudioPlayer(){
         if(this.aiAudio != null){
             const blob = new Blob([this.aiAudio._audioByteArray], { type: 'audio/mp3' });
-            const url = URL.createObjectURL(blob);
+            this.blobUrl = URL.createObjectURL(blob);
             console.log("새로운 오디오 파일 갱신.")
-            return new Audio(url);
-            
+            return new Audio(this.blobUrl);
         }
         else{
             console.log("오디오 파일 갱신 실패.")

@@ -20,9 +20,41 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
 });
 
 
+/* nav menu 선택 처리 */
+const contentsRadioBtn = document.getElementById("contents-menu-btn"); // contents-menu radio btn
+const metaDataRadioBtn = document.getElementById("meta-data-menu-btn"); // meta-data-menu radio btn
+const contentMenuSpacer = document.getElementById("contents-menu-spacer");
+const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
+const contentsMenuTab = document.getElementById("contents-menu-tab");
+const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
+const audioContent =  document.getElementById("audio-content");
+const textContent = document.getElementById("text-content");
+
+// 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
+contentsRadioBtn.addEventListener("change", function() {
+    if (this.checked) {
+        contentMenuSpacer.style.visibility = "visible"
+        metaDataMenuSpacer.style.visibility = "hidden"
+        contentsMenuTab.style.display = "block"
+        meataDataMenuTab.style.display ="none"
+    }
+});
+
+metaDataRadioBtn.addEventListener("change",function()
+{
+  if (this.checked) {
+    metaDataMenuSpacer.style.visibility = "visible"
+    contentMenuSpacer.style.visibility = "hidden"
+    contentsMenuTab.style.display = "none"
+    meataDataMenuTab.style.display ="block"
+  }
+});
+
+
+const imageContentSection = document.getElementById("image-contents-section");
+
 async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
     const imageElement = document.getElementById("main_image")
-    console.log(imageUrl+"이다!!!!!")
     imageElement.src = imageUrl;
     document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
     getImageByteArrayFromURL(imageUrl)
@@ -36,21 +68,46 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         //   await new Promise(resolve => setTimeout(resolve, 1000));
         //   break;
         // }
-        let testPicture = aiContainer.imageContent.pictureList[1]
-        const testImageElement = document.getElementById("sub_image1");
-        testImageElement.src = aiContainer.imageContent.getBlobURL(testPicture);
-
-        testPicture = aiContainer.imageContent.pictureList[2]
-        const testImageElement2 = document.getElementById("sub_image2");
-        testImageElement2.src = aiContainer.imageContent.getBlobURL(testPicture);
-      
-        addSubImageEvent();
+        const SIZE = aiContainer.imageContent.pictureList.length
+        document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
+        for (let i = 0; i < SIZE; i++) {
+          console.log(i);
+          let pictureData = aiContainer.imageContent.pictureList[i]
+          const img = document.createElement("img");
+          img.src = aiContainer.imageContent.getBlobURL(pictureData);; // 이미지 파일 경로 설정
+          img.classList.add("sub_image");
+       
+          img.addEventListener('click', (e) =>{
+            chageMainImagetoSelectedImage(e, aiContainer, i)
+          })
+          imageContentSection.appendChild(img);
+        }
+  
         console.log(await getBasicMetadata());
         getAiMetadata();
 
-        aiContainer.playAudio();
-      }
-    });
+      // TODO: audio 만드는것만 하는 걸로 변경해야할 듯
+       aiContainer.playAudio();
+       audioContent.src = aiContainer.audioContent.blobUrl
+      
+       let isClicked = false;
+       textContent.innerHTML = aiContainer.textContent.textList[0].data
+       textContent.addEventListener('click', (e) =>{
+        if (!isClicked) {
+          textContent.style.backgroundColor = "#9177D0"
+          textContent.style.color = "white"
+          isClicked = true
+        }
+        else {
+          textContent.style.backgroundColor = "#F1F3F4"
+          textContent.style.color = "black"
+          isClicked = false
+        }
+      })
+
+    }
+
+  });
 }
 
 function getFileNameFromUrl(imageUrl) {

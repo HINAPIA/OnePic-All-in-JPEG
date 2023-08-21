@@ -947,7 +947,8 @@ class Camera2Module(
             ) {
                 //the focus trigger is complete -
                 //resume repeating (preview surface will get frames), clear AF trigger
-                if (request.tag == "FOCUS_TAG")  {
+                if (request.tag == "FOCUS_TAG" && !isCaptured)  {
+                    isCaptured = true
                     previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
                     captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
                     if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {

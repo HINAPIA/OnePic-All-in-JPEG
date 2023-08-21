@@ -7,6 +7,8 @@ body {
     height:100%;
 }
 
+/* Header section style*/
+
 #header{
     font-weight: bold;
     font-size: 20px;
@@ -17,10 +19,6 @@ body {
     border: none;
 }
 
-main {
-    display: flex;
-    height:100%;
-}
 
 .wrapper{
     width: 100%;
@@ -31,70 +29,32 @@ main {
     align-items: center;
 }
 
-#file-name {
-    width: 100%;
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    min-height: 1rem;
-    color:black;
-    text-align: center;
-    margin-top:1rem;
-}
-
 
 .title{
     font-size: 20px;
     margin-left: 30px;
 }
 
+
 .fa-image {
     margin-right:10px;
     color:#FFFFFF;
 }
 
-/* 이미지를 감싸는 컨테이너 */
-.main-image-container {
-    /* 원하는 이미지 크기로 조절합니다. */
-    max-width: 80%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
-    max-height: 100vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
-    /* 다른 스타일링을 적용할 수도 있습니다. */
-    margin: auto;
-}
-  
-  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
-#main_image {
-    width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
-    height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
+/* Main section style*/
+
+main {
+    display: flex;
+    height:100%;
 }
 
-  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
-.sub_image {
-    /* 원하는 이미지 크기로 조절합니다. */
-    max-width: 58%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
-    max-height: 100vh; /* 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
-    /* 다른 스타일링을 적용할 수도 있습니다. */
-    margin: auto;
-    
-    width: 100%; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
-    height: auto; /* 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
-}
 
+/* nav section styles*/
 nav {
     flex-basis: 4%;
     background-color: #333639;
 }
 
-aside {
-    flex-basis: 16%;
-    background-color: #BBBDBF;
-}
-  
-#main-section {
-    flex-basis: 80%;
-    background-color: #E1E3E6;
-    
-}
 
 input[type="radio"] {
     appearance: none;
@@ -114,14 +74,15 @@ input[type="radio"] {
 .spacer {
     background-color: yellow;
     width: 5px;
-    height: 25px;
+    height: 30px;
+    margin-top:7px;
 }
 
 .radio-container {
-display: inline-block;
-text-align: center;
-margin-top: 20px;
-margin-bottom: 20px;
+    display: inline-block;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 .radio-button {
@@ -134,4 +95,115 @@ margin-bottom: 20px;
     font-size: 2rem;
 }
 
+/* left aside section style */
+aside {
+    flex-basis: 200px;
+    background-color: #BBBDBF;
+    flex-shrink: 0; 
+}
+  
+#main-section {
+    flex-basis: 100%;
+    background-color: #E1E3E6;
+  
+}
 
+#file-name {
+    width: 100%;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    min-height: 1rem;
+    color:black;
+    text-align: center;
+    font-weight: bold;
+    margin-top:1rem;
+    margin-bottom:1rem;
+    font-size: 20px;
+}
+
+/* 이미지를 감싸는 컨테이너 */
+.main-image-container {
+    /* 원하는 이미지 크기로 조절합니다. */
+    text-align:center;
+    max-width: 100%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
+    max-height: 100vh;
+    /* max-height: 90vh; 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
+    /* 다른 스타일링을 적용할 수도 있습니다. */
+    margin: auto;
+}
+  
+  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
+#main_image {
+    width: auto; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
+    max-height: 90vh;
+    /* height: auto; 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
+}
+
+#image-contents-section {
+    text-align: center;
+    padding-top:15px;
+    height:74%;
+    overflow-y: auto;
+    background-color: #F0F1F2;
+}
+
+#image-content-logo{
+    display:inline-block;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 0;
+    margin-right: 10px;
+    margin-bottom: 15px;
+}
+
+.sub_image {
+    max-width: 85%;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
+}
+
+.sub_image:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
+}
+
+#audio-content-section {
+    height:11%;
+    position: relative;
+}
+
+audio {
+    width: 95%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#text-content-section {
+    padding:10px;
+    text-align: center;
+    height:11%;
+}
+
+#text-content {
+    background-color: #F1F3F4;
+    height:80%;
+    border-radius: 1rem;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;   
+    font-weight: bold;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); 그림자 효과 추가 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+    0 2px 4px rgba(0, 0, 0, 0.1), 
+    0 -2px 4px rgba(0, 0, 0, 0.1), 
+    0 -4px 6px rgba(0, 0, 0, 0.1); /* 네 방향으로 그림자 효과 추가 */
+}
+
+#text-content:hover {
+    background-color: #9177D0; /* hover 시 배경색 변경 */
+    color:white;
+}

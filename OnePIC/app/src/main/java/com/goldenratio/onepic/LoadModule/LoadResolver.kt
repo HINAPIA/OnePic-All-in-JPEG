@@ -45,7 +45,7 @@ class LoadResolver() {
         AiContainer: AiContainer,
         sourceByteArray: ByteArray
     ) {
-        AiContainer.exploreMarkers(sourceByteArray)
+       // AiContainer.exploreMarkers(sourceByteArray)
 
         Log.d("MCContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
         CoroutineScope(Dispatchers.IO).launch {
@@ -192,7 +192,6 @@ class LoadResolver() {
                 val imageData = sourceByteArray.copyOfRange(offset + 2 + app1DataSize, offset + 2 + app1DataSize + size)
                 // picture 생성
                 picture = Picture(offset, app1Segment, imageData, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
-
                 picture.waitForByteArrayInitialized()
             }
             pictureList.add(picture)

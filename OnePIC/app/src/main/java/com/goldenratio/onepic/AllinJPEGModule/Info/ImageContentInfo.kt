@@ -80,7 +80,11 @@ class ImageContentInfo(imageContent: ImageContent) {
 
     fun getEndOffset():Int{
         var lastImageInfo = imageInfoList.last()
-        var extendImageDataSize = XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
+        var extendImageDataSize = 0
+        if(imageInfoList.size == 1){
+            extendImageDataSize = lastImageInfo.imageDataSize
+        }else
+            extendImageDataSize= XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
         //return lastImageInfo.offset + extendImageDataSize -1
         return lastImageInfo.offset + extendImageDataSize
     }

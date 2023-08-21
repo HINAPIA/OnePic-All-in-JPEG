@@ -240,7 +240,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         byteBuffer.write(0xd9)
 
         val singleJpegBytes = byteBuffer.toByteArray()
-        AiContainer.exploreMarkers(singleJpegBytes)
+       // AiContainer.exploreMarkers(singleJpegBytes)
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -13,36 +13,55 @@
         All-in JPEG Viewer <!--<i class="fa-regular fa-image"></i>-->
       </div>
     </div>
-    <!-- <div id="file-name"> </div>-->
     </div>
   </header>
   <main>
     <nav>
       <div class="radio-wrapper">
-        <div class="spacer"></div>
+        <div class="spacer" id="contents-menu-spacer" style="visibility:visible"></div>
         <div class="radio-container">
           <label class="radio-button">
-            <input type="radio" name="iconRadio" value="layer-group">
+            <input id="contents-menu-btn" type="radio" name="iconRadio" value="layer-group">
             <i class="fa-solid fa-layer-group fa-2x" style="color: #ffffff;"></i>
           </label>
         </div>
       </div>
       <div  class="radio-wrapper">
-        <div class="spacer"></div>
+        <div class="spacer" id="meta-data-menu-spacer" style="visibility:hidden"></div>
         <div class="radio-container">
           <label class="radio-button" style="padding:16px">
-            <input type="radio" name="iconRadio" value="file-lines">
+            <input id="meta-data-menu-btn" type="radio" name="iconRadio" value="file-lines">
             <i class="fa-solid fa-file-lines fa-2x" style="color: #ffffff;"></i>
           </label>
         </div>
       </div>
     </nav>
     <aside>
-      <div id="tab" style="background-color:aqua;height:100%;"></div>
-      <div id="tab" style="background-color:red;height:100%;display:none;"></div>
+      <!-- contents가 보이는 tab -->
+      <div id="contents-menu-tab" style="height:100%;">
+        <section id="image-contents-section">
+          <i class="fa-regular fa-image fa-lg" style="color: #000000;"></i><p id="image-content-logo"></p>
+        </section>
+        <section id="audio-content-section">
+          <audio controls id="audio-content">
+          </audio>
+        </section>
+        <section id="text-content-section">
+          <div id="text-content"></div>
+        </section>
+      </div>
+        <!-- meta 데이터가 보이는 tab -->
+      <div id="meta-data-menu-tab" style="height:100%;display:none;">
+      
+
+
+
+      
+      </div>
     </aside>
     <section id="main-section">
       <div class="main-image-container">
+        <div id="file-name"> </div>
           <img src="" id="main_image" style="max-width: 100%;">
       </div>
       <div id="contents-container" width = "" height="">
