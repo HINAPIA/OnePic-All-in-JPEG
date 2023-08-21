@@ -431,10 +431,11 @@ class FaceDetectionModule() {
             while (!checkFinish.all { it }) {
             }
 
-            continuation.resume(eyesAnalysisResults)
+            continuation.resume(imageToolModule.adjustMinMaxValues(eyesAnalysisResults, 0.0,1.0))
         }
 
     fun getSmilingAnalysisResults(): ArrayList<Double> {
-        return smilingAnalysisResults
+        return imageToolModule.adjustMinMaxValues(smilingAnalysisResults, 0.0,1.0)
+//        return smilingAnalysisResults
     }
 }

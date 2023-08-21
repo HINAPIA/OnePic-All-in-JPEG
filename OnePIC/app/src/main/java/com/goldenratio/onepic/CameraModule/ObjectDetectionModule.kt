@@ -37,14 +37,11 @@ class ObjectDetectionModule(
 
     private fun setDetecter() {
         // High-accuracy landmark detection and face classification
-        val highAccuracyOpts = FaceDetectorOptions.Builder()
+        val highFastOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-            .enableTracking()
             .build()
 
-        faceDetector = FaceDetection.getClient(highAccuracyOpts)
+        faceDetector = FaceDetection.getClient(highFastOpts)
 
         // Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()

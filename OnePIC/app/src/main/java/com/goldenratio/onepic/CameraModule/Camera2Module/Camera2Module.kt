@@ -26,6 +26,9 @@ import com.example.test_camera2.CameraHelper.CompareSizesByArea
 import com.example.test_camera2.CameraHelper.ImageSaver
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.CameraModule.ObjectDetectionModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -594,7 +597,7 @@ class Camera2Module(
         }
 
         // Pick the smallest of those big enough. If there is no one big enough, pick the
-        // largest of those not big enough.
+        // largest of those not big eugh.
         if (bigEnough.size > 0) {
             return Collections.min(bigEnough, CompareSizesByArea())
         } else if (notBigEnough.size > 0) {
@@ -918,6 +921,8 @@ class Camera2Module(
      * 해당 위치에 초점을 맞춰주는 함수
      */
     fun setTouchPointDistanceChange(x: Float, y: Float, halfTouchWidth: Int, halfTouchHeight: Int) {
+        var isCaptured = false
+
         val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         // 카메라 정보 알아내기
         val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -945,7 +950,8 @@ class Camera2Module(
                 if (request.tag == "FOCUS_TAG")  {
                     previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
                     captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
-                    if(objectDetectionModule.getIsDetectionStop()) {
+                    if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
+                        isCaptured = true
                         Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
                         lockFocus(1)
                     }

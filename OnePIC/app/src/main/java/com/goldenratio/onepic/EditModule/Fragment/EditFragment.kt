@@ -45,6 +45,7 @@ import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
@@ -890,7 +891,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     // re(오른쪽 눈을 뜬 정도), le(왼쪽 눈을 뜬 정도), sm(웃고 있는 정도)를 알아낸다.
                     faceDetectionModule.allFaceDetection(bitmapList)
 
-
                     val eyesDetectionResult = faceDetectionModule.getEyesAnalysisResults(bitmapList)
                     val smilingDetectionResult = faceDetectionModule.getSmilingAnalysisResults()
                     Log.d("anaylsis", "end faceDetection")
@@ -903,7 +903,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     var preBestImageIndex = 0
 
                     for (i in 0 until bitmapList.size) {
-
                         analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
                         if (analysisResults[preBestImageIndex] < analysisResults[i]) {
                             preBestImageIndex = i
@@ -923,7 +922,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         .into(binding.mainImageView)
 
                     val view =  binding.linear.getChildAt(bestImageIndex!!)
-
 
                     changeViewImage(bestImageIndex!!, view.findViewById<ImageView>(R.id.scrollImageView))
 
@@ -1015,6 +1013,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     // 이미지 추가
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         val uriList = arrayListOf<Uri>()
 
         if (data == null) {   // 어떤 이미지도 선택하지 않은 경우
@@ -1049,47 +1048,67 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
 
-            if(uriList.size > 0) {
+            if (uriList.size > 0) {
+                imageToolModule.showView(binding.progressBar, true)
                 checkAllInJPEG()
-                val currentImageContent = imageContent
-                val jpegAiContainer = AiContainer(requireActivity())
-                for(i in 0 until uriList.size) {
-                    val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
+                for (i in 0 until uriList.size) {
+                    val iStream: InputStream? =
+                        requireContext().contentResolver.openInputStream(uriList[i])
                     val sourceByteArray = imageToolModule.getBytes(iStream!!)
-                    val isContainerChanged = MutableLiveData<Boolean>()
 
-                    // 사진간 호환성 확인 - 기본 카메라로 찍은 사진일 때
-                    //if(currentImageContent.isBasicPicture(currentImageContent.getJpegBytes(pictureList.get(0)))){
-                    if(!JpegViewModel.AllInJPEG){
-                        Log.d("testTest", "기본 카메라로 찍은 사진")
-                        // 기본 카메라로 찍은 사진을 제외한 이미지 추가 불가 - APP1만 존재하는 사진이여야 함
-                        if(currentImageContent.isComplicatedPictue(sourceByteArray)){
-                            Toast.makeText(requireContext(), "호환 되지 않는 사진은 추가할 수 없습니다.", Toast.LENGTH_SHORT)
-                                .show()
-                            Log.d("testTest", "기본 카메라로 찍은 사진을 추가한 것이 아님")
-                            continue
+                    CoroutineScope(Dispatchers.Default).launch {
+                        var isPossibleAdd = true
+
+                        val currentImageContent = imageContent
+
+                        // 사진간 호환성 확인 - 기본 카메라로 찍은 사진일 때
+                        //if(currentImageContent.isBasicPicture(currentImageContent.getJpegBytes(pictureList.get(0)))){
+                        if (!JpegViewModel.AllInJPEG) {
+                            Log.d("testTest", "기본 카메라로 찍은 사진")
+                            // 기본 카메라로 찍은 사진을 제외한 이미지 추가 불가 - APP1만 존재하는 사진이여야 함
+                            if (currentImageContent.isComplicatedPictue(sourceByteArray)) {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "호환 되지 않는 사진은 추가할 수 없습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                Log.d("testTest", "기본 카메라로 찍은 사진을 추가한 것이 아님")
+                                isPossibleAdd = false
+                            }
+                            Log.d("testTest", "기본 카메라로 찍은 사진을 추가")
                         }
-                        Log.d("testTest", "기본 카메라로 찍은 사진을 추가")
-                    }
-                    CoroutineScope(Dispatchers.Main).launch {
+
                         Log.d("tesetTest", "j : [${i}]")
-                        loadResolver.createMCContainer(jpegAiContainer, sourceByteArray)
-                        while (!jpegAiContainer.imageContent.checkPictureList) {
-                        }
-                        val newPictureList = jpegAiContainer.imageContent.pictureList
+
+                        if (isPossibleAdd) {
+                            val jpegAiContainer = AiContainer(requireActivity())
+                            val jop = async {
+                                loadResolver.createMCContainer(jpegAiContainer, sourceByteArray)
+                            }
+                            jop.await()
+
+                            while (!jpegAiContainer.imageContent.checkPictureList) {
+                            }
+
+                            val newPictureList = jpegAiContainer.imageContent.pictureList
 //
-                        for (j in 0 until newPictureList.size) {
-                            newPictureList[j].embeddedData = null
-                            newPictureList[j].embeddedSize = 0
-                            newPictureList[j].contentAttribute = ContentAttribute.basic
-                            pictureList.add(newPictureList[j])
+                            for (j in 0 until newPictureList.size) {
+                                newPictureList[j].embeddedData = null
+                                newPictureList[j].embeddedSize = 0
+                                newPictureList[j].contentAttribute = ContentAttribute.basic
+                                pictureList.add(newPictureList[j])
 
-                            // subLayer 동적 추가
-                            val subLayout = setSubImage(pictureList[pictureList.size - 1])
-                            binding.linear.addView(subLayout, pictureList.size - 1)
-                            val imageView = subLayout?.findViewById<ImageView>(R.id.scrollImageView)
+                                // subLayer 동적 추가
+                                val subLayout = setSubImage(pictureList[pictureList.size - 1])
+                                withContext(Dispatchers.Main) {
+                                    binding.linear.addView(subLayout, pictureList.size - 1)
+                                }
+                                val imageView =
+                                    subLayout?.findViewById<ImageView>(R.id.scrollImageView)
 
-                            if(newPictureList.size >= j){
+                                // TODO: 코드 확인 필요
                                 CoroutineScope(Dispatchers.Default).launch {
                                     imageContent.addBitmapList(
                                         imageToolModule.byteArrayToBitmap(
@@ -1097,25 +1116,25 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                         )
                                     )
                                 }
-                            }
 
-                            // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
-                            if (j == newPictureList.size - 1) {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    Glide.with(binding.mainImageView)
-                                        .load(imageContent.getChagedJpegBytes(pictureList[pictureList.size - 1]))
-                                        .into(binding.mainImageView)
+                                // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
+                                if (j == newPictureList.size - 1) {
+                                    withContext(Dispatchers.Main) {
+                                        Glide.with(binding.mainImageView)
+                                            .load(imageContent.getChagedJpegBytes(pictureList[pictureList.size - 1]))
+                                            .into(binding.mainImageView)
 
-                                    mainSubView?.background = null
-                                    mainSubView?.setPadding(0)
+                                        mainSubView?.background = null
+                                        mainSubView?.setPadding(0)
 
-                                    mainSubView = imageView!!
+                                        mainSubView = imageView!!
 
-                                    mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
-                                    mainSubView?.setPadding(6)
+                                        mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
+                                        mainSubView?.setPadding(6)
 
-                                    if(mainSubView != null)
-                                        setMoveScrollView(mainSubView!!, pictureList.size)
+                                        if (mainSubView != null)
+                                            setMoveScrollView(mainSubView!!, pictureList.size)
+                                    }
                                 }
                             }
 
@@ -1126,15 +1145,19 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
-
-                        // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
-                        setViewDetailMenu()
-                        setContainerTextSetting()
                     }
-
-
-                    //TODO: 유진아 여기 --> uriList: 방금 불러온 이미지들의 uri / newImageByteArrayList: 지금까지 불러온 이미지들의 bytearray
                 }
+
+                // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
+                setViewDetailMenu()
+                setContainerTextSetting()
+
+
+
+                imageToolModule.showView(binding.progressBar, false)
+
+
+                //TODO: 유진아 여기 --> uriList: 방금 불러온 이미지들의 uri / newImageByteArrayList: 지금까지 불러온 이미지들의 bytearray
             }
         }
     }

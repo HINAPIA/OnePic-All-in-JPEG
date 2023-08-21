@@ -215,7 +215,7 @@ class CameraFragment : Fragment() {
                 ) //fragment라서 activity intent와는 다른 방식
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            activity.supportFragmentManager.beginTransaction()?.addToBackStack(null)?.commit()
+            activity.supportFragmentManager.beginTransaction().addToBackStack(null).commit()
 
             startActivity(intent)
         }
@@ -635,18 +635,8 @@ class CameraFragment : Fragment() {
     }
 
     companion object {
-//        private const val TAG = "OnePIC"
-//        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-//        private const val REQUEST_CODE_PERMISSIONS = 10
-//        private const val DISTANCE_FOCUS_PHOTO_COUNT = 7
-//        private val REQUIRED_PERMISSIONS = // Array<String>
-//            mutableListOf(
-//                Manifest.permission.CAMERA,
-//                Manifest.permission.RECORD_AUDIO
-//            ).toTypedArray()
-
         private val BURST_OPTION1 = 3
         private val BURST_OPTION2 = 5
-        private val BURST_OPTION3 = 17
+        private val BURST_OPTION3 = 7
     }
 }

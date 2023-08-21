@@ -596,7 +596,7 @@ class ImageContent {
      *      - picture의 attrubuteType이 인자로 전달된 attribute가 아닌 것만 list로 제작 후 전달
      */
     // bitmapList getter
-    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap>? {
+    fun getBitmapList(attribute: ContentAttribute) : ArrayList<Bitmap> {
         if (bitmapListAttribute == null || bitmapListAttribute != attribute) {
             attributeBitmapList.clear()
             bitmapListAttribute = attribute
