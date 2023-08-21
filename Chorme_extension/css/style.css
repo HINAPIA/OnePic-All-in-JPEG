@@ -103,7 +103,7 @@ aside {
 }
   
 #main-section {
-    flex-basis: 80%;
+    flex-basis: 100%;
     background-color: #E1E3E6;
   
 }
@@ -126,8 +126,9 @@ aside {
 .main-image-container {
     /* 원하는 이미지 크기로 조절합니다. */
     text-align:center;
-    max-width: 80%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
-    max-height: 90vh; /*브라우저 창의 높이에 맞게 이미지를 축소합니다.*/
+    max-width: 100%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
+    max-height: 100vh;
+    /* max-height: 90vh; 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
     /* 다른 스타일링을 적용할 수도 있습니다. */
     margin: auto;
 }
@@ -159,6 +160,7 @@ aside {
 .sub_image {
     max-width: 85%;
     margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
 }
 
 #audio-content-section {
@@ -184,5 +186,17 @@ audio {
     background-color: #F1F3F4;
     height:80%;
     border-radius: 1rem;
-    
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;   
+    font-weight: bold;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); 그림자 효과 추가 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+    0 2px 4px rgba(0, 0, 0, 0.1), 
+    0 -2px 4px rgba(0, 0, 0, 0.1), 
+    0 -4px 6px rgba(0, 0, 0, 0.1); /* 네 방향으로 그림자 효과 추가 */
 }
+
+

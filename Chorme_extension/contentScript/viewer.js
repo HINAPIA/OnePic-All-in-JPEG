@@ -28,6 +28,8 @@ const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
 const contentsMenuTab = document.getElementById("contents-menu-tab");
 const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
 const audioContent =  document.getElementById("audio-content");
+const textContent = document.getElementById("text-content");
+
 // 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
 contentsRadioBtn.addEventListener("change", function() {
     if (this.checked) {
@@ -89,7 +91,10 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
        console.log("here" +aiContainer.audioContent.blobUrl)
        audioContent.src = aiContainer.audioContent.blobUrl
       
+       textContent.innerHTML = aiContainer.textContent.textList[0].data
+     
       }
+
     });
 }
 
