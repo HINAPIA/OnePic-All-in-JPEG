@@ -107,7 +107,9 @@ class FocusChangeFragment : Fragment() {
         imageToolModule.showView(binding.blurSettingLinearLayout, false)
 
         for(i in 0 until pictureList.size){
-            boundingBoxList.add(pictureList[i].embeddedData!!)
+            if(pictureList[i].contentAttribute == ContentAttribute.object_focus) {
+                boundingBoxList.add(pictureList[i].embeddedData!!)
+            }
         }
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -145,12 +147,6 @@ class FocusChangeFragment : Fragment() {
         infoLevel.observe(viewLifecycleOwner){ _ ->
             infoTextView()
         }
-
-//        CoroutineScope(Dispatchers.Default).launch {
-//            if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
-//                setSeekBar()
-//            }
-//        }
 
         setClickEvent()
 
@@ -266,14 +262,14 @@ class FocusChangeFragment : Fragment() {
                         imageContent.extractSOI(allBytes)
                     }
                     val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
-                    imageContent.pictureList.add(index!!, picture)
+                    imageContent.pictureList.add(picture)
 //                    imageContent.addBitmapList(index!!, selectBitmap)
 
                     picture.waitForByteArrayInitialized()
 
-                    jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[index!!]), index!!)
+                    jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[index!!]), pictureList.size-1)
 
-                    jpegViewModel.selectedSubImage = imageContent.pictureList[index!!]
+                    jpegViewModel.selectedSubImage = imageContent.pictureList[pictureList.size-1]
                 }
 
 //                }
