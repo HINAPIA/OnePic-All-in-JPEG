@@ -163,6 +163,10 @@ aside {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
 }
 
+.sub_image:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
+}
+
 #audio-content-section {
     height:11%;
     position: relative;
@@ -199,4 +203,7 @@ audio {
     0 -4px 6px rgba(0, 0, 0, 0.1); /* 네 방향으로 그림자 효과 추가 */
 }
 
-
+#text-content:hover {
+    background-color: #9177D0; /* hover 시 배경색 변경 */
+    color:white;
+}

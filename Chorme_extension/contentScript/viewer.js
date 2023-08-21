@@ -88,14 +88,26 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
 
       // TODO: audio 만드는것만 하는 걸로 변경해야할 듯
        aiContainer.playAudio();
-       console.log("here" +aiContainer.audioContent.blobUrl)
        audioContent.src = aiContainer.audioContent.blobUrl
       
+       let isClicked = false;
        textContent.innerHTML = aiContainer.textContent.textList[0].data
-     
-      }
+       textContent.addEventListener('click', (e) =>{
+        if (!isClicked) {
+          textContent.style.backgroundColor = "#9177D0"
+          textContent.style.color = "white"
+          isClicked = true
+        }
+        else {
+          textContent.style.backgroundColor = "#F1F3F4"
+          textContent.style.color = "black"
+          isClicked = false
+        }
+      })
 
-    });
+    }
+
+  });
 }
 
 function getFileNameFromUrl(imageUrl) {
