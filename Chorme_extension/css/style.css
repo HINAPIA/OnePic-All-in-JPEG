@@ -161,25 +161,27 @@ aside {
 }
 
 #audio-content-section {
-    height:9%;
+    height:11%;
     position: relative;
 }
 
 audio {
-    width:100%;
+    width: 95%;
     position: absolute;
     top: 50%;
-    transform: translate(0, -50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 #text-content-section {
     padding:10px;
     text-align: center;
-    height:9%;
+    height:11%;
 }
 
 #text-content {
-    background-color: red;
+    background-color: #F1F3F4;
     height:80%;
     border-radius: 1rem;
+    
 }
