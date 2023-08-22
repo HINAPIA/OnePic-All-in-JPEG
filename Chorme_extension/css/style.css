@@ -8,7 +8,6 @@ body {
 }
 
 /* Header section style*/
-
 #header{
     font-weight: bold;
     font-size: 20px;
@@ -19,7 +18,6 @@ body {
     border: none;
 }
 
-
 .wrapper{
     width: 100%;
     min-height: 2.5rem;
@@ -29,12 +27,10 @@ body {
     align-items: center;
 }
 
-
 .title{
     font-size: 20px;
     margin-left: 30px;
 }
-
 
 .fa-image {
     margin-right:10px;
@@ -42,19 +38,16 @@ body {
 }
 
 /* Main section style*/
-
 main {
     display: flex;
     height:100%;
 }
-
 
 /* nav section styles*/
 nav {
     flex-basis: 4%;
     background-color: #333639;
 }
-
 
 input[type="radio"] {
     appearance: none;
@@ -105,6 +98,10 @@ aside {
 #main-section {
     flex-basis: 100%;
     background-color: #E1E3E6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   
 }
 
@@ -124,20 +121,19 @@ aside {
 
 /* 이미지를 감싸는 컨테이너 */
 .main-image-container {
-    /* 원하는 이미지 크기로 조절합니다. */
+    position: relative;
+    max-width: 100%;
+    display: inline-block;
     text-align:center;
-    max-width: 100%; /* 브라우저 창의 너비에 맞게 이미지를 축소합니다. */
     max-height: 100vh;
-    /* max-height: 90vh; 브라우저 창의 높이에 맞게 이미지를 축소합니다. */
-    /* 다른 스타일링을 적용할 수도 있습니다. */
     margin: auto;
 }
-  
-  /* 이미지 크기를 브라우저 창에 맞게 조절합니다. */
+
 #main_image {
-    width: auto; /* 이미지 너비를 100%로 설정하여 컨테이너에 맞게 조절합니다. */
     max-height: 90vh;
-    /* height: auto; 이미지 비율을 유지하기 위해 높이를 자동으로 조절합니다. */
+    max-width: 100%;
+    width: auto; 
+    display: block;
 }
 
 #image-contents-section {
@@ -160,11 +156,11 @@ aside {
 .sub_image {
     max-width: 85%;
     margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .sub_image:hover {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* 그림자 효과 추가 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 #audio-content-section {
@@ -206,4 +202,67 @@ audio {
 #text-content:hover {
     background-color: #9177D0; /* hover 시 배경색 변경 */
     color:white;
+}
+
+#text-display-div {
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    text-align: center;
+    color:white;
+    font-size: 25px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* meta-data menu tab style*/
+input[id*="answer"] {
+    display:none;
+}
+
+input[id*="answer"] + label {
+    display:block;
+    padding:20px;
+    border: 1px solid #232188;
+    border-bottom:0;
+    color:#fff;
+    font-weight: 500;
+    background:#3634a5;
+    cursor:pointer;
+    position:relative;
+}
+
+input[id*="answer"] + label em{
+    position:absoulte;
+    top:50%;
+    right:10px;
+    width:30px;
+    height:30px;
+    margin-top:-15px;
+    display:inline-block;
+}
+
+input[id*="answer"] + label + div {
+  max-height: 0;
+  transition: all .35s;
+  overflow: hidden;
+  background:#ebf8ff;
+  font-size:11px;
+}
+
+input[id*="answer"] + label + div p{
+   display:inline-block;
+   padding:20px;
+}
+
+input[id*="answer"]:checked + label + div {
+    max-height: 250px;
+}
+  
+#meta-data-logo {
+    font-size: 16px;
+    font-weight: bold;
+    margin-left:10px;
 }

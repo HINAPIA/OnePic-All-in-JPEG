@@ -10,7 +10,7 @@
   <header id="header">
     <div class="wrapper">
       <div class = "title">
-        All-in JPEG Viewer <!--<i class="fa-regular fa-image"></i>-->
+        All-in JPEG Viewer
       </div>
     </div>
     </div>
@@ -38,6 +38,7 @@
     </nav>
     <aside>
       <!-- contents가 보이는 tab -->
+      
       <div id="contents-menu-tab" style="height:100%;">
         <section id="image-contents-section">
           <i class="fa-regular fa-image fa-lg" style="color: #000000;"></i><p id="image-content-logo"></p>
@@ -52,17 +53,25 @@
       </div>
         <!-- meta 데이터가 보이는 tab -->
       <div id="meta-data-menu-tab" style="height:100%;display:none;">
-      
-
-
-
-      
+       <p id="meta-data-logo"> <i class="fa-regular fa-image fa-lg" style="color: #000000;"></i>Ai Meta Data</p>
+        <div class="accordion">
+          <input type="checkbox" id="answer01">
+          <label for="answer01">Image Content<em></em></label>
+          <div><p>여기가 내용이랍니다?</p></div>
+          <input type="checkbox" id="answer02">
+          <label for="answer02">Audio Content<em></em></label>
+          <div><p>여기가 내용이랍니다?</p></div>
+          <input type="checkbox" id="answer03">
+          <label for="answer03">Text Content<em></em></label>
+          <div><p>여기가 내용이랍니다?</p></div>
+        </div> 
       </div>
     </aside>
     <section id="main-section">
       <div class="main-image-container">
         <div id="file-name"> </div>
           <img src="" id="main_image" style="max-width: 100%;">
+          <div id="text-display-div"></div>
       </div>
       <div id="contents-container" width = "" height="">
           <img src="" class="sub_image" id="sub_image1" value="1" style="max-width: 100%;">

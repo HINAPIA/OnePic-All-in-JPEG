@@ -29,6 +29,7 @@ const contentsMenuTab = document.getElementById("contents-menu-tab");
 const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
 const audioContent =  document.getElementById("audio-content");
 const textContent = document.getElementById("text-content");
+const textDisplayDiv = document.getElementById("text-display-div")
 
 // 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
 contentsRadioBtn.addEventListener("change", function() {
@@ -90,21 +91,25 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
        aiContainer.playAudio();
        audioContent.src = aiContainer.audioContent.blobUrl
       
+      //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
        let isClicked = false;
        textContent.innerHTML = aiContainer.textContent.textList[0].data
+       textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
        textContent.addEventListener('click', (e) =>{
         if (!isClicked) {
           textContent.style.backgroundColor = "#9177D0"
           textContent.style.color = "white"
           isClicked = true
+          textDisplayDiv.style.visibility = "visible"
         }
         else {
           textContent.style.backgroundColor = "#F1F3F4"
           textContent.style.color = "black"
           isClicked = false
+          textDisplayDiv.style.visibility = "hidden"
         }
       })
-
+      
     }
 
   });
