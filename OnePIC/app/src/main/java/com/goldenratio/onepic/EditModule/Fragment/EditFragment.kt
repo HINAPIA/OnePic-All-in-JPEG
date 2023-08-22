@@ -80,15 +80,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private lateinit var textContent: TextContent
     private lateinit var audioContent: AudioContent
 
-    private var imageTool = ImageToolModule()
-
     private var isFinished = MutableLiveData<Boolean>()
 
     private var mainSubView: View? = null
     private var mainTextView: TextView? = null
 
     private var pictureList = arrayListOf<Picture>()
-    //    private var pictureByteList = mutableListOf<ByteArray>()
     private lateinit var mainPicture: Picture
 
     private var isSaving = false
@@ -108,24 +105,21 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
     private val PICK_IMAGE_REQUEST = 1
 
-    private var bitmapList :ArrayList<Bitmap> = arrayListOf<Bitmap>()
+    private var bitmapList :ArrayList<Bitmap> = arrayListOf()
     private var overlayBitmap = arrayListOf<Bitmap>()
     val handler = Handler()
     var magicPlaySpeed: Long = 100
 
     var isAllInJPEG : Boolean = false
-
-    private enum class InfoLevel {
-        BeforeMainSelect
-    }
+    var isButtonEnable = true
 
     private enum class LoadingText {
         BestImageRecommend,
         Save,
         MagicPlay,
-        EditReady
+        EditReady,
+        Adding
     }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -133,16 +127,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         audioResolver = AudioResolver(activity)
         mediaPlayer = audioResolver.mediaPlayer
     }
-    override fun onStop() {
-        super.onStop()
 
-//        if (mediaPlayer != null) {
-//            isDestroy = true
-//            mediaPlayer.stop()
-//            mediaPlayer.release()
-//            //mediaPlayer = null
-//        }
-    }
     override fun onDestroy() {
         super.onDestroy()
         if(audioWithContent != null){
@@ -513,8 +498,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         // 취소 버튼 (viewer로 이동)
         binding.backBtn.setOnClickListener {
-
-
             // 변경된 편집이 있을 경우 확인 창 띄우기
             if (imageContent.checkMainChanged || imageContent.checkBlending ||
                 imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
@@ -649,7 +632,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                    }
 //                }
                 imageContent.setCheckAttribute()
+                showProgressBar(false, null)
             }
+
         }
 
         /* 오디오 리스너 */
@@ -1049,14 +1034,16 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             if (uriList.size > 0) {
-                imageToolModule.showView(binding.progressBar, true)
-                checkAllInJPEG()
-                for (i in 0 until uriList.size) {
-                    val iStream: InputStream? =
-                        requireContext().contentResolver.openInputStream(uriList[i])
-                    val sourceByteArray = imageToolModule.getBytes(iStream!!)
+//                imageToolModule.showView(binding.progressBar, true)
+                showProgressBar(true, LoadingText.Adding)
 
-                    CoroutineScope(Dispatchers.Default).launch {
+                binding.mainImageView.setImageBitmap(null)
+
+                CoroutineScope(Dispatchers.Default).launch {
+                    for (i in 0 until uriList.size) {
+                        val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
+                        val sourceByteArray = imageToolModule.getBytes(iStream!!)
+
                         var isPossibleAdd = true
 
                         val currentImageContent = imageContent
@@ -1068,11 +1055,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             // 기본 카메라로 찍은 사진을 제외한 이미지 추가 불가 - APP1만 존재하는 사진이여야 함
                             if (currentImageContent.isComplicatedPictue(sourceByteArray)) {
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "호환 되지 않는 사진은 추가할 수 없습니다.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(requireContext(), "호환 되지 않는 사진은 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
                                 }
                                 Log.d("testTest", "기본 카메라로 찍은 사진을 추가한 것이 아님")
                                 isPossibleAdd = false
@@ -1108,30 +1091,14 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                 val imageView =
                                     subLayout?.findViewById<ImageView>(R.id.scrollImageView)
 
-                                // TODO: 코드 확인 필요
-                                CoroutineScope(Dispatchers.Default).launch {
-                                    imageContent.addBitmapList(
-                                        imageToolModule.byteArrayToBitmap(
-                                            jpegAiContainer.imageContent.getJpegBytes(newPictureList[j])
-                                        )
-                                    )
-                                }
-
                                 // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
-                                if (j == newPictureList.size - 1) {
+                                if (i == uriList.size - 1) {
+
                                     withContext(Dispatchers.Main) {
-                                        Glide.with(binding.mainImageView)
-                                            .load(imageContent.getChagedJpegBytes(pictureList[pictureList.size - 1]))
-                                            .into(binding.mainImageView)
-
-                                        mainSubView?.background = null
-                                        mainSubView?.setPadding(0)
-
-                                        mainSubView = imageView!!
-
-                                        mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
-                                        mainSubView?.setPadding(6)
-
+                                        jpegViewModel.selectedSubImage = pictureList[pictureList.size - 1]
+                                        val index = pictureList.indexOf(pictureList[pictureList.size - 1])
+                                        Log.d("main Change", "onClickListener : $index")
+                                        changeViewImage(index, imageView!!)
                                         if (mainSubView != null)
                                             setMoveScrollView(mainSubView!!, pictureList.size)
                                     }
@@ -1144,20 +1111,28 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             // 이제 사진이 수정됨
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
+
                         }
                     }
+
+                    // TODO: 코드 확인 필요
+                    CoroutineScope(Dispatchers.Default).launch {
+                        val bitmapSize = bitmapList.size
+                        for(i in bitmapSize until pictureList.size)
+                        imageContent.addBitmapList(
+                            imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
+                        )
+                        bitmapList = imageContent.getBitmapList()!!
+                    }
+
+                    // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
+                    setViewDetailMenu()
+                    setContainerTextSetting()
+                    checkAllInJPEG()
+
+                    showProgressBar(false, null)
+//                    imageToolModule.showView(binding.progressBar, false)
                 }
-
-                // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
-                setViewDetailMenu()
-                setContainerTextSetting()
-
-
-
-                imageToolModule.showView(binding.progressBar, false)
-
-
-                //TODO: 유진아 여기 --> uriList: 방금 불러온 이미지들의 uri / newImageByteArrayList: 지금까지 불러온 이미지들의 bytearray
             }
         }
     }
@@ -1211,19 +1186,21 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             subLayout.setOnClickListener {
-                if (isMagicPlay) {
-                    handler.removeCallbacksAndMessages(null)
-                    binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
-                    isMagicPlay = false
-                }
-                // 이미지인 경우
-                jpegViewModel.selectedSubImage = picture
-                val index = pictureList.indexOf(picture)
-                Log.d("main Change", "onClickListener : $index")
-                changeViewImage(index, imageView)
+                if(isButtonEnable) {
+                    if (isMagicPlay) {
+                        handler.removeCallbacksAndMessages(null)
+                        binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
+                        isMagicPlay = false
+                    }
+                    // 이미지인 경우
+                    jpegViewModel.selectedSubImage = picture
+                    val index = pictureList.indexOf(picture)
+                    Log.d("main Change", "onClickListener : $index")
+                    changeViewImage(index, imageView)
 
-                if (picture.contentAttribute == ContentAttribute.distance_focus) {
-                    binding.seekBar.progress = jpegViewModel.getSelectedSubImageIndex()
+                    if (picture.contentAttribute == ContentAttribute.distance_focus) {
+                        binding.seekBar.progress = jpegViewModel.getSelectedSubImageIndex()
+                    }
                 }
             }
 
@@ -1330,7 +1307,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         imageView.setImageResource(drawable_image)
 
         subLayout.setOnClickListener {
-            clickedFunc(imageView)
+            if(isButtonEnable)
+                clickedFunc(imageView)
         }
 
         // 삭제
@@ -1340,51 +1318,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         return subLayout
     }
-
-
-    //
-//    fun ShowingText(imageView: ImageView) {
-//        handler.removeCallbacksAndMessages(null)
-////        changeRound(imageView)
-//        isTextView = if(isTextView) {
-//            imageView.setImageResource(R.drawable.edit_text_icon)
-//            false
-//        } else {
-//            imageView.setImageResource(R.drawable.edit_text_click_icon)
-//            true
-//        }
-//    }
-
-//    fun AddText(imageView: ImageView) {
-//        handler.removeCallbacksAndMessages(null)
-////        changeRound(imageView)
-//    }
-
-//    fun DeleteText() {
-//        textContent.textList.clear()
-//        imageContent.checkMainChanged = true
-//        imageToolModule.showView(binding.saveBtn, true)
-//        setContainerTextSetting()
-//        val view = setContainerSubItem(R.drawable.edit_text_add_icon, clickedFunc = ::AddText, deleteFunc = ::DeleteText)
-//        binding.linear.addView(view, binding.linear.size - 2)
-//    }
-
-//    fun ShowingAudio(imageView: ImageView) {
-//        handler.removeCallbacksAndMessages(null)
-////        changeRound(imageView)
-//        isAudioPlay = if(isAudioPlay) {
-//            imageView.setImageResource(R.drawable.edit_audio_icon)
-//            false
-//        } else {
-//            imageView.setImageResource(R.drawable.edit_audio_click_icon)
-//            true
-//        }
-//    }
-
-//    fun AddAudio(imageView: ImageView) {
-//        handler.removeCallbacksAndMessages(null)
-////        changeRound(imageView)
-//    }
 
     fun AddImage(imageView: ImageView) {
         handler.removeCallbacksAndMessages(null)
@@ -1583,18 +1516,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?) {
-//        if(boolean && isInfoViewed) {
-//            imageToolModule.showView(binding.infoDialogLayout, false)
-//        }
-//        else if (isInfoViewed) {
-//            imageToolModule.showView(binding.infoDialogLayout, true)
-//        }
+        setEnable(!boolean)
 
         CoroutineScope(Dispatchers.Main).launch {
             binding.loadingText.text = when (loadingText) {
-//                LoadingText.FaceDetection -> {
-//                    "자동 Face Blending 중"
-//                }
                 LoadingText.Save -> {
                     "편집을 저장 중.."
                 }
@@ -1607,6 +1532,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 LoadingText.EditReady -> {
                     "편집 준비 중.."
                 }
+                LoadingText.Adding -> {
+                    "사진 추가 중.."
+                }
+
                 else -> {
                     ""
                 }
@@ -2282,6 +2211,24 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 binding.formatTextView.text = "일반 JPEG"
                 binding.allInJpegTextView.text = "일반 JPEG"
             }
+        }
+    }
+
+    private fun setEnable(boolean: Boolean) {
+        isButtonEnable = boolean
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.bestMainBtn.isEnabled = boolean
+            binding.blendingBtn.isEnabled = boolean
+            binding.magicBtn.isEnabled = boolean
+            binding.focusBtn.isEnabled = boolean
+
+            binding.backBtn.isEnabled = boolean
+            binding.saveBtn.isEnabled = boolean
+
+            binding.mainChangeBtn.isEnabled = boolean
+            binding.extractJpegBtn.isEnabled = boolean
+            binding.contentDeleteBtn.isEnabled = boolean
+            binding.linear.isEnabled = boolean
         }
     }
 }

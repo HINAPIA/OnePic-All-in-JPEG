@@ -74,8 +74,7 @@ class FocusChangeFragment : Fragment() {
 
     private enum class LoadingText {
         Save,
-        Change,
-        Focus
+        Change
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -160,7 +159,7 @@ class FocusChangeFragment : Fragment() {
         binding.focusMainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
 //                if (!isSelected) {
-                showProgressBar(true, LoadingText.Change)
+//                showProgressBar(true, LoadingText.Change)
 
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
@@ -211,11 +210,7 @@ class FocusChangeFragment : Fragment() {
 //                                }
 //                            }
                     }
-                } else {
-//                    imageToolModule.showView(binding.progressBar, false)
-                    showProgressBar(false, null)
                 }
-//                }
             }
             return@setOnTouchListener true
         }
@@ -240,7 +235,8 @@ class FocusChangeFragment : Fragment() {
 
         binding.focusSaveBtn.setOnClickListener {
             imageContent.resetBitmap()
-            imageToolModule.showView(binding.progressBar, true)
+//            imageToolModule.showView(binding.progressBar, true)
+            showProgressBar(true, LoadingText.Save)
             CoroutineScope(Dispatchers.Default).launch {
 //                var result = imageContent.removePicture(mainPicture)
 //                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
@@ -279,8 +275,8 @@ class FocusChangeFragment : Fragment() {
                     imageContent.checkMainChanged = true
                     findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
                 }
-                imageToolModule.showView(binding.progressBar, false)
-
+//                imageToolModule.showView(binding.progressBar, false)
+                showProgressBar(false, null)
             }
         }
 
@@ -355,7 +351,7 @@ class FocusChangeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             if (bitmapList.size == 0) {
-                showProgressBar(false, null)
+//                showProgressBar(false, null)
                 return@launch
             }
 
@@ -473,37 +469,26 @@ class FocusChangeFragment : Fragment() {
                 println(e.message)
             }
 //            }
-            imageToolModule.showView(binding.progressBar, false)
-            showProgressBar(false, null)
+//            imageToolModule.showView(binding.progressBar, false)
+//            showProgressBar(false, null)
         }
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
-//        if(boolean && isInfoViewed) {
-//            imageToolModule.showView(binding.infoDialogLayout, false)
-//        }
-//        else if (isInfoViewed) {
-//            imageToolModule.showView(binding.infoDialogLayout, true)
-//        }
+        setEnable(boolean)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.loadingText.text = when (loadingText) {
+                LoadingText.Save -> {
+                    "편집을 저장 중.."
+                }
+                else -> {
+                    ""
+                }
+            }
+        }
 //
-//        CoroutineScope(Dispatchers.Main).launch {
-//            binding.loadingText.text = when (loadingText) {
-////                LoadingText.FaceDetection -> {
-////                    "자동 Face Blending 중"
-////                }
-//                LoadingText.Save -> {
-//                    "편집을 저장 중.."
-//                }
-//                LoadingText.AutoBlending -> {
-//                    "최적의 Blending 사진 제작 중.."
-//                }
-//                else -> {
-//                    ""
-//                }
-//            }
-//        }
-//
-//        imageToolModule.showView(binding.progressBar, boolean)
+        imageToolModule.showView(binding.progressBar, boolean)
 //        imageToolModule.showView(binding.loadingText, boolean)
     }
 
@@ -590,5 +575,16 @@ class FocusChangeFragment : Fragment() {
         resultBitmap = mergeBitmaps(blurSelectBitmap, cropBitmap, selectObjRect!!.left, selectObjRect!!.top)
 
         binding.focusMainView.setImageBitmap(resultBitmap)
+    }
+
+    private fun setEnable(boolean: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.focusCloseBtn.isEnabled = boolean
+            binding.focusSaveBtn.isEnabled = boolean
+
+            binding.focusInfoBtn.isEnabled = boolean
+            binding.dialogCloseBtn.isEnabled = boolean
+            binding.imageCompareBtn.isEnabled = boolean
+        }
     }
 }
