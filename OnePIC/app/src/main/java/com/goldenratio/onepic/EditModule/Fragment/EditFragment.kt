@@ -45,7 +45,6 @@ import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
@@ -548,7 +547,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
-
             imageContent.resetBitmap()
 
             ViewerFragment.isEditStoraged = true
@@ -632,7 +630,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 //                    }
 //                }
                 imageContent.setCheckAttribute()
-                showProgressBar(false, null)
             }
 
         }
@@ -1040,6 +1037,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 binding.mainImageView.setImageBitmap(null)
 
                 CoroutineScope(Dispatchers.Default).launch {
+                    var imageView: ImageView? = null
                     for (i in 0 until uriList.size) {
                         val iStream: InputStream? = requireContext().contentResolver.openInputStream(uriList[i])
                         val sourceByteArray = imageToolModule.getBytes(iStream!!)
@@ -1088,21 +1086,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                                 withContext(Dispatchers.Main) {
                                     binding.linear.addView(subLayout, pictureList.size - 1)
                                 }
-                                val imageView =
+                                imageView =
                                     subLayout?.findViewById<ImageView>(R.id.scrollImageView)
-
-                                // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
-                                if (i == uriList.size - 1) {
-
-                                    withContext(Dispatchers.Main) {
-                                        jpegViewModel.selectedSubImage = pictureList[pictureList.size - 1]
-                                        val index = pictureList.indexOf(pictureList[pictureList.size - 1])
-                                        Log.d("main Change", "onClickListener : $index")
-                                        changeViewImage(index, imageView!!)
-                                        if (mainSubView != null)
-                                            setMoveScrollView(mainSubView!!, pictureList.size)
-                                    }
-                                }
                             }
 
                             // picture 변경
@@ -1111,7 +1096,30 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             // 이제 사진이 수정됨
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
+                        }
+                    }
 
+                    if(imageView != null) {
+                        // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
+                        withContext(Dispatchers.Main) {
+                            jpegViewModel.selectedSubImage = pictureList[pictureList.size - 1]
+                            val index = pictureList.indexOf(pictureList[pictureList.size - 1])
+                            Log.d("main Change", "onClickListener : $index")
+                            changeViewImage(index, imageView)
+                            if (mainSubView != null)
+                                setMoveScrollView(mainSubView!!, pictureList.size)
+
+                            // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
+                            setViewDetailMenu()
+                            setContainerTextSetting()
+                            checkAllInJPEG()
+                        }
+                    }
+                    else {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Glide.with(binding.mainImageView)
+                                .load(imageContent.getChagedJpegBytes(jpegViewModel.selectedSubImage!!))
+                                .into(binding.mainImageView)
                         }
                     }
 
@@ -1120,15 +1128,15 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         val bitmapSize = bitmapList.size
                         for(i in bitmapSize until pictureList.size)
                         imageContent.addBitmapList(
-                            imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
+                            try {
+                                val byteArray = imageContent.getJpegBytes(pictureList[i])
+                                imageToolModule.byteArrayToBitmap(byteArray)
+                            } catch (e: IndexOutOfBoundsException) {
+                                e.printStackTrace()
+                            } as Bitmap
                         )
                         bitmapList = imageContent.getBitmapList()!!
                     }
-
-                    // 마무리 설정 (편집 메뉴설정 및 컨테이너에 표시되는 담긴 사진 n장 변경
-                    setViewDetailMenu()
-                    setContainerTextSetting()
-                    checkAllInJPEG()
 
                     showProgressBar(false, null)
 //                    imageToolModule.showView(binding.progressBar, false)
