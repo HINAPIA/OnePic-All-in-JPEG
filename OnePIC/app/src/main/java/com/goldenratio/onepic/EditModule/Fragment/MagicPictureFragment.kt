@@ -511,6 +511,8 @@ class MagicPictureFragment : FaceBlendingFragment() {
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
+        setEnable(!boolean)
+
         if(boolean && isInfoViewed) {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
@@ -542,18 +544,38 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
 
     override fun changeMainView(bitmap: Bitmap) {
-        if(selectFaceRect != null) {
+        if (selectFaceRect != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 val faceResult = faceDetectionModule.runFaceDetection(0)
-                var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
-                resultBitmap = imageToolModule.drawDetectionResult(resultBitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
+                var resultBitmap = imageToolModule.drawDetectionResult(
+                    selectBitmap,
+                    faceResult,
+                    requireContext().resources.getColor(R.color.white)
+                )
+                resultBitmap = imageToolModule.drawDetectionResult(
+                    resultBitmap,
+                    selectFaceRect!!.toRectF(),
+                    requireContext().resources.getColor(R.color.select_face)
+                )
                 binding.mainView.setImageBitmap(resultBitmap)
 
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.magicPlayBtn.visibility = View.VISIBLE
-                        binding.bottomLayout.visibility = View.VISIBLE
-                    }
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.magicPlayBtn.visibility = View.VISIBLE
+                    binding.bottomLayout.visibility = View.VISIBLE
                 }
+            }
+        }
+    }
+
+    private fun setEnable(boolean: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.magicCloseBtn.isEnabled = boolean
+            binding.magicSaveBtn.isEnabled = boolean
+
+            binding.magicInfoBtn.isEnabled = boolean
+            binding.dialogCloseBtn.isEnabled = boolean
+            binding.magicPlayBtn.isEnabled = boolean
+            binding.circleArrowBtn.isEnabled = boolean
         }
     }
 }

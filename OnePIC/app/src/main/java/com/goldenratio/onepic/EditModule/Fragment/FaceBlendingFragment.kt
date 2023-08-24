@@ -29,7 +29,6 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
 open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
     private lateinit var binding: FragmentFaceBlendingBinding
@@ -685,6 +684,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     }
 
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
+        setEnable(!boolean)
+
         if(boolean && isInfoViewed) {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
@@ -721,6 +722,22 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     override fun onStop() {
         super.onStop()
         faceDetectionModule.deleteModelCoroutine()
+    }
+
+    private fun setEnable(boolean: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.blendingCloseBtn.isEnabled = boolean
+            binding.blendingSaveBtn.isEnabled = boolean
+
+            binding.autoBlendingBtn.isEnabled = boolean
+            binding.imageResetBtn.isEnabled = boolean
+            binding.imageCompareBtn.isEnabled = boolean
+            binding.blendingInfoBtn.isEnabled = boolean
+            binding.circleArrowBtn.isEnabled = boolean
+
+            binding.dialogCloseBtn.isEnabled = boolean
+            binding.faceCancleBtn.isEnabled = boolean
+        }
     }
 
 

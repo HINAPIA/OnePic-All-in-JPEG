@@ -9,7 +9,6 @@ import com.goldenratio.onepic.R
 
 class FocusOverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
-//    private val rectList: MutableList<Rect> = mutableListOf()  // 그릴 Rect 객체들의 리스트
     private val boundingBoxList : ArrayList<ArrayList<Int>> = ArrayList<ArrayList<Int>>()
 
     override fun onDraw(canvas: Canvas) {

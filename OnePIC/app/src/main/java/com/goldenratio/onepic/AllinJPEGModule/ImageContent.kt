@@ -118,6 +118,7 @@ class ImageContent {
     }
 
     fun resetBitmap() {
+        checkBitmapList = false
         mainBitmap = null
         bitmapList.clear()
         bitmapListAttribute = null
@@ -636,17 +637,20 @@ class ImageContent {
     }
 
     fun addBitmapList( index: Int, bitmap: Bitmap) {
-        while (!checkBitmapList || !checkPictureList || bitmapList.size < index) {
-            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
+//        while (!checkBitmapList || !checkPictureList || bitmapList.size < index) {
+//            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
+//        }
+        while (bitmapList.size < index) {
         }
+
         bitmapList.add(index, bitmap)
         attributeBitmapList.clear()
         bitmapListAttribute = null
     }
     fun addBitmapList( bitmap: Bitmap) {
-        while (!checkBitmapList || !checkPictureList) {
-            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
-        }
+//        while (!checkBitmapList || !checkPictureList) {
+//            Log.d("faceBlending", "!!!! $checkBitmapList || $checkPictureList")
+//        }
         bitmapList.add(bitmap)
         attributeBitmapList.clear()
         bitmapListAttribute = null
