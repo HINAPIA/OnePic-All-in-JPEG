@@ -136,6 +136,11 @@ aside {
     display: block;
 }
 
+#meta-data-menu-tab {
+    height:100%;
+    display:none;
+}
+
 #image-contents-section {
     text-align: center;
     padding-top:15px;
@@ -225,40 +230,45 @@ input[id*="answer"] {
 input[id*="answer"] + label {
     display:block;
     padding:20px;
-    border: 1px solid #232188;
+    border: 1px solid #F0F1F2;
     border-bottom:0;
     color:#fff;
     font-weight: 500;
-    background:#3634a5;
+    background:#808080;
+    font-size: 14px;
     cursor:pointer;
     position:relative;
 }
 
 input[id*="answer"] + label em{
-    position:absoulte;
+    display:inline-block;
+    position:absolute;
     top:50%;
-    right:10px;
+    right:5px;
     width:30px;
     height:30px;
-    margin-top:-15px;
-    display:inline-block;
+    margin-top:-10px;
+    background:url("../resources/images/down-arrow.png") 0 0 no-repeat;
+}
+
+input[id*="answer"]:checked + label em {
+    background-position: 0 -30px;
+    background:url("../resources/images/up-arrow.png") 0 0 no-repeat;
 }
 
 input[id*="answer"] + label + div {
   max-height: 0;
   transition: all .35s;
   overflow: hidden;
-  background:#ebf8ff;
-  font-size:11px;
+  background:#F0F1F2;
+  font-size:12px;
 }
 
-input[id*="answer"] + label + div p{
-   display:inline-block;
-   padding:20px;
-}
 
 input[id*="answer"]:checked + label + div {
     max-height: 250px;
+    overflow-y: auto;
+    padding-left:10px;
 }
   
 #meta-data-logo {
@@ -266,3 +276,26 @@ input[id*="answer"]:checked + label + div {
     font-weight: bold;
     margin-left:10px;
 }
+
+#image-marker {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+#attribute-marker{
+    display: inline-block;
+    font-weight: bold;
+    color:#333639;
+    font-size:12px;   
+    margin-left: 12px;
+    margin-bottom: -12px;
+}
+
+#attribut-value {
+    display: inline-block;
+    float: right; 
+    margin-bottom: -12px;
+    margin-right: 5px;
+}
+

@@ -27,9 +27,6 @@ const contentMenuSpacer = document.getElementById("contents-menu-spacer");
 const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
 const contentsMenuTab = document.getElementById("contents-menu-tab");
 const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
-const audioContent =  document.getElementById("audio-content");
-const textContent = document.getElementById("text-content");
-const textDisplayDiv = document.getElementById("text-display-div")
 
 // 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
 contentsRadioBtn.addEventListener("change", function() {
@@ -51,6 +48,13 @@ metaDataRadioBtn.addEventListener("change",function()
   }
 });
 
+
+const audioContent =  document.getElementById("audio-content");
+const textContent = document.getElementById("text-content");
+const textDisplayDiv = document.getElementById("text-display-div")
+const imageContentMetaData = document.getElementById("meta-data-image-content")
+const audioContentMetaData = document.getElementById("meta-data-audio-content")
+const textContentMetaData = document.getElementById("meta-data-text-content")
 
 const imageContentSection = document.getElementById("image-contents-section");
 
@@ -142,5 +146,45 @@ async function  getBasicMetadata(){
 }
 
 function getAiMetadata(){
-  extractAiMetadata(aiContainer)
+  const jsonString = extractAiMetadata(aiContainer)
+  let metadataString = ""
+  try {
+    const data = JSON.parse(jsonString);
+  
+    // 이미지 정보 파싱
+    const imageContentInfo = data.ImageContentInfo;
+    let idx = 1;
+    for (const imageInfo of imageContentInfo) {
+      const size = imageInfo.Size;
+      const offset = imageInfo.Offset;
+      const attribute = imageInfo.Attribute;
+      metadataString += `<p id="image-marker"># Image ${idx++}</p><hr>`
+      metadataString += `<p id="attribute-marker">Image Size</p><p id="attribut-value">${size}</p><br>`
+      metadataString += `<p id="attribute-marker">Offset</p><p id="attribut-value">${offset}</p><br>`
+      metadataString += `<p id="attribute-marker">Attribute</p><p id="attribut-value">${attribute}</p><br></br>`
+    }
+    imageContentMetaData.innerHTML = metadataString
+
+    // 텍스트 정보 파싱
+    metadataString = ""
+    const textContentInfo = data.textContentInfo;
+    const textList = textContentInfo.TextList;
+    for (const textInfo of textList) {
+      const offset = textInfo.Offset;
+      const text = textInfo.Text;
+      metadataString += `<p id="attribute-marker">Text Offset</p><p id="attribut-value">${offset}</p><br>`
+      metadataString += `<p id="attribute-marker">Text</p><p id="attribut-value">${text}</p>`
+    }
+    textContentMetaData.innerHTML = metadataString
+
+    // 오디오 정보 파싱
+    metadataString = ""
+    const audioContentInfo = data.audioContentInfo;
+    const audioOffset = audioContentInfo.Offset;
+    const audioSize = audioContentInfo.Size;
+    metadataString =  `Audio Offset: ${audioOffset}<br>Size: ${audioSize}`
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+  }
+  audioContentMetaData.innerHTML = metadataString
 }
