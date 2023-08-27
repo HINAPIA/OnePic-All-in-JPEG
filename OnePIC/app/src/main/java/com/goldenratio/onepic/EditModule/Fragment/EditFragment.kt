@@ -195,7 +195,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 }
             }
 
-            // 만약 편집을 했다면 저장 버튼이 나타나게 설정
+            // 만약 편집을 했다면 save 버튼이 나타나게 설정
             if (imageContent.checkMainChanged || imageContent.checkBlending ||
                 imageContent.checkMagicCreated || imageContent.checkAdded || imageContent.checkEditChanged
             ) {
@@ -391,7 +391,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 메인 변경 유무 flag true로 변경
             imageContent.checkMainChanged = true
 
-            // 저장 버튼 표시 | 메인 변경 버튼 없애기
+            //save 표시 | 메인 변경 버튼 없애기
             imageToolModule.showView(binding.saveBtn, true)
             imageToolModule.showView(binding.mainChangeBtn, false)
 //            imageToolModule.showView(binding.extractJpegBtn, false)
@@ -2121,7 +2121,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     ShowingText(view.findViewById(R.id.scrollImageView))
                 }
 
-                // 저장 버튼 표시 | 메인 변경 버튼 없애기
+                // save 버튼 표시 | 메인 변경 버튼 없애기
                 imageToolModule.showView(binding.saveBtn, true)
             }
         }

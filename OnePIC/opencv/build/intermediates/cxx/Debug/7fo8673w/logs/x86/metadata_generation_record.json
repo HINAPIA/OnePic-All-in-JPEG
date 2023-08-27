@@ -11,7 +11,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1403109327
+    "memoizedHashCode": 1151523866
   },
   {
     "level_": 0,
@@ -25,11 +25,11 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 103759000
+    "memoizedHashCode": -1636575103
   },
   {
     "level_": 0,
-    "message_": "- a hard configure file changed, will remove stale configuration folder",
+    "message_": "- a file changed",
     "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
@@ -39,11 +39,11 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1876372095
+    "memoizedHashCode": 471056012
   },
   {
     "level_": 0,
-    "message_": "  - /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/metadata_generation_command.txt (LAST_MODIFIED_CHANGED)",
+    "message_": "  - /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt (LAST_MODIFIED_CHANGED)",
     "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
@@ -53,11 +53,11 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 231200861
+    "memoizedHashCode": 1232158101
   },
   {
     "level_": 0,
-    "message_": "removing stale contents from \u0027/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027",
+    "message_": "keeping json folder \u0027/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027 but regenerating project",
     "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
@@ -67,21 +67,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -555182601
-  },
-  {
-    "level_": 0,
-    "message_": "created folder \u0027/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
-    "tag_": "debug|x86",
-    "diagnosticCode_": 0,
-    "memoizedIsInitialized": 1,
-    "unknownFields": {
-      "fields": {},
-      "fieldsDescending": {}
-    },
-    "memoizedSize": -1,
-    "memoizedHashCode": 559362411
+    "memoizedHashCode": -1614990702
   },
   {
     "level_": 0,
@@ -95,7 +81,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -444992564
+    "memoizedHashCode": 2109640629
   },
   {
     "level_": 0,
@@ -109,7 +95,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1308622347
+    "memoizedHashCode": -431711756
   },
   {
     "level_": 0,
@@ -123,7 +109,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -197281904
+    "memoizedHashCode": -1937616007
   },
   {
     "level_": 0,
@@ -137,21 +123,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 745674050
-  },
-  {
-    "level_": 0,
-    "message_": "hard linked /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/compile_commands.json to /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/tools/debug/x86/compile_commands.json",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
-    "tag_": "debug|x86",
-    "diagnosticCode_": 0,
-    "memoizedIsInitialized": 1,
-    "unknownFields": {
-      "fields": {},
-      "fieldsDescending": {}
-    },
-    "memoizedSize": -1,
-    "memoizedHashCode": 1390571700
+    "memoizedHashCode": -994660053
   },
   {
     "level_": 0,
@@ -165,6 +137,6 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1611220162
+    "memoizedHashCode": 943413031
   }
 ]
