@@ -12,6 +12,7 @@ export default class LoadResolver {
         var APP3_startOffset = 2
         APP3_startOffset =  await this.findAPP3StartPos(sourceByreArray)
         if(APP3_startOffset == -1)
+
             return false;
         else 
             return true;

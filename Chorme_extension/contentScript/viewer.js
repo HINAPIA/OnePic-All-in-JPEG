@@ -69,53 +69,61 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         loadResolver = new LoadResolver();
 
          // All-in JPEG 파일인지 식별 - boolean 값
-         var isAllinJPEG = await loadResolver.isAllinJPEG(byteArray)
-         console.log(isAllinJPEG)
-        await loadResolver.createAiContainer(aiContainer, byteArray);
+        var isAllinJPEG = await loadResolver.isAllinJPEG(byteArray)
+        if (isAllinJPEG) {
+
+          await loadResolver.createAiContainer(aiContainer, byteArray);
      
-        const SIZE = aiContainer.imageContent.pictureList.length
-        document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
-        for (let i = 0; i < SIZE; i++) {
-          console.log(i);
-          let pictureData = aiContainer.imageContent.pictureList[i]
-          const img = document.createElement("img");
-          img.src = aiContainer.imageContent.getBlobURL(pictureData) // 이미지 파일 경로 설정
-          img.classList.add("sub_image");
-       
-          img.addEventListener('click', (e) =>{
-            chageMainImagetoSelectedImage(e, aiContainer, i)
-          })
-          imageContentSection.appendChild(img);
-        }
+          const SIZE = aiContainer.imageContent.pictureList.length
+          document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
+          for (let i = 0; i < SIZE; i++) {
+            console.log(i);
+            let pictureData = aiContainer.imageContent.pictureList[i]
+            const img = document.createElement("img");
+            img.src = aiContainer.imageContent.getBlobURL(pictureData) // 이미지 파일 경로 설정
+            img.classList.add("sub_image");
+         
+            img.addEventListener('click', (e) =>{
+              chageMainImagetoSelectedImage(e, aiContainer, i)
+            })
+            imageContentSection.appendChild(img);
+          }
+
+          console.log(await getBasicMetadata());
+          getAiMetadata();
   
-       
+          // Auduio 있을 경우, 오디오 만듦.
+          aiContainer.createAudio();
+          audioContent.src = aiContainer.audioContent.blobUrl
+    
+          
+          //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
+          let isClicked = false;
+          textContent.innerHTML = aiContainer.textContent.textList[0].data
+          textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
+          textContent.addEventListener('click', (e) =>{
+            if (!isClicked) {
+              textContent.style.backgroundColor = "#9177D0"
+              textContent.style.color = "white"
+              isClicked = true
+              textDisplayDiv.style.visibility = "visible"
+            }
+            else {
+              textContent.style.backgroundColor = "#F1F3F4"
+              textContent.style.color = "black"
+              isClicked = false
+              textDisplayDiv.style.visibility = "hidden"
+            }
+          })
 
-        console.log(await getBasicMetadata());
-        getAiMetadata();
-
-       // Auduio 있을 경우, 오디오 만듦.
-       aiContainer.createAudio();
-       audioContent.src = aiContainer.audioContent.blobUrl
-
-      
-      //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
-       let isClicked = false;
-       textContent.innerHTML = aiContainer.textContent.textList[0].data
-       textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
-       textContent.addEventListener('click', (e) =>{
-        if (!isClicked) {
-          textContent.style.backgroundColor = "#9177D0"
-          textContent.style.color = "white"
-          isClicked = true
-          textDisplayDiv.style.visibility = "visible"
         }
         else {
-          textContent.style.backgroundColor = "#F1F3F4"
-          textContent.style.color = "black"
-          isClicked = false
-          textDisplayDiv.style.visibility = "hidden"
+
+            console.log("일반 jpeg 보고있음")
+            document.getElementById("jpeg-type-display-div").innerHTML = "일반 JPEG 사진을 보고 있습니다."
+
+
         }
-      })
     }
   });
 }
