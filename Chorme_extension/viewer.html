@@ -38,8 +38,8 @@
     </nav>
     <aside>
       <!-- contents가 보이는 tab -->
-      
       <div id="contents-menu-tab" style="height:100%;">
+        <div id="content-tab-logo-div">Contents</div>
         <section id="image-contents-section">
           <i class="fa-regular fa-image fa-lg" style="color: #000000;"></i><p id="image-content-logo"></p>
         </section>
@@ -52,24 +52,40 @@
         </section>
       </div>
         <!-- meta 데이터가 보이는 tab -->
-      <div id="meta-data-menu-tab">
-       <p id="meta-data-logo"> <i class="fa-regular fa-image fa-lg" style="color: #000000;"></i>Ai Meta Data</p>
+      <div id="meta-data-menu-tab">    
         <div class="accordion">
-          <input type="checkbox" id="answer01">
-          <label for="answer01">Image Content<em></em></label>
-          <div><p id="meta-data-image-content"></p></div>
           <input type="checkbox" id="answer02">
-          <label for="answer02">Audio Content<em></em></label>
-          <div><p id="meta-data-audio-content"></p></div>
-          <input type="checkbox" id="answer03">
-          <label for="answer03">Text Content<em></em></label>
-          <div><p id="meta-data-text-content"></p></div>
+          <label for="answer02"><i class="fa-regular fa-image fa-lg"></i>JPEG Meta Data<em></em></label>
+          <div>
+            <section class="meta-data-section">
+              <p>Text Content</p>
+              <div><p id="meta-data-text-content"></p></div>
+            </section>
+          </div>
+          
+          <input type="checkbox" id="answer01">
+          <label for="answer01"><i class="fa-regular fa-image fa-lg"></i>Ai Meta Data<em></em></label>
+          <div>
+            <section class="meta-data-section">
+              <p>Image Content</p>
+              <div><p id="meta-data-image-content"></p></div>
+            </section>
+            <section class="meta-data-section">
+              <p>Audio Content</p>
+              <div><p id="meta-data-audio-content"></p></div>
+            </section>
+            <section class="meta-data-section">
+              <p>Text Content</p>
+              <div><p id="meta-data-text-content"></p></div>
+            </section>
+          </div>
         </div> 
       </div>
     </aside>
     <section id="main-section">
+      <!-- <div id="file-name"></div> -->
+      <div id="jpeg-type-display-div">All-in JPEG 사진을 보고 있습니다.</div>
       <div class="main-image-container">
-        <div id="file-name"> </div>
           <img src="" id="main_image" style="max-width: 100%;">
           <div id="text-display-div"></div>
       </div>

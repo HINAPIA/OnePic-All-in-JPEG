@@ -48,7 +48,6 @@ metaDataRadioBtn.addEventListener("change",function()
   }
 });
 
-
 const audioContent =  document.getElementById("audio-content");
 const textContent = document.getElementById("text-content");
 const textDisplayDiv = document.getElementById("text-display-div")
@@ -61,7 +60,7 @@ const imageContentSection = document.getElementById("image-contents-section");
 async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
     const imageElement = document.getElementById("main_image")
     imageElement.src = imageUrl;
-    document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
+    // document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
     getImageByteArrayFromURL(imageUrl)
     .then(async byteArray => {
       if (byteArray) {
@@ -69,17 +68,14 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         aiContainer = new AiContainer();
         loadResolver = new LoadResolver();
         await loadResolver.createAiContainer(aiContainer, byteArray);
-        // while(true){
-        //   await new Promise(resolve => setTimeout(resolve, 1000));
-        //   break;
-        // }
+     
         const SIZE = aiContainer.imageContent.pictureList.length
         document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
         for (let i = 0; i < SIZE; i++) {
           console.log(i);
           let pictureData = aiContainer.imageContent.pictureList[i]
           const img = document.createElement("img");
-          img.src = aiContainer.imageContent.getBlobURL(pictureData);; // 이미지 파일 경로 설정
+          img.src = aiContainer.imageContent.getBlobURL(pictureData) // 이미지 파일 경로 설정
           img.classList.add("sub_image");
        
           img.addEventListener('click', (e) =>{
@@ -91,9 +87,10 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         console.log(await getBasicMetadata());
         getAiMetadata();
 
-      // TODO: audio 만드는것만 하는 걸로 변경해야할 듯
-       aiContainer.playAudio();
+       // Auduio 있을 경우, 오디오 만듦.
+       aiContainer.createAudio();
        audioContent.src = aiContainer.audioContent.blobUrl
+
       
       //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
        let isClicked = false;
@@ -113,9 +110,7 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
           textDisplayDiv.style.visibility = "hidden"
         }
       })
-      
     }
-
   });
 }
 
@@ -137,7 +132,7 @@ function addSubImageEvent(){
   });
 }
 
-async function  getBasicMetadata(){
+async function  getBasicMetadata(){ 
   var firstImageBytes =
   aiContainer.imageContent.getJpegBytes(aiContainer.imageContent.pictureList[0])
 
@@ -145,7 +140,8 @@ async function  getBasicMetadata(){
  // console.log(jsonData);
 }
 
-function getAiMetadata(){
+
+function getAiMetadata(){ 
   const jsonString = extractAiMetadata(aiContainer)
   let metadataString = ""
   try {
@@ -182,9 +178,28 @@ function getAiMetadata(){
     const audioContentInfo = data.audioContentInfo;
     const audioOffset = audioContentInfo.Offset;
     const audioSize = audioContentInfo.Size;
-    metadataString =  `Audio Offset: ${audioOffset}<br>Size: ${audioSize}`
+    metadataString +=  `<p id="attribute-marker">Audio Offset</p><p id="attribut-value">${audioOffset}</p><br>`
+    metadataString += `<p id="attribute-marker">Size</p><p id="attribut-value">${audioSize}</p>`
   } catch (error) {
     console.error('Error parsing JSON:', error);
   }
   audioContentMetaData.innerHTML = metadataString
 }
+
+
+const maingImage = document.getElementById("main_image")
+
+maingImage.onload = function() {
+  // Get image dimensions
+  const width = maingImage.width;
+  const height = maingImage.height;
+
+  // Get image EXIF data
+  EXIF.getData(maingImage, function() {
+    const dateTime = EXIF.getTag(this, "DateTimeOriginal");
+    const rotation = EXIF.getTag(this, "Orientation");
+    const latitude = EXIF.getTag(this, "GPSLatitude");
+    const longitude = EXIF.getTag(this, "GPSLongitude");
+  });
+
+};

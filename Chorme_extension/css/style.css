@@ -41,11 +41,12 @@ body {
 main {
     display: flex;
     height:100%;
+    flex-grow: 1; /* 남은 공간을 채우기 위해 */
 }
 
 /* nav section styles*/
 nav {
-    flex-basis: 4%;
+    flex-basis: 5%;
     background-color: #333639;
 }
 
@@ -90,19 +91,20 @@ input[type="radio"] {
 
 /* left aside section style */
 aside {
-    flex-basis: 200px;
+    flex-basis: 230px;
     background-color: #BBBDBF;
     flex-shrink: 0; 
 }
   
 #main-section {
+    height: 100%;
     flex-basis: 100%;
     background-color: #E1E3E6;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  
+    background:url("../resources/images/bg_img.png")
 }
 
 #file-name {
@@ -111,7 +113,7 @@ aside {
     justify-content:center;
     align-items: center;
     min-height: 1rem;
-    color:black;
+    color:white;
     text-align: center;
     font-weight: bold;
     margin-top:1rem;
@@ -159,9 +161,11 @@ aside {
 }
 
 .sub_image {
-    max-width: 85%;
+    width: 150px;
+    height: 150px;
     margin-bottom: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    object-fit:cover;
 }
 
 .sub_image:hover {
@@ -197,7 +201,6 @@ audio {
     align-items: center;
     text-align: center;   
     font-weight: bold;
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); 그림자 효과 추가 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
     0 2px 4px rgba(0, 0, 0, 0.1), 
     0 -2px 4px rgba(0, 0, 0, 0.1), 
@@ -234,7 +237,7 @@ input[id*="answer"] + label {
     border-bottom:0;
     color:#fff;
     font-weight: 500;
-    background:#808080;
+    background-color: #333639;
     font-size: 14px;
     cursor:pointer;
     position:relative;
@@ -266,7 +269,7 @@ input[id*="answer"] + label + div {
 
 
 input[id*="answer"]:checked + label + div {
-    max-height: 250px;
+    max-height: 400px;
     overflow-y: auto;
     padding-left:10px;
 }
@@ -298,4 +301,49 @@ input[id*="answer"]:checked + label + div {
     margin-bottom: -12px;
     margin-right: 5px;
 }
+
+.meta-data-section {
+   margin-bottom: 16px;
+}
+
+.meta-data-section > p {
+    background-color: #808080;
+    color:white;
+    font-weight: bold;
+    margin-left:-9px;
+    font-size: 16px;
+    height:20px;
+    padding-left:16px;
+    margin-top:2px;
+}
+
+#jpeg-type-display-div {
+    background-color: #333639;
+    color:white;
+    height: 25px;
+    margin-top:20px;
+    font-size: 20px;
+    padding-left:20px;
+    padding-right:20px;
+    border-radius: 20px; 
+}
+
+#content-tab-logo-div {
+    text-align: center;
+    font-size: 16px;
+    border: 2px solid #F0F1F2;
+    height:20px;
+    color:white;
+    background-color: #333639;
+}
+
+
+
+
+#contents-menu-tab {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+  
 
