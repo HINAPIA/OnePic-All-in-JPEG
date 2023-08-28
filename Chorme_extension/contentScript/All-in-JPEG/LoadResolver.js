@@ -8,10 +8,10 @@ export default class LoadResolver {
     static APP3_FIELD_LENGTH_SIZE = 2;
     static FIELD_SIZE = 4;
     
-    isAllinJPEG(sourceByreArray){
+    async isAllinJPEG(sourceByreArray){
         var APP3_startOffset = 2
-        APP3_startOffset = findAPP3StartPos(sourceByteArray)
-       if(APP3_startOffset == -1)
+        APP3_startOffset =  await this.findAPP3StartPos(sourceByreArray)
+        if(APP3_startOffset == -1)
             return false;
         else 
             return true;

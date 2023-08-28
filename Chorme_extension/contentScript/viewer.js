@@ -67,6 +67,10 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         console.log('Image Byte Array:', byteArray);
         aiContainer = new AiContainer();
         loadResolver = new LoadResolver();
+
+         // All-in JPEG 파일인지 식별 - boolean 값
+         var isAllinJPEG = await loadResolver.isAllinJPEG(byteArray)
+         console.log(isAllinJPEG)
         await loadResolver.createAiContainer(aiContainer, byteArray);
      
         const SIZE = aiContainer.imageContent.pictureList.length
@@ -84,8 +88,7 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
           imageContentSection.appendChild(img);
         }
   
-        // All-in JPEG 파일인지 식별 - boolean 값
-        var isAllinJPEG = loadResolver.isAllinJPEG(byteArray)
+       
 
         console.log(await getBasicMetadata());
         getAiMetadata();
