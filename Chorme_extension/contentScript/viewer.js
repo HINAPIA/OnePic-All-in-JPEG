@@ -33,7 +33,7 @@ contentsRadioBtn.addEventListener("change", function() {
     if (this.checked) {
         contentMenuSpacer.style.visibility = "visible"
         metaDataMenuSpacer.style.visibility = "hidden"
-        contentsMenuTab.style.display = "block"
+        contentsMenuTab.style.display = "flex"
         meataDataMenuTab.style.display ="none"
     }
 });
@@ -44,7 +44,7 @@ metaDataRadioBtn.addEventListener("change",function()
     metaDataMenuSpacer.style.visibility = "visible"
     contentMenuSpacer.style.visibility = "hidden"
     contentsMenuTab.style.display = "none"
-    meataDataMenuTab.style.display ="block"
+    meataDataMenuTab.style.display = "block"
   }
 });
 
