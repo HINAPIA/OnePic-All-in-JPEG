@@ -97,7 +97,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
 
         // title
         titleLabel.apply {
-            text = "All in JPEG PC Viewer"
+            text = ""
             textAlignment = TextAlignment.CENTER
             style{
                 textFill = c(CustomColor.point) // 글자 색상 흰색

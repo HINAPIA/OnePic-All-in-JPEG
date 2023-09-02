@@ -17,20 +17,32 @@ class LoadResolver() {
         const val APP3_FIELD_LENGTH_SIZE = 2
         const val FIELD_SIZE = 4
     }
+
+    fun isAllinJpegFormat(sourceByteArray : ByteArray, APP3_startOffset: Int) : Boolean{
+        return (sourceByteArray[APP3_startOffset+4] == 0x4D.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x43.toByte()
+            && sourceByteArray[APP3_startOffset+6] == 0x46.toByte() ||
+            sourceByteArray[APP3_startOffset+4] == 0x41.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x69.toByte()
+            && sourceByteArray[APP3_startOffset+6] == 0x46.toByte()  )
+    }
+
+
+    /**
+     * TODO All-in JPEG 포맷인지 구별 후 APP3 pos 리턴
+     *
+     * @param sourceByteArray 사진 파일의 바이너리 데이터
+     * @return All-in JPEG 포맷이면 APP3 시작 pos 리턴, 그렇지 않으면 -1 리턴
+     */
     fun findAPP3StartPos(sourceByteArray: ByteArray) : Int {
         // APP3 - ALL in JPEG 세그먼트의 시작 위치를 찾음
         var APP3_startOffset = 2
         while (APP3_startOffset < sourceByteArray.size - 1) {
             if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
+               val isAllinJpegFormat =  isAllinJpegFormat(sourceByteArray, APP3_startOffset)
                 //All in Format인지 확인 TODO("All-in 과 MC과 합쳐져 있음. 후에 MC 지워주기")
-                if(sourceByteArray[APP3_startOffset+4] == 0x4D.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x43.toByte()
-                    && sourceByteArray[APP3_startOffset+6] == 0x46.toByte() ||
-                    sourceByteArray[APP3_startOffset+4] == 0x41.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x69.toByte()
-                    && sourceByteArray[APP3_startOffset+6] == 0x46.toByte()  ){
-                    //APP3_startOffset +=2
+                if(isAllinJpegFormat)
                     return APP3_startOffset
-                }else {
-                    // APP3 마커가 있지만 MC Format이 아님
+                else {
+                    // APP3 마커가 있지만 All in Format이 아님
                     return -1
                 }
                 //break`
@@ -41,48 +53,55 @@ class LoadResolver() {
         return -1
     }
 
-    suspend fun createMCContainer(
+    /**
+     * TODO JPEG과 All-in JPEG 포맷 구별 후, 포맷에 따라 AiContainer를 채우는 함수 호출
+     *      JPEG -> setBasicJPEG 호출
+     *      All-in JPEG -> parsingAllinJPEG 호출
+     * @param AiContainer 갱신할 AiConatainer 객체
+     * @param sourceByteArray 사진 파일의 바이너리 데이터
+     */
+    suspend fun createAiContainer(
         AiContainer: AiContainer,
         sourceByteArray: ByteArray
     ) {
-        Log.d("MCContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
+        Log.d("AiContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
         CoroutineScope(Dispatchers.IO).launch {
             // APP3 세그먼트의 시작 위치를 찾음
-            var APP3_startOffset = 2
+            var APP3_startOffset = 0
             APP3_startOffset = findAPP3StartPos(sourceByteArray)
+            // APP3 세그먼트를 찾지 못함
             if (APP3_startOffset == - 1) {
                 try{
-                    // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
-                    Log.d("MCContainer", "createMCContainer() 일반 JPEG 생성")
-                    Log.d("testTest", "Load : All-in JPEG == false")
-                    AiContainer.setBasicJepg(sourceByteArray)
-                    JpegViewModel.AllInJPEG = false
+                    Log.d("AiContainer", "createMCContainer() 일반 JPEG 생성")
+                    createAiConaterInJPEG(AiContainer, sourceByteArray)
+
                 }catch (e : IOException){
-                    Log.e("MCcontainer", "createMCContainer() Basic JPEG Parsing 불가")
+                    Log.e("Aicontainer", "createMCContainer() Basic JPEG Parsing 불가")
                 }
             }
             else {
-                parsingAllinJPEG(AiContainer, sourceByteArray)
+                Log.d("AiConainer", "createMCContainer() All-in JPEG 생성")
+                createAiConainerInAllinJPEG(AiContainer, sourceByteArray)
             }
             return@launch
         }
     }
 
-    suspend fun parsingAllinJPEG( AiContainer: AiContainer,
-                                  sourceByteArray: ByteArray){
+    fun createAiConaterInJPEG(AiContainer: AiContainer, sourceByteArray: ByteArray){
+        JpegViewModel.AllInJPEG = false
+        AiContainer.setBasicJepg(sourceByteArray)
+    }
+
+    suspend fun createAiConainerInAllinJPEG(AiContainer: AiContainer,
+                                            sourceByteArray: ByteArray){
         CoroutineScope(Dispatchers.IO).launch {
             // APP3 세그먼트의 시작 위치를 찾음
             var APP3_startOffset = 2
             APP3_startOffset = findAPP3StartPos(sourceByteArray)
 
             try {
-                Log.d("MCcontainer", "createMCContainer() MC JPEG 생성")
-                Log.d("MCcontainer", "createMCContainer() App3 Start Offset : ${APP3_startOffset}")
                 JpegViewModel.AllInJPEG = true
-                Log.d("testTest", "Load : All-in JPEG == true")
-                // var header : Header = Header()
-                //var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset + MARKER_SIZE)
 
                 // 1. ImageContent Pasrsing
                 var imageContentStartOffset =

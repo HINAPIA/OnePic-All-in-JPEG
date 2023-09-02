@@ -528,7 +528,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         CoroutineScope(Dispatchers.Main).launch {
                             imageContent.checkPictureList = false
                             val job = async {
-                                loadResolver.createMCContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
+                                loadResolver.createAiContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
                             job.await()
 
                             while(!imageContent.checkPictureList) {}
@@ -1066,7 +1066,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         if (isPossibleAdd) {
                             val jpegAiContainer = AiContainer(requireActivity())
                             val jop = async {
-                                loadResolver.createMCContainer(jpegAiContainer, sourceByteArray)
+                                loadResolver.createAiContainer(jpegAiContainer, sourceByteArray)
                             }
                             jop.await()
 

@@ -28,6 +28,8 @@ class AiContainer(_activity: Activity) {
     private var groupCount : Int = 0
     var jpegConstant : JpegConstant = JpegConstant()
 
+    var isBurstImage : Boolean = true
+
     init {
         activity = _activity
         saveResolver = SaveResolver(activity ,this)
@@ -52,6 +54,7 @@ class AiContainer(_activity: Activity) {
             pos++
         }
     }
+
 
     fun init(){
         imageContent.init()
@@ -100,7 +103,13 @@ class AiContainer(_activity: Activity) {
         return saveResolver.save(isSaved)
     }
 
-    // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
+    /**
+     * TODO 사진을 찍은 후에 호출되는 함수로 찍은 사진 데이터로 imageContent 갱신
+     *
+     * @param byteArrayList 촬영된 사진들의 바이너리 데이터 리스트
+     * @param contentAttribute 촬영 모드
+     * @return 작업 완료 결과
+     */
     suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute) : Boolean= withContext(Dispatchers.Default){
         var jop = async {
             imageContent.setContent(byteArrayList, contentAttribute)
@@ -113,19 +122,37 @@ class AiContainer(_activity: Activity) {
         audioContent.setContent(audioBytes, contentAttribute)
     }
 
-    // Text Content를 초기화
-    fun setTextConent(contentAttribute: ContentAttribute, textList : ArrayList<String>){
+    /**
+     * TODO  Text Content를 갱신
+     *
+     * @param textList 텍스트 데이터가 담긴 String List
+     * @param contentAttribute 텍스트 속성
+     */
+    fun setTextConent(textList : ArrayList<String>, contentAttribute: ContentAttribute){
         textContent.setContent(contentAttribute, textList)
     }
+
     fun setBasicJepg(sourceByteArray: ByteArray) {
         init()
         // 헤더 따로 프레임 따로 저장
         imageContent.setBasicContent(sourceByteArray)
     }
 
+
+    /**
+     * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 갱신
+     *
+     */
     fun settingHeaderInfo(){
         header.settingHeaderInfo()
     }
+
+    /**
+     * TODO  객체로 존재하는 APP3 데이터를 APP3 'All-in' 구조에 따라  바이너리 데이터로 변환 후 리턴
+     *
+     *
+     * @return APP3 'All-in' 구조의  APP3 바이너리 데이터
+     */
     fun convertHeaderToBinaryData() : ByteArray{
         return header.convertBinaryData()
     }

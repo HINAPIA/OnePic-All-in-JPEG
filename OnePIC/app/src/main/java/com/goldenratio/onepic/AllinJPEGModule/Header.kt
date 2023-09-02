@@ -21,18 +21,23 @@ class Header(_MC_container : AiContainer) {
         val APP3_MARKER_SIZE = 2
         val APP3_LENGTH_FIELD_SIZE = 2
         val IDENTIFIER_FIELD_SIZE = 4
+        val BURST_MODE = 1
     }
-    // MC Container에 채워진 Content의 정보를 Info 클래스들로 생성
+
+    /**
+     * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 갱신
+     */
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(AiContainer.imageContent)
-//        textContentInfo = TextContentInfo(MCContainer.textContent)
         textContentInfo = TextContentInfo(AiContainer.textContent, imageContentInfo.getEndOffset())
         audioContentInfo = AudioContentInfo(AiContainer.audioContent, textContentInfo.getEndOffset())
         headerDataLength = getAPP3FieldLength()
         applyAddedAPP3DataSize()
     }
 
-    //추가한 APP3 extension + JpegMeta data 만큼 offset 변경
+    /**
+     * TODO 추가한 APP3 extension + JpegMeta data 만큼 offset 변경
+     */
     fun applyAddedAPP3DataSize(){
         // 추가할 APP3 extension 만큼 offset 변경 - APP3 marker(2) + APP3 Data field length + EOI
         var headerLength = getAPP3FieldLength() + 2
@@ -63,7 +68,7 @@ class Header(_MC_container : AiContainer) {
     }
 
     fun getAPP3CommonDataLength() : Int {
-        return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE
+        return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE + BURST_MODE
     }
 
     fun convertBinaryData() : ByteArray {

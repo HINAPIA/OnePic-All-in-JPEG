@@ -484,11 +484,11 @@ class CameraFragment : Fragment() {
                     Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                 }
 
-                // 이미지 저장
+                //  renew ImageContent
                 val jop = async {
                     jpegViewModel.jpegAiContainer.value!!.setImageContent(
                         previewByteArrayList.value!!,
-                        ContentType.Image, contentAttribute
+                        contentAttribute
                     )
                 }
                 jop.await()

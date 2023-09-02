@@ -12,13 +12,10 @@
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/file.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AiContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/AiContainer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/Picture.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents/Picture.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Header.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Header.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/AudioContentInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Info/AudioContentInfo.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/AimetaDataView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/SubImagesView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/AiContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/AiContainer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_135_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_135_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_261_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_261_timing.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,7 +182,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "Desktop",
-    "last_opened_file_path": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/Desktop/Viewer/src/main/kotlin/com/example/demo/app/PictureModule/Contents",
+    "last_opened_file_path": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/Desktop/Viewer",
     "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
