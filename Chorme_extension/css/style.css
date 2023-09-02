@@ -1,5 +1,5 @@
 html {
-    height:100%;
+    height:95%;
 }
 
 body {
@@ -132,7 +132,7 @@ aside {
 }
 
 #main_image {
-    max-height: 90vh;
+    max-height: 85vh;
     max-width: 100%;
     width: auto; 
     display: block;
@@ -269,7 +269,7 @@ input[id*="answer"] + label + div {
 
 
 input[id*="answer"]:checked + label + div {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
     padding-left:10px;
 }

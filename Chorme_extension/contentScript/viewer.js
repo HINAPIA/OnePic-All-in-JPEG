@@ -51,6 +51,7 @@ metaDataRadioBtn.addEventListener("change",function()
 const audioContent =  document.getElementById("audio-content");
 const textContent = document.getElementById("text-content");
 const textDisplayDiv = document.getElementById("text-display-div")
+const app1MetaData = document.getElementById("meta-data-app1")
 const imageContentMetaData = document.getElementById("meta-data-image-content")
 const audioContentMetaData = document.getElementById("meta-data-audio-content")
 const textContentMetaData = document.getElementById("meta-data-text-content")
@@ -67,11 +68,12 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         console.log('Image Byte Array:', byteArray);
         aiContainer = new AiContainer();
         loadResolver = new LoadResolver();
-
+        await setBasicMetadataTab(byteArray, imageUrl)
          // All-in JPEG 파일인지 식별 - boolean 값
         var isAllinJPEG = await loadResolver.isAllinJPEG(byteArray)
         if (isAllinJPEG) {
 
+          document.getElementById("jpeg-type-display-div").innerHTML = "All-in JPEG 사진을 보고 있습니다."
           await loadResolver.createAiContainer(aiContainer, byteArray);
      
           const SIZE = aiContainer.imageContent.pictureList.length
@@ -89,8 +91,8 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
             imageContentSection.appendChild(img);
           }
 
-          console.log(await getBasicMetadata());
-          getAiMetadata();
+          //console.log(await getBasicMetadata());
+          setAiMetadataTab();
   
           // Auduio 있을 경우, 오디오 만듦.
           aiContainer.createAudio();
@@ -117,13 +119,10 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
           })
 
         }
-        else {
-
-            console.log("일반 jpeg 보고있음")
+        else { // 일반 JPEG 사진 출력
             document.getElementById("jpeg-type-display-div").innerHTML = "일반 JPEG 사진을 보고 있습니다."
-
-
         }
+
     }
   });
 }
@@ -136,26 +135,53 @@ function getFileNameFromUrl(imageUrl) {
   return decodeURIComponent(fileName);
 }
 
-// sub_image 클래스의 element를 클릭하면 메인 이미지 변경 리스너 추가
-function addSubImageEvent(){
-  var subImageElements = document.querySelectorAll('.sub_image');
-  subImageElements.forEach((element, i)=>{
-    element.addEventListener('click', (e) =>{
-      chageMainImagetoSelectedImage(e, aiContainer, i)
-    });
-  });
+// // meta-data tab의 jpeg meta data setting
+async function setBasicMetadataTab(byteArray, imageUrl) {
+  let metadataString = ""
+  const result = await extractBasicMetadata(byteArray)
+  .then(metadata => {
+    let make = metadata.make
+    let model = metadata.model
+    let captureTime = metadata.captureTime
+
+    // 공백을 기준으로 문자열을 분할
+    let parts = captureTime.split(" ");
+    
+    // 콜론(:)과 공백을 기준으로 문자열을 분할
+    let dateParts = parts[0].split(/:|\s/);
+    // 분할된 부분에서 년, 월, 일을 추출
+    const year = dateParts[0];
+    const month = dateParts[1];
+    const day = dateParts[2];
+    // 추출한 년, 월, 일을 합쳐서 원하는 형식으로 만듦
+    const formattedDate = `${year}/${month}/${day}`;
+
+    // 분할된 부분에서 시간 부분을 추출
+    let time = parts[1];
+
+
+    // meta data 정보 출력
+    metadataString += `<p id="image-marker">App1 MetaData</p><hr>`
+    metadataString += `<p id="attribute-marker">Name</p><p id="attribut-value">${getFileNameFromUrl(imageUrl)}</p><br></br>`
+    metadataString += `<p id="attribute-marker">Date</p><p id="attribut-value">${formattedDate}</p><br></br>`
+    metadataString += `<p id="attribute-marker">Time</p><p id="attribut-value">${time}</p><br></br>`
+    metadataString += `<p id="attribute-marker">Make</p><p id="attribut-value">${make}</p><br>`
+    metadataString += `<p id="attribute-marker">Model</p><p id="attribut-value">${model}</p><br>`
+
+
+    app1MetaData.innerHTML = metadataString
+  })
+  .catch(error => {
+  console.error('Error:', error);
+  return error;
+  })
+  
 }
 
-async function  getBasicMetadata(){ 
-  var firstImageBytes =
-  aiContainer.imageContent.getJpegBytes(aiContainer.imageContent.pictureList[0])
-
-  console.log(await extractBasicMetadata(firstImageBytes));
- // console.log(jsonData);
-}
 
 
-function getAiMetadata(){ 
+// meta-data tab의 Ai Meata data setting
+function setAiMetadataTab(){ 
   const jsonString = extractAiMetadata(aiContainer)
   let metadataString = ""
   try {
@@ -199,7 +225,6 @@ function getAiMetadata(){
   }
   audioContentMetaData.innerHTML = metadataString
 }
-
 
 const maingImage = document.getElementById("main_image")
 
