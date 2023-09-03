@@ -24,20 +24,17 @@ export function chageMainImagetoSelectedImage (event, aiContainer , index){
 /*
 * JPEG의 일반 메타데이터를 추출하여 Json 형식으로 리턴
 */
-
-export function extractBasicMetadata(imageBytes){
-    
-    getMetadataFromImageBytes(imageBytes)
-    .then(metadata => {
-        console.log('Metadata:', metadata);
-        return metadata;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        return error;
-    });
-
-}
+export async function extractBasicMetadata(imageBytes) {
+    try {
+      const metadata = await getMetadataFromImageBytes(imageBytes);
+      console.log('Metadata:', metadata);
+      return metadata;
+    } catch (error) {
+      console.error('Error:', error);
+      throw error; // 이 부분에서 예외를 다시 던져서 호출자에게 전달합니다.
+    }
+  }
+  
 
 /*
 * All-in JPEG 전용 메타데이터를 추출하여 Json 형식으로 리턴
@@ -151,3 +148,4 @@ function getAudioContentMetadata(audioContentInfo){
     result.Size = `${sizeValue}kb`;
     return result
 }
+

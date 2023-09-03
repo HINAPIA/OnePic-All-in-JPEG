@@ -45,8 +45,6 @@ class LoadResolver() {
         AiContainer: AiContainer,
         sourceByteArray: ByteArray
     ) {
-       // AiContainer.exploreMarkers(sourceByteArray)
-
         Log.d("MCContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
         CoroutineScope(Dispatchers.IO).launch {
             // APP3 세그먼트의 시작 위치를 찾음
@@ -57,6 +55,7 @@ class LoadResolver() {
                     // APP3 세그먼트를 찾지 못함
                     // 일반 JPEG
                     Log.d("MCContainer", "createMCContainer() 일반 JPEG 생성")
+                    Log.d("testTest", "Load : All-in JPEG == false")
                     AiContainer.setBasicJepg(sourceByteArray)
                     JpegViewModel.AllInJPEG = false
                 }catch (e : IOException){
@@ -64,80 +63,101 @@ class LoadResolver() {
                 }
             }
             else {
-                try{
-                    Log.d("MCcontainer", "createMCContainer() MC JPEG 생성")
-                    Log.d("MCcontainer", "createMCContainer() App3 Start Offset : ${APP3_startOffset}")
-                    JpegViewModel.AllInJPEG = true
-                    // var header : Header = Header()
-                    //var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset + MARKER_SIZE)
+                parsingAllinJPEG(AiContainer, sourceByteArray)
+            }
+            return@launch
+        }
+    }
 
-                    // 1. ImageContent Pasrsing
-                    var imageContentStartOffset = APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE +  FIELD_SIZE
-                    var imageContentInfoSize = ByteArraytoInt(sourceByteArray, imageContentStartOffset)
-                    var pictureList = async {
-                        imageContentParsing(
-                            AiContainer,
-                            sourceByteArray,
-                            sourceByteArray.copyOfRange(
-                                imageContentStartOffset,
-                                imageContentStartOffset + imageContentInfoSize
-                            )
+    suspend fun parsingAllinJPEG( AiContainer: AiContainer,
+                                  sourceByteArray: ByteArray){
+        CoroutineScope(Dispatchers.IO).launch {
+            // APP3 세그먼트의 시작 위치를 찾음
+            var APP3_startOffset = 2
+            APP3_startOffset = findAPP3StartPos(sourceByteArray)
+
+            try {
+                Log.d("MCcontainer", "createMCContainer() MC JPEG 생성")
+                Log.d("MCcontainer", "createMCContainer() App3 Start Offset : ${APP3_startOffset}")
+                JpegViewModel.AllInJPEG = true
+                Log.d("testTest", "Load : All-in JPEG == true")
+                // var header : Header = Header()
+                //var dataFieldLength = ByteArraytoInt(sourceByteArray, APP3_startOffset + MARKER_SIZE)
+
+                // 1. ImageContent Pasrsing
+                var imageContentStartOffset =
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE
+                var imageContentInfoSize = ByteArraytoInt(sourceByteArray, imageContentStartOffset)
+                var pictureList = async {
+                    imageContentParsing(
+                        AiContainer,
+                        sourceByteArray,
+                        sourceByteArray.copyOfRange(
+                            imageContentStartOffset,
+                            imageContentStartOffset + imageContentInfoSize
                         )
-                    }
-                    AiContainer.imageContent.setContent(pictureList.await())
+                    )
+                }
+                AiContainer.imageContent.setContent(pictureList.await())
 
-                    // 2. TextContent Pasrsing
-                    var textContentStartOffset = APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE+  FIELD_SIZE +  imageContentInfoSize
-                    var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
-                    if (textContentInfoSize > 0) {
-                        var textList = textContentParsing(
-                            AiContainer,  sourceByteArray,
+                // 2. TextContent Pasrsing
+                var textContentStartOffset =
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + imageContentInfoSize
+                var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
+                if (textContentInfoSize > 0) {
+                    var textList = textContentParsing(
+                        AiContainer, sourceByteArray,
 //                            sourceByteArray.copyOfRange(
 //                                textContentStartOffset + 4,
 //                                textContentStartOffset + 8 + textContentInfoSize
 //                            )
-                            sourceByteArray.copyOfRange(
-                                textContentStartOffset ,
-                                textContentStartOffset + 4 + textContentInfoSize
-                            )
+                        sourceByteArray.copyOfRange(
+                            textContentStartOffset,
+                            textContentStartOffset + 4 + textContentInfoSize
                         )
-                        AiContainer.textContent.setContent(textList)
-                    }
-
-                    // 3. AudioContent Pasrsing
-                    var audioContentStartOffset = textContentStartOffset + textContentInfoSize
-                    var audioContentInfoSize = ByteArraytoInt(sourceByteArray, audioContentStartOffset)
-                    Log.d("AudioModule" , "audioContentInfoSize : ${audioContentInfoSize}")
-                    if (audioContentInfoSize > 0) {
-                        var audioDataStartOffset = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 4)
-                        Log.d("AudioModule" , "audioDataStartOffset : ${audioDataStartOffset}")
-
-                        var audioAttribute = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 8)
-                        Log.d("AudioModule" , "audioAttribute : ${audioAttribute}")
-
-                        var audioDataLength = ByteArraytoInt(sourceByteArray, audioContentStartOffset + 12)
-                        Log.d("AudioModule" , "audioDataLength : ${audioDataLength}")
-                        if(audioDataLength > 0){
-                            var audioBytes = sourceByteArray.copyOfRange(audioDataStartOffset + MARKER_SIZE, audioDataStartOffset  + audioDataLength)
-                            Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
-                            var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
-                            AiContainer.audioContent.setContent(audio)
-                            AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!,"viewer_record")
-
-                        }
-                        // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
-                    }
-                }catch (e : IOException){
-                    Log.e("MCcontainer", "MC JPEG Parsing 불가")
+                    )
+                    AiContainer.textContent.setContent(textList)
                 }
 
+                // 3. AudioContent Pasrsing
+                var audioContentStartOffset = textContentStartOffset + textContentInfoSize
+                var audioContentInfoSize = ByteArraytoInt(sourceByteArray, audioContentStartOffset)
+                Log.d("AudioModule", "audioContentInfoSize : ${audioContentInfoSize}")
+                if (audioContentInfoSize > 0) {
+                    var audioDataStartOffset =
+                        ByteArraytoInt(sourceByteArray, audioContentStartOffset + 4)
+                    Log.d("AudioModule", "audioDataStartOffset : ${audioDataStartOffset}")
+
+                    var audioAttribute =
+                        ByteArraytoInt(sourceByteArray, audioContentStartOffset + 8)
+                    Log.d("AudioModule", "audioAttribute : ${audioAttribute}")
+
+                    var audioDataLength =
+                        ByteArraytoInt(sourceByteArray, audioContentStartOffset + 12)
+                    Log.d("AudioModule", "audioDataLength : ${audioDataLength}")
+                    if (audioDataLength > 0) {
+                        var audioBytes = sourceByteArray.copyOfRange(
+                            audioDataStartOffset + MARKER_SIZE,
+                            audioDataStartOffset + audioDataLength
+                        )
+                        Log.d("AudioModule", "audioBytes : ${audioBytes.size}")
+                        var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
+                        AiContainer.audioContent.setContent(audio)
+                        AiContainer.audioResolver.saveByteArrToAacFile(
+                            audio._audioByteArray!!,
+                            "viewer_record"
+                        )
+
+                    }
+                    // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
+                }
+            } catch (e: IOException) {
+                Log.e("MCcontainer", "MC JPEG Parsing 불가")
             }
-//            CoroutineScope(Dispatchers.Main).launch {
-//                isViewChanged.value = true
-//            }
             return@launch
         }
     }
+
     fun ByteArraytoInt(byteArray: ByteArray, stratOffset : Int): Int {
         var intNum :Int = ((byteArray[stratOffset].toInt() and 0xFF) shl 24) or
                 ((byteArray[stratOffset+1].toInt() and 0xFF) shl 16) or

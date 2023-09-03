@@ -227,6 +227,21 @@ class ImageContent {
         }
     }
 
+    // 편집에서 저장 전 메인 사진이 변경되면 호출되는 함수
+    suspend fun chageMainPicture(selectedPicture : Picture) = coroutineScope {
+
+        // 1. 메인으로 하고자하는 picture를 기존의 pictureList에서 제거
+        val removeResult = removePicture(selectedPicture)
+        if (removeResult) {
+            // 2. main 사진을 첫번 째로 삽입
+            insertPicture(0, selectedPicture)
+            mainPicture = selectedPicture
+
+            // 3. meta data 변경
+            jpegMetaData = chageMetaData(selectedPicture._app1Segment!!)
+        }
+    }
+
     /**
      * metaData + Frame로 이루어진 사진에서 metaData 부분만 리턴 하는 함수
      */
@@ -250,7 +265,6 @@ class ImageContent {
         // 위에서 2번째 JFIF를 못찾았거나 edited, magic속성이 아닐 때
         if(!isFindStartMarker) {
             // 마지막 SOF가 나오기 전 까지 메타 데이터로
-
             if(SOFList.size > 0){
                 metaDataEndPos = SOFList[SOFList.size -1]
             }
@@ -396,6 +410,7 @@ class ImageContent {
         var pos = 0
 
         val (APP3StartIndx, APP3DataLength) = findMCFormat(bytes)
+        if(APP3StartIndx != 0) isAiFormat = true
 
         while(pos < bytes.size -1){
             if (bytes[pos] == 0xFF.toByte() && bytes[pos + 1] == 0xE1.toByte()){
@@ -411,7 +426,7 @@ class ImageContent {
         }
 
         //return findApp1 && !isAiFormat || !findApp0 && findApp1
-        return findApp1 && !JpegViewModel.AllInJPEG
+        return findApp1 && !isAiFormat
     }
 
     fun extractSOI(jpegBytes: ByteArray): ByteArray {
@@ -771,7 +786,8 @@ class ImageContent {
 
 //            while (!checkBitmapList || !checkPictureList) {
 //            }
-//            Log.d("picture remove", "reomve2 $index")
+
+            Log.d("picture remove", "reomve2 $index")
 
             if(bitmapList.size > index) {
                 bitmapList.removeAt(index)

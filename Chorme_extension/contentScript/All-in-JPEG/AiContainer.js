@@ -100,6 +100,10 @@ export default class AiContainer {
         this.audioContent.playAudio();
     }
 
+    createAudio(){
+        this.audioContent.createNewAudioPlayer();
+    }
+
     // audioPlay() {
     //     const audio = this.audioContent.audio;
     //     if (audio !== null) {

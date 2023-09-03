@@ -84,18 +84,23 @@ export default class ImageContent {
      */
     setBasicContent(sourceByteArray) {
         this.init();
-        jpegMetaData = this.extractJpegMeta(sourceByteArray, ContentAttribute.basic);
+        this.jpegMetaData = this.extractJpegMeta(sourceByteArray, ContentAttribute.basic);
         // No separation of APP1 data
         var app1Bytes = this.extractAPP1(sourceByteArray);
         var frameBytes = this.extractFrame(sourceByteArray, ContentAttribute.basic);
         // Create Picture object
        // var picture = new Picture(ContentAttribute.basic, app1Bytes, frameBytes);
-       let picture = new Picture(null, app1Bytes, frameBytes, ContentAttribute.basic, 0, null)
+        let picture = new Picture(null, app1Bytes, frameBytes, ContentAttribute.basic, 0, null)
         picture.waitForByteArrayInitialized();
         this.insertPicture(picture);
-        mainPicture = pictureList[0];
-        checkPictureList = true;
-        checkMain = true;
+        this.mainPicture = pictureList[0];
+        this.checkPictureList = true;
+        this.checkMain = true;
+    }
+
+    insertPicture(picture){
+        this.pictureList.push(picture);
+        this.pictureCount++;
     }
 
         /**
