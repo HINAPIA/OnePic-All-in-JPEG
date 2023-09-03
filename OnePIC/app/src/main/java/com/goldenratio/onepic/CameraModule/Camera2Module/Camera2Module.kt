@@ -29,6 +29,7 @@ import com.goldenratio.onepic.CameraModule.ObjectDetectionModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -66,11 +67,7 @@ class Camera2Module(
         // surfaceTexture가 업데이트 됨
         override fun onSurfaceTextureUpdated(texture: SurfaceTexture) {
             if (isDetectionChecked) {
-                // 객체 인식 코드 호출
-                val newBitmap = textureView.bitmap?.let {
-                    objectDetectionModule.runObjectDetection(it)
-                }
-                imageView.setImageBitmap(newBitmap)
+                setShowObjectPreView()
             }
         }
     }
@@ -327,10 +324,10 @@ class Camera2Module(
         PICTURE_SIZE = pictureSize
 
         Log.d("렌즈 초점 결과", "distanceBurstBtn on Click")
-        val distanceUnit = minimumFocusDistance / 10f
+        val distanceUnit = minimumFocusDistance / (pictureSize-1)
 
         val queue = ArrayDeque<Float>()
-        for (i in 10 downTo 1) {
+        for (i in (pictureSize-1) downTo 0) {
             queue.add(distanceUnit * i)
         }
 
@@ -343,9 +340,6 @@ class Camera2Module(
      *      현재 객체 감지를 정지 시키고, 감지된 객체 정보를 하나씩 얻어와 초점을 맞춘뒤 촬영한다.
      *      더 이상 촬영할 객체가 없다면 중지한다.
      */
-
-
-
     fun focusDetectionPictures() {
         Log.d("detectionResult", "2. focusDetectionPictures")
         val detectionResult = objectDetectionModule.getDetectionResult()
@@ -753,6 +747,7 @@ class Camera2Module(
      */
     private fun captureStillPicture(value: ArrayDeque<Float>?) {
         Log.d("detectionResult", "5. captureStillPicture")
+
         try {
             if (activity == null || cameraDevice == null) return
             val rotation = activity.windowManager?.defaultDisplay?.rotation
@@ -790,7 +785,7 @@ class Camera2Module(
 
 //                    Toast.makeText(requireContext(), "렌즈 초점 결과: " +distanceResult.toString(), Toast.LENGTH_SHORT).show()
                     Log.d("렌즈 초점 결과", distanceResult.toString())
-                    if (value != null && distanceResult == 10f) {
+                    if (value != null && distanceResult == 0f) {
                         setAutoFocus()
                     } else {
                         unlockFocus()
@@ -948,7 +943,6 @@ class Camera2Module(
                 //the focus trigger is complete -
                 //resume repeating (preview surface will get frames), clear AF trigger
                 if (request.tag == "FOCUS_TAG" && !isCaptured)  {
-                    isCaptured = true
                     previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
                     captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
                     if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
@@ -992,6 +986,13 @@ class Camera2Module(
         }
     }
 
+
+    private fun setShowObjectPreView() {
+        // 객체 인식 코드 호출
+        val newBitmap = textureView.bitmap?.let {
+            objectDetectionModule.runObjectDetection(it)
+        }
+
+        imageView.setImageBitmap(newBitmap)
+    }
 }
-
-

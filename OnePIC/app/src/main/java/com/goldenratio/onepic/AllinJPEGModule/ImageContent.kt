@@ -769,9 +769,9 @@ class ImageContent {
 
             Log.d("picture remove", "reomve $index")
 
-            while (!checkBitmapList || !checkPictureList) {
-            }
-            Log.d("picture remove", "reomve2 $index")
+//            while (!checkBitmapList || !checkPictureList) {
+//            }
+//            Log.d("picture remove", "reomve2 $index")
 
             if(bitmapList.size > index) {
                 bitmapList.removeAt(index)

@@ -257,6 +257,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         imageToolModule.settingAnimation(binding.successInfoConstraintLayout)
 
+
         return binding.root
     }
 
@@ -1532,7 +1533,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     "편집을 저장 중.."
                 }
                 LoadingText.BestImageRecommend -> {
-                    "Best 사진 추천 중.."
+                    "베스트 사진 추천 중.."
                 }
                 LoadingText.MagicPlay -> {
                     "매직 사진 준비 중.."

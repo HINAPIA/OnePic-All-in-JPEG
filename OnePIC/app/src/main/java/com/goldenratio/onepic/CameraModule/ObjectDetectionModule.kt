@@ -90,12 +90,8 @@ class ObjectDetectionModule(
 
         // Step 3: Parse the detection result and show it
         val resultToDisplay = results.map {
-            // Get the top-1 category and craft the display text
-            val category = it.categories.first()
-            val text = "${category.label}"
-
             // Create a data object to display the detection result
-            DetectionResult(it.boundingBox, text)
+            DetectionResult(it.boundingBox)
         }
         return resultToDisplay
     }
@@ -113,6 +109,8 @@ class ObjectDetectionModule(
         val pen = Paint()
         pen.textAlign = Paint.Align.LEFT
 
+        // 비트맵 지우기
+        outputBitmap.eraseColor(Color.TRANSPARENT)
 
         detectionResults.forEach {
             // draw bounding box
@@ -129,50 +127,45 @@ class ObjectDetectionModule(
             val left = boundingBox.left * scaleFactor
             val right = boundingBox.right * scaleFactor
 
-            val width = right - left
-            val height = bottom - top
-            var lineLength = 50f
-
-//            if(width < height) lineLength = width / 5f
-//            else lineLength = height / 5f
+            val lineLength = 50f
 
             var path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus)
             path.moveTo(left - boxPaint.strokeWidth/2f, top)
             path.lineTo(left + lineLength, top)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus_30)
             path.moveTo(left + lineLength, top)
             path.lineTo(right - lineLength, top)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus)
             path.moveTo(right - lineLength, top)
             path.lineTo(right, top)
             path.lineTo(right, top + lineLength)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus_30)
             path.moveTo(right, top + lineLength)
             path.lineTo(right, bottom - lineLength)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus)
             path.moveTo(right, bottom - lineLength)
             path.lineTo(right, bottom)
             path.lineTo(right - lineLength, bottom)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus_30)
             path.moveTo(right - lineLength, bottom)
             path.lineTo(left + lineLength, bottom)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus)
@@ -185,13 +178,13 @@ class ObjectDetectionModule(
             boxPaint.color = ContextCompat.getColor(context, R.color.focus_30)
             path.moveTo(left, bottom - lineLength)
             path.lineTo(left, top + lineLength)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
 
             path = Path()
             boxPaint.color = ContextCompat.getColor(context, R.color.focus)
             path.moveTo(left, top + lineLength)
             path.lineTo(left, top)
-            canvas.drawPath(path, boxPaint);
+            canvas.drawPath(path, boxPaint)
             path.close()
         }
         return outputBitmap
@@ -226,4 +219,4 @@ class ObjectDetectionModule(
         return detectionResult.size
     }
 }
-data class DetectionResult(val boundingBox: RectF, val text: String)
+data class DetectionResult(val boundingBox: RectF)

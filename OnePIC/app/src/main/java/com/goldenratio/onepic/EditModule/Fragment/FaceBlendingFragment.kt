@@ -62,10 +62,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
     private var mainSubView: View? = null
 
-    // Animation
-//    private lateinit var fadeIn: ObjectAnimator
-//    private lateinit var fadeOut: ObjectAnimator
-
     private enum class InfoLevel {
         EditFaceSelect,
         ChangeFaceSelect,
@@ -389,6 +385,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
      * setMainImageBoundingBox()
      *      - mainImage를 faceDetection 실행 후,
      *        감지된 얼굴의 사각형 표시된 사진으로 imageView 변환
+     *
      */
     open fun setMainImageBoundingBox() {
 
@@ -536,6 +533,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     /**
      *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
      *         - 이미지를 자르고 화면에 띄어줌
+     *
+     *        @param boundingBox 이미지 위치 정보
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
@@ -702,7 +701,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                     "편집 저장 중.."
                 }
                 LoadingText.AutoBlending -> {
-                    "최적의 Blending 사진 제작 중.."
+                    "최적의 블렌딩 사진 제작 중.."
                 }
                 else -> {
                     ""
