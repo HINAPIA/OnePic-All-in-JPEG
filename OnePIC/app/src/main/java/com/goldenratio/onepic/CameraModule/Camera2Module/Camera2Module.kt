@@ -44,6 +44,7 @@ class Camera2Module(
     private val imageView: ImageView,
     var previewByteArrayList : MutableLiveData<ArrayList<ByteArray>>
 ) {
+
     /**
      * TextureView를 사용 가능 한 지와 이와 관련된 surface에 관해 호출되는 리스너
      */
@@ -230,7 +231,7 @@ class Camera2Module(
 
     var isDetectionChecked = false
 
-    var wantCameraDirection = 0
+    var wantCameraDirection = 1
 
 
     companion object {
@@ -304,7 +305,7 @@ class Camera2Module(
         // 메인 스레드를 방해하지 않기 위해 카메라 작업은 새로운 스레드 제작 후 해당 스레드에서 실행
         startBackgroundThread()
 
-        wantCameraDirection = CameraCharacteristics.LENS_FACING_BACK
+//        wantCameraDirection = CameraCharacteristics.LENS_FACING_BACK
     }
 
     fun startCamera() {
@@ -868,6 +869,7 @@ class Camera2Module(
         state = STATE_PICTURE_TAKEN
 
         var focusDistanceValue = value.peek()
+
         if (focusDistanceValue > minimumFocusDistance) {
             focusDistanceValue = minimumFocusDistance
         }
@@ -892,15 +894,15 @@ class Camera2Module(
                 if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
                     var distanceValue = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
                     // 내가 지정한 바운더리 안에 있는지 확인
-                    if (distanceValue != null && value.isNotEmpty() && distanceValue > value.peek() - 0.1f
-                        && distanceValue < value.peek() + 0.1f
-                    ) {
-                        Log.d(
-                            "렌즈 초점 거리",
-                            "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}"
-                        )
-                        captureStillPicture(value)
-                    }
+//                    if (distanceValue != null && value.isNotEmpty() && distanceValue > value.peek() - 0.1f
+//                        && distanceValue < value.peek() + 0.1f
+//                    ) {
+                    Log.d(
+                        "렌즈 초점 거리",
+                        "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}"
+                    )
+                    captureStillPicture(value)
+//                    }
                 }
             }
         }
@@ -988,6 +990,7 @@ class Camera2Module(
 
 
     private fun setShowObjectPreView() {
+
         // 객체 인식 코드 호출
         val newBitmap = textureView.bitmap?.let {
             objectDetectionModule.runObjectDetection(it)

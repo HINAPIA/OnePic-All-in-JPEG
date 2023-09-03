@@ -106,7 +106,7 @@ class CameraFragment : Fragment() {
                 imageToolModule.showView(binding.loadingLayout, true)
 
                 // 한 장일 경우 저장
-                if(binding.basicRadioBtn.isChecked) {
+                if (binding.basicRadioBtn.isChecked) {
                     saveJPEG()
                 }
                 // 여러 장일 경우 저장
@@ -128,7 +128,6 @@ class CameraFragment : Fragment() {
                     binding.burstRadioBtn.isEnabled = true
                     binding.objectFocusRadioBtn.isEnabled = true
                     binding.distanceFocusRadioBtn.isEnabled = true
-
 
                     imageToolModule.showView(binding.loadingLayout, false)
 
@@ -211,8 +210,6 @@ class CameraFragment : Fragment() {
         // shutter Btn 클릭
         binding.shutterBtn.setOnClickListener {
 
-            
-
             System.gc()
             rotation.start()
 
@@ -230,7 +227,7 @@ class CameraFragment : Fragment() {
             /**
              * Basic 모드
              */
-            if(binding.basicRadioBtn.isChecked) {
+            if (binding.basicRadioBtn.isChecked) {
                 PICTURE_SIZE = 1
                 contentAttribute = ContentAttribute.basic
                 camera2Module.lockFocus(PICTURE_SIZE)
@@ -250,17 +247,16 @@ class CameraFragment : Fragment() {
             /**
              * ObjectFocus 모드 (아무것도 잡힌게 없을 때 처리 해줘야 함)
              */
-            if(binding.objectFocusRadioBtn.isChecked) {
-                Log.d("detectionResult", "1. shutter click" )
+            if (binding.objectFocusRadioBtn.isChecked) {
+                Log.d("detectionResult", "1. shutter click")
                 audioResolver.startRecording("camera_record")
 
                 PICTURE_SIZE = camera2Module.objectDetectionModule.getDetectionSize()
-                if(PICTURE_SIZE > 0) {
+                if (PICTURE_SIZE > 0) {
                     contentAttribute = ContentAttribute.object_focus
                     imageToolModule.showView(binding.objectWarningConstraintLayout, true)
                     camera2Module.focusDetectionPictures()
-                }
-                else {
+                } else {
                     camera2Module.objectDetectionModule.resetDetectionResult()
                     CoroutineScope(Dispatchers.Main).launch {
                         binding.shutterBtn.isEnabled = true
@@ -271,7 +267,8 @@ class CameraFragment : Fragment() {
                         binding.objectFocusRadioBtn.isEnabled = true
                         binding.distanceFocusRadioBtn.isEnabled = true
 
-                        binding.successInfoTextView.text = getText(R.string.camera_object_detection_failed)
+                        binding.successInfoTextView.text =
+                            getText(R.string.camera_object_detection_failed)
                         binding.successInfoConstraintLayout.visibility = View.VISIBLE
 
                         imageToolModule.fadeIn.start()
@@ -283,13 +280,14 @@ class CameraFragment : Fragment() {
             /**
              * DistanceFocus 모드
              */
-            if(binding.distanceFocusRadioBtn.isChecked) {
+            if (binding.distanceFocusRadioBtn.isChecked) {
                 audioResolver.startRecording("camera_record")
 
                 PICTURE_SIZE = 10
                 contentAttribute = ContentAttribute.distance_focus
                 camera2Module.distanceFocusPictures(PICTURE_SIZE)
             }
+//            }
         }
     }
 
@@ -356,6 +354,13 @@ class CameraFragment : Fragment() {
                 camera2Module.wantCameraDirection = CameraCharacteristics.LENS_FACING_FRONT // 전면
             } else {
                 camera2Module.wantCameraDirection = CameraCharacteristics.LENS_FACING_BACK // 후면
+            }
+
+            // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
+            val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+            with(sharedPref?.edit()) {
+                this?.putInt("lensFacing", camera2Module.wantCameraDirection)
+                this?.apply()
             }
 
             camera2Module.closeCamera()
@@ -471,6 +476,14 @@ class CameraFragment : Fragment() {
                 )
             }
         }
+
+        // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
+        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+        with(sharedPref?.edit()) {
+            this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
+            this?.apply()
+        }
+
     }
 
     /**
@@ -599,6 +612,13 @@ class CameraFragment : Fragment() {
                 BURST_SIZE = BURST_OPTION3
                 setText(binding.infoTextView, resources.getString(R.string.burst3_info))
             }
+        }
+
+        // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
+        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+        with(sharedPref?.edit()) {
+            this?.putInt("selectedBurstSize", BURST_SIZE)
+            this?.apply()
         }
     }
 
