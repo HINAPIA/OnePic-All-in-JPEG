@@ -101,23 +101,41 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
           
           //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
           let isClicked = false;
-          textContent.innerHTML = aiContainer.textContent.textList[0].data
-          textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
-          textContent.addEventListener('click', (e) =>{
-            if (!isClicked) {
-              textContent.style.backgroundColor = "#9177D0"
-              textContent.style.color = "white"
-              isClicked = true
-              textDisplayDiv.style.visibility = "visible"
-            }
-            else {
-              textContent.style.backgroundColor = "#F1F3F4"
-              textContent.style.color = "black"
-              isClicked = false
-              textDisplayDiv.style.visibility = "hidden"
-            }
-          })
 
+          if (aiContainer.textContent.textCount !=0){
+            console.log("ddddddd여기 들어옴")
+            textContent.innerHTML = aiContainer.textContent.textList[0].data
+            textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
+
+            textContent.addEventListener('mouseenter', () => {
+              textContent.style.backgroundColor = '#9177D0';
+              textContent.style.color = 'white';
+            });
+            
+            textContent.addEventListener('mouseleave', () => {
+              if (!isClicked){
+                textContent.style.backgroundColor = '#F1F3F4'; // 기본 배경색으로 변경
+                textContent.style.color = 'black'; // 기본 글자색으로 변경
+              }
+            });
+
+
+            textContent.addEventListener('click', (e) =>{
+              if (!isClicked) {
+                textContent.style.backgroundColor = "#9177D0"
+                textContent.style.color = "white"
+                isClicked = true
+                textDisplayDiv.style.visibility = "visible"
+              }
+              else {
+                textContent.style.backgroundColor = "#F1F3F4"
+                textContent.style.color = "black"
+                isClicked = false
+                textDisplayDiv.style.visibility = "hidden"
+              }
+            })
+          }
+          
         }
         else { // 일반 JPEG 사진 출력
             document.getElementById("jpeg-type-display-div").innerHTML = "일반 JPEG 사진을 보고 있습니다."

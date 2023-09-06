@@ -207,10 +207,7 @@ audio {
     0 -4px 6px rgba(0, 0, 0, 0.1); /* 네 방향으로 그림자 효과 추가 */
 }
 
-#text-content:hover {
-    background-color: #9177D0; /* hover 시 배경색 변경 */
-    color:white;
-}
+
 
 #text-display-div {
     visibility: hidden;
