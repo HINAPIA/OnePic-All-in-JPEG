@@ -191,13 +191,14 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                     imageContent.getJpegBytes(selectPicture)
                 )
 
-                val selectIndex = jpegViewModel.getSelectedSubImageIndex()
+                val selectIndex = jpegViewModel.getSelectedSubImageIndex() + 1
 
                 val app1Segment = imageContent.extractAPP1(allBytes)
-                val frame =async {
+                val frame = async {
                     imageContent.extractSOI(allBytes)
                 }
                 val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
+
                 imageContent.pictureList.add(selectIndex!!, picture)
                 picture.waitForByteArrayInitialized()
 

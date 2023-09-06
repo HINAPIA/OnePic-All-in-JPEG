@@ -122,7 +122,7 @@ class LoadResolver() {
                             /// Log.d("AudioModule" , "audioBytes : ${audioBytes.size}")
                             var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
                             AiContainer.audioContent.setContent(audio)
-                            // AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!,"viewer_record")
+                             AiContainer.audioResolver.saveByteArrToAacFile(audio._audioByteArray!!)
                         }
                     }
                 }catch (e : IOException){

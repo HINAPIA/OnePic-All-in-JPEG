@@ -569,7 +569,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         imageContent.mainPicture = mainPicture
 
                         // 3. meta data 변경
-                        imageContent.jpegMetaData = imageContent.chageMetaData(mainPicture._app1Segment!!)
+                        if(!jpegViewModel.jpegAiContainer.value!!.isBurst)
+                            imageContent.jpegMetaData = imageContent.chageMetaData(mainPicture._app1Segment!!)
                     }
                 }
                 // 덮어쓰기
@@ -605,6 +606,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     JpegViewModel.isUserInentFinish = false
                     System.gc()
                     jpegViewModel.jpegAiContainer.value?.overwiteSave(fileName)
+
+                    //jpegViewModel.jpegAiContainer.value?.save(null)
                     Thread.sleep(3000)
                     Log.d("save_test", "뷰어로 넘어가기")
                     setButtonDeactivation()
@@ -1046,36 +1049,54 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                         val currentImageContent = imageContent
 
-                        // 사진간 호환성 확인 - 기본 카메라로 찍은 사진일 때
-                        //if(currentImageContent.isBasicPicture(currentImageContent.getJpegBytes(pictureList.get(0)))){
-                        if (!JpegViewModel.AllInJPEG) {
-                            Log.d("testTest", "기본 카메라로 찍은 사진")
-                            // 기본 카메라로 찍은 사진을 제외한 이미지 추가 불가 - APP1만 존재하는 사진이여야 함
-                            if (currentImageContent.isComplicatedPictue(sourceByteArray)) {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(requireContext(), "호환 되지 않는 사진은 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
-                                }
-                                Log.d("testTest", "기본 카메라로 찍은 사진을 추가한 것이 아님")
-                                isPossibleAdd = false
+                        val addedAiContainer = AiContainer(requireActivity())
+                        val jop = async {
+                            loadResolver.createAiContainer(addedAiContainer, sourceByteArray)
+                        }
+                        jop.await()
+
+
+                        // 기존 사진이 연속사진일 때
+                        if(jpegViewModel.jpegAiContainer.value!!.isBurst){
+                            // 추가 되는 사진이 연속 사진이면 추가 가능
+                            if(addedAiContainer.isBurst){
+                                isPossibleAdd = true
+                                Log.d("version3", "연속 사진에 연속 사진 추가 : APP1 없이 저장")
                             }
-                            Log.d("testTest", "기본 카메라로 찍은 사진을 추가")
+                            else{  // 추가되는 사진이 연속 사진이 아니면 추가 불가
+                                isPossibleAdd = false
+                                Log.d("version3", "연속 사진에 연속 사진 아닌 것 추가: 불가")
+                            }
                         }
 
-                        Log.d("tesetTest", "j : [${i}]")
+                        // 기존 사진이 연속 사진이 아닐 때
+                        else{
+                            // 일반 JPEG 사진에 All-in JPEG 사진 추가 불가
+                            if(!jpegViewModel.jpegAiContainer.value!!.isAllinJPEG && addedAiContainer.isAllinJPEG){
+                                isPossibleAdd = false
+                                Log.d("version3", "일반 사진에 All-in jpeg 추가: 불가")
+                            }
+                            else{
+                                // 추가되는 사진이 연속 사진아 아니면 추가 가능
+                                if(!addedAiContainer.isBurst){
+                                    isPossibleAdd = true
+                                    Log.d("version3", "연속 사진 아닌 것에 아닌거 추가: APP1 함께 저장")
+                                } else{
+                                    isPossibleAdd = false
+                                    Log.d("version3", "연속 사진 아닌 것 연속 사진 추가: 불가")
+                                }
+                            }
+                        }
 
                         if (isPossibleAdd) {
-                            val jpegAiContainer = AiContainer(requireActivity())
-                            val jop = async {
-                                loadResolver.createAiContainer(jpegAiContainer, sourceByteArray)
-                            }
-                            jop.await()
-
-                            while (!jpegAiContainer.imageContent.checkPictureList) {
+                            while (!addedAiContainer.imageContent.checkPictureList) {
                             }
 
-                            val newPictureList = jpegAiContainer.imageContent.pictureList
+                            val newPictureList = addedAiContainer.imageContent.pictureList
 //
                             for (j in 0 until newPictureList.size) {
+                                newPictureList[j]._app1Segment = null
+                                newPictureList[j].app1Segment = null
                                 newPictureList[j].embeddedData = null
                                 newPictureList[j].embeddedSize = 0
                                 newPictureList[j].contentAttribute = ContentAttribute.basic
@@ -1097,7 +1118,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             imageContent.checkEditChanged = true
                             imageToolModule.showView(binding.saveBtn, true)
                         }
+                        else{
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "호환 되지 않는 사진은 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
+
 
                     if(imageView != null) {
                         // 추가된 이미지 중에 마지막 이미지를 메인 뷰로 설정
@@ -2093,8 +2120,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         textList.add(textMessage)
         if (textMessage != "") {
             jpegViewModel.jpegAiContainer.value!!.setTextConent(
+                textList,
                 ContentAttribute.basic,
-                textList
             )
             imageContent.checkAdded = true
             CoroutineScope(Dispatchers.Main).launch {
@@ -2209,8 +2236,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 isAllInJPEG = true
                 binding.formatTextView.text = "ALL In JPEG"
                 binding.allInJpegTextView.text = "ALL In JPEG"
+                jpegViewModel.jpegAiContainer.value!!.isAllinJPEG = true
             } else {
                 isAllInJPEG = false
+                jpegViewModel.jpegAiContainer.value!!.isAllinJPEG = false
                 Log.d("format_test", "textContent.textCount : ${textContent.textCount}")
                 Log.d(
                     "format_test",

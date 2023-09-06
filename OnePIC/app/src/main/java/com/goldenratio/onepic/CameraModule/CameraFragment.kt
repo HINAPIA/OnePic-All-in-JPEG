@@ -151,7 +151,6 @@ class CameraFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // Camera2 모듈 생성
         camera2Module = Camera2Module(
             activity,
@@ -282,7 +281,6 @@ class CameraFragment : Fragment() {
         binding.shutterBtn.setOnClickListener {
 
             rotation.start()
-
             binding.shutterBtn.isEnabled = false
             binding.galleryBtn.isEnabled = false
             binding.convertBtn.isEnabled = false
@@ -516,6 +514,7 @@ class CameraFragment : Fragment() {
                 }
 
                 JpegViewModel.AllInJPEG = true
+                // All-in JPEG 저장
                 jpegViewModel.jpegAiContainer.value?.save(isSaved)
             }
 

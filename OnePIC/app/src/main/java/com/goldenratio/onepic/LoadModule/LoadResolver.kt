@@ -16,6 +16,7 @@ class LoadResolver() {
         const val MARKER_SIZE = 2
         const val APP3_FIELD_LENGTH_SIZE = 2
         const val FIELD_SIZE = 4
+        const val BURST_MODE_SIZE = 1
     }
 
     fun isAllinJpegFormat(sourceByteArray : ByteArray, APP3_startOffset: Int) : Boolean{
@@ -65,27 +66,27 @@ class LoadResolver() {
         sourceByteArray: ByteArray
     ) {
         Log.d("AiContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
-        CoroutineScope(Dispatchers.IO).launch {
-            // APP3 세그먼트의 시작 위치를 찾음
-            var APP3_startOffset = 0
-            APP3_startOffset = findAPP3StartPos(sourceByteArray)
-            // APP3 세그먼트를 찾지 못함
-            if (APP3_startOffset == - 1) {
-                try{
-                    // 일반 JPEG
-                    Log.d("AiContainer", "createMCContainer() 일반 JPEG 생성")
-                    createAiConaterInJPEG(AiContainer, sourceByteArray)
+        // APP3 세그먼트의 시작 위치를 찾음
+        var APP3_startOffset = 0
+        APP3_startOffset = findAPP3StartPos(sourceByteArray)
+        // APP3 세그먼트를 찾지 못함
+        if (APP3_startOffset == - 1) {
+            try{
+                // 일반 JPEG
+                Log.d("AiContainer", "createMCContainer() 일반 JPEG 생성")
+                Log.d("version3", "createMCContainer() 일반 JPEG 생성")
+                createAiConaterInJPEG(AiContainer, sourceByteArray)
 
-                }catch (e : IOException){
-                    Log.e("Aicontainer", "createMCContainer() Basic JPEG Parsing 불가")
-                }
+            }catch (e : IOException){
+                Log.e("Aicontainer", "createMCContainer() Basic JPEG Parsing 불가")
             }
-            else {
-                Log.d("AiConainer", "createMCContainer() All-in JPEG 생성")
-                createAiConainerInAllinJPEG(AiContainer, sourceByteArray)
-            }
-            return@launch
         }
+        else {
+            Log.d("version3", "createMCContainer() All-in JPEG 생성")
+            Log.d("AiConainer", "createMCContainer() All-in JPEG 생성")
+            createAiConainerInAllinJPEG(AiContainer, sourceByteArray)
+        }
+
     }
 
     fun createAiConaterInJPEG(AiContainer: AiContainer, sourceByteArray: ByteArray){
@@ -103,9 +104,24 @@ class LoadResolver() {
             try {
                 JpegViewModel.AllInJPEG = true
 
+                val isBurstMode = sourceByteArray.get( APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE)
+                var burst_mode_size = 1
+                if(isBurstMode.toInt() == 1){
+                    AiContainer.isBurst = true
+                    Log.d("version3", "파싱된 burstMode : ${isBurstMode}")
+                }
+                else if (isBurstMode.toInt() == 0){
+                    AiContainer.isBurst = false
+                    Log.d("version3", "파싱된 burstMode : ${isBurstMode}")
+                } else{
+                    AiContainer.isBurst = true
+                    burst_mode_size = 0
+                }
+
+
                 // 1. ImageContent Pasrsing
                 var imageContentStartOffset =
-                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + burst_mode_size
                 var imageContentInfoSize = ByteArraytoInt(sourceByteArray, imageContentStartOffset)
                 var pictureList = async {
                     imageContentParsing(
@@ -114,14 +130,15 @@ class LoadResolver() {
                         sourceByteArray.copyOfRange(
                             imageContentStartOffset,
                             imageContentStartOffset + imageContentInfoSize
-                        )
+                        ),
+                        isBurstMode.toInt()
                     )
                 }
                 AiContainer.imageContent.setContent(pictureList.await())
 
                 // 2. TextContent Pasrsing
                 var textContentStartOffset =
-                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + imageContentInfoSize
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + BURST_MODE_SIZE+ imageContentInfoSize
                 var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
                 if (textContentInfoSize > 0) {
                     var textList = textContentParsing(
@@ -162,10 +179,14 @@ class LoadResolver() {
                         Log.d("AudioModule", "audioBytes : ${audioBytes.size}")
                         var audio = Audio(audioBytes, ContentAttribute.fromCode(audioAttribute))
                         AiContainer.audioContent.setContent(audio)
-                        AiContainer.audioResolver.saveByteArrToAacFile(
-                            audio._audioByteArray!!,
-                            "viewer_record"
-                        )
+                        if(AiContainer.audioResolver !=null ){
+                            AiContainer.audioResolver!!.saveByteArrToAacFile(
+                                audio._audioByteArray!!,
+                                "viewer_record"
+                            )
+
+                        }
+
 
                     }
                     // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
@@ -184,7 +205,8 @@ class LoadResolver() {
                 ((byteArray[stratOffset+3].toInt() and 0xFF))
         return intNum
     }
-    suspend fun imageContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray): ArrayList<Picture> = withContext(Dispatchers.Default) {
+
+    suspend fun imageContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray, isBurstMode : Int): ArrayList<Picture> = withContext(Dispatchers.Default) {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
 
@@ -220,13 +242,23 @@ class LoadResolver() {
                 var jpegMetaData = AiContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
                     offset + size -1), ContentAttribute.fromCode(attribute))
                 AiContainer.setJpegMetaBytes(jpegMetaData)
-                val app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
+
+                var app1Segment : ByteArray?
+                if(isBurstMode == 1){
+                    app1Segment = null
+                }else{
+                     app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
+                }
+              //  val app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
                 val frame =async {
                     AiContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
                 }
                 picture = Picture(offset, app1Segment, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
             }else{
+                if(i == 5){
+                    Log.d("ddd","sss")
+                }
                 val app1Segment = sourceByteArray.copyOfRange(offset + 2, offset + 2 + app1DataSize)
                 val imageData = sourceByteArray.copyOfRange(offset + 2 + app1DataSize, offset + 2 + app1DataSize + size)
                 // picture 생성
@@ -234,7 +266,7 @@ class LoadResolver() {
                 picture.waitForByteArrayInitialized()
             }
             pictureList.add(picture)
-            Log.d("Image_Parsing", picture.toString())
+            Log.d("version3", picture.toString())
             Log.d("Load_Module", "picutureList size : ${pictureList.size}")
         }
         return@withContext pictureList

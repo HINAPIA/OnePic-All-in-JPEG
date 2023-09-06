@@ -71,7 +71,7 @@ class Header(_MC_container : AiContainer) {
         return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE + BURST_MODE
     }
 
-    fun convertBinaryData() : ByteArray {
+    fun convertBinaryData(isBurst : Boolean) : ByteArray {
         val buffer: ByteBuffer = ByteBuffer.allocate(getAPP3FieldLength() + 2)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("e3".toInt(16).toByte())
@@ -81,7 +81,11 @@ class Header(_MC_container : AiContainer) {
         buffer.put(0x69.toByte())
         buffer.put(0x46.toByte())
         buffer.put(0x00.toByte())
-        buffer.put(imageContentInfo.converBinaryData())
+        if(isBurst)
+            buffer.put(1.toByte())
+        else
+            buffer.put(0.toByte())
+        buffer.put(imageContentInfo.converBinaryData(isBurst))
         buffer.put(textContentInfo.convertBinaryData())
         buffer.put(audioContentInfo.converBinaryData())
         return buffer.array()

@@ -27,50 +27,59 @@ import java.io.*
 import java.nio.ByteBuffer
 
 
-class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
+class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
     private var AiContainer: AiContainer
     private var mainActivity: Activity
 
     init {
-        AiContainer = _MC_Container
+        AiContainer = _Ai_Container
         mainActivity = _mainActivity
     }
 
-    suspend fun save(isSaved: MutableLiveData<Uri>): String {
+    /**
+     * TODO 촬영 후 파일 저장
+     *
+     * @param isSaved
+     * @param isBurst 연속 촬영 플래그
+     * @return
+     */
+    suspend fun save(isSaved: MutableLiveData<Uri>, isBurst : Boolean): String {
 
         var savedFile: String = ""
-        //var resultByteArray = MCContainerToBytes()
         val resultByteArray = withContext(Dispatchers.Default) {
-            AiContainerToBytes()
+            AiContainerToBytes(isBurst)
         }
 
-        val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-
+        //val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-//            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, isSaved)
-//            saveByteArray.value = resultByteArray
             saveJPEG(resultByteArray, isSaved)
         } else {
             // Q 버전 미만일 경우. (안드로이드 10, API 29 미만일 경우)
-            lowSDKVersionSave()
+            lowSDKVersionSave(resultByteArray, isSaved)
         }
         return savedFile
     }
 
-    suspend fun overwriteSave(fileName: String): String {
+
+    /**
+     * TODO 편집 후 파일 저장
+     *
+     * @param fileName
+     * @param isBurst
+     */
+    suspend fun overwriteSave(fileName: String, isBurst : Boolean) {
         var savedFile: String = ""
         var resultByteArray =  withContext(Dispatchers.Default) {
-            AiContainerToBytes()
+            AiContainerToBytes(isBurst)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Q 버전 이상일 경우. (안드로이드 10, API 29 이상일 경우)
-            savedFile = saveImageOnAboveAndroidQ(resultByteArray, fileName, null)
+             saveImageOnAboveAndroidQ(resultByteArray, fileName, null)
         } else {
-            lowSDKVersionSave()
+            lowSDKVersionSave(resultByteArray, null)
         }
-        return savedFile
     }
 
 
@@ -85,7 +94,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         byteArray: ByteArray,
         fileName: String,
         isSaved: MutableLiveData<Uri>?
-    ): String {
+    ) {
         var result: Boolean = true
         var uri: Uri
 
@@ -114,11 +123,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         }
 
         isSaved?.value = uri
-        if (result) {
-            return ""
-        } else {
-            return "another"
-        }
+
     }
 
 
@@ -226,13 +231,20 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         newJpegMetaData = jpegMetaData
 
         // 메타 데이터 변경
-        if(picture._app1Segment == null || picture._app1Segment!!.size <= 0)
+        if(AiContainer.isBurst){
             newJpegMetaData = jpegMetaData
-        else{
-            if(jpegMetaData != null){
-                newJpegMetaData = AiContainer.imageContent.chageMetaData(picture._app1Segment!!)
-            }
+            Log.d("version3", "단일 사진 저장할 때 메타데이터 변경 안하고 저장")
+        }else{
+            newJpegMetaData = AiContainer.imageContent.chageMetaData(picture._app1Segment!!)
+            Log.d("version3", "단일 사진 저장할 때 메타데이터 변경 하고 저장")
         }
+//        if(picture._app1Segment == null || picture._app1Segment!!.size <= 0)
+//            newJpegMetaData = jpegMetaData
+//        else{
+//            if(jpegMetaData != null){
+//                newJpegMetaData = AiContainer.imageContent.chageMetaData(picture._app1Segment!!)
+//            }
+//        }
 
         byteBuffer.write(newJpegMetaData, 0, newJpegMetaData.size)
         byteBuffer.write(picture._pictureByteArray)
@@ -248,7 +260,7 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
             saveImageOnAboveAndroidQ(singleJpegBytes, fileName, null)
         } else {
             // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
-            lowSDKVersionSave()
+            lowSDKVersionSave(singleJpegBytes, null)
         }
     }
 
@@ -298,14 +310,14 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         return AiContainer.convertHeaderToBinaryData()
     }
 
-    suspend fun AiContainerToBytes(): ByteArray = coroutineScope {
+    suspend fun AiContainerToBytes(isBurstMode : Boolean): ByteArray = coroutineScope {
         // 순서는 이미지 > 텍스트 > 오디오
         val byteBuffer = ByteArrayOutputStream()
         //Jpeg Meta
         var jpegMetaData = AiContainer.imageContent.jpegMetaData
 
         // 일반 JPEG으로 저장
-        if (!JpegViewModel.AllInJPEG) {
+        if (!AiContainer.isAllinJPEG) {
             Log.d("save_test", "1. 일반 JPEG으로 저장하기")
             Log.d("save_test", "저장하는 메타데이터 사이즈 ${byteBuffer.size()}")
             byteBuffer.write(jpegMetaData, 0, jpegMetaData.size)
@@ -345,10 +357,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
                 byteBuffer.write(jpegMetaData, 0, 2)
                 // APP3 데이터 생성
                 byteBuffer.write(getApp3ExtensionByteData())
-//                MCContainer.settingHeaderInfo()
-//                var APP3ExtensionByteArray = MCContainer.convertHeaderToBinaryData()
-//                // APP3 데이터 write
-//                byteBuffer.write(APP3ExtensionByteArray)
                 //SOI 제외한 메타 데이터 write
                 byteBuffer.write(
                     jpegMetaData,
@@ -366,11 +374,25 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
                     //EOI 작성
                     byteBuffer.write(0xff)
                     byteBuffer.write(0xd9)
+
                 } else{
                     // XOI 마커
                     byteBuffer.write(0xff)
                     byteBuffer.write(0x10)
-                    byteBuffer.write(picture!!._app1Segment)
+                    // 연속 모드가 아니면 APP1을 저장
+                    if(!isBurstMode){
+                        if(picture!!._app1Segment != null){
+                            byteBuffer.write(picture!!._app1Segment)
+                            Log.d("version3", "APP1  저장")
+                        }
+                        else{
+                            Log.d("version3", "APP1  없음")
+                        }
+
+                    }
+                    else{
+                        Log.d("version3", "APP1  저장 안 함")
+                    }
                     byteBuffer.write(/* b = */ picture!!._pictureByteArray)
                 }
             }
@@ -409,38 +431,6 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
     }
 
 
-    suspend fun lowSDKVersionSave(){
-        var savedFile: String = ""
-        var resultByteArray = withContext(Dispatchers.Default) {
-            AiContainerToBytes()
-        }
-        val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-
-        // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
-        val writePermission = mainActivity?.let {
-            ActivityCompat.checkSelfPermission(
-                it,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        }
-        if (writePermission == PackageManager.PERMISSION_GRANTED) {
-            savedFile = saveImageOnUnderAndroidQ(resultByteArray)
-            // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-        } else {
-            val requestExternalStorageCode = 1
-            val permissionStorage = arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-
-            ActivityCompat.requestPermissions(
-                mainActivity as Activity,
-                permissionStorage,
-                requestExternalStorageCode
-            )
-        }
-    }
-
     fun saveJPEG(byteArray: ByteArray, isSaved: MutableLiveData<Uri>) {
         val fileName = System.currentTimeMillis().toString() + ".jpg" // 현재 시간
         val externalStorage = Environment.getExternalStorageDirectory().absolutePath
@@ -466,4 +456,32 @@ class SaveResolver(_mainActivity: Activity, _MC_Container: AiContainer) {
         }
     }
 
+    fun lowSDKVersionSave(resultByteArray: ByteArray, isSaved: MutableLiveData<Uri>?){
+        var savedFile: String = ""
+        //val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
+
+        // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
+        val writePermission = mainActivity?.let {
+            ActivityCompat.checkSelfPermission(
+                it,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
+        if (writePermission == PackageManager.PERMISSION_GRANTED) {
+            savedFile = saveImageOnUnderAndroidQ(resultByteArray)
+            // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+        } else {
+            val requestExternalStorageCode = 1
+            val permissionStorage = arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+
+            ActivityCompat.requestPermissions(
+                mainActivity as Activity,
+                permissionStorage,
+                requestExternalStorageCode
+            )
+        }
+    }
 }

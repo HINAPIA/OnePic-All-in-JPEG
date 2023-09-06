@@ -11,11 +11,64 @@
   <component name="ChangeListManager">
     <list default="true" id="d1beba19-492e-4df0-8bce-e71a862c743f" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/file.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/EditView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/LoadModule/LoadResolver.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/audio/record.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/resource/audio/record.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/demo/view/CenterView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$addAnalysisButton$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$analyzingImageAnimation$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$playLogoGif$1$keyFrame$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$playLogoGif$1$keyFrame$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$playLogoGif$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$playLogoGif$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$10$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$10$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$12$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$12$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$14$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$14$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$14.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$14.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$6$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$7$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$7$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$7$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$7$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$8$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$8$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1$9$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$root$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$1$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$2$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$2$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$3$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$3$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$setDetailView$1$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$updateDetailView$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView$updateDetailView$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/demo/view/CenterView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/goldenratio/onepic/LoadModule/LoadResolver$createMCContainer$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/.idea/deploymentTargetDropDown.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/AiContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/AiContainer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Contents/Picture.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Contents/Picture.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Header.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Header.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/ImageContent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/ImageContent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Info/ImageContentInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Info/ImageContentInfo.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Info/ImageInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/AllinJPEGModule/Info/ImageInfo.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/CameraModule/CameraFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/CameraModule/CameraFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/AddFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/AddFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/EditFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/EditModule/Fragment/EditFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/LoadModule/LoadResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/LoadModule/LoadResolver.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/SaveModule/SaveResolver.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/app/src/main/java/com/goldenratio/onepic/SaveModule/SaveResolver.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_128_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_128_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_134_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_134_timing.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_135_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_135_timing.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_261_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_261_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_486_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_486_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_961_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_961_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_648_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_648_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_781_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_781_timing.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_993_timing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_993_timing.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,21 +228,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "Desktop",
-    "last_opened_file_path": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/Desktop/Viewer",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Desktop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/Desktop/Viewer&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/kotlin/com/example/demo/app/PictureModule/Contents" />

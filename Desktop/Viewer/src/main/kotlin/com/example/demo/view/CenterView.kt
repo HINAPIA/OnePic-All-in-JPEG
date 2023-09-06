@@ -144,6 +144,10 @@ class CenterView (imageViewer : ImageViewer) : View(){
                     homeImage.isVisible = true
                     reSelectView.isVisible = true
                     reSelectView.isVisible = true
+
+
+                    selectedFileVIew.isVisible = false
+                    logoImageView.isVisible = false
                     style {
                         backgroundColor = MultiValue(arrayOf(c(CustomColor.background)))
                     }
@@ -416,6 +420,9 @@ class CenterView (imageViewer : ImageViewer) : View(){
         analysisButton.setOnMouseEntered { e -> analysisButton.setImage(analsImage) }
         analysisButton.setOnMouseExited { e -> analysisButton.setImage(preAnalsImage) }
         analysisButton.setOnMouseClicked { e ->
+
+            selectedFileVIew.isVisible = false
+            logoImageView.isVisible = false
             // 분석 시작
             startAnalsys()
         }

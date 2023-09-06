@@ -14,7 +14,7 @@ import com.goldenratio.onepic.SaveModule.SaveResolver
 import kotlinx.coroutines.*
 
 
-class AiContainer(_activity: Activity) {
+class AiContainer(_activity: Activity? = null) {
     private lateinit var activity : Activity
     var header : Header
 
@@ -23,15 +23,20 @@ class AiContainer(_activity: Activity) {
     var textContent: TextContent = TextContent()
 
     var saveResolver : SaveResolver
-    var audioResolver : AudioResolver = AudioResolver(_activity)
+    var audioResolver : AudioResolver? =null
     // 수정을 하거나 새로운 사진 그룹이 추가되면 +1
     private var groupCount : Int = 0
     var jpegConstant : JpegConstant = JpegConstant()
 
-    var isBurstImage : Boolean = true
+    var isBurst : Boolean = true // 연속 촬영 이미지 플래그
+    var isAllinJPEG : Boolean = true  // 현재 All-in JPEG 인지 플래그
 
     init {
-        activity = _activity
+        if(_activity != null){
+            activity = _activity
+            audioResolver = AudioResolver(_activity)
+        }
+
         saveResolver = SaveResolver(activity ,this)
         header = Header(this)
 
@@ -60,6 +65,7 @@ class AiContainer(_activity: Activity) {
         imageContent.init()
         audioContent.init()
         textContent.init()
+        isAllinJPEG = true
     }
 
     /*Edit modules에서 호출하는 함수*/
@@ -82,11 +88,6 @@ class AiContainer(_activity: Activity) {
         return resultPictureList
     }
 
-    //해당 그룹에 존재하는 modifiedPicture 제공
-    fun getMainPicture(): Picture {
-        return imageContent.mainPicture
-    }
-
     // 해당 그룹의 Modified Picture 변경
 //    fun setModifiedPicture(groupID: Int, modifyPicture: ByteArray, attribute: ContentAttribute): Picture {
 //        var picture = Picture(modifyPicture, attribute)
@@ -94,13 +95,13 @@ class AiContainer(_activity: Activity) {
 //    }
 
     /*Edit modules에서 호출하는 함수 끝 */
-    suspend fun overwiteSave(fileName : String) : String{
-       return saveResolver.overwriteSave(fileName)
+    suspend fun overwiteSave(fileName : String) {
+        saveResolver.overwriteSave(fileName, isBurst)
     }
 
     //Container의 데이터를 파일로 저장
     suspend fun save(isSaved: MutableLiveData<Uri>): String {
-        return saveResolver.save(isSaved)
+        return saveResolver.save(isSaved, isBurst)
     }
 
     /**
@@ -110,12 +111,24 @@ class AiContainer(_activity: Activity) {
      * @param contentAttribute 촬영 모드
      * @return 작업 완료 결과
      */
-    suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, type: ContentType, contentAttribute : ContentAttribute) : Boolean= withContext(Dispatchers.Default){
+
+    // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
+    suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
+        isAllinJPEG = true
+        isBurst = true
         var jop = async {
             imageContent.setContent(byteArrayList, contentAttribute)
         }
         jop.await()
         return@withContext true
+    }
+
+    fun setBasicJepg(sourceByteArray: ByteArray) {
+        init()
+        isAllinJPEG = false
+        isBurst = false
+        // 헤더 따로 프레임 따로 저장
+        imageContent.setBasicContent(sourceByteArray)
     }
 
     fun setAudioContent(audioBytes : ByteArray, contentAttribute: ContentAttribute){
@@ -130,12 +143,6 @@ class AiContainer(_activity: Activity) {
      */
     fun setTextConent(textList : ArrayList<String>, contentAttribute: ContentAttribute){
         textContent.setContent(contentAttribute, textList)
-    }
-
-    fun setBasicJepg(sourceByteArray: ByteArray) {
-        init()
-        // 헤더 따로 프레임 따로 저장
-        imageContent.setBasicContent(sourceByteArray)
     }
 
 
@@ -154,21 +161,26 @@ class AiContainer(_activity: Activity) {
      * @return APP3 'All-in' 구조의  APP3 바이너리 데이터
      */
     fun convertHeaderToBinaryData() : ByteArray{
-        return header.convertBinaryData()
+        return header.convertBinaryData(isBurst)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(){
-        var audio = audioContent.audio
-        if(audio != null){
-            audioResolver.audioPlay(audio)
+        if(audioResolver != null){
+            var audio = audioContent.audio
+            if(audio != null){
+                audioResolver!!.audioPlay(audio)
+            }
         }
+
     }
 
     fun audioStop(){
-        var audio = audioContent.audio
-        if (audio != null){
-            audioResolver.audioStop()
+        if(audioResolver != null){
+            var audio = audioContent.audio
+            if (audio != null){
+                audioResolver!!.audioStop()
+            }
         }
     }
 
