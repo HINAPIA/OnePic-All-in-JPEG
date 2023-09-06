@@ -121,6 +121,8 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
         }
         else { // 일반 JPEG 사진 출력
             document.getElementById("jpeg-type-display-div").innerHTML = "일반 JPEG 사진을 보고 있습니다."
+            document.getElementById("contents-menu-tab").style.visibility = "hidden"
+            document.getElementById("ai-meta-data-label").style.display = "none"
         }
 
     }
