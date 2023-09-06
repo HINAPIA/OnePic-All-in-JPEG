@@ -548,7 +548,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
-            imageContent.resetBitmap()
+//            imageContent.resetBitmap()
 
             ViewerFragment.isEditStoraged = true
             jpegViewModel.mainSubImage = null
@@ -738,7 +738,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun setButtonDeactivation() {
-        imageContent.resetBitmap()
+//        imageContent.resetBitmap()
 
         imageContent.checkAdded = false
         imageContent.checkBlending = false
