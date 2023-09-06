@@ -2,6 +2,8 @@ package com.goldenratio.onepic.AllinJPEGModule.Contents
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
+import com.goldenratio.camerax.PictureModule.Info.ImageInfo
 
 class Picture(
     var contentAttribute: ContentAttribute,
@@ -39,6 +41,10 @@ class Picture(
         this.embeddedData = embeddedData
         this._pictureByteArray = byteArray
         imageSize = _pictureByteArray!!.size
+
+
+
+
     }
 
 

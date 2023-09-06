@@ -148,6 +148,7 @@ class CameraFragment : Fragment() {
 
         // 카메라 프레그먼트 세팅
         settingCameraFragment()
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -212,7 +213,6 @@ class CameraFragment : Fragment() {
 
             System.gc()
             rotation.start()
-
             binding.shutterBtn.isEnabled = false
             binding.galleryBtn.isEnabled = false
             binding.convertBtn.isEnabled = false
@@ -504,10 +504,13 @@ class CameraFragment : Fragment() {
                     Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
                 }
 
-                // 이미지 저장
+                //  renew ImageContent
                 val jop = async {
-                    jpegViewModel.jpegAiContainer.value!!
-                        .setImageContent(previewByteArrayList.value!!, ContentType.Image, contentAttribute)
+
+                    jpegViewModel.jpegAiContainer.value!!.setImageContent(
+                        previewByteArrayList.value!!,
+                        contentAttribute
+                    )
                 }
                 jop.await()
                 Log.d("error 잡기", "넘어가기 전")
@@ -534,6 +537,7 @@ class CameraFragment : Fragment() {
                 }
 
                 JpegViewModel.AllInJPEG = true
+                // All-in JPEG 저장
                 jpegViewModel.jpegAiContainer.value?.save(isSaved)
             }
         }

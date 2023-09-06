@@ -1,5 +1,6 @@
 package com.goldenratio.camerax.PictureModule.Info
 
+import android.util.Log
 import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import java.nio.ByteBuffer
@@ -53,7 +54,7 @@ class ImageContentInfo(imageContent: ImageContent) {
         return size
     }
 
-    fun converBinaryData(): ByteArray {
+    fun converBinaryData(isBurst : Boolean): ByteArray {
         val buffer: ByteBuffer = ByteBuffer.allocate(getLength())
         //Image Content
         buffer.putInt(contentInfoSize)
@@ -63,7 +64,12 @@ class ImageContentInfo(imageContent: ImageContent) {
         for(j in 0..imageCount - 1){
             var imageInfo = imageInfoList.get(j)
             buffer.putInt(imageInfo.offset)
+            if(isBurst){
+                imageInfo.app1DataSize = 0
+            }
             buffer.putInt(imageInfo.app1DataSize)
+            Log.d("version3", "헤더 에 저장되는 APP data size 값 : ${imageInfo.app1DataSize}")
+
             buffer.putInt(imageInfo.imageDataSize)
             buffer.putInt(imageInfo.attribute)
             buffer.putInt(imageInfo.embeddedDataSize)
@@ -73,11 +79,21 @@ class ImageContentInfo(imageContent: ImageContent) {
                     buffer.putInt(imageInfo.embeddedData.get(p))
                 }
             } // end of embeddedData
+            imageInfoLog(imageInfo)
         } // end of Image Info
         // end of Image Content ...
         return buffer.array()
     }
 
+    fun imageInfoLog(imageInfo: ImageInfo){
+        Log.d("version3", "==================================")
+        Log.d("version3", "=offset : ${imageInfo.offset}=")
+        Log.d("version3", "=app1DataSize : ${imageInfo.app1DataSize}=")
+        Log.d("version3", "=imageDataSize : ${imageInfo.imageDataSize}=")
+        Log.d("version3", "=attribute : ${imageInfo.attribute}=")
+        Log.d("version3", "=embeddedDataSize : ${imageInfo.embeddedDataSize}=")
+        Log.d("version3", "==================================")
+    }
     fun getEndOffset():Int{
         var lastImageInfo = imageInfoList.last()
         var extendImageDataSize = 0

@@ -177,8 +177,8 @@ class AddFragment : Fragment(), ConfirmDialogInterface {
             textList.add(textMessage)
             if (textMessage != "") {
                 jpegViewModel.jpegAiContainer.value!!.setTextConent(
+                    textList,
                     ContentAttribute.basic,
-                    textList
                 )
                 imageContent.checkAdded = true
                 CoroutineScope(Dispatchers.Main).launch {

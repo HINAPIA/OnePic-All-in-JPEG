@@ -311,7 +311,7 @@ class AnalyzeFragment : Fragment() {
             imageContent.checkPictureList = false
 
             var jop = async {
-                loadResolver.createMCContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
+                loadResolver.createAiContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
             jop.await()
 
             while(!imageContent.checkPictureList) { }

@@ -19,6 +19,7 @@ class ImageContent {
 
     var pictureList : ArrayList<Picture> = arrayListOf()
     var pictureCount = 0
+    var isAllinJPEG = false
 
     lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture
@@ -76,7 +77,11 @@ class ImageContent {
     }
 
     /**
-     * ImageContent 초기화 - 카메라 찍을 때 호출되는 함수
+     * TODO ImageContent 갱신 - 카메라 찍을 때 호출되는 함수
+     *
+     * @param byteArrayList
+     * @param contentAttribute
+     * @return
      */
     suspend fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
         init()
@@ -84,13 +89,13 @@ class ImageContent {
         jpegMetaData = extractJpegMeta(byteArrayList.get(0),contentAttribute)
         for(i in 0 until byteArrayList.size){
             // APP1 데이터 분리
-            var app1Bytes : ByteArray = extractAPP1(byteArrayList.get(i))
+            //var app1Bytes : ByteArray = extractAPP1(byteArrayList.get(i))
             // frame 분리
             var frameBytes = async {
                 extractFrame(byteArrayList.get(i),contentAttribute)
             }
             // Picture 객체 생성
-            var picture = Picture(contentAttribute, app1Bytes, frameBytes.await())
+            var picture = Picture(contentAttribute, null, frameBytes.await())
             picture.waitForByteArrayInitialized()
             insertPicture(picture)
             Log.d("AiJPEG", "setImageContnet: picture[$i] 완성")
@@ -109,27 +114,13 @@ class ImageContent {
      */
     fun setContent(_pictureList : ArrayList<Picture>){
         init()
+        //isAllinJPEG = ture
         // frame만 있는 pictureList
         pictureList = _pictureList
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
         checkPictureList = true
         checkMain = true
-    }
-
-    fun resetBitmap() {
-        checkBitmapList = false
-        mainBitmap = null
-        bitmapList.clear()
-        bitmapListAttribute = null
-        attributeBitmapList.clear()
-        isSetBitmapListStart = false
-        mainBitmap?.recycle()
-//        setBitmapList()
-    }
-
-    fun setMainBitmap(bitmap: Bitmap?) {
-        mainBitmap = bitmap
     }
 
     /**
@@ -149,6 +140,23 @@ class ImageContent {
         checkPictureList = true
         checkMain = true
     }
+
+    fun resetBitmap() {
+        checkBitmapList = false
+        mainBitmap = null
+        bitmapList.clear()
+        bitmapListAttribute = null
+        attributeBitmapList.clear()
+        isSetBitmapListStart = false
+        mainBitmap?.recycle()
+//        setBitmapList()
+    }
+
+    fun setMainBitmap(bitmap: Bitmap?) {
+        mainBitmap = bitmap
+    }
+
+
 
 
     fun getChagedJpegBytes(picture: Picture) : ByteArray{
