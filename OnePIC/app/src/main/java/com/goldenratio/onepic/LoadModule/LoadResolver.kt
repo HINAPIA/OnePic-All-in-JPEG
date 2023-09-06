@@ -143,10 +143,6 @@ class LoadResolver() {
                 if (textContentInfoSize > 0) {
                     var textList = textContentParsing(
                         AiContainer, sourceByteArray,
-//                            sourceByteArray.copyOfRange(
-//                                textContentStartOffset + 4,
-//                                textContentStartOffset + 8 + textContentInfoSize
-//                            )
                         sourceByteArray.copyOfRange(
                             textContentStartOffset,
                             textContentStartOffset + 4 + textContentInfoSize
@@ -184,10 +180,7 @@ class LoadResolver() {
                                 audio._audioByteArray!!,
                                 "viewer_record"
                             )
-
                         }
-
-
                     }
                     // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
                 }
@@ -198,6 +191,13 @@ class LoadResolver() {
         }
     }
 
+    /**
+     * TODO 4 바이트를 Int 형으로 해석하여 리턴
+     *
+     * @param byteArray
+     * @param stratOffset
+     * @return
+     */
     fun ByteArraytoInt(byteArray: ByteArray, stratOffset : Int): Int {
         var intNum :Int = ((byteArray[stratOffset].toInt() and 0xFF) shl 24) or
                 ((byteArray[stratOffset+1].toInt() and 0xFF) shl 16) or
@@ -206,12 +206,20 @@ class LoadResolver() {
         return intNum
     }
 
+    /**
+     * TODO APP3에 저장된 이미지 콘텐츠 정보를 읽어 List<Picture> 생성 후 리턴
+     *
+     * @param AiContainer
+     * @param sourceByteArray 파일 바이너리 데이터
+     * @param imageInfoByteArray Image Content 영역 바이너리 데이터
+     * @param isBurstMode 연속 촬영 사진 플래그
+     * @return 파싱하여 생성된 List<Picture>
+     */
     suspend fun imageContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, imageInfoByteArray: ByteArray, isBurstMode : Int): ArrayList<Picture> = withContext(Dispatchers.Default) {
         var picture : Picture
         var pictureList : ArrayList<Picture> = arrayListOf()
 
         var startIndex = 0
-        var imageContentSize = ByteArraytoInt(imageInfoByteArray, startIndex)
         startIndex++
         var imageCount = ByteArraytoInt(imageInfoByteArray, startIndex*4)
         startIndex++
@@ -230,7 +238,6 @@ class LoadResolver() {
             if (embeddedDataSize > 0){
                 var curInt : Int = 0
                 for(j in 0..embeddedDataSize/4 -1){
-                    // 4개씩 쪼개서 Int 생성
                     curInt = ByteArraytoInt(imageInfoByteArray, startIndex*4)
                     embeddedData.add(curInt)
                     startIndex++
@@ -238,27 +245,25 @@ class LoadResolver() {
             }
             if(i==0){
                 val jpegBytes = sourceByteArray.copyOfRange(offset,  offset + size - 1)
-                // Jpeg Meta 데이터 떼기
+                // Jpeg Meta 데이터 추출
                 var jpegMetaData = AiContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
                     offset + size -1), ContentAttribute.fromCode(attribute))
                 AiContainer.setJpegMetaBytes(jpegMetaData)
 
                 var app1Segment : ByteArray?
+                // 연속 모드일 때 APP1 파싱 안함
                 if(isBurstMode == 1){
                     app1Segment = null
                 }else{
                      app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
                 }
-              //  val app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
+                // 프레임 추출
                 val frame =async {
                     AiContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
                 }
                 picture = Picture(offset, app1Segment, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
             }else{
-                if(i == 5){
-                    Log.d("ddd","sss")
-                }
                 val app1Segment = sourceByteArray.copyOfRange(offset + 2, offset + 2 + app1DataSize)
                 val imageData = sourceByteArray.copyOfRange(offset + 2 + app1DataSize, offset + 2 + app1DataSize + size)
                 // picture 생성
@@ -272,6 +277,14 @@ class LoadResolver() {
         return@withContext pictureList
     }
 
+    /**
+     * TODO APP3에 저장된 텍스트 콘텐츠 정보를 읽어 List<Text> 생성 후 리턴
+     *
+     * @param AiContainer
+     * @param sourceByteArray 파일 바이너리 데이터
+     * @param textInfoByteArray Text Content 영역 바이너리 데이터
+     * @return 파싱하여 생성된 List<Text>
+     */
     fun textContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
         var textList : ArrayList<Text> = arrayListOf()
         var startIndex = 0
