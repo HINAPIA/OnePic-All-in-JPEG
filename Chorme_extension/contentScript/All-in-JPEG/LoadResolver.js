@@ -7,6 +7,7 @@ export default class LoadResolver {
     static MARKER_SIZE = 2;
     static APP3_FIELD_LENGTH_SIZE = 2;
     static FIELD_SIZE = 4;
+    static BURST_MODE_SIZE = 1;
     
     async isAllinJPEG(sourceByreArray){
         var APP3_startOffset = 2
@@ -40,7 +41,6 @@ export default class LoadResolver {
     }
 
     async createAiContainer(AiContainer, sourceByteArray) {
-        AiContainer.exploreMarkers(sourceByteArray);
 
         console.log(`createAiContainer() sourceByreArray.Size : ${sourceByteArray.length}`);
         
@@ -50,7 +50,6 @@ export default class LoadResolver {
             try {
                 console.log("createAiContainer() 일반 JPEG 생성");
                 AiContainer.setBasicJepg(sourceByteArray);
-                //JpegViewModel.AllInJPEG = false;
             } catch (e) {
                 console.error("createAiContainer() Basic JPEG Parsing 불가", e);
             }
@@ -59,9 +58,12 @@ export default class LoadResolver {
                 console.log("createAiContainer() MC JPEG 생성");
                 console.log(`createAiContainer() App3 Start Offset : ${APP3_startOffset}`);
                 //JpegViewModel.AllInJPEG = true;
+                
+                const isBurstMode = sourceByteArray[LoadResolver.APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE];
+            
 
                 // 1. Image Content Parsing
-                const imageContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE;
+                const imageContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE + LoadResolver.BURST_MODE_SIZE;
                 const imageContentInfoSize = this.ByteArraytoInt(sourceByteArray, imageContentStartOffset);
                 const pictureList = await this.imageContentParsing(
                     AiContainer,
@@ -75,7 +77,7 @@ export default class LoadResolver {
 
 
                 // 2. Text Conent Parsing
-                const textContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE + imageContentInfoSize;
+                const textContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE + isBurstMode + imageContentInfoSize;
                 const textContentInfoSize = this.ByteArraytoInt(sourceByteArray, textContentStartOffset);
                 if (textContentInfoSize > 0) {
                     const textList = await this.textContentParsing(

@@ -506,7 +506,6 @@ class CameraFragment : Fragment() {
 
                 //  renew ImageContent
                 val jop = async {
-
                     jpegViewModel.jpegAiContainer.value!!.setImageContent(
                         previewByteArrayList.value!!,
                         contentAttribute

@@ -15,22 +15,11 @@ export default class AiContainer {
        // this.audioResolver = new AiaudioResolver();
         this.groupCount = 0;
         this.jpegConstant = new JpegConstant();
+
+        this.isBurst = true;
+        this.isAllinJPEG = true;
     }
 
-    exploreMarkers(byteArray) {
-        let pos = 0;
-        let marker = "";
-        while (pos < byteArray.length - 2) {
-            if (byteArray[pos] === 0xFF) {
-                const value = byteArray[pos] * 256 + byteArray[pos + 1];
-                if (this.jpegConstant.nameHashMap.hasOwnProperty(value)) {
-                    marker = this.jpegConstant.nameHashMap[value].toString();
-                    console.log(`[${marker}] : ${pos}`);
-                }
-            }
-            pos++;
-        }
-    }
 
     init() {
         this.imageContent.init();

@@ -50,7 +50,7 @@ export default class ImageContentInfo {
         return size;
     }
 
-    convertBinaryData() {
+    convertBinaryData(isBurst) {
         const buffer = new ArrayBuffer(this.getLength());
         const dataView = new DataView(buffer);
 
@@ -61,6 +61,9 @@ export default class ImageContentInfo {
         for (let j = 0; j < this.imageCount; j++) {
             const imageInfo = this.imageInfoList[j];
             dataView.setInt32(offset, imageInfo.offset);
+            if(isBurst){
+                imageInfo.app1DataSize = 0;
+            }
             dataView.setInt32(offset + 4, imageInfo.app1DataSize);
             dataView.setInt32(offset + 8, imageInfo.imageDataSize);
             dataView.setInt32(offset + 12, imageInfo.attribute);
@@ -74,13 +77,20 @@ export default class ImageContentInfo {
 
             offset += 20 + imageInfo.embeddedDataSize;
         }
-
         return new Uint8Array(buffer);
     }
 
     getEndOffset() {
-        const lastImageInfo = this.imageInfoList[this.imageInfoList.length - 1];
-        const extendImageDataSize = this.XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize;
-        return lastImageInfo.offset + extendImageDataSize;
+        const lastImageInfo = this.imageInfoList[this.imageInfoList.length-1];
+        let extendImageDataSize = 0
+        if(this.imageInfoList.size == 1){
+            const lastImageInfo = this.imageInfoList[this.imageInfoList.length-1];
+            extendImageDataSize = lastImageInfo.imageDataSize
+        }else{
+            const lastImageInfo = this.imageInfoList[this.imageInfoList.length-1];
+            extendImageDataSize= this.XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
+        }
+               //return lastImageInfo.offset + extendImageDataSize -1
+        return lastImageInfo.offset + extendImageDataSize
     }
 }

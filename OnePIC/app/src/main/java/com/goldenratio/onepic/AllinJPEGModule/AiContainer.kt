@@ -24,8 +24,6 @@ class AiContainer(_activity: Activity? = null) {
 
     var saveResolver : SaveResolver
     var audioResolver : AudioResolver? =null
-    // 수정을 하거나 새로운 사진 그룹이 추가되면 +1
-    private var groupCount : Int = 0
     var jpegConstant : JpegConstant = JpegConstant()
 
     var isBurst : Boolean = true // 연속 촬영 이미지 플래그
@@ -42,25 +40,8 @@ class AiContainer(_activity: Activity? = null) {
 
     }
 
-    /**
-     * byteArray에 있는 마커 이름과 마커의 위치를 출력하는 함수
-     */
-    fun exploreMarkers(byteArray: ByteArray){
-        var pos = 0
-        var marker : String =""
-        while (pos < byteArray.size-2){
-            if(byteArray[pos] == 0xFF.toByte()){
-                val value =  (byteArray[pos].toInt() + 256) + (byteArray[pos + 1].toInt() + 256)
-                if(jpegConstant.nameHashMap.containsKey(value)){
-                    marker = jpegConstant.nameHashMap.get(value).toString()
-                    Log.d("Marker_List", "[${marker}] : ${pos}")
-                }
-            }
-            pos++
-        }
-    }
 
-
+    // 멤버 변수 초기화
     fun init(){
         imageContent.init()
         audioContent.init()
@@ -68,7 +49,6 @@ class AiContainer(_activity: Activity? = null) {
         isAllinJPEG = true
     }
 
-    /*Edit modules에서 호출하는 함수*/
     //해당 그룹에 존재하는 picture 모두를 list로 제공
     fun getPictureList() : ArrayList<Picture>{
         while (!imageContent.checkPictureList) {
@@ -88,21 +68,6 @@ class AiContainer(_activity: Activity? = null) {
         return resultPictureList
     }
 
-    // 해당 그룹의 Modified Picture 변경
-//    fun setModifiedPicture(groupID: Int, modifyPicture: ByteArray, attribute: ContentAttribute): Picture {
-//        var picture = Picture(modifyPicture, attribute)
-//        groupContentList.get(groupID).imageContent.modifiedPicture = picture
-//    }
-
-    /*Edit modules에서 호출하는 함수 끝 */
-    suspend fun overwiteSave(fileName : String) {
-        saveResolver.overwriteSave(fileName, isBurst)
-    }
-
-    //Container의 데이터를 파일로 저장
-    suspend fun save(isSaved: MutableLiveData<Uri>): String {
-        return saveResolver.save(isSaved, isBurst)
-    }
 
     /**
      * TODO 사진을 찍은 후에 호출되는 함수로 찍은 사진 데이터로 imageContent 갱신
@@ -145,6 +110,20 @@ class AiContainer(_activity: Activity? = null) {
         textContent.setContent(contentAttribute, textList)
     }
 
+    /** 저장 관련 함수 **/
+    /**
+     * TODO 덮어쓰는
+     *
+     * @param fileName
+     */
+    suspend fun overwiteSave(fileName : String) {
+        saveResolver.overwriteSave(fileName, isBurst)
+    }
+
+    //Container의 데이터를 파일로 저장
+    suspend fun save(isSaved: MutableLiveData<Uri>): String {
+        return saveResolver.save(isSaved, isBurst)
+    }
 
     /**
      * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 갱신
@@ -192,6 +171,25 @@ class AiContainer(_activity: Activity? = null) {
     }
     fun setJpegMetaBytes(_jpegMetaData : ByteArray){
         imageContent.jpegMetaData = _jpegMetaData
+    }
+
+
+    /**
+     * byteArray에 있는 마커 이름과 마커의 위치를 출력하는 함수
+     */
+    fun exploreMarkers(byteArray: ByteArray){
+        var pos = 0
+        var marker : String =""
+        while (pos < byteArray.size-2){
+            if(byteArray[pos] == 0xFF.toByte()){
+                val value =  (byteArray[pos].toInt() + 256) + (byteArray[pos + 1].toInt() + 256)
+                if(jpegConstant.nameHashMap.containsKey(value)){
+                    marker = jpegConstant.nameHashMap.get(value).toString()
+                    Log.d("Marker_List", "[${marker}] : ${pos}")
+                }
+            }
+            pos++
+        }
     }
 
 }

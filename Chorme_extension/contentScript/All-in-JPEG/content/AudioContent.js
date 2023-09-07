@@ -21,16 +21,6 @@ export default class AudioContent {
         console.log("audio_test", `setContent: 오디오 크기 ${this.aiAudio.size}`);
     }
 
-    // setContent(audio) {
-    //     this.init();
-    //     console.log("audio_test", "audio SetContent, audio 객체 갱신");
-
-    //     // audio 객체 생성
-        
-
-    //     console.log("audio_test", `setContent: 오디오 크기 ${this.audio.size}`);
-    // }
-
     setContentFromAudio(_audio) {
         this.init();
         this.aiAudio = _audio;

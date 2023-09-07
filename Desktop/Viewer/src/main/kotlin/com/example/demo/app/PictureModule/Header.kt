@@ -22,11 +22,11 @@ class Header(_MC_container : AiContainer) {
         val APP3_MARKER_SIZE = 2
         val APP3_LENGTH_FIELD_SIZE = 2
         val IDENTIFIER_FIELD_SIZE = 4
+        val BURST_MODE = 1
     }
     // MC Container에 채워진 Content의 정보를 Info 클래스들로 생성
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(AiContainer.imageContent)
-//        textContentInfo = TextContentInfo(MCContainer.textContent)
         textContentInfo = TextContentInfo(AiContainer.textContent, imageContentInfo.getEndOffset())
         audioContentInfo = AudioContentInfo(AiContainer.audioContent, textContentInfo.getEndOffset())
         headerDataLength = getAPP3FieldLength()
@@ -67,46 +67,5 @@ class Header(_MC_container : AiContainer) {
         return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE
     }
 
-    fun convertBinaryData() : ByteArray {
-        val buffer: ByteBuffer = ByteBuffer.allocate(getAPP3FieldLength() + 2)
-        buffer.put("ff".toInt(16).toByte())
-        buffer.put("e3".toInt(16).toByte())
-        buffer.putShort(headerDataLength)
-        // A, i, F, 0
-        buffer.put(0x41.toByte())
-        buffer.put(0x69.toByte())
-        buffer.put(0x46.toByte())
-        buffer.put(0x00.toByte())
-        buffer.put(imageContentInfo.converBinaryData())
-        buffer.put(textContentInfo.convertBinaryData())
-        buffer.put(audioContentInfo.converBinaryData())
-        return buffer.array()
-    }
-    //헤더의 내용을 바이너리 데이터로 변환하는 함수
-//    fun convertBinaryData(): ByteArray{
-//         var bufferSize  = pictureInfoList?.size!! * INFO_SIZE +6
-//        //App3 마커
-//        val buffer: ByteBuffer = ByteBuffer.allocate(bufferSize)
-//        buffer.put("ff".toInt(16).toByte())
-//        buffer.put("e3".toInt(16).toByte())
-//        // 리스트 개수
-//        buffer.putInt(pictureInfoList?.size!!)
-//        //infoList
-//        for(i in 0..(pictureInfoList?.size?.minus(1) ?:1 )){
-//            var pictureInfo = pictureInfoList?.get(i)
-//            buffer.putInt(pictureInfo!!.groupID!!)
-//            buffer.putInt(pictureInfo!!.typeCode!!)
-//            //작성한 APP3의 크기만큼 데이터 변경. 이 작업을 여기서 해도 괜찮은지 의논 필요
-//            if(i == 0){
-//                buffer.putInt(pictureInfo!!.offset!!)
-//                buffer.putInt(pictureInfo!!.size!! + (bufferSize))
-//
-//            }else{
-//                buffer.putInt(pictureInfo!!.offset!!+bufferSize-1)
-//                buffer.putInt(pictureInfo!!.size!!)
-//            }
-//        }
-//        val byteArray = buffer.array()
-//        return byteArray
-//    }
+
 }

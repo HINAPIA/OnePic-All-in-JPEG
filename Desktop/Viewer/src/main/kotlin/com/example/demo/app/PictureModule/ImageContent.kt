@@ -21,17 +21,11 @@ class ImageContent {
 
     lateinit var jpegMetaData : ByteArray
     lateinit var mainPicture : Picture
-    //private var maiånBitmap: Bitmap? = null
-    //private var bitmapList: ArrayList<Bitmap> = arrayListOf()
-    //private val attributeBitmapList: ArrayList<Bitmap> = arrayListOf()
-    private var bitmapListAttribute : ContentAttribute? = null
+     private var bitmapListAttribute : ContentAttribute? = null
     //var activityType: ActivityType? = null
     private var checkGetBitmapList = false
     var checkPictureList = false
     var checkMain = false
-//    private var checkTransformBitmap = false
-//    private var checkTransformAttributeBitmap = false
-//    private var checkTransformMain = false
 
     var checkMagicAttribute = false
     var checkRewindAttribute = false

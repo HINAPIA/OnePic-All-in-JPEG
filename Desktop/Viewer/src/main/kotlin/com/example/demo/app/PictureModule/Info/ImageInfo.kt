@@ -11,7 +11,9 @@ class ImageInfo(picture: Picture) {
     lateinit var embeddedData : ArrayList<Int>
 
     init {
-        app1DataSize = picture._app1Segment!!.size
+        if(picture._app1Segment != null){
+            app1DataSize = picture._app1Segment!!.size
+        }
         imageDataSize = picture.imageSize
         attribute = picture.contentAttribute.code
         embeddedDataSize = picture.embeddedSize

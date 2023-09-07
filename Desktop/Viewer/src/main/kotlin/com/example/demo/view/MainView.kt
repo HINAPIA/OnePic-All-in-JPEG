@@ -71,7 +71,7 @@ class ImageViewer : View() {
             var byteArray = Files.readAllBytes(selectedFile.toPath())
             CoroutineScope(Dispatchers.Default).launch {
                 aiContainer.imageContent.init()
-                loadResolver.createMCContainer(aiContainer, byteArray)
+                loadResolver.createAiContainer(aiContainer, byteArray)
                 while (!aiContainer.imageContent.checkPictureList) {
                     Thread.sleep(100)
                 }
