@@ -322,9 +322,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                             }
                             handler.postDelayed(this, magicPlaySpeed)
                         }
-                        else {
-                            Log.d("overlay bitmap","size == 0")
-                        }
                     }
                 }
                 handler.postDelayed(runnable, magicPlaySpeed)
