@@ -59,16 +59,16 @@
 - **시각적으로 즐거운 Magic Picture 생성**<br>
 &nbsp;사용자가 사진에서 선택한 객체들이 마법처럼 움직이는 사진을 만들어 영상을 보는 듯한 느낌을 받게 한다.
 
-- **새로운 JPEG 포맷을 볼 수 있는 전용 뷰어, MC 뷰어 구현**<br>
-&nbsp;본 팀이 만든 All in JPEG 의 숨겨진 데이터를 볼 수 있는 뷰어를 만든다. 갤러리를 포함한 기존 뷰어들은 All in JPEG 사진에 어떤 데이터가 숨겨져 있는지 알 수 없고 대표 사진만 볼 수 있다. 하지만 ALL IN 뷰어를 사용하면 숨겨진 사진을 볼 수 있고 사진과 함께 오디오를 듣고 텍스트를 볼 수 있다. 또한, 사용자가 사진에서 선택한 객체가 움직이는 Magic Picture 를 볼 수 있다.
+- **All-in JPEG 전용 뷰어 구현**<br>
+&nbsp;본 팀이 만든 All in JPEG 파일의 숨겨진 데이터를 볼 수 있는 뷰어를 구현한다. 갤러리를 포함한 기존 뷰어들은 All in JPEG 파일에 어떤 데이터가 숨겨져 있는지 알 수 없고 대표 사진만 볼 수 있다. 하지만 전용 뷰어를 사용하면 숨겨진 사진을 볼 수 있고 사진과 함께 오디오를 듣고 텍스트를 볼 수 있다.
 
 <br><br>
 
 ## :wrench: 시스템 아키텍처
 
-&nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 [그림 1]과 같다. <br>
+&nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 다음과 같다. <br>
 
-![구조도_new](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)<p align="center">[그림 1] 시스템 구조도 </p></p><br>
+![구조도_new](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)<p align="center"></p></p><br>
 <!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/> -->
 
 &nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다. 
@@ -107,14 +107,11 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 <br><br>
 
 ## :pushpin: All in JPEG 구조
-&nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다. All in JPEG 의 구조는 [그림 2]과 같다.
+&nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
 
 ![image](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
 <!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
 
-&nbsp; JPEG 의 첫번 째 이미지가 끝나는 지점을 나타내는 EOI 마커 뒤에 추가할 이미지, 오디오 데이터가 삽입된다. All in JEPG 구조를 해석하기 위한 All-in Extension 데이터는 기존 JPEG 포맷의 APP3 마커 세그먼트에 추가된다. All-in Extension 데이터는 추가한 이미지, 텍스트, 오디오 정보를 나타내는 Image Content, Text Content, Audio Content 로 구성된다.<br><br>
-&nbsp; Image Content 와 Audio Content 는 데이터의 시작 위치를 나타내는 Offset 필드와 데이터의 사이즈를 나타 내는 Data Size 필드를 통해 EOI 마커 뒤에 삽입된 데이터를 찾는다. 이와 달리 Text Content 는 텍스트 데이터와 텍스트 관련 정보 모두 APP3 마커 세그먼트에 기록하여 관리한다.<br><br>
-&nbsp; 기존의 JPEG 뷰어로 All-in JPEG 파일을 열면 EOI 마커가 나오는 지점을 이미지의 끝으로 인식하여 All-in JPEG 의 첫번 째 이미지를 표시하고 EOI 마커 뒤에 삽입된 데이터는 해석하지 못한다. 이와같이 All in JPEG 은 기존 JPEG 포맷과 Backward Compatibility 을 유지한다.
 
 <br><br>
 
