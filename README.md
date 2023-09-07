@@ -113,19 +113,40 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 <!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
 
 
-<br><br>
+<br>
 
 
 ## 기대 효과
-- 새로운 형태의 멀티 콘텐츠 저장 기술 (All in JPEG) 개발
-- 한 번의 촬영으로 순식간에 객체별, 거리별 다초점 사진 촬영
-- 촬영자의 실력과 상관없이 누구나 좋은 사진 제작
-- 움직이는 사진으로 엔터테이먼트 제공
-- All in JPEG 기술로 다이어리앱 등 다양한 활용성 기대
-- All in JPEG 으로 멀티 컨텐츠 공유 용이
-- Google Play 스토어 출시로 상업성 기대
+- **세상에 없는 스마트폰 다초점 촬영 기술 개발**<br>
+한 번의 촬영으로 여러 객체나 거리별로 초점이 맞춰진 다초점 촬영 기술을 새롭게 개발해 냈다. 이를 통해 추후 사진의 초점을 변경할 수 있는 초점 후처리 기능이 가능하며, 촬영 후에도 원하는 곳으로 초점을 변경할 수 있다.<br>
+
+- **JPEG을 확장한 멀티 콘텐츠 파일 포맷 All-in JPEG 개발**<br>
+기존 JPEG 포맷을 확장하여 한 장의 JPEG 파일에 여러 개의 이미지, 오디오, 텍스트를 담을 수 있는 새로운 파일 포맷 All-in JPEG을 개발해냈다. All-in JPEG 파일은 기존 JPEG 뷰어에서 보여지도록 호환성을 유지하여 개발했다.<br>
+
+- **공개 소프트웨어 배포**<br>
+스마트폰 다초점 촬영 기술과 멀티 콘텐츠를 담을 수 있는 All-in JPEG 포맷을 다루는 공개 소프트웨어를 개발하고 배포하여 안드로이드 카메라 기술 발전에 기여한다. 또한 많은 사용자가 손쉽게 다운받을 수 있도록 OnePIC 앱을 무료로 구글 플레이 스토어에 출시하여 촬영 이후에 초점을 변경할 수 없어 만족스러운 사진을 얻지 못했던 사용자들의 아쉬움을 해결한다.<br>
+
+- **촬영자의 실력과 상관없이 누구나 좋은 사진 제작**<br>
+OnePIC 앱의 다초점 촬영 기능과 얼굴 블렌딩 기능을 통해, 원하는 곳에 초점이 맞춰지고, 가장 잘 나온 얼굴들로 이루어진 사진을 제작할 수 있어 촬영자의 실력과 상관없이 누구나 좋은 사진을 얻을 수 있다.<br>
+
+- **All-in JPEG 포맷으로 손쉬운 멀티 콘텐츠 공유**<br>
+All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이미지, 오디오, 텍스트를 모두 담아 전송하면 멀티 콘텐츠 공유를 손쉽게 할 수 있다.<br>
 
 <br>
+
+## 활용 분야
+- **카메라 앱으로 바로 활용 가능**<br>
+&nbsp;OnePIC 카메라 앱을 구글 플레이 스토어에 출시 하여, 손쉽게 다운받아 바로 활용 가능하다. 실제 본인을 포함한 프로젝트 구성원들과 주변 사람들은 OnePIC 앱을 이용하여 사진을 찍고 있다.<br>
+
+- **움직이는 사진으로 엔터테인먼트 요소 제공**<br>
+&nbsp;JPEG 파일에 오디오나 영상 효과를 추가하여 정적인 사진이 아닌 생동감 있는 사진을 만들 수 있다. 생동감 있는 사진은 제품 홍보나 교육용 자료, 문화 예술 작품 등 다양한 분야에서 활용할 수 있다.<br>
+
+- **All-in JPEG 포맷을 이용한 다양한 앱 개발**<br>
+&nbsp;All-in JPEG 파일의 멀티 콘텐츠 특징을 이용하여 사진에 텍스트를 담아 사진 데이터만 관리하면 되는 일기 앱과 다이어리 앱을 개발할 수 있다. 또한 사진에 음성을 담아 기업의 제품 홍보 및 아티스트 작품에 대한 이해를 높일 수 있는 디지털 설명 앱 등 다양한 용도로 활용할 수 있다.<br>
+
+<br><br>
+
+
 
 ### - 개발 도구
 <img src="https://img.shields.io/badge/Android Studio-3DDC84?style=for-the-badge&logo=Android Studio&logoColor=white"/> <img src="https://img.shields.io/badge/opencv-6EC93F?style=for-the-badge&logo=opencv&logoColor=white"/> <img src="https://img.shields.io/badge/tensorflow lite-FFAA5B?style=for-the-badge&logo=tensorflow&logoColor=white"/> <img src="https://img.shields.io/badge/tornadoFX-000000?style=for-the-badge"/>
