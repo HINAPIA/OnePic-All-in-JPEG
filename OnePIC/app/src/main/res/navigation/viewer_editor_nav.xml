@@ -32,6 +32,17 @@
             app:destination="@id/audioAddFragment" />
     </fragment>
     <fragment
+        android:id="@+id/FaceBlendingFragment"
+        android:name="com.goldenratio.onepic.EditModule.Fragment.FaceBlendingFragment"
+        android:label="FaceBlendingFragment"
+        tools:layout="@layout/fragment_face_blending">
+        <action
+            android:id="@+id/action_fregemnt_to_editFragment"
+            app:destination="@id/editFragment"
+            app:popUpTo="@id/editFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
         android:id="@+id/magicPictureFragment"
         android:name="com.goldenratio.onepic.EditModule.Fragment.MagicPictureFragment"
         android:label="fragment_magic_picture"
