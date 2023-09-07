@@ -109,7 +109,7 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 ## :pushpin: All in JPEG 구조
 &nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다. All in JPEG 의 구조는 [그림 2]과 같다.
 
-![Group 2065 (1)](https://github.com/HINAPIA/OnePIC/assets/109158497/ab129e54-bce0-4783-ab5f-e4686de498e4)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
+![image](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
 <!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
 
 &nbsp; JPEG 의 첫번 째 이미지가 끝나는 지점을 나타내는 EOI 마커 뒤에 추가할 이미지, 오디오 데이터가 삽입된다. All in JEPG 구조를 해석하기 위한 All-in Extension 데이터는 기존 JPEG 포맷의 APP3 마커 세그먼트에 추가된다. All-in Extension 데이터는 추가한 이미지, 텍스트, 오디오 정보를 나타내는 Image Content, Text Content, Audio Content 로 구성된다.<br><br>
