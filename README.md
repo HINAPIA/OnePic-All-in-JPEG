@@ -9,7 +9,7 @@
 <div align = "center">
   
  ## OnePIC
-  [![Generic badge](https://img.shields.io/badge/version-1.1.5-green.svg)](https://play.google.com/store/apps/details?id=com.goldenratio.onepic)
+  [![Generic badge](https://img.shields.io/badge/version-1.2.3-green.svg)](https://play.google.com/store/apps/details?id=com.goldenratio.onepic)
 
 </div>
 
@@ -66,7 +66,7 @@
 
 ## :wrench: 시스템 아키텍처
 
-&nbsp; OnePIC 은 안드로이드와 데스크탑 환경에서 작동하며, 각각 5 개와 3 개의 모듈로 이루어져 있다. OnePIC 의 시스템 구조는 다음과 같다. <br>
+&nbsp; 다음은 본 팀이 개발한 프로젝트의 시스템 전체를 보여준다. 본 프로젝트는 카메라 솔루션 OnePIC 앱과 두 개의 All-in JPEG 전용 뷰어로 구성된다. <br>
 
 ![구조도_new](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)<p align="center"></p></p><br>
 <!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/> -->
