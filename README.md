@@ -42,25 +42,21 @@
 &nbsp;&nbsp;따라서 본 팀은 한 번의 촬영으로 초점이 여러 곳에 자동으로 맞춰진 이미지들을 촬영하고, 촬영된 사진에서 사용자가 원하는 곳으로 사진의 초점을 변경할 수 있는 카메라 솔루션과 이 기술을 안드로이드 상에서 구현한 OnePIC 이라는 카메라 앱을 개발하였다.
 </div><br><br>
 
-### &nbsp;2.&nbsp;&nbsp;개발 목적<br>
+### &nbsp;2.&nbsp;&nbsp;솔루션 및 개발 내용 요약<br>
+ &nbsp;본 팀이 제시하는 솔루션은 한 번의 촬영으로 초점이 여러 곳에 맞춰진 이미지들을 촬영한 후, 하나의 JPEG 파일에 담고, 이 파일로부터 사용자가 원하는 물체나 위치로 초점을 변경할 수 있게 하는 목적이다. 여기서 초점이 여러 곳에 맞춰진 이미지들을 다초점 이미지라고 정의한다.
 
-- **사진에 여러 데이터를 담을 수 있는 새로운 All in JPEG 포맷 설계 및 구현**<br>
-&nbsp;기존의 JPEG 포맷을 확장하여 대표 사진 외에도 여러 장의 사진, 오디오, 텍스트와 같은 데이터를 담을 수 있는 새로운 형태의 All in JPEG 포맷을 설계 및 구현한다.
 
-- **기존의 JPEG과 호환되는 All in JPEG 포맷 설계**<br>
-&nbsp;All in JPEG 은 여러 장의 사진 중 가장 첫 번째 사진을 대표 사진으로 보여줌으로써 기존 JPEG 과 호환성을 유지한다.
+- **다초점 촬영 카메라 기술 개발**<br>
+&nbsp;한 번의 촬영으로 다초점 이미지를 촬영하는 다초점 촬영 카메라 기술을 개발하였다. 다초점 촬영은 사진을 촬영하는 시점에 거리별 혹은 객체별로 카메라 렌즈의 초점을 순식간에 이동시키며 촬영하여, 다초점 이미지를 촬영하는 기술이다.
 
-- **촬영 후 원하는 객체로 초점 조절**<br>
-&nbsp;사진 촬영 후, 사용자는 사진에서 원하는 객체로 초점을 변경할 수 있으며 여러 객체에 초점이 맞게 할 수 있다.
+- **다초점 이미지 저장 기술 All-in JPEG 개발**<br>
+&nbsp;다초점 촬영으로 만들어진 다초점 이미지들을 한 장의 JPEG 파일에 담기 위해, 기존의 JPEG 포맷을 확장한 새로운 파일 포맷 All-in JPEG을 설계 및 구현하였다. All-in JPEG은 한 장의 JPEG 파일 안에 여러 개의 이미지를 담을 수 있는 새로운 파일 포맷으로, 기존 JPEG 파일과 호환성을 유지한다. 
 
-- **모두가 잘 나온 사진으로 변경**<br>
-&nbsp;사용자가 사진에서 촬영 당시 가장 마음에 드는 얼굴로 변경할 수 있다. 예를 들면, 촬영 후에 사진에서 눈을 감고 있는 사람을 인식해 자동으로 눈을 뜨게 만들어주며 사용자가 직접 편집할 수도 있다.
- 
-- **시각적으로 즐거운 Magic Picture 생성**<br>
-&nbsp;사용자가 사진에서 선택한 객체들이 마법처럼 움직이는 사진을 만들어 영상을 보는 듯한 느낌을 받게 한다.
+- **초점 후처리 기술을 개발**<br>
+&nbsp;촬영 후 사용자가 원하는 곳에 초점이 맞춰진 사진을 얻을 수 있는 초점 후처리 기술을 개발하였다. 다초점 촬영 카메라 기술로 촬영된 All-in JPEG 파일로부터, 사용자는 이 기술을 이용함으로써 터치를 통해 원하는 위치로 초점을 이동시켜, 초점이 맞춰진 사진을 별도의 JPEG 파일로 저장할 수 있다. 또한, All-in JPEG을 다초점 이미지뿐 아니라, 오디오와 텍스트를 함께 저장할 수 있는 멀티 콘텐츠 컨테이너로 개발하였다. 이로써, 사용자는 촬영 당시의 오디오를 사진과 함께 남길 수 있고, 편지글이 들어간 사진을 만들어 보낼 수 있으며, 사진 일기를 만들 수 있는 등 폭넓은 활용이 가능하다. 
 
 - **All-in JPEG 전용 뷰어 구현**<br>
-&nbsp;본 팀이 만든 All in JPEG 파일의 숨겨진 데이터를 볼 수 있는 뷰어를 구현한다. 갤러리를 포함한 기존 뷰어들은 All in JPEG 파일에 어떤 데이터가 숨겨져 있는지 알 수 없고 대표 사진만 볼 수 있다. 하지만 전용 뷰어를 사용하면 숨겨진 사진을 볼 수 있고 사진과 함께 오디오를 듣고 텍스트를 볼 수 있다.
+&nbsp;안드로이드뿐 아니라 데스크탑과 웹에서 All-in JPEG 파일을 볼 수 있는 전용 뷰어를 개발하였다. All-in JPEG 전용 데스크탑 뷰어는 윈도우, 리눅스, 맥 등 운영체제 구분 없이 실행되며, All-in JPEG 전용 웹 뷰어는 구글 크롬 브라우저의 확장 프로그램으로 개발하였다. 이들은 모두 All-in JPEG 파일 내부의 이미지, 오디오, 텍스트를 출력한다.
 
 <br><br>
 
@@ -106,31 +102,56 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 
 <br><br>
 
-## :pushpin: All in JPEG 구조
-&nbsp;All in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
+## :pushpin: All-in JPEG 구조
+&nbsp;All-in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
 
 ![image](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2)<p align="center">[그림 2] All in JPEG 구조 </p></p><br>
 <!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
 
 
-<br><br>
+<br>
 
 
 ## 기대 효과
-- 새로운 형태의 멀티 콘텐츠 저장 기술 (All in JPEG) 개발
-- 한 번의 촬영으로 순식간에 객체별, 거리별 다초점 사진 촬영
-- 촬영자의 실력과 상관없이 누구나 좋은 사진 제작
-- 움직이는 사진으로 엔터테이먼트 제공
-- All in JPEG 기술로 다이어리앱 등 다양한 활용성 기대
-- All in JPEG 으로 멀티 컨텐츠 공유 용이
-- Google Play 스토어 출시로 상업성 기대
+- **세상에 없는 스마트폰 다초점 촬영 기술 개발**<br>
+한 번의 촬영으로 여러 객체나 거리별로 초점이 맞춰진 다초점 촬영 기술을 새롭게 개발해 냈다. 이를 통해 추후 사진의 초점을 변경할 수 있는 초점 후처리 기능이 가능하며, 촬영 후에도 원하는 곳으로 초점을 변경할 수 있다.<br>
+
+- **JPEG을 확장한 멀티 콘텐츠 파일 포맷 All-in JPEG 개발**<br>
+기존 JPEG 포맷을 확장하여 한 장의 JPEG 파일에 여러 개의 이미지, 오디오, 텍스트를 담을 수 있는 새로운 파일 포맷 All-in JPEG을 개발해냈다. All-in JPEG 파일은 기존 JPEG 뷰어에서 보여지도록 호환성을 유지하여 개발했다.<br>
+
+- **공개 소프트웨어 배포**<br>
+스마트폰 다초점 촬영 기술과 멀티 콘텐츠를 담을 수 있는 All-in JPEG 포맷을 다루는 공개 소프트웨어를 개발하고 배포하여 안드로이드 카메라 기술 발전에 기여한다. 또한 많은 사용자가 손쉽게 다운받을 수 있도록 OnePIC 앱을 무료로 구글 플레이 스토어에 출시하여 촬영 이후에 초점을 변경할 수 없어 만족스러운 사진을 얻지 못했던 사용자들의 아쉬움을 해결한다.<br>
+
+- **촬영자의 실력과 상관없이 누구나 좋은 사진 제작**<br>
+OnePIC 앱의 다초점 촬영 기능과 얼굴 블렌딩 기능을 통해, 원하는 곳에 초점이 맞춰지고, 가장 잘 나온 얼굴들로 이루어진 사진을 제작할 수 있어 촬영자의 실력과 상관없이 누구나 좋은 사진을 얻을 수 있다.<br>
+
+- **All-in JPEG 포맷으로 손쉬운 멀티 콘텐츠 공유**<br>
+All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이미지, 오디오, 텍스트를 모두 담아 전송하면 멀티 콘텐츠 공유를 손쉽게 할 수 있다.<br>
 
 <br>
+
+## 활용 분야
+- **카메라 앱으로 바로 활용 가능**<br>
+&nbsp;OnePIC 카메라 앱을 구글 플레이 스토어에 출시 하여, 손쉽게 다운받아 바로 활용 가능하다. 실제 본인을 포함한 프로젝트 구성원들과 주변 사람들은 OnePIC 앱을 이용하여 사진을 찍고 있다.<br>
+
+- **움직이는 사진으로 엔터테인먼트 요소 제공**<br>
+&nbsp;JPEG 파일에 오디오나 영상 효과를 추가하여 정적인 사진이 아닌 생동감 있는 사진을 만들 수 있다. 생동감 있는 사진은 제품 홍보나 교육용 자료, 문화 예술 작품 등 다양한 분야에서 활용할 수 있다.<br>
+
+- **All-in JPEG 포맷을 이용한 다양한 앱 개발**<br>
+&nbsp;All-in JPEG 파일의 멀티 콘텐츠 특징을 이용하여 사진에 텍스트를 담아 사진 데이터만 관리하면 되는 일기 앱과 다이어리 앱을 개발할 수 있다. 또한 사진에 음성을 담아 기업의 제품 홍보 및 아티스트 작품에 대한 이해를 높일 수 있는 디지털 설명 앱 등 다양한 용도로 활용할 수 있다.<br>
+
+<br><br>
+
+
 
 ### - 개발 도구
 <img src="https://img.shields.io/badge/Android Studio-3DDC84?style=for-the-badge&logo=Android Studio&logoColor=white"/> <img src="https://img.shields.io/badge/opencv-6EC93F?style=for-the-badge&logo=opencv&logoColor=white"/> <img src="https://img.shields.io/badge/tensorflow lite-FFAA5B?style=for-the-badge&logo=tensorflow&logoColor=white"/> <img src="https://img.shields.io/badge/tornadoFX-000000?style=for-the-badge"/>
 
-### - 개발 언어
-<img src="https://img.shields.io/badge/Kotlin-4193D0?style=for-the-badge&logo=kotlin&logoColor=white">
 
+
+### - 개발 언어
+![html](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Javascript](https://img.shields.io/badge/Javascript-F7DF1E?style=for-the-badge&logo=Javascript&logoColor=white)
+<img src="https://img.shields.io/badge/Kotlin-4193D0?style=for-the-badge&logo=kotlin&logoColor=white"/>
 
