@@ -71,20 +71,38 @@
 ![구조도_new](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)<p align="center">[그림 1] 시스템 구조도 </p></p><br>
 <!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/> -->
 
-&nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며, 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다.<br>
+&nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다. 
+All-in JPEG 전용 웹 뷰어는 크롬 브라우저의 확장 프로그램으로, 크롬 브라우저 환경이라면 어디에서든 실행할 수 있으며, All-in JPEG 파일에 들어있는 여러 이미지, 오디오, 텍스트를 웹 브라우저에 출력한다.
+All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우, 리눅스, 맥 등 운영체제 구분 없이 실행되며, All-in JPEG 파일의 이미지와 오디오, 텍스트 등 내부 콘텐츠를 데스크탑에서 출력한다.<br>
+
+#### 1) OnePIC 앱
 - **카메라 모듈**<br>
+&nbsp;카메라 모듈은 카메라 하드웨어 제어를 통해 기본 촬영, 연속 촬영, 객체별 다초점 촬영, 거리별 다초점 촬영을 한다. Camera2 API를 이용하여 모든 카메라 촬영을 제어하고, 객체별 다초점 촬영의 
+경우, Tensorflow Lite 라이브러리로 카메라에 잡힌 객체를 감지하여 객체별로 초점이 맞춰진 다초점 이미지를 촬영한다.<br>
+
 - **All-in JPEG 모듈**<br>
+&nbsp;All-in JPEG 모듈은 All-in JPEG 파일의 분석 및 적재, 카메라로 촬영된 사진으로부터 All-in JPEG 파일을 생성, 삭제, 편집, 저장하는 작업을 담당한다.<br>
+
 - **뷰어 모듈**<br>
+&nbsp;뷰어 모듈은 사용자가 OnePIC 앱의 갤러리에서 사진을 선택하면, 선택한 사진이 All-in JPEG 파일인지 식별한다. JPEG 파일인 경우, 한 장의 이미지만을 출력하며, All-in JPEG 파일인 경우, All-in JPEG을 분석하여 파일 내부의 이미지, 오디오, 텍스트를 사용자에게 보여준다.<br>
+
 - **편집 모듈**<br>
+&nbsp;편집 모듈은 다음 기능을 제어한다.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- 초점 후처리: 사용자가 원하는 곳으로 사진의 초점을 이동시키는 기능<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- 베스트 사진 추천: 가장 잘 나온 사진을 추천하는 기능<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- 얼굴 블렌딩: 가장 잘 나온 얼굴을 합성하여 한 장의 사진을 제작하는 기능<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- 매직픽처 생성: 정적인 사진에 움직임을 주는 사진, 매직픽처 제작 기능<br>
+ 
+편집 기능 중, 베스트 사진 추천 기능의 경우 본 팀이 고안한 BestPictureRanking 알고리즘으로 사진을 추천한다.<br><br>
 
-&nbsp;All-in JPEG 전용 웹 뷰어는 크롬 브라우저의 확장 프로그램으로, 크롬 브라우저 환경이라면 어디에서든 실행할 수 있으며, All-in JPEG 파일에 들어있는 여러 이미지, 오디오, 텍스트를 웹 브라우저에 출력한다.<br>
-&nbsp;All-in JPEG 데스크탑 뷰어는 코틀린으로 작성하여 윈도우, 리눅스, 맥 등 운영체제 구분없이 실행되며, All-in JPEG 파일의 이미지와 오디오, 텍스트 등 내부 콘텐츠를 데스크탑에서 출력한다.<br><br>
+#### 2) All-in JPEG 전용 웹 뷰어
+&nbsp;All-in JPEG 전용 웹 뷰어는 크롬 확장프로그램으로 구현하였으며, All-in JPEG 모듈과 뷰어 모듈의 2가지 모듈로 이루어진다.<br>
+&nbsp;All-in JPEG 모듈은 All-in JPEG 파일을 분석하고, All-in JPEG 내부 콘텐츠와 APP1, APP3 메타데이터를 추출한다. 뷰어 모듈은 All-in JPEG 모듈로부터 추출된 All-in JPEG 파일의 내부 콘텐츠들과 메타데이터를 출력하여 사용자에게 보여준다. 
 
+#### 3) All-in JPEG 전용 데스크탑 뷰어
+&nbsp;All-in JPEG 전용 데스크탑 뷰어는 TornadoFX 프레임워크를 활용하였으며, All-in JPEG 모듈과 뷰어 모듈의 2가지 모듈로 이루어진다.<br>
+&nbsp;All-in JPEG 모듈은 데스크탑 뷰어로 업로드된 All-in JPEG 파일을 분석하고, All-in JPEG 내부 콘텐츠와 APP1, APP3 메타데이터를 추출한다. 뷰어 모듈은 All-in JPEG 모듈로부터 추출된 All-in JPEG 파일의 내부 콘텐츠들과 메타데이터를 출력하여 사용자에게 보여준다.
 
-
-
-&nbsp;Camera 모듈은 CameraX 와 Camera2 라이브러리를 사용하여 개발되었으며, 사진 촬영을 도와준다. All in JPEG 모듈은 촬영된 사진이나 파일에서 읽은 사진을 가지고 All in JPEG 제작에 필요한 데이터를 제작해준다. Edit 모듈은 MLKit 라이브러리를 사용하여 개발되었으며, Best 사진 추천, Face Blending, 매직 픽쳐 생성, 초점 업그레이드 등 사진 편집을 도와준다.
-데스크탑 애플리케이션에서 작동하는 3 개의 모듈은 TornadoFX 프레임워크로 구현되었다. 이는 File IO 모듈, Viewer 모듈, All in JPEG 모듈이며 모듈의 기능은 안드로이드 애플리케이션과 동일하다.
 
 <br><br>
 
