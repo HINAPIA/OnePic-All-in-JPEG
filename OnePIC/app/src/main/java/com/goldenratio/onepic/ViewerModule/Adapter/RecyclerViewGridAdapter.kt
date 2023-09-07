@@ -50,12 +50,6 @@ class RecyclerViewGridAdapter(private val context: Context, val currentPosition:
         }
 
         Glide.with(context).load(items[position]).into(holder.imageView)
-
-        //val display = context.getResources().getDisplayMetrics()
-        //holder.imageView.setPadding(2,2,2,2)
-//        holder.imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-
-//        holder.imageView.layoutParams = LinearLayout.LayoutParams(display.widthPixels/4,display.widthPixels/4)
         holder.imageView.setOnClickListener{
 
             val previousSelectedItemPosition = selectedItemPosition
@@ -64,14 +58,6 @@ class RecyclerViewGridAdapter(private val context: Context, val currentPosition:
             notifyItemChanged(position,false)
 
             currentPosition.value = position
-//            if (selectedImageView != null) {
-//                selectedImageView!!.background = null
-//                selectedImageView!!.setPadding(2,2,2,2)
-//            }
-//            selectedImageView = holder.imageView
-//            // 테두리 두께와 색상 설정
-//            holder.imageView.setBackgroundResource(R.drawable.chosen_gallery_border)
-//            holder.imageView.setPadding(6,6,6,6)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

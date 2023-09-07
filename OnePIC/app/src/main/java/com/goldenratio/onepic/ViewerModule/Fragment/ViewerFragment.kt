@@ -319,16 +319,9 @@ class ViewerFragment : Fragment() {
         mainViewPagerAdapter.resetMagicPictureList()
 
         imageTool.showView(binding.magicBtn, true)
-        Log.d("magic 유무", "YES!!!!!!!!!!!")
         binding.magicBtn.setOnClickListener {
-
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-
             if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
-
                 imageTool.showView(binding.progressBar, true)
-
                 CoroutineScope(Dispatchers.Main).launch {
                     /* layout 변경 */
                     binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
@@ -338,7 +331,6 @@ class ViewerFragment : Fragment() {
                 }
 
             }
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
                 /* layout 변경 */
                 binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
@@ -350,7 +342,6 @@ class ViewerFragment : Fragment() {
         try {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
-                    Log.d("프로그래스바 없애기",": 요기 들어옴")
                     imageTool.showView(binding.progressBar, false)
                     isFinished.value = false
                 }
@@ -358,7 +349,6 @@ class ViewerFragment : Fragment() {
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         }
-//        }
     }
 
 
