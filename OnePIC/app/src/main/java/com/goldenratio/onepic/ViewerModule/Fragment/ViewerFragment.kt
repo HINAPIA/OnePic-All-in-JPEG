@@ -232,14 +232,7 @@ class ViewerFragment : Fragment() {
                     binding.containerImageView.visibility = View.GONE
                     binding.corner.visibility = View.GONE
                     binding.allInJpegTextView.visibility = View.GONE
-                    //binding.allInJpegTextView.text = "JPEG"
-                    //marginTopInDp = resources.getDimensionPixelSize(R.dimen.info_marker_top_margin)
                 }
-//                textViewlayoutParams.setMargins(0, marginTopInDp, marginEndInDp, 0)
-//
-//                binding.allInJpegTextView.layoutParams = textViewlayoutParams
-
-                // 작업을 수행한 후 리스너를 제거할 수도 있습니다.
                 binding.allInJpegTextView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
@@ -299,9 +292,6 @@ class ViewerFragment : Fragment() {
                 if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
                     binding.magicBtn.performClick()
                     isMagicBtnClicked = false
-//                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
-//                    isMagicBtnClicked = false
-//                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
                 }
 
                 findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
@@ -329,16 +319,9 @@ class ViewerFragment : Fragment() {
         mainViewPagerAdapter.resetMagicPictureList()
 
         imageTool.showView(binding.magicBtn, true)
-        Log.d("magic 유무", "YES!!!!!!!!!!!")
         binding.magicBtn.setOnClickListener {
-
-            // TODO: 이미 존재는하지만 hidden처리 되어있는 view의 속성을 변경
-            //어떤 방법을 사용하던 어쨌든 이미지 크기 계산해서 width 조절 -> 이미지마다 위에 뜰 수 있도록!
-
             if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
-
                 imageTool.showView(binding.progressBar, true)
-
                 CoroutineScope(Dispatchers.Main).launch {
                     /* layout 변경 */
                     binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
@@ -348,7 +331,6 @@ class ViewerFragment : Fragment() {
                 }
 
             }
-            //TODO: FrameLayout에 동적으로 추가된 View 삭제 or FrameLayout에 view는 박아놓고 hidden 처리로 수행
             else { // 클릭 되어 있던 상태
                 /* layout 변경 */
                 binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
@@ -360,7 +342,6 @@ class ViewerFragment : Fragment() {
         try {
             isFinished.observe(requireActivity()) { value ->
                 if (value == true) {
-                    Log.d("프로그래스바 없애기",": 요기 들어옴")
                     imageTool.showView(binding.progressBar, false)
                     isFinished.value = false
                 }
@@ -368,7 +349,6 @@ class ViewerFragment : Fragment() {
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         }
-//        }
     }
 
 
@@ -562,7 +542,6 @@ class ViewerFragment : Fragment() {
         }
     }
 
-
     fun changeImageView(index: Int, imageView: ImageView) {
 
         previousClickedItem?.background = null
@@ -592,12 +571,8 @@ class ViewerFragment : Fragment() {
         jpegViewModel.jpegAiContainer.value!!.imageContent.resetBitmap()
 
         jpegViewModel.clearPictureByteArrList()
-        // 앱의 onStop() 또는 onDestroy() 등의 메서드에서 호출하여 메모리 캐시를 비웁니다.
         Glide.get(context).clearMemory()
-
-// 예를 들어 앱 설정에서 디스크 캐시를 비우는 버튼이 있는 경우, 해당 버튼 클릭 시 호출합니다.
-        // Glide 디스크 캐시 해제
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {// Glide 디스크 캐시 해제
             Glide.get(context).clearDiskCache()
         }
 
@@ -615,5 +590,4 @@ class ViewerFragment : Fragment() {
             .remove(this)
             .commit()
     }
-
 }

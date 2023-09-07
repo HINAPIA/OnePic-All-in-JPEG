@@ -31,10 +31,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     var isGalleryUpdateFinished:MutableLiveData<Boolean> = MutableLiveData(false)
 
-
-//    var mainPictureIndex: Int = 0
-//    var selectPictureIndex: Int = 0
-
     /* Edit에서 필요 */
     var currentImageUri:String? = null // 현재 메인 이미지 uri(13 이상)
     var selectedSubImage: Picture? = null // 선택된 서브 이미지 picture 객체
@@ -47,7 +43,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         var isUserInentFinish : Boolean = false
         var AllInJPEG : Boolean = true
     }
-
 
 
     private val galleryObserver = object : ContentObserver(android.os.Handler(Looper.getMainLooper())) {
@@ -66,8 +61,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             true,
             galleryObserver
         )
-//        selectPictureIndex = 0
-//        mainPictureIndex = 0
     }
 
     fun setContainer(AiContainer: AiContainer) {
@@ -101,7 +94,6 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         if (selectedSubImage != null) // 초기화
             selectedSubImage = null
         this.selectedSubImage = picture
-//        selectPictureIndex = jpegMCContainer.value!!.imageContent.pictureList.indexOf(picture)
     }
 
     fun getSelectedSubImageIndex(): Int {
@@ -112,14 +104,12 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     fun getMainSubImageIndex(): Int {
         if(mainSubImage == null) {
-            Log.d("mainSub Index", "mainSub Index : 0")
             return 0
         }
         val index =  jpegAiContainer.value!!.imageContent.pictureList.indexOf(mainSubImage)
         if(index == -1) {
             return 0
         }
-        Log.d("mainSub Index", "mainSub Index : $index")
         return index
     }
 

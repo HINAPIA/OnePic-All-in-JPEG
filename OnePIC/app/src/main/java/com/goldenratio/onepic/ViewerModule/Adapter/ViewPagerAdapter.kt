@@ -116,9 +116,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
         if(!value) {
             handler.removeCallbacksAndMessages(null)
             checkMagicPicturePlay = false
-            //viewHolder.magicPictureStop()
-
-            //viewHolder.externalImageView.visibility = View.INVISIBLE
         }
         else {
             CoroutineScope(Dispatchers.Default).launch {
@@ -126,7 +123,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                 if (overlayImg.size <= 0) {
                     overlayImg = magicPictureProcessing()
                 }
-                //magicPictureRun(overlayImg)
                 CoroutineScope(Dispatchers.Main).launch {
                     checkMagicPicturePlay = true
                     notifyDataSetChanged()
@@ -176,8 +172,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
 
     private suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
         suspendCoroutine { result ->
-//             val overlayImg: ArrayList<Bitmap> = arrayListOf()
-            // blending 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
                 val newBitmapList = imageContent.getBitmapList()
@@ -321,9 +315,6 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                                 increaseIndex = 1
                             }
                             handler.postDelayed(this, magicPlaySpeed)
-                        }
-                        else {
-                            Log.d("overlay bitmap","size == 0")
                         }
                     }
                 }

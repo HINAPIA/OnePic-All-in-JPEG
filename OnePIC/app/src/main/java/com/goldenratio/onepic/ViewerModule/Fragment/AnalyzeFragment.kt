@@ -62,7 +62,6 @@ class AnalyzeFragment : Fragment() {
             progress+=2
 
             if (progress == 7) {
-                //binding.resultLinear.visibility = View.VISIBLE
                 binding.analyzeDataTextView.visibility = View.VISIBLE
             }
 
@@ -131,7 +130,6 @@ class AnalyzeFragment : Fragment() {
                 val desiredWidthInPixels = (desiredWidthInDp * density).toInt()
                 val desiredHeightInPixels = (desiredHeightInDp * density).toInt()
 
-                //Glide.with(binding.loadingImageView).load(R.raw.confirm).into(binding.loadingImageView)
                 Glide.with(binding.loadingImageView)
                     .asGif()
                     .load(R.raw.confirm)
@@ -226,8 +224,6 @@ class AnalyzeFragment : Fragment() {
 
         setCurrentMCContainer(currentPosition!!)
 
-
-
         // MCContainer가 변경되었을 때(Page가 넘어갔을 때) 처리
         isContainerChanged.observe(requireActivity()){ value ->
             if (value == true){
@@ -243,22 +239,8 @@ class AnalyzeFragment : Fragment() {
 
                 isFinished.value = false
 
-//                CoroutineScope(Dispatchers.Default).launch {
-//                    Thread.sleep(1500)
-//                    CoroutineScope(Dispatchers.Main).launch{
-//                        val bundle = Bundle()
-//                        bundle.putInt("currentPosition",currentPosition!!)
-//
-//                        findNavController().navigate(R.id.action_basicViewerFragment_to_analyzeFragment,bundle,null,extras)
-//                        BasicViewerFragment.isFinished.value = false
-//                    }
-//                }
             }
         }
-
-
-        // 전환 시에 애니메이션 적용
-//        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
     }
 
     override fun onDetach() {
@@ -337,9 +319,6 @@ class AnalyzeFragment : Fragment() {
                     pictureByteArrayList.add(pictureByteArr!!)
                 } // end of for..
 
-//                    val pictureByteArr = jpegViewModel.jpegMCContainer.value?.imageContent?.getJpegBytes(pictureList[0])
-//                    pictureByteArrayList.add(pictureByteArr!!)
-
                 jpegViewModel.setpictureByteArrList(pictureByteArrayList)
                 CoroutineScope(Dispatchers.Main).launch{
                     isFinished.value = true
@@ -356,16 +335,9 @@ class AnalyzeFragment : Fragment() {
             CoroutineScope(Dispatchers.Main).launch{
                 val bundle = Bundle()
                 bundle.putInt("currentPosition",currentPosition!!)
-//                findNavController().popBackStack(R.id.analyzeFragment,false)
-//                findNavController().navigate(R.id.viewerFragment,bundle)
-
                 findNavController().navigate(R.id.viewerFragment, bundle, NavOptions.Builder()
                     .setPopUpTo(R.id.analyzeFragment, true)
                     .build())
-
-
-                 //findNavController().navigate(R.id.action_analyzeFragment_to_viewerFragment,bundle)
-                //isFinished.value = false
             }
 
         }
@@ -379,13 +351,6 @@ class AnalyzeFragment : Fragment() {
         val buffer = ByteArray(bufferSize)
         var len = 0
 
-//        val activityManager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-//        val memoryInfo = ActivityManager.MemoryInfo()
-//        activityManager.getMemoryInfo(memoryInfo)
-//
-//        val availableMemory = memoryInfo.availMem
-//        Log.d("analyzeByteArray","Available memory: $availableMemory bytes")
-
         while (inputStream.read(buffer, 0, bufferSize).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
@@ -394,7 +359,6 @@ class AnalyzeFragment : Fragment() {
         inputStream.close()
 
         val currentSize = byteBuffer.size()
-        Log.d("analyzeByteArray","Current byteBuffer size: $currentSize bytes")
         return byteBuffer.toByteArray()
     }
 
