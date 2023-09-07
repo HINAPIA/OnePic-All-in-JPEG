@@ -336,27 +336,16 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             )
         }
 
-
         if(savedFile != null){
             tempAudioFile = savedFile
 
         }else{
             tempAudioFile = null
         }
+
+        /* 오디오 모듈 추가 */
         addAudioModule()
-//        // audio ADD
-//        binding.audioAddBtn.setOnClickListener {
-//            // 일반 사진이면 안 넘어가도록
-//            if (checkAdd) {
-//                // MagicPictureFragment로 이동
-//                findNavController().navigate(R.id.action_editFragment_to_audioAddFragment)
-//            }
-//        }
-//
-//        // text ADD
-//        binding.textAddBtn.setOnClickListener {
-//            findNavController().navigate(R.id.action_editFragment_to_addFragment)
-//        }
+
 
         // 단일 사진 추출
         binding.extractJpegBtn.setOnClickListener {
@@ -469,8 +458,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_ing_icon)
                 }
 
-
-//                    imageToolModule.showView(binding.magicPlayBtn, true)
                 isMagicPlay = true
 
                 CoroutineScope(Dispatchers.Default).launch {
@@ -488,8 +475,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 handler.removeCallbacksAndMessages(null)
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.magicPlayBtn.setImageResource(R.drawable.edit_magic_icon)
-
-//                        binding.progressBar.visibility = View.GONE
                     showProgressBar(false, null)
                 }
                 isMagicPlay = false
@@ -548,13 +533,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
         // 저장 버튼 (viewer로 이동)
         binding.saveBtn.setOnClickListener {
-//            imageContent.resetBitmap()
 
             ViewerFragment.isEditStoraged = true
             jpegViewModel.mainSubImage = null
             // 저장 중인지 확인하는 flag가 false일 경우만 저장 단계 실행 --> 두번 실행될 경우 오류를 예외처리하기 위해
             if (!isSaving) {
-//                imageTool.showView(binding.progressBar, true)
                 showProgressBar(true, LoadingText.Save)
                 isSaving = true
 
@@ -571,7 +554,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                         // 3. meta data 변경
                         if(!jpegViewModel.jpegAiContainer.value!!.isBurst)
-                            imageContent.jpegMetaData = imageContent.chageMetaData(mainPicture._app1Segment!!)
+                            imageContent.jpegMetaData = imageContent.changeAPP1MetaData(mainPicture._app1Segment!!)
                     }
                 }
                 // 덮어쓰기
@@ -615,24 +598,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     setCurrentPictureByteArrList()
                 }
 
-                // 우리 앱의 사진이 아닐 때
-//                if (result == "another") {
-//
-//                    // 권한을 요청
-//                    하고 다시 save
-//                    singleSave()
-//                    CoroutineScope(Dispatchers.Default).launch {
-//                        Thread.sleep(1000)
-//                        setButtonDeactivation()
-//                        setCurrentPictureByteArrList()
-//                    }
-//                } else {
-//                    CoroutineScope(Dispatchers.Default).launch {
-//                        setButtonDeactivation()
-//                        Thread.sleep(2000)
-//                        setCurrentPictureByteArrList()
-//                    }
-//                }
                 imageContent.setCheckAttribute()
             }
 
@@ -720,11 +685,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             binding.playAudioBarLaydout.visibility = View.GONE
             binding.recordingImageView.setImageDrawable(resources.getDrawable(R.drawable.record))
             jpegViewModel.isAudioPlay.value = 0
-            // binding.constraintLayout.visibility = View.INVISIBLE
-
-//            binding.bestMainBtn.visibility = View.GONE
-//            binding.blendingBtn.visibility = View.GONE
-//            binding.magicBtn.visibility = View.GONE
 
             // 오디오 비활성화
         }else{
@@ -741,7 +701,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     fun setButtonDeactivation() {
-//        imageContent.resetBitmap()
 
         imageContent.checkAdded = false
         imageContent.checkBlending = false
@@ -770,66 +729,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
         }
     }
-
-//    fun remainOriginalPictureSave() {
-//        val oDialog: AlertDialog.Builder = AlertDialog.Builder(
-//            activity,
-//            android.R.style.Theme_DeviceDefault_Light_Dialog
-//        )
-////        imageTool.showView(binding.progressBar, false)
-//
-//        oDialog.setMessage("편집된 이미지만 저장하시겠습니까? 원본 이미지는 사라지지 않습니다.")
-//            .setPositiveButton(
-//                "모두 저장",
-//                DialogInterface.OnClickListener { dialog, which ->
-//                    imageTool.showView(binding.progressBar, true)
-//                    if (!imageContent.checkMagicCreated || !imageContent.checkBlending) {
-//                        val mainPicture = imageContent.mainPicture
-//                        // 바뀐 비트맵을 Main(맨 앞)으로 하는 새로운 Jpeg 저장
-//                        imageContent.insertPicture(0, mainPicture)
-//                    }
-//                    jpegViewModel.jpegMCContainer.value?.save()
-//                    CoroutineScope(Dispatchers.Default).launch {
-//                        setButtonDeactivation()
-//                        Thread.sleep(2000)
-//                        withContext(Dispatchers.Main) {
-////                        imageTool.showView(binding.progressBar , false)
-//                            findNavController().navigate(R.id.action_editFragment_to_viewerFragment)
-//                        }
-//                    }
-//                })
-//            .setNeutralButton("예",
-//                DialogInterface.OnClickListener { dialog, which ->
-//                    try {
-//                        singleSave()
-//                    } catch (e: IOException) {
-//                        Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-//                            .show()
-//                    }
-//                })
-//            .show()
-//    }
-
-//    fun singleSave() {
-//        try {
-////            imageTool.showView(binding.progressBar, true)
-//            showProgressBar(true, LoadingText.Save)
-//            val newImageContent =
-//                jpegViewModel.jpegMCContainer.value?.imageContent!!
-//            val singlePictureList: ArrayList<Picture> =
-//                ArrayList<Picture>(1)
-//            singlePictureList.add(newImageContent.mainPicture)
-//            newImageContent.setContent(singlePictureList)
-//
-//            var savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-//            //ViewerFragment.currentFilePath = savedFilePath.toString()
-//
-//        } catch (e: IOException) {
-//            Toast.makeText(activity, "저장에 실패 했습니다.", Toast.LENGTH_SHORT)
-//                .show()
-//        }
-//
-//    }
 
     /**
      * setContainer()
@@ -984,10 +883,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     private fun openGallery() {
-//        val intent = Intent(Intent.ACTION_PICK)
-//        intent.type = "image/*"
-//        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = MediaStore.Images.Media.CONTENT_TYPE
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -1312,19 +1207,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         }
                     }.show()
             }
-
-//        CoroutineScope(Dispatchers.Main).launch {
-//            // main activity에 만들어둔 scrollbar 속 layout의 아이디를 통해 해당 layout에 넣기
-//            val index = pictureList.indexOf(picture)
-//            if (binding.linear.size - 3 == index) {
-//                binding.linear.addView(subLayout, binding.linear.size - 3)
-//                Log.d("main Change","sublayout index add : $index")
-//            } else {
-//                binding.linear.addView(subLayout)
-//                Log.d("main Change","sublayout add : $index")
-//            }
-//
-//        }
             return subLayout
         } catch (e: IllegalStateException) {
             return null
@@ -1503,15 +1385,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             } else if(jpegViewModel.isAudioPlay.value!! == 1){
                 // 재생 -> 정지
                 Log.d("current_audio", "플레이")
-//                if(isPlaying){
-//                    jpegViewModel.isAudioPlay.value = 0
-//                    if (mediaPlayer != null) {
-//                        mediaPlayer.stop()
-//                    }
-//                    // 재생 -> replay
-//                }else
-                //   jpegViewModel.isAudioPlay.value = 2
-                // replay -> 재생
             } else if(jpegViewModel.isAudioPlay.value!! == 2){
                 jpegViewModel.isAudioPlay.value = 1
                 Log.d("current_audio", "다시 재생1")
@@ -2027,10 +1900,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     fun timerUIStop(){
         if(isRecordingMode){
             timerTask.cancel()
-//            CoroutineScope(Dispatchers.Main).launch {
-//                binding.RecordingTextView.setText("")
-//                Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
-//            }
         }
     }
 

@@ -21,8 +21,5 @@ class Audio (audioByteArray : ByteArray? = null, _Content_attribute: ContentAttr
     fun isByteArrayInitialized(): Boolean {
         return _audioByteArray != null
     }
-//    fun getInfoLength() : Int{
-//        // offset(4) + attribute(4) + size(4)
-//        return 16
-//    }
+
 }

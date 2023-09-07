@@ -235,7 +235,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
             newJpegMetaData = jpegMetaData
             Log.d("version3", "단일 사진 저장할 때 메타데이터 변경 안하고 저장")
         }else{
-            newJpegMetaData = AiContainer.imageContent.chageMetaData(picture._app1Segment!!)
+            newJpegMetaData = AiContainer.imageContent.changeAPP1MetaData(picture._app1Segment!!)
             Log.d("version3", "단일 사진 저장할 때 메타데이터 변경 하고 저장")
         }
 //        if(picture._app1Segment == null || picture._app1Segment!!.size <= 0)
@@ -318,8 +318,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
 
         // 일반 JPEG으로 저장
         if (!AiContainer.isAllinJPEG) {
-            Log.d("save_test", "1. 일반 JPEG으로 저장하기")
-            Log.d("save_test", "저장하는 메타데이터 사이즈 ${byteBuffer.size()}")
+            Log.d("save_test", "1. 표준 JPEG으로 저장")
             byteBuffer.write(jpegMetaData, 0, jpegMetaData.size)
             var picture = AiContainer.imageContent.getPictureAtIndex(0)
             byteBuffer.write(picture!!._pictureByteArray)
@@ -331,8 +330,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
             Log.d("save_test", "2. all in jpeg으로 저장")
             // APP3 삽입 위치 찾기 ( APP0, APP1, APP2 중 가장 늦게 나온 마커 뒤에)
             val (lastAppMarkerOffset, lastAppMarkerDataLength) = findInsertionApp3LocationAndLength(jpegMetaData)
-            Log.d("save_test", "lastAppMarkerOffset :  ${lastAppMarkerOffset} " +
-                    ", lastAppMarkerDataLength : ${lastAppMarkerDataLength}")
+
 
             // APPn(0,1,2) 마커를 찾음
             if(lastAppMarkerOffset != 0){
@@ -340,7 +338,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
                 byteBuffer.write(jpegMetaData, 0, lastAppMarkerOffset + lastAppMarkerDataLength + 2)
                 // APP3 extension data 생성 후 write
                 val App3ExtensionData = getApp3ExtensionByteData()
-                byteBuffer.write(App3ExtensionData)
+                byteBuffer.write(getApp3ExtensionByteData())
                 //나머지 메타 데이터 쓰기
                 byteBuffer.write(
                     jpegMetaData,
@@ -356,6 +354,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
                 // APPn(0,1,2) 마커가 없음
                 byteBuffer.write(jpegMetaData, 0, 2)
                 // APP3 데이터 생성
+                // APP3 extension data 생성 후 write
                 byteBuffer.write(getApp3ExtensionByteData())
                 //SOI 제외한 메타 데이터 write
                 byteBuffer.write(
@@ -383,15 +382,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
                     if(!isBurstMode){
                         if(picture!!._app1Segment != null){
                             byteBuffer.write(picture!!._app1Segment)
-                            Log.d("version3", "APP1  저장")
                         }
-                        else{
-                            Log.d("version3", "APP1  없음")
-                        }
-
-                    }
-                    else{
-                        Log.d("version3", "APP1  저장 안 함")
                     }
                     byteBuffer.write(/* b = */ picture!!._pictureByteArray)
                 }
@@ -415,9 +406,7 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
 
                     byteBuffer.write(tempByteBuffer.array())
                 }
-                //byteBuffer.write(/* b = */ picture!!._pictureByteArray)
             }
-
             // Audio Write
             if (AiContainer.audioContent.audio != null) {
                 var audio = AiContainer.audioContent.audio
@@ -457,9 +446,6 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
     }
 
     fun lowSDKVersionSave(resultByteArray: ByteArray, isSaved: MutableLiveData<Uri>?){
-        var savedFile: String = ""
-        //val fileName = System.currentTimeMillis().toString() + ".jpg" // 파일이름 현재시간.jpg
-
         // Q 버전 이하일 경우. 저장소 권한을 얻어온다.
         val writePermission = mainActivity?.let {
             ActivityCompat.checkSelfPermission(
@@ -468,8 +454,8 @@ class SaveResolver(_mainActivity: Activity, _Ai_Container: AiContainer) {
             )
         }
         if (writePermission == PackageManager.PERMISSION_GRANTED) {
-            savedFile = saveImageOnUnderAndroidQ(resultByteArray)
-            // Toast.makeText(context, "이미지 저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+            saveImageOnUnderAndroidQ(resultByteArray)
+
         } else {
             val requestExternalStorageCode = 1
             val permissionStorage = arrayOf(

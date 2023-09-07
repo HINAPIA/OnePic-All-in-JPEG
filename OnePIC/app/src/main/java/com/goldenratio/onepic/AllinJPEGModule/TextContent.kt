@@ -26,19 +26,6 @@ class TextContent {
         textCount = _textList.size
     }
 
-//    fun setContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
-//        init()
-//        for(i in 0..byteArrayList.size-1){
-//            var text = Text(byteArrayList.get(i), contentAttribute)
-//            insertText(text)
-//        }
-//    }
-//    fun addContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute){
-//        for(i in 0..byteArrayList.size-1){
-//            var text = Text(byteArrayList.get(i), contentAttribute)
-//            insertText(text)
-//        }
-//    }
     fun insertText(text : Text){
         textList.add(text)
         textCount = textCount + 1
@@ -47,7 +34,4 @@ class TextContent {
         return textList.get(index) ?: null
     }
 
-    fun getAllText():ArrayList<Text>{
-        return textList
-    }
 }

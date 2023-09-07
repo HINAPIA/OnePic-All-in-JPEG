@@ -74,7 +74,6 @@ class LoadResolver() {
             try{
                 // 일반 JPEG
                 Log.d("AiContainer", "createMCContainer() 일반 JPEG 생성")
-                Log.d("version3", "createMCContainer() 일반 JPEG 생성")
                 createAiConaterInJPEG(AiContainer, sourceByteArray)
 
             }catch (e : IOException){
@@ -82,18 +81,24 @@ class LoadResolver() {
             }
         }
         else {
-            Log.d("version3", "createMCContainer() All-in JPEG 생성")
             Log.d("AiConainer", "createMCContainer() All-in JPEG 생성")
             createAiConainerInAllinJPEG(AiContainer, sourceByteArray)
         }
 
     }
 
+    /*
+        TODO 표준 JPEG 형태로 AiContainer 업데이트
+     */
     fun createAiConaterInJPEG(AiContainer: AiContainer, sourceByteArray: ByteArray){
         JpegViewModel.AllInJPEG = false
         AiContainer.setBasicJepg(sourceByteArray)
     }
 
+
+    /*
+        TODO All-in JPEG 형태로 AiContainer 업데이트
+     */
     suspend fun createAiConainerInAllinJPEG(AiContainer: AiContainer,
                                             sourceByteArray: ByteArray){
         CoroutineScope(Dispatchers.IO).launch {
@@ -105,23 +110,19 @@ class LoadResolver() {
                 JpegViewModel.AllInJPEG = true
 
                 val isBurstMode = sourceByteArray.get( APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE)
-                var burst_mode_size = 1
                 if(isBurstMode.toInt() == 1){
                     AiContainer.isBurst = true
-                    Log.d("version3", "파싱된 burstMode : ${isBurstMode}")
                 }
                 else if (isBurstMode.toInt() == 0){
                     AiContainer.isBurst = false
-                    Log.d("version3", "파싱된 burstMode : ${isBurstMode}")
                 } else{
                     AiContainer.isBurst = true
-                    burst_mode_size = 0
                 }
 
 
                 // 1. ImageContent Pasrsing
                 var imageContentStartOffset =
-                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + burst_mode_size
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + BURST_MODE_SIZE
                 var imageContentInfoSize = ByteArraytoInt(sourceByteArray, imageContentStartOffset)
                 var pictureList = async {
                     imageContentParsing(
@@ -271,7 +272,6 @@ class LoadResolver() {
                 picture.waitForByteArrayInitialized()
             }
             pictureList.add(picture)
-            Log.d("version3", picture.toString())
             Log.d("Load_Module", "picutureList size : ${pictureList.size}")
         }
         return@withContext pictureList
@@ -288,7 +288,6 @@ class LoadResolver() {
     fun textContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
         var textList : ArrayList<Text> = arrayListOf()
         var startIndex = 0
-        var textContentInfoSize = ByteArraytoInt(textInfoByteArray, startIndex)
         startIndex++
         var textCount = ByteArraytoInt(textInfoByteArray, startIndex * FIELD_SIZE)
         startIndex++
@@ -313,7 +312,6 @@ class LoadResolver() {
             }
             var string : String = String(charArray)
             var text = Text(string, ContentAttribute.fromCode(attribute))
-            Log.d("text_parsing", text.toString())
             textList.add(text)
         }
         return textList

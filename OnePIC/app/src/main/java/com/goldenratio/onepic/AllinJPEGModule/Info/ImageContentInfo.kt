@@ -44,6 +44,9 @@ class ImageContentInfo(imageContent: ImageContent) {
         return imageInfoList
     }
 
+    /**
+     * APP3 extension 중 ImageContentInfo 사이즈를 리턴
+     */
     fun getLength() : Int {
         var size = 0
         for(i in 0..imageInfoList.size -1 ){

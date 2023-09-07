@@ -40,7 +40,6 @@ class AiContainer(_activity: Activity? = null) {
 
     }
 
-
     // 멤버 변수 초기화
     fun init(){
         imageContent.init()
@@ -70,14 +69,12 @@ class AiContainer(_activity: Activity? = null) {
 
 
     /**
-     * TODO 사진을 찍은 후에 호출되는 함수로 찍은 사진 데이터로 imageContent 갱신
+     * TODO 사진을 찍은 후에 호출되는 함수로 찍은 사진 데이터로 imageContent 업데이트
      *
      * @param byteArrayList 촬영된 사진들의 바이너리 데이터 리스트
      * @param contentAttribute 촬영 모드
      * @return 작업 완료 결과
      */
-
-    // 사진을 찍은 후에 호출되는 함수로 MC Container를 초기화하고 찍은 사진 내용으로 MC Container를 채움
     suspend fun setImageContent(byteArrayList: ArrayList<ByteArray>, contentAttribute : ContentAttribute) : Boolean = withContext(Dispatchers.Default){
         isAllinJPEG = true
         isBurst = true
@@ -88,6 +85,11 @@ class AiContainer(_activity: Activity? = null) {
         return@withContext true
     }
 
+    /**
+     * TODO 파일을 로드할 때 호출되는 함수로 표준 JPEG 형태로 imageContent 업데이트
+     *
+     * @param sourceByteArray 로드된 사진의 바이너리
+     */
     fun setBasicJepg(sourceByteArray: ByteArray) {
         init()
         isAllinJPEG = false
@@ -112,7 +114,7 @@ class AiContainer(_activity: Activity? = null) {
 
     /** 저장 관련 함수 **/
     /**
-     * TODO 덮어쓰는
+     * TODO fileName으로 jpeg 확장자로 사진 저장
      *
      * @param fileName
      */
@@ -175,7 +177,7 @@ class AiContainer(_activity: Activity? = null) {
 
 
     /**
-     * byteArray에 있는 마커 이름과 마커의 위치를 출력하는 함수
+     * TODO JPEG 데이터의 마커 이름과 마커의 위치를 출력하는 함수
      */
     fun exploreMarkers(byteArray: ByteArray){
         var pos = 0

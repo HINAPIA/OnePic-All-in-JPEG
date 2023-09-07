@@ -41,12 +41,7 @@ class Picture(
         this.embeddedData = embeddedData
         this._pictureByteArray = byteArray
         imageSize = _pictureByteArray!!.size
-
-
-
-
     }
-
 
     override fun toString(): String {
         return "[Picture] offset : ${offset}, Attribute : ${contentAttribute},"+

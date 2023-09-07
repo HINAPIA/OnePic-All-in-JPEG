@@ -59,6 +59,11 @@ class Header(_MC_container : AiContainer) {
         audioContentInfo.dataStartOffset += (headerLength+jpegMetaLength)+ 2
     }
 
+    /**
+     * TODO 생성하는 APP3 segment 크기를 구한 후 리턴
+     *
+     * @return 생성될 APP3 segment 크기
+     */
     fun getAPP3FieldLength(): Short{
         var size = getAPP3CommonDataLength()
         size += imageContentInfo.getLength()
@@ -90,31 +95,5 @@ class Header(_MC_container : AiContainer) {
         buffer.put(audioContentInfo.converBinaryData())
         return buffer.array()
     }
-    //헤더의 내용을 바이너리 데이터로 변환하는 함수
-//    fun convertBinaryData(): ByteArray{
-//         var bufferSize  = pictureInfoList?.size!! * INFO_SIZE +6
-//        //App3 마커
-//        val buffer: ByteBuffer = ByteBuffer.allocate(bufferSize)
-//        buffer.put("ff".toInt(16).toByte())
-//        buffer.put("e3".toInt(16).toByte())
-//        // 리스트 개수
-//        buffer.putInt(pictureInfoList?.size!!)
-//        //infoList
-//        for(i in 0..(pictureInfoList?.size?.minus(1) ?:1 )){
-//            var pictureInfo = pictureInfoList?.get(i)
-//            buffer.putInt(pictureInfo!!.groupID!!)
-//            buffer.putInt(pictureInfo!!.typeCode!!)
-//            //작성한 APP3의 크기만큼 데이터 변경. 이 작업을 여기서 해도 괜찮은지 의논 필요
-//            if(i == 0){
-//                buffer.putInt(pictureInfo!!.offset!!)
-//                buffer.putInt(pictureInfo!!.size!! + (bufferSize))
-//
-//            }else{
-//                buffer.putInt(pictureInfo!!.offset!!+bufferSize-1)
-//                buffer.putInt(pictureInfo!!.size!!)
-//            }
-//        }
-//        val byteArray = buffer.array()
-//        return byteArray
-//    }
+
 }

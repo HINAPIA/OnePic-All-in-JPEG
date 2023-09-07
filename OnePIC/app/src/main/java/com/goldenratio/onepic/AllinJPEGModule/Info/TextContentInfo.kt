@@ -69,7 +69,6 @@ class TextContentInfo(textContent: TextContent, startOffset : Int) {
         var size = 0
         size += TEXT_CONTENT_SIZE_FIELD_SIZE + TEXT_COUNT_FIELD_SIZE
         for(i in 0..textInfoList.size -1 ){
-            //size += textInfoList.get(i).getTextInfoSize()
             size += OFFSET_FIELD_SIZE + ATTRIBUTE_FIELD_SIZE + TEXT_DATA_SIZE
         }
         return size
