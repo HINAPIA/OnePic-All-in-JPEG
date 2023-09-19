@@ -25,6 +25,8 @@
     <color name="menu_color">#FFFFFF</color>
     <color name="menu_background">#92A496FF</color>
     <color name="edit_delete_back_color">#2D000000</color>
+    <color name="joystick_outline">#CE858585</color>
+    <color name="joystick_inline">#A1A1A1</color>
     <!-- ____________________________________ -->
 
     <color name="button_color">#6B8B7A</color>

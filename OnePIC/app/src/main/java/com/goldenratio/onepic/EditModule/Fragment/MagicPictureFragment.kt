@@ -14,7 +14,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.R
@@ -23,6 +22,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 class MagicPictureFragment : FaceBlendingFragment() {
 
@@ -73,7 +75,11 @@ class MagicPictureFragment : FaceBlendingFragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+            val joystickView = binding.joystick
+            joystickView.setOnMoveListener({ angle, strength ->
+
+                Log.d("joystick", "angle : $angle" + "strength : $strength")
+                moveCropFace(angle, strength) }, 200)
         }
     }
 
@@ -117,6 +123,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
     /**
      * 이벤트 처리를 설정한다.
      */
+    @SuppressLint("ClickableViewAccessibility")
     private fun setClickEvent() {
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
@@ -290,8 +297,10 @@ class MagicPictureFragment : FaceBlendingFragment() {
      * 선택된 이미지로 얼굴 감지 모델 실행 후, 감지된 얼굴이 표시한 후 화면에 출력한다.
      */
     override fun setMainImageBoundingBox() {
-        infoLevel.observe(viewLifecycleOwner){
-            infoTextView()
+        CoroutineScope(Dispatchers.Main).launch {
+            infoLevel.observe(viewLifecycleOwner) {
+                infoTextView()
+            }
         }
 
         if (checkMagicPicturePlay) {
@@ -448,13 +457,14 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
     }
 
+
     /**
-     * 잘라진 이미지를 x, y 만큼 이동한다.
+     * 잘라진 이미지를 방향과 강도에 따라 이동한다.
      *
-     * @param moveX 이동 할 x 값
-     * @param moveY 이동 할 y 값
+     * @param angle 이동할 방향
+     * @param strength 강도
      */
-    private fun moveCropFace(moveX:Int, moveY:Int) {
+    private fun moveCropFace(angle: Int, strength: Int) {
         if(infoLevel.value != InfoLevel.EditFaceSelect) {
             imageToolModule.showView(binding.infoDialogLayout, false)
             infoLevel.value = InfoLevel.EditFaceSelect
@@ -463,10 +473,20 @@ class MagicPictureFragment : FaceBlendingFragment() {
         if(checkMagicPicturePlay) {
             handler.removeCallbacksAndMessages(null)
             binding.magicPlayBtn.setImageResource(R.drawable.magic_picture_play_icon)
+            imageToolModule.showView(binding.magicPlayBtn, true)
             checkMagicPicturePlay = false
         }
 
         if (newImage != null) {
+
+            val newStrength = strength / 10
+
+            val angleRadians = angle * (PI / 180.0)
+
+            // x 좌표 계산
+            val moveX = (newStrength * cos(angleRadians)).toInt()
+            // y 좌표 계산
+            val moveY = - (newStrength * sin(angleRadians)).toInt()
 
             changeFaceStartX += moveX
             changeFaceStartY += moveY
@@ -547,13 +567,13 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 var resultBitmap = imageToolModule.drawDetectionResult(
                     selectBitmap,
                     faceResult,
-                    requireContext().resources.getColor(R.color.white)
-                )
-                resultBitmap = imageToolModule.drawDetectionResult(
-                    resultBitmap,
-                    selectFaceRect!!.toRectF(),
                     requireContext().resources.getColor(R.color.select_face)
                 )
+//                resultBitmap = imageToolModule.drawDetectionResult(
+//                    resultBitmap,
+//                    selectFaceRect!!.toRectF(),
+//                    requireContext().resources.getColor(R.color.select_face)
+//                )
                 binding.mainView.setImageBitmap(resultBitmap)
 
                 CoroutineScope(Dispatchers.Main).launch {
@@ -577,7 +597,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
             binding.magicInfoBtn.isEnabled = boolean
             binding.dialogCloseBtn.isEnabled = boolean
             binding.magicPlayBtn.isEnabled = boolean
-            binding.circleArrowBtn.isEnabled = boolean
+//            binding.circleArrowBtn.isEnabled = boolean
         }
     }
 }

@@ -9,7 +9,6 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import androidx.core.view.isEmpty
 import androidx.core.view.setPadding
@@ -19,7 +18,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
-import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
@@ -28,6 +26,9 @@ import com.goldenratio.onepic.databinding.FragmentFaceBlendingBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
@@ -94,8 +95,10 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
-            imageToolModule.showView(binding.arrowBar, false)
+            val joystickView = binding.joystick
+            joystickView.setOnMoveListener({ angle, strength ->
+                Log.d("joystick", "angle : ${angle}" + "strength : ${strength}")
+                moveCropFace(angle, strength) }, 200)
         }
     }
 
@@ -610,12 +613,22 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     }
 
     /**
-     * 잘라진 이미지를 x, y 만큼 이동한다.
+     * 잘라진 이미지를 방향과 강도에 따라 이동한다.
      *
-     * @param moveX 이동 할 x 값
-     * @param moveY 이동 할 y 값
+     * @param angle 이동할 방향
+     * @param strength 강도
      */
-    private fun moveCropFace(moveX:Int, moveY:Int) {
+    private fun moveCropFace(angle: Int, strength: Int) {
+
+        val newStrength = strength / 10
+
+        val angleRadians = angle * (PI / 180.0)
+
+        // x 좌표 계산
+        val moveX = (newStrength * cos(angleRadians)).toInt()
+        // y 좌표 계산
+        val moveY = - (newStrength * sin(angleRadians)).toInt()
+
         if(infoLevel.value != InfoLevel.BasicLevelEnd)
             infoLevel.value = InfoLevel.BasicLevelEnd
         if (newImage != null) {
@@ -727,7 +740,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             binding.imageResetBtn.isEnabled = boolean
             binding.imageCompareBtn.isEnabled = boolean
             binding.blendingInfoBtn.isEnabled = boolean
-            binding.circleArrowBtn.isEnabled = boolean
+//            binding.circleArrowBtn.isEnabled = boolean
 
             binding.dialogCloseBtn.isEnabled = boolean
             binding.faceCancleBtn.isEnabled = boolean

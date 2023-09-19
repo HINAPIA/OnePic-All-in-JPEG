@@ -804,21 +804,19 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
      */
     private fun setViewDetailMenu() {
         checkAllInJPEG()
-        if(pictureList.size <= 1) {
-            CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (pictureList.size <= 1) {
+                Log.d("checkMenu", " 1 : pictureList.size = ${pictureList.size}")
                 binding.bestMainBtn.visibility = View.GONE
                 binding.blendingBtn.visibility = View.GONE
                 binding.magicBtn.visibility = View.GONE
-            }
-        } else {
-            CoroutineScope(Dispatchers.Main).launch {
+            } else {
+                Log.d("checkMenu", " 2 : pictureList.size = ${pictureList.size}")
                 binding.bestMainBtn.visibility = View.VISIBLE
                 binding.blendingBtn.visibility = View.VISIBLE
                 binding.magicBtn.visibility = View.VISIBLE
-            }
-
-            if(imageContent.checkAttribute(ContentAttribute.distance_focus)) {
-                CoroutineScope(Dispatchers.Main).launch {
+                if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
+                    Log.d("checkMenu", " 3 : pictureList.size = ${pictureList.size}")
                     binding.bestMainBtn.visibility = View.GONE
                     binding.blendingBtn.visibility = View.GONE
                     binding.magicBtn.visibility = View.GONE
