@@ -33,14 +33,14 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
     private lateinit var binding: FragmentFaceBlendingBinding
 
-    protected lateinit var imageToolModule: ImageToolModule
-    protected lateinit var faceDetectionModule: FaceDetectionModule
+    protected var imageToolModule: ImageToolModule = ImageToolModule()
+    protected var faceDetectionModule: FaceDetectionModule = FaceDetectionModule()
 
     protected lateinit var selectPicture: Picture
 
     private lateinit var originalSelectBitmap: Bitmap
     protected lateinit var selectBitmap: Bitmap
-    private var PreSelectBitmap: Bitmap? = null
+    private var preSelectBitmap: Bitmap? = null
     protected var newImage: Bitmap? = null
 
     protected var changeFaceStartX = 0
@@ -70,49 +70,81 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     }
 
     private enum class LoadingText {
-        FaceDetection,
         Save,
         Change,
         AutoBlending
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         bundle: Bundle?
     ): View {
-        // 상태바 색상 변경
-        val window: Window = activity?.window
-            ?: throw IllegalStateException("Fragment is not attached to an activity")
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-
         // 뷰 바인딩 설정
         binding = FragmentFaceBlendingBinding.inflate(inflater, container, false)
+        showProgressBar(true, LoadingText.AutoBlending)
+
+        settingFaceBlendingFragment()
+
+        setClickEvent()
+
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+            imageToolModule.showView(binding.arrowBar, false)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        faceDetectionModule.deleteModelCoroutine()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        faceDetectionModule.deleteModelCoroutine()
+    }
+
+
+    /**
+     *  변수를 초기화한다.
+     */
+    private fun settingFaceBlendingFragment() {
+        infoLevel.observe(viewLifecycleOwner) { _ ->
+            infoTextView()
+        }
 
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
-
-        imageToolModule = ImageToolModule()
-        faceDetectionModule = FaceDetectionModule()
-
-//        imageToolModule.showView(binding.progressBar, true)
-//        imageToolModule.showView(binding.loadingText, true)
-//        showProgressBar(true, LoadingText.FaceDetection)
-        showProgressBar(true, LoadingText.AutoBlending)
-        imageToolModule.showView(binding.blendingMenuLayout, false)
 
         while(!imageContent.checkPictureList) {}
 
         // main Picture의 byteArray를 bitmap 제작
         selectPicture = jpegViewModel.selectedSubImage!!
-        
+
         // 메인 이미지 임시 설정
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 Glide.with(binding.mainView)
                     .load(imageContent.getJpegBytes(selectPicture))
                     .into(binding.mainView)
+            }
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            // Blending 가능한 연속 사진 속성의 picture list 얻음
+            bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+
+            faceDetectionModule.allFaceDetection(bitmapList)
+            selectBitmap = faceDetectionModule.autoBestFaceChange(bitmapList, jpegViewModel.getSelectedSubImageIndex())
+
+            // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
+            setMainImageBoundingBox()
+            withContext(Dispatchers.Main) {
+                imageToolModule.fadeIn.start()
             }
         }
 
@@ -126,93 +158,22 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             originalSelectBitmap = selectBitmap
 
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            // Blending 가능한 연속 사진 속성의 picture list 얻음
-            Log.d("faceBlending", "newBitmapList call before")
-            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
-            Log.d("faceBlending", "newBitmapList $newBitmapList")
-            if (newBitmapList != null) {
-                bitmapList = newBitmapList
-
-                faceDetectionModule.allFaceDetection(bitmapList)
-
-                selectBitmap = faceDetectionModule.autoBestFaceChange(bitmapList, jpegViewModel.getSelectedSubImageIndex())
-                
-                // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-                setMainImageBoundingBox()
-                withContext(Dispatchers.Main) {
-                    imageToolModule.fadeIn.start()
-                }
-            }
-        }
-
         imageToolModule.settingAnimation(binding.successInfoConstraintLayout)
-
-        SetClickEvent()
-
-        return binding.root
     }
 
+    /**
+     * 이벤트 처리를 설정한다.
+     */
     @SuppressLint("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
-            imageToolModule.showView(binding.arrowBar, false)
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    fun SetClickEvent() {
+    private fun setClickEvent() {
         // save btn 클릭 시
         binding.blendingSaveBtn.setOnClickListener {
-
             CoroutineScope(Dispatchers.Main).launch {
                 imageToolModule.showView(binding.infoDialogLayout, false)
                 infoLevel.value = InfoLevel.EditFaceSelect
-            }
-
-            CoroutineScope(Dispatchers.Default).launch {
-
-//                imageToolModule.showView(binding.progressBar, true)
-//                imageToolModule.showView(binding.loadingText, true)
                 showProgressBar(true, LoadingText.Save)
-
-                if (PreSelectBitmap != null) {
-                    selectBitmap = PreSelectBitmap!!
-                    newImage = null
-                }
-
-                val allBytes = imageToolModule.bitmapToByteArray(
-                    selectBitmap,
-                    imageContent.getJpegBytes(selectPicture)
-                )
-
-                val selectIndex = jpegViewModel.getSelectedSubImageIndex() + 1
-
-                val app1Segment = imageContent.extractAPP1(allBytes)
-                val frame = async {
-                    imageContent.extractSOI(allBytes)
-                }
-                val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
-
-                imageContent.pictureList.add(selectIndex!!, picture)
-                picture.waitForByteArrayInitialized()
-
-                imageContent.addBitmapList(selectIndex, selectBitmap)
-                jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)
-
-                jpegViewModel.selectedSubImage = imageContent.pictureList[selectIndex]
-
-//                imageContent.setMainBitmap(selectBitmap)
-                withContext(Dispatchers.Main) {
-                    //jpegViewModel.jpegMCContainer.value?.save()
-                    imageContent.checkBlending = true
-                    findNavController().navigate(R.id.action_fregemnt_to_editFragment)
-                }
-
-//                imageToolModule.showView(binding.progressBar, false)
-                showProgressBar(false, null)
             }
+            saveNewImage()
         }
 
         // close btn 클릭 시
@@ -272,7 +233,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                 }
                 MotionEvent.ACTION_UP -> {
                     if (newImage != null)
-                        binding.mainView.setImageBitmap(PreSelectBitmap)
+                        binding.mainView.setImageBitmap(preSelectBitmap)
                     else
                         binding.mainView.setImageBitmap(selectBitmap)
                     return@setOnTouchListener true
@@ -288,7 +249,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             }
             binding.mainView.setImageBitmap(originalSelectBitmap)
             selectBitmap = originalSelectBitmap
-            PreSelectBitmap = null
+            preSelectBitmap = null
             newImage = null
         }
 
@@ -305,9 +266,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         }
 
         infoLevel.value = InfoLevel.EditFaceSelect
-        infoLevel.observe(viewLifecycleOwner) { _ ->
-            infoTextView()
-        }
 
         // 이미지 뷰 클릭 시
         binding.mainView.setOnTouchListener { _, event ->
@@ -317,8 +275,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                     showProgressBar(true, LoadingText.Change)
                     imageToolModule.showView(binding.blendingMenuLayout, false)
 
-//                    if (PreSelectBitmap != null) {
-//                        selectBitmap = PreSelectBitmap!!
+//                    if (preSelectBitmap != null) {
+//                        selectBitmap = preSelectBitmap!!
 //                        newImage = null
 //                    }
                     // click 좌표를 bitmap에 해당하는 좌표로 변환
@@ -355,10 +313,10 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         binding.faceSaveBtn.setOnClickListener {
             isSelected = false
 
-            if (PreSelectBitmap != null) {
-                selectBitmap = PreSelectBitmap!!
+            if (preSelectBitmap != null) {
+                selectBitmap = preSelectBitmap!!
                 newImage = null
-                PreSelectBitmap = null
+                preSelectBitmap = null
             }
 
             binding.mainView.setImageBitmap(selectBitmap)
@@ -372,7 +330,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             isSelected = false
 
             newImage = null
-            PreSelectBitmap = null
+            preSelectBitmap = null
 
             binding.mainView.setImageBitmap(selectBitmap)
             imageToolModule.showView(binding.faceBlendingMenuLayout, false)
@@ -383,10 +341,42 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     }
 
     /**
-     * setMainImageBoundingBox()
-     *      - mainImage를 faceDetection 실행 후,
-     *        감지된 얼굴의 사각형 표시된 사진으로 imageView 변환
-     *
+     * 이미지를 저장한다.
+     */
+    private fun saveNewImage() {
+        CoroutineScope(Dispatchers.Default).launch {
+            if (preSelectBitmap != null) {
+                selectBitmap = preSelectBitmap!!
+                newImage = null
+            }
+            val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
+
+            val selectIndex = jpegViewModel.getSelectedSubImageIndex() + 1
+
+            val app1Segment = imageContent.extractAPP1(allBytes)
+            val frame = async {
+                imageContent.extractSOI(allBytes)
+            }
+            val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
+
+            imageContent.pictureList.add(selectIndex, picture)
+            picture.waitForByteArrayInitialized()
+
+            imageContent.addBitmapList(selectIndex, selectBitmap)
+            jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)
+
+            jpegViewModel.selectedSubImage = imageContent.pictureList[selectIndex]
+
+            withContext(Dispatchers.Main) {
+                imageContent.checkBlending = true
+                findNavController().navigate(R.id.action_fregemnt_to_editFragment)
+            }
+//            showProgressBar(false, null)
+        }
+    }
+
+    /**
+     * 선택된 이미지로 얼굴 감지 모델 실행 후, 감지된 얼굴이 표시한 후 화면에 출력한다.
      */
     open fun setMainImageBoundingBox() {
 
@@ -399,7 +389,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             }
         }
 
-        //showView(binding.faceListView, false)
         imageToolModule.showView(binding.arrowBar, false)
         if (!binding.candidateLayout.isEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
@@ -411,8 +400,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
-            val faceResult = faceDetectionModule.runFaceDetection(0)
-//            val faceResult = FaceDetectionModule.runMainFaceDetection(selectBitmap)
+            val faceResult = faceDetectionModule.getFaces(jpegViewModel.getSelectedSubImageIndex())
             Log.d("checkPictureList", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
             if (faceResult.size == 0) {
@@ -420,7 +408,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                     try {
                     Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                         .show()
-//                        imageToolModule.showView(binding.progressBar, false)
                         showProgressBar(false, null)
                         imageToolModule.showView(binding.blendingMenuLayout, true)
                     } catch (e: IllegalStateException) {
@@ -449,10 +436,11 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     }
 
     /**
-     * getBoundingBox(touchPoint: Point): ArrayList<List<Int>>
-     *     - click된 포인트를 알려주면,
-     *       해당 포인트가 객체 감지 결과 bounding Box 속에 존재하는지 찾아서
-     *       만약 포인트를 포함하는 boundingBox를 찾으면 모아 return
+     * 터치된 좌표가 객체 감지 결과 중 객체 위치 정보(bounding Box) 속에 포함되는지 알아낸 후,
+     * 터치 좌표가 포함되는 boundingBox를 모아 리스트로 반환한다.
+     *
+     * @param touchPoint 터치된 좌표
+     * @return 터치 좌표가 포함되는 boundingBox를 모아 리스트로 반환
      */
     suspend fun getBoundingBox(touchPoint: Point): ArrayList<ArrayList<Int>> = suspendCoroutine { box ->
         val boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
@@ -471,7 +459,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             }
 
             val basicRect =
-                faceDetectionModule.getClickPointBoundingBox(bitmapList[0], 0, touchPoint)
+                faceDetectionModule.getClickPointBoundingBox(0, touchPoint)
 
             if (basicRect == null) {
                 withContext(Dispatchers.Main) {
@@ -510,7 +498,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 //                    CoroutineScope(Dispatchers.Default).launch {
                         // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
                         val rect =
-                            faceDetectionModule.getClickPointBoundingBox(bitmapList[i], i, touchPoint)
+                            faceDetectionModule.getClickPointBoundingBox( i, touchPoint)
 
                         if (rect != null) {
                             val arrayBounding = arrayListOf(
@@ -530,12 +518,10 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         }
     }
 
-
     /**
-     *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
-     *         - 이미지를 자르고 화면에 띄어줌
+     * 자를 위치정보에 맞게 이미지를 자르고 화면에 띄어준다.
      *
-     *        @param boundingBox 이미지 위치 정보
+     * @param boundingBox 자를 위치 정보
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
 
@@ -543,7 +529,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         imageToolModule.showView(binding.blendingSaveBtn, false)
         imageToolModule.showView(binding.blendingCloseBtn, false)
         isSelected = true
-        changeMainView(selectBitmap)
+        changeSelectedView(selectBitmap)
 
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
@@ -564,9 +550,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
             // bitmap를 자르기
             val cropImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]],
-                //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
-                Rect(rect[1], rect[2], rect[3], rect[4])
+                bitmapList[rect[0]], Rect(rect[1], rect[2], rect[3], rect[4])
             )
 
             try {
@@ -585,7 +569,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                         mainSubView?.background = null
                         mainSubView?.setPadding(0)
 
-
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
                         //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
@@ -596,16 +579,16 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                     // 크롭이미지 배열에 값 추가
                     cropBitmapList.add(newImage!!)
 
-                    PreSelectBitmap = imageToolModule.overlayBitmap(
+                    preSelectBitmap = imageToolModule.overlayBitmap(
                         selectBitmap,
                         newImage!!,
                         changeFaceStartX,
                         changeFaceStartY
                     )
 
-//                    binding.mainView.setImageBitmap(PreSelectBitmap)
-                    if(PreSelectBitmap != null)
-                        changeMainView(PreSelectBitmap!!)
+//                    binding.mainView.setImageBitmap(preSelectBitmap)
+                    if(preSelectBitmap != null)
+                        changeSelectedView(preSelectBitmap!!)
 
                     mainSubView = cropImageView
                     mainSubView?.setBackgroundResource(R.drawable.chosen_image_border)
@@ -621,12 +604,17 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                 println(e.message)
             }
         }
-//        imageToolModule.showView(binding.progressBar , false)
         showProgressBar(false, null)
         imageToolModule.showView(binding.arrowBar, false)
         infoLevel.value = InfoLevel.ChangeFaceSelect
     }
 
+    /**
+     * 잘라진 이미지를 x, y 만큼 이동한다.
+     *
+     * @param moveX 이동 할 x 값
+     * @param moveY 이동 할 y 값
+     */
     private fun moveCropFace(moveX:Int, moveY:Int) {
         if(infoLevel.value != InfoLevel.BasicLevelEnd)
             infoLevel.value = InfoLevel.BasicLevelEnd
@@ -646,17 +634,20 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                 changeFaceStartY = selectBitmap.height - newImage!!.height
 
             println("==== change point (${changeFaceStartX}, ${changeFaceStartY})")
-            PreSelectBitmap = imageToolModule.overlayBitmap(
+            preSelectBitmap = imageToolModule.overlayBitmap(
                 selectBitmap,
                 newImage!!,
                 changeFaceStartX,
                 changeFaceStartY
             )
 
-            binding.mainView.setImageBitmap(PreSelectBitmap)
+            binding.mainView.setImageBitmap(preSelectBitmap)
         }
     }
 
+    /**
+     * 도움말을 알맞게 띄운다.
+     */
     open fun infoTextView() {
         Log.d("infoTextView","infoTextView call")
         when (infoLevel.value) {
@@ -676,13 +667,24 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         }
     }
 
-    open fun changeMainView(bitmap: Bitmap) {
+    /**
+     * 선택한 이미지임을 표시한다.
+     *
+     * @param bitmap 선택한 이미지
+     */
+    open fun changeSelectedView(bitmap: Bitmap) {
         if(selectFaceRect != null) {
             val newBitmap = imageToolModule.drawDetectionResult(bitmap, selectFaceRect!!.toRectF(), requireContext().resources.getColor(R.color.select_face))
             binding.mainView.setImageBitmap(newBitmap)
         }
     }
 
+    /**
+     * 로딩바를 설정한다.
+     *
+     * @param boolean 로딩바 보여줄지 여부
+     * @param loadingText 로딩과 함께 보여질 텍스트
+     */
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
         setEnable(!boolean)
 
@@ -695,9 +697,6 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
         CoroutineScope(Dispatchers.Main).launch {
             binding.loadingText.text = when (loadingText) {
-//                LoadingText.FaceDetection -> {
-//                    "자동 Face Blending 중"
-//                }
                 LoadingText.Save -> {
                     "편집 저장 중.."
                 }
@@ -714,16 +713,11 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         imageToolModule.showView(binding.loadingText, boolean)
     }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        faceDetectionModule.deleteModelCoroutine()
-    }
-    override fun onStop() {
-        super.onStop()
-        faceDetectionModule.deleteModelCoroutine()
-    }
-
+    /**
+     * 버튼들의 터치 가능 여부를 조정한다.
+     *
+     * @param boolean 터치 가능 여부
+     */
     private fun setEnable(boolean: Boolean) {
         CoroutineScope(Dispatchers.Main).launch {
             binding.blendingCloseBtn.isEnabled = boolean

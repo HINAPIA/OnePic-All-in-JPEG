@@ -22,18 +22,17 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import com.bumptech.glide.Glide
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2Module
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentCameraBinding
 import kotlinx.coroutines.*
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -60,14 +59,16 @@ class CameraFragment : Fragment() {
     private lateinit var imageContent: ImageContent
     private lateinit var imageToolModule: ImageToolModule
 
+    // 카메라로 촬영된 이미지들
     var previewByteArrayList = MutableLiveData<ArrayList<ByteArray>>(arrayListOf())
 
+    // 이미지가 저장됬는지 확인
     var isSaved = MutableLiveData<Uri>()
-    var saveByteArray = MutableLiveData<ByteArray>()
 
     private var PICTURE_SIZE = 1
     private var BURST_SIZE = 3
 
+    // 어떤 모드로 촬영됬는지 (저장할 때 사용)
     private var contentAttribute = ContentAttribute.basic
 
     override fun onAttach(context: Context) {
@@ -77,10 +78,7 @@ class CameraFragment : Fragment() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // 상태바 색상 변경
         val window: Window = activity.window
             ?: throw IllegalStateException("Fragment is not attached to an activity")
@@ -89,55 +87,13 @@ class CameraFragment : Fragment() {
 
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 
+        // 촬영된 이미지가 추가됬을 때 호출
         previewByteArrayList.observe(viewLifecycleOwner) {
-            var isObjectPictureClear = false
-            if(binding.objectFocusRadioBtn.isChecked) {
-                val objectDetectionModule = camera2Module.objectDetectionModule
-
-                if(it.size >= objectDetectionModule.getDetectionSize()) {
-                    isObjectPictureClear = true
-                }
-            }
-            if(it.size >= PICTURE_SIZE || isObjectPictureClear) {
-                mediaPlayer.start()
-                rotation.cancel()
-
-                // 저장 중 화면
-                imageToolModule.showView(binding.loadingLayout, true)
-
-                // 한 장일 경우 저장
-                if (binding.basicRadioBtn.isChecked) {
-                    saveJPEG()
-                }
-                // 여러 장일 경우 저장
-                else {
-                    saveAllinJPEG()
-                }
-            }
+            imageByteArrayUpdate()
         }
 
         isSaved.observe(viewLifecycleOwner) {
-            if (it != null) {
-                CoroutineScope(Dispatchers.Main).launch {
-//                    binding.testView.setImageURI(it)
-
-                    binding.shutterBtn.isEnabled = true
-                    binding.galleryBtn.isEnabled = true
-                    binding.convertBtn.isEnabled = true
-                    binding.basicRadioBtn.isEnabled = true
-                    binding.burstRadioBtn.isEnabled = true
-                    binding.objectFocusRadioBtn.isEnabled = true
-                    binding.distanceFocusRadioBtn.isEnabled = true
-
-                    imageToolModule.showView(binding.loadingLayout, false)
-
-                    binding.successInfoTextView.text = getText(R.string.camera_success_info)
-                    imageToolModule.showView(binding.successInfoConstraintLayout, true)
-
-                    imageToolModule.fadeIn.start()
-//                    rotation.cancel()
-                }
-            }
+            imageSaved()
         }
 
         return binding.root
@@ -148,51 +104,19 @@ class CameraFragment : Fragment() {
 
         // 카메라 프레그먼트 세팅
         settingCameraFragment()
-
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
 
-        // 앱을 나갔다와도 변수 값 기억하게 하는 SharedPreference
-        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-        /**
-         * lensFacing : 카메라 렌즈 전면 / 후면
-         * selectedRadioIndex : 선택된 카메라 촬영 모드
-         * BURST_SIZE : 연속 촬영 장 수
-         */
-        val newLensFacing = sharedPref?.getInt("lensFacing", CameraCharacteristics.LENS_FACING_BACK)
-        if(newLensFacing != null) {
-            camera2Module.wantCameraDirection = newLensFacing
-        }
-        selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", binding.basicRadioBtn.id)
-        BURST_SIZE = sharedPref?.getInt("selectedBurstSize", BURST_SIZE)!!
+        // preference에 저장된 설정 값 가져오기
+       getPreferences()
 
         // 카메라 시작하기
         camera2Module.startCamera()
 
-        /**
-         * 앱을 나갔다 들어와도 촬영 모드 기억하기
-         *      - 카메라 모드에 따른 UI 적용
-         */
-        if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
-            settingChangeRadioButton(selectedRadioIndex!!)
-        }
-
-        // burst size 기억하기
-        if (BURST_SIZE >= 0 && selectedRadioIndex == binding.burstRadioBtn.id) {
-            updateBurstSize()
-        }
-
-        /**
-         * radioGroup.setOnCheckedChangeListener
-         *      - 촬영 모드 선택(라디오 버튼)했을 때 UI 변경
-         */
-        binding.modeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            settingChangeRadioButton(checkedId)
-        }
-
+        // burst size 버튼 리스너 등록
         binding.burstSizeSettingRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             setBusrtSize(checkedId)
         }
@@ -201,6 +125,7 @@ class CameraFragment : Fragment() {
         binding.textureView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    // 터치된 곳으로 초점 변경
                     camera2Module.setTouchPointDistanceChange(event.x, event.y, 150, 150)
                     return@setOnTouchListener true
                 }
@@ -210,84 +135,7 @@ class CameraFragment : Fragment() {
 
         // shutter Btn 클릭
         binding.shutterBtn.setOnClickListener {
-
-            System.gc()
-            rotation.start()
-            binding.shutterBtn.isEnabled = false
-            binding.galleryBtn.isEnabled = false
-            binding.convertBtn.isEnabled = false
-            binding.basicRadioBtn.isEnabled = false
-            binding.burstRadioBtn.isEnabled = false
-            binding.objectFocusRadioBtn.isEnabled = false
-            binding.distanceFocusRadioBtn.isEnabled = false
-
-            // previewByteArrayList 초기화
-            previewByteArrayList.value?.clear()
-
-            /**
-             * Basic 모드
-             */
-            if (binding.basicRadioBtn.isChecked) {
-                PICTURE_SIZE = 1
-                contentAttribute = ContentAttribute.basic
-                camera2Module.lockFocus(PICTURE_SIZE)
-            }
-
-            /**
-             * Burst 모드
-             */
-            if (binding.burstRadioBtn.isChecked) {
-                audioResolver.startRecording("camera_record")
-
-                contentAttribute = ContentAttribute.burst
-                PICTURE_SIZE = BURST_SIZE
-                camera2Module.lockFocus(BURST_SIZE)
-            }
-
-            /**
-             * ObjectFocus 모드 (아무것도 잡힌게 없을 때 처리 해줘야 함)
-             */
-            if (binding.objectFocusRadioBtn.isChecked) {
-                Log.d("detectionResult", "1. shutter click")
-                audioResolver.startRecording("camera_record")
-
-                PICTURE_SIZE = camera2Module.objectDetectionModule.getDetectionSize()
-                if (PICTURE_SIZE > 0) {
-                    contentAttribute = ContentAttribute.object_focus
-                    imageToolModule.showView(binding.objectWarningConstraintLayout, true)
-                    camera2Module.focusDetectionPictures()
-                } else {
-                    camera2Module.objectDetectionModule.resetDetectionResult()
-                    CoroutineScope(Dispatchers.Main).launch {
-                        binding.shutterBtn.isEnabled = true
-                        binding.galleryBtn.isEnabled = true
-                        binding.convertBtn.isEnabled = true
-                        binding.basicRadioBtn.isEnabled = true
-                        binding.burstRadioBtn.isEnabled = true
-                        binding.objectFocusRadioBtn.isEnabled = true
-                        binding.distanceFocusRadioBtn.isEnabled = true
-
-                        binding.successInfoTextView.text =
-                            getText(R.string.camera_object_detection_failed)
-                        binding.successInfoConstraintLayout.visibility = View.VISIBLE
-
-                        imageToolModule.fadeIn.start()
-                        rotation.cancel()
-                    }
-                }
-            }
-
-            /**
-             * DistanceFocus 모드
-             */
-            if (binding.distanceFocusRadioBtn.isChecked) {
-                audioResolver.startRecording("camera_record")
-
-                PICTURE_SIZE = 10
-                contentAttribute = ContentAttribute.distance_focus
-                camera2Module.distanceFocusPictures(PICTURE_SIZE)
-            }
-//            }
+            shutterBtnClicked()
         }
     }
 
@@ -296,20 +144,14 @@ class CameraFragment : Fragment() {
         super.onPause()
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-        with(sharedPref?.edit()) {
-            this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
-            this?.putInt("lensFacing", camera2Module.wantCameraDirection)
-            this?.putInt("selectedBurstSize", BURST_SIZE)
-            this?.apply()
-        }
+        setPreferences()
 
         // 카메라 멈추기
         camera2Module.closeCamera()
     }
 
     /**
-     * CameraFragment에서 필요한 변수 설정 및 이벤트 처리 설정
+     * 필요한 변수 설정 및 이벤트 처리를 설정한다.
      */
     private fun settingCameraFragment() {
         // Camera2 모듈 생성
@@ -357,11 +199,7 @@ class CameraFragment : Fragment() {
             }
 
             // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-            val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-            with(sharedPref?.edit()) {
-                this?.putInt("lensFacing", camera2Module.wantCameraDirection)
-                this?.apply()
-            }
+            setPreferences()
 
             camera2Module.closeCamera()
             camera2Module.startCamera()
@@ -379,6 +217,116 @@ class CameraFragment : Fragment() {
             activity.supportFragmentManager.beginTransaction().addToBackStack(null).commit()
 
             startActivity(intent)
+        }
+    }
+
+    /**
+     * [previewByteArrayList]가 업데이트될 때 호출되는 함수로,
+     * 현재 [previewByteArrayList]의 개수가 촬영해야할 개수를 충족했으면, 촬영된 이미지를 한 장으로 저장한다.
+     */
+    private fun imageByteArrayUpdate() {
+        val byteArrays = previewByteArrayList.value!!
+
+        var isObjectPictureClear = false
+        // 현재 객체별 다초점 촬영일 경우
+        if(binding.objectFocusRadioBtn.isChecked) {
+            // 현재 촬영된 사진이 감지된 객체 수보다 많거나 같을 경우 촬영 완료 상태로 설정
+            val objectDetectionModule = camera2Module.objectDetectionModule
+            if(byteArrays.size >= objectDetectionModule.getDetectionSize()) {
+                isObjectPictureClear = true
+            }
+        }
+
+        //  촬영해야할 개수를 충족 확인
+        if(byteArrays.size >= PICTURE_SIZE || isObjectPictureClear) {
+            mediaPlayer.start()
+            rotation.cancel()
+
+            // 저장 중 화면
+            imageToolModule.showView(binding.loadingLayout, true)
+
+            // 한 장일 경우 저장
+            if (binding.basicRadioBtn.isChecked) saveJPEG()
+            // 여러 장일 경우 저장
+            else saveAllinJPEG()
+        }
+    }
+
+    /**
+     * 이미지 저장이 완료됬을 때 호출되는 함수로, 촬영으로 인해 막아놨던 버튼들을 활성화 및 화면 설정을 한다.
+     */
+    private fun imageSaved() {
+        val uri = isSaved.value
+        if (uri != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+
+                binding.shutterBtn.isEnabled = true
+                binding.galleryBtn.isEnabled = true
+                binding.convertBtn.isEnabled = true
+                binding.basicRadioBtn.isEnabled = true
+                binding.burst1RadioBtn.isEnabled = true
+                binding.burst2RadioBtn.isEnabled = true
+                binding.burst3RadioBtn.isEnabled = true
+                binding.burstRadioBtn.isEnabled = true
+                binding.objectFocusRadioBtn.isEnabled = true
+                binding.distanceFocusRadioBtn.isEnabled = true
+
+                imageToolModule.showView(binding.loadingLayout, false)
+
+                binding.successInfoTextView.text = getText(R.string.camera_success_info)
+                imageToolModule.showView(binding.successInfoConstraintLayout, true)
+
+                imageToolModule.fadeIn.start()
+            }
+        }
+    }
+
+    /**
+     * 앱을 나갔다와도 변수 값을 기억하는 SharedPreference를 얻어와 촬영 상태를 설정한다.
+     *
+     * lensFacing : 카메라 렌즈 전면 / 후면
+     * selectedRadioIndex : 선택된 카메라 촬영 모드
+     * BURST_SIZE : 연속 촬영 장 수
+     */
+    private fun getPreferences() {
+        // 앱을 나갔다와도 변수 값 기억하게 하는 SharedPreference
+        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+
+        val newLensFacing = sharedPref?.getInt("lensFacing", CameraCharacteristics.LENS_FACING_BACK)
+        if(newLensFacing != null) {
+            camera2Module.wantCameraDirection = newLensFacing
+        }
+        selectedRadioIndex = sharedPref?.getInt("selectedRadioIndex", binding.basicRadioBtn.id)
+        BURST_SIZE = sharedPref?.getInt("selectedBurstSize", BURST_SIZE)!!
+
+        // 앱을 나갔다 들어와도 촬영 모드 기억하기 - 카메라 모드에 따른 UI 적용
+        if (selectedRadioIndex != null && selectedRadioIndex!! >= 0) {
+            settingChangeRadioButton(selectedRadioIndex!!)
+        }
+
+        // burst size 기억하기
+        if (BURST_SIZE >= 0 && selectedRadioIndex == binding.burstRadioBtn.id) {
+            updateBurstSize()
+        }
+
+        // radioGroup.setOnCheckedChangeListener - 촬영 모드 선택(라디오 버튼)했을 때 UI 변경
+        binding.modeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            settingChangeRadioButton(checkedId)
+        }
+    }
+
+    /**
+     * SharedPreference으로 촬영 상태를 기록한다.
+     * SharedPreference 설정으로 앱을 나갔다왔을 때 동일한 촬영 상태가 되도록한다.
+     */
+    private fun setPreferences() {
+        // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
+        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+        with(sharedPref?.edit()) {
+            this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
+            this?.putInt("lensFacing", camera2Module.wantCameraDirection)
+            this?.putInt("selectedBurstSize", BURST_SIZE)
+            this?.apply()
         }
     }
 
@@ -478,20 +426,103 @@ class CameraFragment : Fragment() {
         }
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-        with(sharedPref?.edit()) {
-            this?.putInt("selectedRadioIndex", selectedRadioIndex!!)
-            this?.apply()
-        }
+        setPreferences()
 
     }
 
     /**
-     * All-in JPEG으로 저장
-     */
-    /**
-     * 현재 전역 변수
+     * 촬영 버튼을 클릭하면 호출되는 함수로, 현재 모드에 맞는 촬영을 실행한다.
      *
+     * 일반 촬영 : 한 장의 사진 촬영
+     * 연속 촬영 : 3, 5, 7장의 연속 사진 촬영
+     * 객체별 다초점 촬영 : 카메라 프리뷰에 감지된 객체별로 초점이 맞게 사진 촬영
+     * 거리별 다초점 촬영 : 0부터 N까지 10개의 초점 거리에 맞는 10장의 연속 사진 촬영
+     *
+     */
+    private fun shutterBtnClicked() {
+        System.gc()
+        rotation.start()
+        binding.shutterBtn.isEnabled = false
+        binding.galleryBtn.isEnabled = false
+        binding.convertBtn.isEnabled = false
+        binding.basicRadioBtn.isEnabled = false
+        binding.burstRadioBtn.isEnabled = false
+        binding.burst1RadioBtn.isEnabled = false
+        binding.burst2RadioBtn.isEnabled = false
+        binding.burst3RadioBtn.isEnabled = false
+        binding.objectFocusRadioBtn.isEnabled = false
+        binding.distanceFocusRadioBtn.isEnabled = false
+
+        // previewByteArrayList 초기화
+        previewByteArrayList.value?.clear()
+
+        /**
+         * 일반 모드
+         */
+        if (binding.basicRadioBtn.isChecked) {
+            PICTURE_SIZE = 1
+            contentAttribute = ContentAttribute.basic
+            camera2Module.lockFocus(PICTURE_SIZE)
+        }
+
+        /**
+         * 연속 모드
+         */
+        if (binding.burstRadioBtn.isChecked) {
+            audioResolver.startRecording("camera_record")
+
+            contentAttribute = ContentAttribute.burst
+            PICTURE_SIZE = BURST_SIZE
+            camera2Module.lockFocus(BURST_SIZE)
+        }
+
+        /**
+         * 객체별 다초점 모드
+         */
+        if (binding.objectFocusRadioBtn.isChecked) {
+            Log.d("detectionResult", "1. shutter click")
+            audioResolver.startRecording("camera_record")
+
+            PICTURE_SIZE = camera2Module.objectDetectionModule.getDetectionSize()
+            if (PICTURE_SIZE > 0) {
+                contentAttribute = ContentAttribute.object_focus
+                imageToolModule.showView(binding.objectWarningConstraintLayout, true)
+                camera2Module.focusObjectDetectionPictures()
+            } else {
+                camera2Module.objectDetectionModule.resetDetectionResult()
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.shutterBtn.isEnabled = true
+                    binding.galleryBtn.isEnabled = true
+                    binding.convertBtn.isEnabled = true
+                    binding.basicRadioBtn.isEnabled = true
+                    binding.burstRadioBtn.isEnabled = true
+                    binding.objectFocusRadioBtn.isEnabled = true
+                    binding.distanceFocusRadioBtn.isEnabled = true
+
+                    binding.successInfoTextView.text =
+                        getText(R.string.camera_object_detection_failed)
+                    binding.successInfoConstraintLayout.visibility = View.VISIBLE
+
+                    imageToolModule.fadeIn.start()
+                    rotation.cancel()
+                }
+            }
+        }
+
+        /**
+         * 거리별 다초점 촬영 모드
+         */
+        if (binding.distanceFocusRadioBtn.isChecked) {
+            audioResolver.startRecording("camera_record")
+
+            PICTURE_SIZE = 10
+            contentAttribute = ContentAttribute.distance_focus
+            camera2Module.distanceFocusPictures(PICTURE_SIZE)
+        }
+    }
+
+    /**
+     * All-in JPEG으로 저장
      */
     private fun saveAllinJPEG() {
         CoroutineScope(Dispatchers.Default).launch {
@@ -501,7 +532,7 @@ class CameraFragment : Fragment() {
                 if (savedFile != null) {
                     val audioBytes = audioResolver.getByteArrayInFile(savedFile)
                     jpegViewModel.jpegAiContainer.value!!.setAudioContent(audioBytes, contentAttribute)
-                    Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size.toString()}")
+                    Log.d("AudioModule", "녹음된 오디오 사이즈 : ${audioBytes.size}")
                 }
 
                 //  renew ImageContent
@@ -522,7 +553,18 @@ class CameraFragment : Fragment() {
                     val pictureList = jpegViewModel.jpegAiContainer.value!!.imageContent.pictureList
 
                     for (i in 0 until pictureList.size) {
-                        val boundingBox = detectionResult[i].boundingBox
+                        var boundingBox = detectionResult[i].boundingBox
+
+                        // 전면 카메라일 경우 객체 위치 좌우반전
+                        if(camera2Module.wantCameraDirection == 0) {
+
+                            val left = objectDetectionModule.bitmapWidth - boundingBox.right
+                            val right = objectDetectionModule.bitmapWidth - boundingBox.left
+
+                            boundingBox = RectF(left, boundingBox.top, right, boundingBox.bottom)
+
+                            Log.d("전면" , "객체 좌우반전")
+                        }
                         pictureList[i].insertEmbeddedData(
                             arrayListOf(
                                 objectDetectionModule.bitmapWidth,
@@ -593,6 +635,7 @@ class CameraFragment : Fragment() {
         }
     }
 
+    // 텍스트뷰 텍스트 설정
     fun setText(textView: TextView, string: String) {
         CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Main) {
@@ -601,6 +644,7 @@ class CameraFragment : Fragment() {
         }
     }
 
+    // 연속 촬영 개수에 따른 변수 및 텍스트 설정
     fun setBusrtSize(checkedId: Int) {
         when (checkedId) {
             binding.burst1RadioBtn.id -> {
@@ -618,13 +662,10 @@ class CameraFragment : Fragment() {
         }
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-        with(sharedPref?.edit()) {
-            this?.putInt("selectedBurstSize", BURST_SIZE)
-            this?.apply()
-        }
+        setPreferences()
     }
 
+    // 연속 촬영 개수 설정
     fun updateBurstSize() {
         when (BURST_SIZE) {
             BURST_OPTION1 -> {
@@ -640,16 +681,6 @@ class CameraFragment : Fragment() {
                 setText(binding.infoTextView, resources.getString(R.string.burst3_info))
             }
         }
-    }
-
-    fun getStatusBarHeightDP(context: Context): Int {
-        var result = 0
-        val resourceId: Int =
-            context.resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0) {
-            result = context.resources.getDimension(resourceId).toInt()
-        }
-        return result
     }
 
     companion object {

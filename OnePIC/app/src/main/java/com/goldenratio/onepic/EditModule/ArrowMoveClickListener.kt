@@ -24,12 +24,6 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
     private val checkPointF: PointF
 
     init {
-//        minX = -(maxView.width/2).toFloat()
-//        minY = -(maxView.height/2).toFloat()
-
-//        maxX = (maxView.width/2).toFloat()
-//        maxY = (maxView.height/2).toFloat()
-
         minX = -(maxView.width/2 - (view.width/2)).toFloat()
         minY = -(maxView.height/2 - (view.height/2)).toFloat()
 
@@ -39,9 +33,11 @@ class ArrowMoveClickListener(private val myFunction: (x: Int, y: Int) -> Unit, m
         checkPointF = PointF(view.x+(view.width/2), view.y+(view.height/2))
         basicPointF = PointF(view.x, view.y)
         println("=========== point(${view.x}, ${view.y}) - point(${maxView.x},${maxView.y})  ")
-
     }
 
+    /**
+     * 바가 움직여진 좌표에 맞추서 합성한 이미지 움직이기.
+     */
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action) {

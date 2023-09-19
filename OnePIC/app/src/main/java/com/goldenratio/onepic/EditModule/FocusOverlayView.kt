@@ -9,26 +9,15 @@ import com.goldenratio.onepic.R
 
 class FocusOverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
-    private val boundingBoxList : ArrayList<ArrayList<Int>> = ArrayList<ArrayList<Int>>()
+    private val boundingBoxList : ArrayList<ArrayList<Int>> = ArrayList()
 
+    /**
+     * 초점 변경시, 초점 변경 할 수 있는 객체를 캔버스에 그려 표시한다.
+     *
+     * @param canvas 객체를 그릴 캔버스
+     */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        // ImageView의 크기에 맞게 Rect 좌표를 조정하여 그립니다.
-//        val imageWidth = width
-//        val imageHeight = height
-//        val paint = Paint()
-//        paint.color = Color.RED
-//        paint.style = Paint.Style.STROKE
-//        paint.strokeWidth = 5f
-
-//        for (rect in boundingBoxList) {
-//            val rectLeft = rect.left * imageWidth / 100f
-//            val rectTop = rect.top * imageHeight / 100f
-//            val rectRight = rect.right * imageWidth / 100f
-//            val rectBottom = rect.bottom * imageHeight / 100f
-//            canvas.drawRect(rectLeft, rectTop, rectRight, rectBottom, paint)
-//        }
 
         val pen = Paint()
 
@@ -37,11 +26,6 @@ class FocusOverlayView(context: Context?, attrs: AttributeSet?) : View(context, 
         var lineLength = 130f
 
         for(box in boundingBoxList){
-//            val top = box.top.toFloat()
-//            val bottom = box.bottom.toFloat()
-//            val left = box.left.toFloat()
-//            val right = box.right.toFloat()
-
             val left = box[0].toFloat()
             val top = box[1].toFloat()
             val right = box[2].toFloat()
@@ -106,11 +90,5 @@ class FocusOverlayView(context: Context?, attrs: AttributeSet?) : View(context, 
             path.close()
         }
 
-    }
-
-    fun setBoundingBoxList(boundingBoxList: ArrayList<ArrayList<Int>>) {
-        this.boundingBoxList.clear()
-        this.boundingBoxList.addAll(boundingBoxList)
-        invalidate()
     }
 }

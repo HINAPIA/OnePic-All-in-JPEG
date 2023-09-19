@@ -1,7 +1,6 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.*
 import android.os.Bundle
 import android.os.Handler
@@ -10,15 +9,12 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.goldenratio.onepic.EditModule.ArrowMoveClickListener
-import com.goldenratio.onepic.EditModule.FaceDetectionModule
-import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.R
@@ -43,8 +39,6 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
     var pictureList: ArrayList<Picture> = arrayListOf()
 
-    private lateinit var context: Context
-
     private var infoLevel = MutableLiveData(InfoLevel.EditFaceSelect)
 
     private var touchEvent: PointF = PointF(0f,0f)
@@ -63,33 +57,36 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // 상태바 색상 변경
-        val window: Window = activity?.window
-            ?: throw IllegalStateException("Fragment is not attached to an activity")
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.statusBarColor = ContextCompat.getColor(requireContext(), android.R.color.black)
-
-        context = requireContext()
-
         // 뷰 바인딩 설정
         binding = FragmentMagicPictureBinding.inflate(inflater, container, false)
+        showProgressBar(true, LoadingText.FaceDetection)
 
+        settingMagicPictureFragment()
+
+        setClickEvent()
+
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.post {
+            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+        }
+    }
+
+    /**
+     *  변수를 초기화한다.
+     */
+    private fun settingMagicPictureFragment() {
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
-
-        imageToolModule = ImageToolModule()
-        faceDetectionModule = FaceDetectionModule()
 
         while (!imageContent.checkPictureList) {}
 
         // magic 가능한 연속 사진 속성의 picture list 얻음
-        pictureList =
-            jpegViewModel.jpegAiContainer.value!!.getPictureList(ContentAttribute.burst)
-
-//        imageToolModule.showView(binding.progressBar, true)
-        showProgressBar(true, LoadingText.FaceDetection)
+        pictureList = jpegViewModel.jpegAiContainer.value!!.getPictureList(ContentAttribute.burst)
 
         // main Picture의 byteArray를 bitmap 제작
         selectPicture = imageContent.pictureList[jpegViewModel.getSelectedSubImageIndex()]
@@ -105,82 +102,25 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             // blending 가능한 연속 사진 속성의 picture list 얻음
-            val newBitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            selectBitmap = bitmapList[jpegViewModel.getSelectedSubImageIndex()]
 
-            if (newBitmapList != null) {
-                val newSelectBitmap = newBitmapList[jpegViewModel.getSelectedSubImageIndex()]
-                if (newSelectBitmap != null) {
-                    selectBitmap = newSelectBitmap
-                }
-                bitmapList = newBitmapList
+            faceDetectionModule.allFaceDetection(bitmapList)
 
-                faceDetectionModule.allFaceDetection(bitmapList)
-
+            withContext(Dispatchers.Main) {
                 // faceDetection 하고 결과가 표시된 사진을 받아 imaveView에 띄우기
                 setMainImageBoundingBox()
             }
         }
+    }
+
+    /**
+     * 이벤트 처리를 설정한다.
+     */
+    private fun setClickEvent() {
         // save btn 클릭 시
         binding.magicSaveBtn.setOnClickListener {
-
-            CoroutineScope(Dispatchers.IO).launch {
-//                imageToolModule.showView(binding.progressBar , true)
-                showProgressBar(true, LoadingText.Save)
-//                val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
-
-                for(i in 0 until pictureList.size) {
-                    pictureList[i].embeddedData?.clear()
-                    pictureList[i].embeddedSize = 0
-                }
-
-                // EmbeddedData 추가
-                val indices = intArrayOf(5, 6, 7, 8) // 추출할 배열의 인덱스
-
-                if (boundingBox.size > 0) {
-                    val mainBoundingBox: ArrayList<Int> =
-                        boundingBox[0].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
-
-                    mainBoundingBox.add(changeFaceStartX)
-                    mainBoundingBox.add(changeFaceStartY)
-
-                    if(boundingBox.size > 0 && boundingBox[0].size > 0 && pictureList.size > boundingBox[0][0]) {
-                        pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
-                    }
-                    for(i in 0 until pictureList.size) {
-                        if(pictureList[i].contentAttribute == ContentAttribute.magic) {
-                            pictureList[i].contentAttribute = ContentAttribute.burst
-                        }
-                    }
-                    jpegViewModel.selectedSubImage?.contentAttribute = ContentAttribute.magic
-
-                    for (i in 1 until boundingBox.size) {
-//                        pictureList[boundingBox[i][0]].insertEmbeddedData(
-//                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>)
-
-                        val addBoundingBox: ArrayList<Int> =
-                            boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
-
-                        addBoundingBox.add(changeFaceStartX)
-                        addBoundingBox.add(changeFaceStartY)
-
-                        if(pictureList.size > boundingBox[i][0]) {
-                            pictureList[boundingBox[i][0]].insertEmbeddedData(addBoundingBox)
-                        }
-                    }
-                }
-
-                imageContent.checkMagicCreated = true
-                withContext(Dispatchers.Main) {
-                    try {
-                        findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
-                    } catch (e: IllegalStateException) {
-                        println(e.message)
-                    }
-                }
-
-//                imageToolModule.showView(binding.progressBar, false)
-                showProgressBar(false, null)
-            }
+            saveNewImage()
         }
 
         // close btn 클릭 시
@@ -232,7 +172,6 @@ class MagicPictureFragment : FaceBlendingFragment() {
                         }
                     }
                 } else {
-//                    imageToolModule.showView(binding.progressBar, false)
                     showProgressBar(false, null)
                 }
             }
@@ -250,7 +189,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 val width = selectFaceRect?.width() ?: 50
                 val height = selectFaceRect?.height() ?: 50
 
-                    // 새로운 위치를 설정합니다.
+                // 새로운 위치를 설정합니다.
                 layoutParams.leftMargin = touchEvent.x.toInt() - (width / 2)  // 왼쪽 여백 설정
                 layoutParams.topMargin = touchEvent.y.toInt() - (height / 2)   // 위쪽 여백 설정
 
@@ -261,7 +200,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 binding.glitterView.layoutParams = layoutParams
                 imageToolModule.showView(binding.glitterView, true)
 
-                val glide = Glide.with(binding.glitterView)
+                Glide.with(binding.glitterView)
                     .load(R.raw.magic_twinkle)
                     .skipMemoryCache(true) // 메모리 캐시 비우기
                     .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 비우기
@@ -283,10 +222,6 @@ class MagicPictureFragment : FaceBlendingFragment() {
             }
         }
 
-        infoLevel.observe(viewLifecycleOwner){ _ ->
-            infoTextView()
-        }
-
         // info 확인
         binding.magicInfoBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, true)
@@ -296,18 +231,68 @@ class MagicPictureFragment : FaceBlendingFragment() {
         binding.dialogCloseBtn.setOnClickListener {
             imageToolModule.showView(binding.infoDialogLayout, false)
         }
-
-        return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.post {
-            binding.circleArrowBtn.setOnTouchListener(ArrowMoveClickListener(::moveCropFace, binding.maxArrowBtn, binding.circleArrowBtn))
+    /**
+     * 이미지를 저장한다.
+     */
+    private fun saveNewImage() {
+        CoroutineScope(Dispatchers.IO).launch {
+            showProgressBar(true, LoadingText.Save)
+
+            for (i in 0 until pictureList.size) {
+                pictureList[i].embeddedData?.clear()
+                pictureList[i].embeddedSize = 0
+            }
+
+            // EmbeddedData 추가
+            val indices = intArrayOf(5, 6, 7, 8) // 추출할 배열의 인덱스
+
+            if (boundingBox.size > 0) {
+                val mainBoundingBox: ArrayList<Int> =
+                    boundingBox[0].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
+
+                mainBoundingBox.add(changeFaceStartX)
+                mainBoundingBox.add(changeFaceStartY)
+
+                if (boundingBox.size > 0 && boundingBox[0].size > 0 && pictureList.size > boundingBox[0][0]) {
+                    pictureList[boundingBox[0][0]].insertEmbeddedData(mainBoundingBox)
+                }
+                for (i in 0 until pictureList.size) {
+                    if (pictureList[i].contentAttribute == ContentAttribute.magic) {
+                        pictureList[i].contentAttribute = ContentAttribute.burst
+                    }
+                }
+                jpegViewModel.selectedSubImage?.contentAttribute = ContentAttribute.magic
+
+                for (i in 1 until boundingBox.size) {
+                    val addBoundingBox: ArrayList<Int> =
+                        boundingBox[i].filterIndexed { index, _ -> index in indices } as ArrayList<Int>
+
+                    addBoundingBox.add(changeFaceStartX)
+                    addBoundingBox.add(changeFaceStartY)
+
+                    if (pictureList.size > boundingBox[i][0]) {
+                        pictureList[boundingBox[i][0]].insertEmbeddedData(addBoundingBox)
+                    }
+                }
+            }
+
+            imageContent.checkMagicCreated = true
+            withContext(Dispatchers.Main) {
+                findNavController().navigate(R.id.action_magicPictureFragment_to_editFragment)
+            }
+//            showProgressBar(false, null)
         }
     }
 
+    /**
+     * 선택된 이미지로 얼굴 감지 모델 실행 후, 감지된 얼굴이 표시한 후 화면에 출력한다.
+     */
     override fun setMainImageBoundingBox() {
+        infoLevel.observe(viewLifecycleOwner){
+            infoTextView()
+        }
 
         if (checkMagicPicturePlay) {
             handler.removeCallbacksAndMessages(null)
@@ -320,7 +305,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
         CoroutineScope(Dispatchers.Default).launch {
             Log.d("magic", "!!!!!!!!!!!!!!!!!!! setMainImageBoundingBox")
-            val faceResult = faceDetectionModule.runFaceDetection(0)
+            val faceResult = faceDetectionModule.getFaces(jpegViewModel.getSelectedSubImageIndex())
 
             Log.d("magic", "!!!!!!!!!!!!!!!!!!! end runFaceDetection")
 
@@ -329,7 +314,6 @@ class MagicPictureFragment : FaceBlendingFragment() {
                     try {
                         Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
                             .show()
-//                        imageToolModule.showView(binding.progressBar, false)
                         showProgressBar(false, null)
                     } catch (e: IllegalStateException) {
                         println(e.message)
@@ -337,11 +321,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 }
             } else {
                 try {
-                    var resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
-
-//                    faceResult.forEach {
-//                        resultBitmap = drawMagicIcon(resultBitmap,  it.boundingBox.toRectF(), requireContext().resources.getColor(R.color.white))
-//                    }
+                    val resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
 
                     Log.d("magic", "!!!!!!!!!!!!!!!!!!! end drawDetectionResult")
 
@@ -353,33 +333,28 @@ class MagicPictureFragment : FaceBlendingFragment() {
                     // 예외가 발생한 경우 처리할 코드
                     e.printStackTrace() // 예외 정보 출력
                 }
-//                imageToolModule.showView(binding.progressBar, false)
                 showProgressBar(false, null)
             }
         }
     }
 
     /**
-     *  cropImgAndView(boundingBox: ArrayList<List<Int>>)
-     *         - 이미지를 자르고 화면에 띄어줌
+     * 자를 위치정보에 맞게 이미지를 자르고 화면에 띄어준다.
+     *
+     * @param boundingBox 자를 위치 정보
      */
     private fun cropImgAndView(boundingBox: ArrayList<ArrayList<Int>>) {
         // 감지된 모든 boundingBox 출력
         println("=======================================================")
-//        binding.magicCandidateLayout.removeAllViews()
         imageToolModule.showView(binding.arrowBar, true)
-        changeMainView(selectBitmap)
+        changeSelectedView(selectBitmap)
 
         cropBitmapList.clear()
 
         if (bitmapList.size == 0) {
-//            imageToolModule.showView(binding.progressBar , false)
             showProgressBar(false, null)
             return
         }
-
-//        imageToolModule.showView(binding.bottomLayout, true)
-//        imageToolModule.showView(binding.magicPlayBtn, true)
 
         for (i in 0 until boundingBox.size) {
             println(i.toString() + " || " + boundingBox[i])
@@ -389,9 +364,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
 
             // bitmap를 자르기
             val cropImage = imageToolModule.cropBitmap(
-                bitmapList[rect[0]],
-                //bitmapList[rect[0]].copy(Bitmap.Config.ARGB_8888, true),
-                Rect(rect[1], rect[2], rect[3], rect[4])
+                bitmapList[rect[0]], Rect(rect[1], rect[2], rect[3], rect[4])
             )
 
             Log.d("magicPictue", "rect[0] = ${rect[0]}")
@@ -433,6 +406,12 @@ class MagicPictureFragment : FaceBlendingFragment() {
         showProgressBar(false, null)
         infoLevel.value = InfoLevel.MagicStart
     }
+
+    /**
+     * 잘라진 이미지를 가지고 움직이는 매직픽처를 재생한다.
+     *
+     * @param cropBitmapList 잘라진 이미지
+     */
     private fun magicPictureRun(cropBitmapList: ArrayList<Bitmap>) {
         ovelapBitmap.clear()
         CoroutineScope(Dispatchers.Main).launch {
@@ -469,6 +448,12 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
     }
 
+    /**
+     * 잘라진 이미지를 x, y 만큼 이동한다.
+     *
+     * @param moveX 이동 할 x 값
+     * @param moveY 이동 할 y 값
+     */
     private fun moveCropFace(moveX:Int, moveY:Int) {
         if(infoLevel.value != InfoLevel.EditFaceSelect) {
             imageToolModule.showView(binding.infoDialogLayout, false)
@@ -494,6 +479,9 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
     }
 
+    /**
+     * 도움말을 알맞게 띄운다.
+     */
     override fun infoTextView() {
         Log.d("infoTextView","infoTextView call")
         when (infoLevel.value) {
@@ -510,6 +498,12 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
     }
 
+    /**
+     * 로딩바를 설정한다.
+     *
+     * @param boolean 로딩바 보여줄지 여부
+     * @param loadingText 로딩과 함께 보여질 텍스트
+     */
     private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
         setEnable(!boolean)
 
@@ -541,12 +535,15 @@ class MagicPictureFragment : FaceBlendingFragment() {
         imageToolModule.showView(binding.loadingText, boolean)
     }
 
-
-
-    override fun changeMainView(bitmap: Bitmap) {
+    /**
+     * 선택한 이미지임을 표시한다.
+     *
+     * @param bitmap 선택한 이미지
+     */
+    override fun changeSelectedView(bitmap: Bitmap) {
         if (selectFaceRect != null) {
             CoroutineScope(Dispatchers.IO).launch {
-                val faceResult = faceDetectionModule.runFaceDetection(0)
+                val faceResult = faceDetectionModule.getFaces(jpegViewModel.getSelectedSubImageIndex())
                 var resultBitmap = imageToolModule.drawDetectionResult(
                     selectBitmap,
                     faceResult,
@@ -567,6 +564,11 @@ class MagicPictureFragment : FaceBlendingFragment() {
         }
     }
 
+    /**
+     * 버튼들의 터치 가능 여부를 조정한다.
+     *
+     * @param boolean 터치 가능 여부
+     */
     private fun setEnable(boolean: Boolean) {
         CoroutineScope(Dispatchers.Main).launch {
             binding.magicCloseBtn.isEnabled = boolean

@@ -15,7 +15,6 @@ import org.tensorflow.lite.task.vision.detector.ObjectDetector
 class ObjectDetectionModule(
    val context: Context
 ) {
-
     private lateinit var detectionResult: List<DetectionResult>
     private lateinit var customObjectDetector: ObjectDetector
     private lateinit var faceDetector: FaceDetector
@@ -35,6 +34,9 @@ class ObjectDetectionModule(
         rectLength = 120
     }
 
+    /**
+     * 객체 인식을 위한 객체감지기를 설정한다.
+     */
     private fun setDetecter() {
         // High-accuracy landmark detection and face classification
         val highFastOpts = FaceDetectorOptions.Builder()
@@ -53,13 +55,14 @@ class ObjectDetectionModule(
             "lite-model_efficientdet_lite0_detection_metadata_1.tflite",
             options
         )
-
     }
 
     /**
-     * runObjectDetection(bitmap: Bitmap)
-     *      TFLite Object Detection function
-     *      사진 속 객체를 감지하고, 감지된 객체에 boundingBox를 표시해 반환한다.
+     * TFLite Object Detection function
+     * 이미지 속 객체를 감지하고, 감지된 객체 결과 중 boundingBox를 이미지에 표시해 반환한다.
+     *
+     * @param bitmap 객체를 감지한 이미지
+     * @return 감지 결과가 표시된 이미지 반환
      */
     fun runObjectDetection(bitmap: Bitmap): Bitmap {
 
@@ -78,8 +81,10 @@ class ObjectDetectionModule(
     }
 
     /**
-     * getObjectDetection(bitmap: Bitmap):
-     *         ObjectDetection 결과(bindingBox)를 반환한다.
+     * ObjectDetection 결과(bindingBox)를 반환한다.
+     *
+     * @param bitmap 객체를 감지한 이미지
+     * @return 감지 결과 반환
      */
     private fun getObjectDetection(bitmap: Bitmap): List<DetectionResult> {
         // Step 1: Create TFLite's TensorImage object
@@ -97,8 +102,11 @@ class ObjectDetectionModule(
     }
 
     /**
-     * drawDetectionResult(bitmap: Bitmap, detectionResults: List<DetectionResult>
-     *      객체 분석 된 boundingBox에 맞춰 이미지 위에 표시한 후 표시된 이미지를 반환한다.
+     * 객체 분석 된 boundingBox에 맞춰 이미지 위에 표시한 후 표시된 이미지를 반환한다.
+     *
+     * @param bitmap 객체를 감지한 이미지이자, 감지 결과를 그릴 이미지
+     * @param detectionResults 감지 결과
+     * @return 감지 결과가 표시된 이미지 반환
      */
     private fun drawDetectionResult(
         bitmap: Bitmap,
@@ -113,12 +121,6 @@ class ObjectDetectionModule(
         outputBitmap.eraseColor(Color.TRANSPARENT)
 
         detectionResults.forEach {
-            // draw bounding box
-//            pen.color = Color.parseColor("#B8C5BB")
-//            pen.strokeWidth = 10F
-//            pen.style = Paint.Style.STROKE
-//            val box = it.boundingBox
-//            canvas.drawRoundRect(box, 10F, 10F, pen)
 
             val boundingBox = it.boundingBox
 
@@ -190,10 +192,21 @@ class ObjectDetectionModule(
         return outputBitmap
     }
 
+    /**
+     * 이미지의 객체 감지 결과 전체를 반환한다.
+     *
+     * @return 이미지의 객체 감지 결과 전체
+     */
     fun getDetectionResults() : List<DetectionResult> {
         return detectionResult
     }
 
+    /**
+     * 감지를 중지시키고, 현재 이미지 객체 감지 결과 일부를 순서대로 반환한다.
+     * 더이상 반환할 결과가 없을 경우 null을 반환한다.
+     *
+     * @return 이미지의 객체 감지 결과 일부 혹은 null
+     */
     fun getDetectionResult() : DetectionResult? {
         isGetDetectionResult = true
 
@@ -201,20 +214,32 @@ class ObjectDetectionModule(
             return detectionResult[detectionResultIndex++]
         }
         else {
-//            resetDetectionResult()
             return null
         }
     }
 
+    /**
+     * 감지 결과를 초기화한다.
+     */
     fun resetDetectionResult() {
         isGetDetectionResult = false
         detectionResultIndex = 0
     }
 
+    /**
+     * 현재 감지를 중지한 상태인지 상태 값을 반환한다.
+     *
+     * @return 감지 상태 값 반환
+     */
     fun getIsDetectionStop() : Boolean {
         return isGetDetectionResult
     }
 
+    /**
+     * 현재 이미지 속 감지된 객체의 수를 반환한다.
+     *
+     * @return 감지된 객체 수
+     */
     fun getDetectionSize() : Int {
         return detectionResult.size
     }

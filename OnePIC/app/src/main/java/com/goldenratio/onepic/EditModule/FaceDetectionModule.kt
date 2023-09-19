@@ -17,11 +17,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class FaceDetectionModule() {
+class FaceDetectionModule {
 
-    private var modelCoroutine: ArrayList<Job> = arrayListOf()
     private lateinit var detector: FaceDetector
-    private val imageToolModule: ImageToolModule
+    private var modelCoroutine: ArrayList<Job> = arrayListOf()
+    private val imageToolModule: ImageToolModule = ImageToolModule()
     private var faceArraylist: ArrayList<ArrayList<Face>?> = arrayListOf()
     private var checkFaceDetection = false
     private var checkFaceDetectionCall = false
@@ -30,14 +30,21 @@ class FaceDetectionModule() {
     private var smilingAnalysisResults = arrayListOf<Double>()
 
     init {
-        setFaceDetecter()
-        imageToolModule = ImageToolModule()
+        setFaceDetector()
     }
 
+    /**
+     * 얼굴 감지 모델 실행이 완료 여부를 반환한다.
+     *
+     * @return 얼굴 감지 모델 실행 완료 여부
+     */
     fun getCheckFaceDetection(): Boolean {
         return checkFaceDetection
     }
 
+    /**
+     * 현재 얼굴 감지 모델이 실행되는 Coroutine을 종료한다.
+     */
     fun deleteModelCoroutine() {
         if (modelCoroutine.isNotEmpty()) {
             for (i in 0 until modelCoroutine.size)
@@ -47,6 +54,11 @@ class FaceDetectionModule() {
         }
     }
 
+    /**
+     * 모든 이미지에 얼굴 감지 모델을 실행시킨다.
+     *
+     * @param bitmapList 얼굴 감지 모델을 실행시킬 [Bitmap] 리스트
+     */
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
         Log.d("faceBlending", "allFaceDetection call")
         checkFaceDetectionCall = true
@@ -92,10 +104,33 @@ class FaceDetectionModule() {
     }
 
     /**
-     * setFaceDetecter()
-     *      - face Detection을 하기 위해 필요한 분석기 옵션 설정
+     * 하나의 이미지에 얼굴 감지 모델을 실행하고 결과를 반환한다.
+     *
+     * @param bitmap 얼굴 감지 모델을 실행시킬 Bitmap
+     * @return 감지 결과로 [Face] 리스트 반환
      */
-    private fun setFaceDetecter() {
+    private suspend fun runFaceContourDetection(bitmap: Bitmap): ArrayList<Face> =
+        suspendCoroutine { continuation ->
+            val image = InputImage.fromBitmap(bitmap, 0)
+
+            detector.process(image)
+                .addOnSuccessListener { faces ->
+                    //faceArraylist.add(faces as ArrayList<Face>)
+                    Log.d("FaceDetectionModule", "success")
+                    // 얼굴 검출 성공 시 콜백 함수
+                    continuation.resume(faces as ArrayList<Face>)
+                }
+                .addOnFailureListener { e ->
+                    // 얼굴 검출 실패 시 콜백 함수
+                    e.printStackTrace()
+                    continuation.resumeWithException(e)
+                }
+        }
+
+    /**
+     * 얼굴 감지를 위해 필요한 분석기에 옵션을 설정한다.
+     */
+    private fun setFaceDetector() {
         //High-accuracy landmark detection and face classification
         val highAccuracyOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -106,6 +141,12 @@ class FaceDetectionModule() {
         detector = FaceDetection.getClient(highAccuracyOpts)
     }
 
+    /**
+     * 원하는 사진의 얼굴 감지 정보를 반환한다.
+     *
+     * @param index 원하는 사진의 index 정보 (얼굴 감지 정보 [faceArraylist] 중 원하는 인덱스 정보)
+     * @return 해당 사진의 얼굴 감지 정보 반환
+     */
     fun getFaces(index: Int): ArrayList<Face> {
         Log.d("magic", "getFaces $index")
         while (!checkFaceDetection) {
@@ -114,53 +155,21 @@ class FaceDetectionModule() {
             }
         }
         Log.d("magic", "ok getFaces $index")
-        //faces = runFaceContourDetection(bitmap)
         //TODO: Error 발생 NullPointerException , IndexOutOfBoundsException
-        if (faceArraylist.size > index)
-            return faceArraylist[index]!!
+        return if (faceArraylist.size > index)
+            faceArraylist[index]!!
         else
-            return arrayListOf()
+            arrayListOf()
     }
 
-
     /**
-     * runFaceDetection(bitmap: Bitmap)
-     *      - bitmap에서 얼굴 detection을 실행 및
-     *        감지된 얼굴에 사각형 그리기
+     * 선택한 사진 속 클릭된 좌표에 있는 얼굴 위치 정보(boundingBox)를 반환한다.
+     *
+     * @param index 선택한 사진의 index 정보
+     * @param point 터치된 좌표 정보
+     * @return 해당 위치에 있는 얼굴 위치 정보(boundingBox) 반환
      */
-    suspend fun runFaceDetection(index: Int): ArrayList<Face> = suspendCoroutine { bitmapResult ->
-        // face Detection
-        var faces: ArrayList<Face>
-        CoroutineScope(Dispatchers.Default).launch {
-            Log.d("magic", "runFaceDetection !!!!!!!!!")
-            faces = getFaces(index)
-            Log.d("magic", "end runFaceDetection !!!!!!!!!")
-
-            //Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
-            bitmapResult.resume(faces)
-            //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
-        }
-    }
-
-    suspend fun runMainFaceDetection(bitmap: Bitmap): ArrayList<Face> =
-        suspendCoroutine { bitmapResult ->
-            // face Detection
-            var faces: ArrayList<Face>
-            CoroutineScope(Dispatchers.Default).launch {
-
-                faces = runFaceContourDetection(bitmap)
-                //Log.d("alllandmark","################### ${faces[0].allLandmarks.size}")
-                bitmapResult.resume(faces)
-                //bitmapResult.resume(ImageToolModule().drawDetectionResult(bitmap, faces, R.color.main_color))
-            }
-        }
-
-    /**
-     * getClickPointCropBitmap(bitmap: Bitmap)
-     *      - bitmap에서 얼굴 detection을 실행 및
-     *        감지된 얼굴에 사각형 그리기
-     */
-    suspend fun getClickPointBoundingBox(bitmap: Bitmap, index: Int, point: Point): List<Int>? =
+    suspend fun getClickPointBoundingBox(index: Int, point: Point): List<Int>? =
         suspendCoroutine { bitmapResult ->
 
             // face Detection
@@ -201,32 +210,11 @@ class FaceDetectionModule() {
         }
 
     /**
-     * runFaceContourDetection(bitmap: Bitmap): ArrayList<Face>
-     *     - face detection을 실행하고 결과를 return
-     */
-    private suspend fun runFaceContourDetection(bitmap: Bitmap): ArrayList<Face> =
-        suspendCoroutine { continuation ->
-            val image = InputImage.fromBitmap(bitmap, 0)
-
-            detector.process(image)
-                .addOnSuccessListener { faces ->
-                    //faceArraylist.add(faces as ArrayList<Face>)
-                    Log.d("FaceDetectionModule", "success")
-                    // 얼굴 검출 성공 시 콜백 함수
-                    continuation.resume(faces as ArrayList<Face>)
-                }
-                .addOnFailureListener { e ->
-                    // 얼굴 검출 실패 시 콜백 함수
-                    e.printStackTrace()
-                    continuation.resumeWithException(e)
-                }
-        }
-
-
-    /**
-     *  autoBestFaceChange
-     *  (bestFaceStandard: Int, mainBitmap: Bitmap, bitmapList: ArrayList<Bitmap>): Bitmap
-     *      - 여러 사진을 분석하여 각 인물 별로 가장 잘 나온 얼굴로 변환해 bitmap return
+     * 전체 이미지를 분석하여, 선택한 이미지 위에 각 인물 별로 가장 잘 나온 얼굴을 합성해 Bitmap을 제작한 후 반환한다.
+     *
+     * @param bitmapList 이미지 리스트 [Bitmap]
+     * @param selectedIndex 선택한 사진의 index 정보
+     * @return 가장 잘 나온 얼굴들로 합성된 Bitmap 반환
      */
     suspend fun autoBestFaceChange(bitmapList: ArrayList<Bitmap>, selectedIndex: Int): Bitmap =
         suspendCoroutine { continuation ->
@@ -308,7 +296,6 @@ class FaceDetectionModule() {
                     val index = getBoxComparisonIndex(bestFace[i], basicInformation)
                     resultBitmap = getFaceChangeBitmap(
                         resultBitmap, bitmapList[bestFaceIndex[i]!!],
-                        basicInformation[index].boundingBox.toRectF(),
                         basicInformation[index].allLandmarks, bestFace[i].allLandmarks
                     )
                 }
@@ -316,6 +303,13 @@ class FaceDetectionModule() {
             }
         }
 
+    /**
+     * 원하는 얼굴 [Face] 정보와 동일한 위치에 있는 얼굴 index 번호를 반환한다. (이를 동일 얼굴이라 판단한다.)
+     *
+     * @param check 원한는 얼굴 [Face]
+     * @param original 원하는 얼굴과 동일한 위치에 얼굴을 알아내고자 하는 [Face] 리스트
+     * @return 동일한 위치에 있는 얼굴 index 번호 반환
+     */
     private fun getBoxComparisonIndex(check: Face, original: List<Face>): Int {
         var index = 0
         // 현재 face가 어떤 face인지 알기 도와주는 중간 값
@@ -334,10 +328,18 @@ class FaceDetectionModule() {
         return index
     }
 
+    /**
+     * 원본 이미지 위에 바꾸고 싶은 이미지의 원하는 얼굴과 동일한 위치에 있는 얼굴 위치에 합성하여 반환한다.
+     *
+     * @param originalImg 원본 이미지 Bitmap
+     * @param changeImg 바꾸고 싶은 이미지 Bitmap
+     * @param originalFaceLandmarks 원하는 얼굴과 동일한 위치에 있는 원본 얼굴 위치 정보
+     * @param changeFaceLandmarks 바꾸고 싶은 이미지에 있는 원하는 얼굴 위치 정보
+     * @return 합성된 이미지 반환
+     */
     private fun getFaceChangeBitmap(
         originalImg: Bitmap,
         changeImg: Bitmap,
-        originalFaceBoundingBox: RectF,
         originalFaceLandmarks: List<FaceLandmark>,
         changeFaceLandmarks: List<FaceLandmark>
     ): Bitmap {
@@ -364,6 +366,13 @@ class FaceDetectionModule() {
         return overlayImg
     }
 
+
+    /**
+     * 이미지 리스트를 받아, 이미지 속 얼굴들의 눈 뜬 정도 값을 리스트로 만들어 반환한다.
+     *
+     * @param bitmapList 각 이미지 속 얼굴들의 눈 뜬 정도 값을 알아낼 이미지 리스트
+     * @return 눈 뜬 정도 값 리스트 반환
+     */
     suspend fun getEyesAnalysisResults(bitmapList: ArrayList<Bitmap>): ArrayList<Double> =
         suspendCoroutine { continuation ->
 
@@ -434,8 +443,12 @@ class FaceDetectionModule() {
             continuation.resume(imageToolModule.adjustMinMaxValues(eyesAnalysisResults, 0.0,1.0))
         }
 
+    /**
+     * 이미지 속 얼굴들의 웃고 있는 정도 값을 리스트로 만들어 반환한다.
+     *
+     * @return 웃고 있는 정도 값 리스트 반환
+     */
     fun getSmilingAnalysisResults(): ArrayList<Double> {
         return imageToolModule.adjustMinMaxValues(smilingAnalysisResults, 0.0,1.0)
-//        return smilingAnalysisResults
     }
 }

@@ -19,6 +19,9 @@ internal class ImageSaver(
     private val previewByteArrayList: MutableLiveData<ArrayList<ByteArray>>
 ) : Runnable {
 
+    /**
+     * 받은 이미지를 ByteArray로 변환해, previewByteArrayList에 추가한다.
+     */
     override fun run() {
         val buffer = image.planes[0].buffer
         val bytes = ByteArray(buffer.remaining())

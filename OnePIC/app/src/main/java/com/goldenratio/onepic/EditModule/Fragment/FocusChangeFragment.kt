@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.goldenratio.onepic.EditModule.BlurBitmapUtil
-import com.goldenratio.onepic.EditModule.ObjectExtractModule
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
@@ -44,13 +43,8 @@ class FocusChangeFragment : Fragment() {
 
     private lateinit var originalSelectBitmap: Bitmap
     protected lateinit var selectBitmap: Bitmap
-    private var PreSelectBitmap: Bitmap? = null
-    protected var newImage: Bitmap? = null
 
     private lateinit var imageToolModule: ImageToolModule
-    private var mainIndex = 0
-
-    private lateinit var mainSubView: View
 
     private lateinit var checkFinish: BooleanArray
 
@@ -62,8 +56,6 @@ class FocusChangeFragment : Fragment() {
     val boundingBoxResizeList = arrayListOf<ArrayList<Int>>()
     protected var selectObjRect: Rect? = null
 
-    private lateinit var objectExtractModule: ObjectExtractModule
-
     private val maxBlurRadius: Float = 24f
     private var curBlurRadius = 10.0f
 
@@ -73,8 +65,7 @@ class FocusChangeFragment : Fragment() {
     }
 
     private enum class LoadingText {
-        Save,
-        Change
+        Save
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -93,7 +84,6 @@ class FocusChangeFragment : Fragment() {
 
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageToolModule = ImageToolModule()
-        objectExtractModule = ObjectExtractModule()
 
         checkFinish = BooleanArray(pictureList.size)
 
@@ -152,15 +142,14 @@ class FocusChangeFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * 이벤트 처리를 설정한다.
+     */
     @SuppressLint("ClickableViewAccessibility")
     fun setClickEvent(){
-
         // 이미지 뷰 클릭 시
         binding.focusMainView.setOnTouchListener { _, event ->
             if (event!!.action == MotionEvent.ACTION_UP) {
-//                if (!isSelected) {
-//                showProgressBar(true, LoadingText.Change)
-
                 // click 좌표를 bitmap에 해당하는 좌표로 변환
                 val touchPoint = ImageToolModule().getBitmapClickPoint(
                     PointF(event.x, event.y),
@@ -172,8 +161,6 @@ class FocusChangeFragment : Fragment() {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         // Click 좌표가 포함된 Bounding Box 얻음
-//                            while (!FaceDetectionModule.getCheckFaceDetection()) {
-//                            }
                         index = getIndex(touchPoint)
 
                         Log.d("focus test","getIndex out : $index")
@@ -203,12 +190,6 @@ class FocusChangeFragment : Fragment() {
                                 setSeekBar()
                             }
                         }
-//                            if (boundingBox.size > 0) {
-//                                // Bounding Box로 이미지를 Crop한 후 보여줌
-//                                withContext(Dispatchers.Main) {
-//                                    cropImgAndView(boundingBox)
-//                                }
-//                            }
                     }
                 }
             }
@@ -217,9 +198,6 @@ class FocusChangeFragment : Fragment() {
 
         // compare 버튼 클릭시
         binding.imageCompareBtn.setOnTouchListener { _, event ->
-//            CoroutineScope(Dispatchers.Main).launch {
-//                imageToolModule.showView(binding.infoDialogLayout, false)
-//            }
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     binding.focusMainView.setImageBitmap(focusCheckingBitmap)
@@ -234,18 +212,10 @@ class FocusChangeFragment : Fragment() {
         }
 
         binding.focusSaveBtn.setOnClickListener {
-            imageContent.resetBitmap()
-//            imageToolModule.showView(binding.progressBar, true)
+//            imageContent.resetBitmap()
             showProgressBar(true, LoadingText.Save)
             CoroutineScope(Dispatchers.Default).launch {
-//                var result = imageContent.removePicture(mainPicture)
-//                Log.d("error 잡기", "메인 바꾸고 save : ${result}")
-//                if (result) {
                 Log.d("error 잡기", "main으로 지정된 객체 삭제 완료")
-
-                // 2. main 사진을 첫번 째로 삽입
-//                    imageContent.insertPicture(0, mainPicture)
-//                    imageContent.mainPicture = mainPicture
 
                 if(index != null && resultBitmap != null) {
 
@@ -259,7 +229,6 @@ class FocusChangeFragment : Fragment() {
                     }
                     val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
                     imageContent.pictureList.add(picture)
-//                    imageContent.addBitmapList(index!!, selectBitmap)
 
                     picture.waitForByteArrayInitialized()
 
@@ -275,7 +244,6 @@ class FocusChangeFragment : Fragment() {
                     imageContent.checkMainChanged = true
                     findNavController().navigate(R.id.action_focusChangeFragment_to_Fragment)
                 }
-//                imageToolModule.showView(binding.progressBar, false)
                 showProgressBar(false, null)
             }
         }
@@ -300,6 +268,15 @@ class FocusChangeFragment : Fragment() {
         }
     }
 
+    /**
+     * 하나의 이미지에 블러 처리된 이미지 그리고, 잘라진 이미지 그려진 이미지를 반환한다.
+     *
+     * @param blurredBitmap 블러 처리된 이미지
+     * @param cropBitmap 잘라진 이미지
+     * @param x 그릴 x 값
+     * @param y 그릴 y 값
+     * @return 요청사항이 모두 그려진 이미지 반환
+     */
     fun mergeBitmaps(blurredBitmap: Bitmap, cropBitmap: Bitmap, x: Int, y: Int): Bitmap {
         val resultBitmap = Bitmap.createBitmap(blurredBitmap.width, blurredBitmap.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(resultBitmap)
@@ -335,14 +312,14 @@ class FocusChangeFragment : Fragment() {
     }
 
     /**
-     * getIndex(touchPoint: Point): ArrayList<List<Int>>
-     *     - click된 포인트를 알려주면,
-     *       해당 포인트가 객체 감지 결과 bounding Box 속에 존재하는지 찾아서
-     *       만약 포인트를 포함하는 boundingBox를 찾으면 모아 return
+     * 터치된 좌표가 객체 감지 결과 중 객체 위치 정보(bounding Box) 속에 포함되는지 알아낸 후,
+     * 터치 좌표에 초점이 맞춰진 이미지 index를 반환한다.
+     *
+     * @param touchPoint 터치된 좌표 정된
+     * @return 해당 객체에 초점이 맞춰진 이미지 index 반환
      */
-    suspend fun getIndex(touchPoint: Point): Int? = suspendCoroutine { box ->
-//        val boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
-        var index: Int? = null
+    private suspend fun getIndex(touchPoint: Point): Int? = suspendCoroutine { box ->
+        var index: Int?
 
         val checkFinish = BooleanArray(bitmapList.size)
         for (i in 0 until bitmapList.size) {
@@ -351,7 +328,6 @@ class FocusChangeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             if (bitmapList.size == 0) {
-//                showProgressBar(false, null)
                 return@launch
             }
 
@@ -360,58 +336,25 @@ class FocusChangeFragment : Fragment() {
             Log.v("focus test", "index : $index")
 
             if (index == null) {
-//                withContext(Dispatchers.Main) {
-//                    try {
-//                        Toast.makeText(requireContext(), "해당 좌표에 객체가 존재 하지 않습니다.", Toast.LENGTH_LONG).show()
-//                    } catch (e: IllegalStateException) {
-//                        println(e.message)
-//                    }
-//                }
-
-                // 메인 사진의 boundingBox에 인지된 얼굴이 없을 때
-                // faceDetection하고 결과가 표시된 사진을 받아 imaveView에 띄우기
-//                setMainImageBoundingBox()
-
                 checkFinish.fill(true) // 배열의 모든 요소를 true로 설정
             } else {
 
                 for (i in 0 until bitmapList.size)
                     checkFinish[i] = true
-
-//                mainPicture = pictureList[index]
-//
-//                // 글라이드로만 seekbar 사진 변화 하면 좀 끊겨 보이길래
-//                if (bitmapList.size > index) {
-//                    // 만들어 졌으면 비트맵으로 띄웠어
-//                    CoroutineScope(Dispatchers.Main).launch {
-//                        binding.focusMainView.setImageBitmap(bitmapList[index])
-//                    }
-//                } else {
-//                    // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌음명 글라이드로
-//                    CoroutineScope(Dispatchers.Main).launch {
-//                        Glide.with(binding.focusMainView)
-//                            .load(imageContent.getJpegBytes(pictureList[index]))
-//                            .into(binding.focusMainView)
-//                    }
-//                }
-//                setMainImageBoundingBox()
-
             }
-            while (!checkFinish.all { it }) {
-            }
+            while (!checkFinish.all { it }) { }
+
             box.resume(index)
         }
     }
 
-    open fun changeMainView(bitmap: Bitmap) {
-//        if(selectFaceRect != null) {
-        val newBitmap = imageToolModule.drawFocusResult(bitmap, selectObjRect!!.toRectF(),
-            requireContext().resources.getColor(R.color.focus), requireContext().resources.getColor(R.color.focus_30))
-        binding.focusMainView.setImageBitmap(newBitmap)
-//        }
-    }
-
-    suspend fun getClickPointBoundingBox(point: Point): Int? =
+    /**
+     * 선택한 사진 속 클릭된 좌표에 있는 객체 위치 정보(boundingBox)에 초점이 맞춰진 이미지 index를 반환한다.
+     *
+     * @param point 터치된 좌표 정보
+     * @return 해당 객체에 초점이 맞춰진 이미지 index 반환
+     */
+    private suspend fun getClickPointBoundingBox(point: Point): Int? =
         suspendCoroutine { bitmapResult ->
 
             var checkResume = false
@@ -422,8 +365,6 @@ class FocusChangeFragment : Fragment() {
                 if(imageToolModule.checkPointInRect(point, obj)) {
                     checkResume = true
                     bitmapResult.resume(i)
-//                    val boundingBox = listOf<Int>( obj.left, obj.top, obj.right, obj.bottom )
-//                    bitmapResult.resume(boundingBox)
                     break
                 }
                 if(!checkResume && i == boundingBoxResizeList.size) bitmapResult.resume(null)
@@ -431,14 +372,11 @@ class FocusChangeFragment : Fragment() {
         }
 
     /**
-     * setMainImageBoundingBox()
-     *      - mainImage를 focus가 사각형으로 표시된 사진으로 imageView 변환
+     * 선택된 이미지의 App3 메타데이터를 통해 감지된 객체를 표시한 후 화면에 출력한다.
      */
-    open fun setMainImageBoundingBox() {
-
+    private fun setMainImageBoundingBox() {
         CoroutineScope(Dispatchers.Default).launch {
             try {
-
                 for (i in 0 until boundingBoxList.size) {
                     val arraylist = arrayListOf<Int>()
 
@@ -468,31 +406,16 @@ class FocusChangeFragment : Fragment() {
             } catch (e: IllegalStateException) {
                 println(e.message)
             }
-//            }
-//            imageToolModule.showView(binding.progressBar, false)
-//            showProgressBar(false, null)
         }
     }
 
-    private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
-        setEnable(boolean)
-
-        CoroutineScope(Dispatchers.Main).launch {
-            binding.loadingText.text = when (loadingText) {
-                LoadingText.Save -> {
-                    "편집을 저장 중.."
-                }
-                else -> {
-                    ""
-                }
-            }
-        }
-//
-        imageToolModule.showView(binding.progressBar, boolean)
-//        imageToolModule.showView(binding.loadingText, boolean)
-    }
-
-    fun makeRect(arraylist : ArrayList<Int>) : Rect {
+    /**
+     * [Rect]를 제작하여 반환한다.
+     *
+     * @param arraylist [Rect] 제작할 요소들
+     * @return 제작된 [Rect] 반환
+     */
+    private fun makeRect(arraylist : ArrayList<Int>) : Rect {
         val rect = Rect()
         rect.left = arraylist[0]
         rect.top = arraylist[1]
@@ -502,22 +425,10 @@ class FocusChangeFragment : Fragment() {
         return rect
     }
 
-    fun infoTextView() {
-        Log.d("infoTextView","infoTextView call")
-        when (infoLevel.value) {
-            InfoLevel.BeforeMainSelect -> {
-                binding.infoText.text = "아래 사진을 선택해\n메인 이미지를 변경할 수 있습니다."
-            }
-            InfoLevel.AfterMainSelect -> {
-                binding.infoText.text = "choice Best버튼을 클릭해\n메인 이미지를 추천 받을 수 있습니다."
-            }
-            else -> {}
-        }
-    }
-
-    fun setSeekBar(){
-//        while(!imageContent.checkPictureList) {}
-
+    /**
+     * 블러처리를 조절할 수 있는 SeekBar를 설정한다.
+     */
+    private fun setSeekBar(){
         imageToolModule.showView(binding.seekBar, true)
 
         binding.seekBar.max = maxBlurRadius.toInt()  // 0 ~ 24 ( 1 ~ 25 )
@@ -527,15 +438,6 @@ class FocusChangeFragment : Fragment() {
 
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-//                // SeekBar의 값이 변경될 때 호출되는 메서드입니다.
-//                // progress 변수는 현재 SeekBar의 값입니다.
-//                // fromUser 변수는 사용자에 의해 변경된 값인지 여부를 나타냅니다.
-//                if (fromUser) {
-//                    // SeekBar의 진행 상태에 따라 블러 강도 조절
-//                    curBlurRadius = progress.toFloat() + 1
-//                    // 블러를 다시 적용하여 이미지 업데이트
-//                    applyBlur()
-//                }
                 // SeekBar의 진행 상태에 따라 블러 강도 조절
                 if(fromUser) {
                     curBlurRadius = seekBar!!.progress.toFloat() + 1 + seekBar!!.progress.toFloat()/maxBlurRadius
@@ -552,9 +454,6 @@ class FocusChangeFragment : Fragment() {
 
             // 슬라이더를 터치하여 조작을 시작할 때
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-
-
             }
 
             // 슬라이더 조작을 멈추고 손을 뗄 때
@@ -568,7 +467,9 @@ class FocusChangeFragment : Fragment() {
         })
     }
 
-    // 블러를 적용하여 이미지 업데이트
+    /**
+     * 블러를 적용하여 이미지를 업데이트한다.
+     */
     private fun applyBlur() {
         val cropBitmap = bitmapCropRect(selectBitmap, selectObjRect!!)
         val blurSelectBitmap = BlurBitmapUtil.blur(requireContext(), selectBitmap, curBlurRadius)
@@ -577,6 +478,49 @@ class FocusChangeFragment : Fragment() {
         binding.focusMainView.setImageBitmap(resultBitmap)
     }
 
+    /**
+     * 도움말을 알맞게 띄운다.
+     */
+    private fun infoTextView() {
+        Log.d("infoTextView","infoTextView call")
+        when (infoLevel.value) {
+            InfoLevel.BeforeMainSelect -> {
+                binding.infoText.text = "아래 사진을 선택해\n메인 이미지를 변경할 수 있습니다."
+            }
+            InfoLevel.AfterMainSelect -> {
+                binding.infoText.text = "choice Best버튼을 클릭해\n메인 이미지를 추천 받을 수 있습니다."
+            }
+            else -> {}
+        }
+    }
+
+    /**
+     * 로딩바를 설정한다.
+     *
+     * @param boolean 로딩바 보여줄지 여부
+     * @param loadingText 로딩과 함께 보여질 텍스트
+     */
+    private fun showProgressBar(boolean: Boolean, loadingText: LoadingText?){
+        setEnable(boolean)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.loadingText.text = when (loadingText) {
+                LoadingText.Save -> {
+                    "편집을 저장 중.."
+                }
+                else -> {
+                    ""
+                }
+            }
+        }
+        imageToolModule.showView(binding.progressBar, boolean)
+    }
+
+    /**
+     * 버튼들의 터치 가능 여부를 조정한다.
+     *
+     * @param boolean 터치 가능 여부
+     */
     private fun setEnable(boolean: Boolean) {
         CoroutineScope(Dispatchers.Main).launch {
             binding.focusCloseBtn.isEnabled = boolean

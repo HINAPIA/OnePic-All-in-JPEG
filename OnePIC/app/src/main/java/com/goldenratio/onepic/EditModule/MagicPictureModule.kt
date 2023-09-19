@@ -3,6 +3,7 @@ package com.goldenratio.onepic.EditModule
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AllinJPEGModule.ImageContent
@@ -14,7 +15,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Picture) {
 
-    /* Magic picture 변수 */
+    /** Magic picture 변수 **/
     var boundingBox: ArrayList<ArrayList<Int>> = arrayListOf()
     private var imageToolModule: ImageToolModule
 
@@ -28,16 +29,22 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
 
     var isInit = false
 
+    /**
+     * All-in JPEG의 이미지의 비트맵이 다 제작됬는지 확인하고, 관련 변수를 설정한다.
+     */
     init {
-        while(!imageContent.checkPictureList) {
-
-        }
+        while(!imageContent.checkPictureList) { }
         imageToolModule = ImageToolModule()
         mainBitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(selectedPicture))
         pictureList = imageContent.pictureList
         isInit = true
     }
 
+    /**
+     * 매직픽처에서 사용되는 이미지들의 App3 메타데이터를 알아내 매직픽처 재생할 때 필요한 overlayBitmap을 제작해 리스트로 반환한다.
+     *
+     * @return 매직픽처를 재생할 때 필요한 비트맵 리스트
+     */
     suspend fun magicPictureProcessing(): ArrayList<Bitmap>  =
         suspendCoroutine { result ->
             val overlayImg: ArrayList<Bitmap> = arrayListOf()
@@ -46,14 +53,13 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
             while (!isInit) {}
             Log.d("faceBlending","while end")
 
-//             val overlayImg: ArrayList<Bitmap> = arrayListOf()
             // blending 가능한 연속 사진 속성의 picture list 얻음
             pictureList = imageContent.pictureList
             if (bitmapList.size == 0) {
-                val newBitmapList = getBitmapList()
-                if(newBitmapList!=null) {
+//                val newBitmapList = getBitmapList()
+                val newBitmapList = imageContent.getBitmapList()
+                if (newBitmapList != null)
                     bitmapList = newBitmapList
-                }
             }
 
             var basicIndex = 0
@@ -82,14 +88,20 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
                     }
                 }
 
-                while (!checkFinish.all { it }) {
-                    // Wait for all tasks to finish
-                }
+                while (!checkFinish.all { it }) { }
             }
             result.resume(overlayImg)
         }
 
-
+    /**
+     * 매직픽처를 재생할 때 필요한 비트맵을 제작해 overlayBitmap에 추가한다.
+     *
+     * 매직픽처를 재생할 때 필요한 비트맵이란, 움직일 첫번째 이미지에 다른 이미지들의 움직일 얼굴들을 합성한 사진이다.
+     *
+     * @param ovelayBitmap 제작된 비트맵을 추가할 Bitmap 리스트
+     * @param rect 비트맵을 자를 위치 정보
+     * @param index bitmapList의 현재 이미지의 index
+     */
     private fun createOverlayImg(ovelayBitmap: ArrayList<Bitmap>, rect: ArrayList<Int>, index: Int) {
 
         // 감지된 모든 boundingBox 출력
@@ -108,20 +120,16 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
             )
         }
     }
-    @Synchronized
-    fun  getBitmapList() : ArrayList<Bitmap>? {
-        Log.d("faceBlending", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        Log.d("faceBlending", "getBitmapList 호출")
 
-//        checkTransformBitmap = true
+    @Synchronized
+    fun getBitmapList() : ArrayList<Bitmap>? {
+       Log.d("faceBlending", "getBitmapList 호출")
+
         try {
             Log.d("faceBlending", "checkPictureList bitmapList.size ${bitmapList.size}")
             if (bitmapList.size == 0) {
                 Log.d("faceBlending", "checkPictureList while start")
-                while (!imageContent.checkPictureList) {
-//                if(!checkTransformBitmap)
-//                    return null
-                }
+                while (!imageContent.checkPictureList) { }
                 val pictureListSize = pictureList.size
                 Log.d("faceBlending", "pictureListSize : $pictureListSize")
                 val checkFinish = BooleanArray(pictureListSize)
@@ -138,12 +146,9 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
                     CoroutineScope(Dispatchers.Default).launch {
                         try {
                             Log.d("faceBlending", "coroutine in pictureListSize : $pictureListSize")
-                            val bitmap =
-                                imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
-//                    if(checkTransformBitmap) {
+                            val bitmap = imageToolModule.byteArrayToBitmap(imageContent.getJpegBytes(pictureList[i]))
                             bitmapList[i] = bitmap
                             checkFinish[i] = true
-//                    }
                         } catch (e: IndexOutOfBoundsException) {
                             e.printStackTrace() // 예외 정보 출력
                             Log.d("burst", "error : $pictureListSize")
@@ -152,11 +157,8 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
                         }
                     }
                 }
-                while (!checkFinish.all { it }) {
-
-                }
+                while (!checkFinish.all { it }) { }
             }
-//        checkTransformBitmap = false
             return bitmapList
         }catch (e: IndexOutOfBoundsException) {
             // 예외가 발생한 경우 처리할 코드

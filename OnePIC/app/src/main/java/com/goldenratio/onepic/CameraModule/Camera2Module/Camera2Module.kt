@@ -8,7 +8,6 @@ import android.graphics.*
 import android.hardware.camera2.*
 import android.hardware.camera2.params.MeteringRectangle
 import android.media.ImageReader
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -17,7 +16,6 @@ import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -26,16 +24,11 @@ import com.example.test_camera2.CameraHelper.CompareSizesByArea
 import com.example.test_camera2.CameraHelper.ImageSaver
 import com.goldenratio.onepic.CameraModule.CameraEditorActivity
 import com.goldenratio.onepic.CameraModule.ObjectDetectionModule
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-import kotlin.math.PI
 import kotlin.math.max
+
 
 class Camera2Module(
     private val activity: CameraEditorActivity,
@@ -46,61 +39,108 @@ class Camera2Module(
 ) {
 
     /**
-     * TextureView를 사용 가능 한 지와 이와 관련된 surface에 관해 호출되는 리스너
+     * TextureView의 사용 가능 여부와 이와 관련된 surface에 관해 호출되는 리스너
      */
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
 
-        // TextureView가 surfaceTexture를 사용할 준비가 됨
+        /**
+         * TextureView의 SurfaceTexture가 사용 가능할 때 호출된다.
+         *
+         * @param texture TextureView의 SurfaceTexture
+         * @param width SurfaceTexture의 너비
+         * @param height SurfaceTexture의 높이
+         */
         override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
             openCamera(width, height)
         }
 
-        // surfaceTexture의 버퍼크기가 변했음
+        /**
+         * SurfaceTexture의 버퍼 크기가 변경되었을 때 호출된다.
+         *
+         * @param texture TextureView의 SurfaceTexture
+         * @param width SurfaceTexture의 너비
+         * @param height SurfaceTexture의 높이
+         */
         override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
             configureTransform(width, height)
         }
 
         // surfaceTexture가 소멸되려 함
+        /**
+         * SurfaceTexture가 소멸 될 때 호출된다.
+         *
+         * @param texture TextureView의 SurfaceTexture
+         * @return
+         */
         override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
             return true
         }
 
-        // surfaceTexture가 업데이트 됨
+        /**
+         * SurfaceTexture가 업데이트 될 때 호출된다.
+         *
+         * @param texture TextureView의 SurfaceTexture
+         */
         override fun onSurfaceTextureUpdated(texture: SurfaceTexture) {
             if (isDetectionChecked) {
                 setShowObjectPreView()
             }
         }
+
+        /**
+         * preview 이미지를 얻어와 객체 인식한 후 결과를 화면에 표시한다.
+         */
+        private fun setShowObjectPreView() {
+
+            // 객체 인식 코드 호출
+            val newBitmap = textureView.bitmap?.let {
+                objectDetectionModule.runObjectDetection(it)
+            }
+            imageView.setImageBitmap(newBitmap)
+        }
     }
 
     /**
-     * 카메라 캡처 세션의 상태에 대한 업데이트를 수신하기 위한 콜백
+     * 카메라 장치의 상태에 대한 업데이트를 수신할 때 호출되는 콜백 클래스
      */
     private val stateCallback = object : CameraDevice.StateCallback() {
 
+        /**
+         * 카메라 장치가 열렸을 때 호출된다.
+         *
+         * @param cameraDevice 열린 카메라 장치 정보
+         */
         override fun onOpened(cameraDevice: CameraDevice) {
             cameraOpenCloseLock.release()
             this@Camera2Module.cameraDevice = cameraDevice
             createCameraPreviewSession()
         }
 
+        /**
+         * 카메라 장치가 더 이상 사용할 수 없을 때 호출된다.
+         *
+         * @param cameraDevice 사용할 수 없는 카메라 장치 정보
+         */
         override fun onDisconnected(cameraDevice: CameraDevice) {
             cameraOpenCloseLock.release()
             cameraDevice.close()
             this@Camera2Module.cameraDevice = null
         }
 
-        override fun onError(cameraDevice: CameraDevice, error: Int) {
-
-        }
-
+        override fun onError(cameraDevice: CameraDevice, error: Int) { }
     }
 
     /**
-     * 카메라 장치에 capture Request의 진행률을 추천하기 위한 콜백
+     * 카메라 장치에 제출된 CaptureRequest의 진행률을 추척하기 위한 콜백 클래스
      */
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
 
+        /**
+         * 이미지 캡처가 부분적으로 진행되었울 때 호출된다.
+         * 이미지 캡처의 일부 결과 사용할 수 있다.
+         *
+         * @param partialResult 일부 이미지 캡처 결과
+         */
         override fun onCaptureProgressed(
             session: CameraCaptureSession,
             request: CaptureRequest,
@@ -109,6 +149,11 @@ class Camera2Module(
             process(partialResult)
         }
 
+        /**
+         * 이미지 캡처가 완전히 완료되고 모든 결과 메타데이터를 사용할 수 있을 때 호출된다.
+         *
+         * @param result 전체 이미지 캡처 결과
+         */
         override fun onCaptureCompleted(
             session: CameraCaptureSession,
             request: CaptureRequest,
@@ -117,9 +162,16 @@ class Camera2Module(
             process(result)
         }
 
-//        var preState = 0;
-//        var preAfState = 0;
-
+        /**
+         * 이미지 캡처 설정 결과로 호출되는 함수로, state 변수에 따른 이후 동작을 설정한다.
+         *
+         * STATE_PREVIEW : 아무것도 안함
+         * STATE_WAITING_LOCK : capturePicture() 호출
+         * STATE_WAITING_PRECAPTURE : 노출 상태를 확인하고, 현재 노출이 잡히고 있는 상태라면, state 변경
+         * STATE_WAITING_NON_PRECAPTURE : 노출 상태를 확인하고, 현재 노출이 잡힌 상태라면, state 변경 후 captureStillPicture() 함수 호출
+         *
+         * @param result 이미지 캡처 결과
+         */
         private fun process(result: CaptureResult) {
             when (state) {
                 // 프리뷰 상태
@@ -142,12 +194,14 @@ class Camera2Module(
                 // 촬영을 위한 precapture 완료한 상태
                 STATE_WAITING_NON_PRECAPTURE -> {
 
-//                    Log.d("렌즈 초점 결과", "process: STATE_WAITING_NON_PRECAPTURE")
-                    // CONTROL_AE_STATE can be null on some devices
+//                  // CONTROL_AE_STATE can be null on some devices
                     val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
 
-                    Log.d("detectionResult", "4. process : STATE_WAITING_NON_PRECAPTURE - ${aeState}")
-                    if (aeState == null || isDetectionChecked || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE ) {
+                    Log.d(
+                        "detectionResult",
+                        "4. process : STATE_WAITING_NON_PRECAPTURE - ${aeState}"
+                    )
+                    if (aeState == null || isDetectionChecked || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE) {
                         state = STATE_PICTURE_TAKEN
                         captureStillPicture(null)
                     }
@@ -155,7 +209,14 @@ class Camera2Module(
             }
         }
 
-        // 캡처가 준비됬는지 확인하고 준비됬으면 바로 캡처 함수 호출 | 안됐으면 준비 함수 호출
+        /**
+         * 이미지 캡처가 가능한지 초점 상태와 노출 상태를 확인 후 이후 동작을 설정한다.
+         *
+         * 노출과 초점 상태가 캡처 가능한 상태인 경우, captureStillPicture() 함수 호출
+         * 노출 상태가 캡처 가능하지 않은 상태인 경우, runPrecaptureSequence() 함수 호출
+         *
+         * @param result 이미지 캡처 결과
+         */
         private fun capturePicture(result: CaptureResult) {
             Log.d("detectionResult", "4. capturePicture")
 
@@ -164,9 +225,7 @@ class Camera2Module(
             // CONTROL_AF_STATE 키에 해당되는 것이 없다
             Log.d("detectionResult", "capturePicture : $afState")
 
-            if (afState == null ) {
-//                Log.d("렌즈 초점 결과", "capturePicture 2")
-                // 캡처 함수
+            if (afState == null) {
                 captureStillPicture(null)
             } else if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
                 || afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED || afState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN
@@ -187,28 +246,26 @@ class Camera2Module(
     }
 
     /**
-     * ImageReader.OnImageAvailableListener
+     * 사진이 촬영돼 촬영 이미지 결과가 전달되는 함수로, 사진 저장을 도와주는 ImageSaver 제작한다.
      */
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
         imageSaver = ImageSaver(it.acquireNextImage(), previewByteArrayList)
         backgroundHandler?.post(imageSaver!!)
     }
 
-    /**
-     * 변수 모음
-     */
+    /** 변수 **/
+    var objectDetectionModule: ObjectDetectionModule = ObjectDetectionModule(context)
 
+    private var state = STATE_PREVIEW
     private var PICTURE_SIZE = 1
+    private lateinit var previewSize: Size
 
-    var objectDetectionModule: ObjectDetectionModule
+    private lateinit var previewRequestBuilder: CaptureRequest.Builder
+    private lateinit var previewRequest: CaptureRequest
 
     private lateinit var cameraId: String
-
     private var captureSession: CameraCaptureSession? = null
-
     private var cameraDevice: CameraDevice? = null
-
-    private lateinit var previewSize: Size
 
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
@@ -216,31 +273,25 @@ class Camera2Module(
     private var imageReader: ImageReader? = null
     private var imageSaver: ImageSaver? = null
 
-    private lateinit var previewRequestBuilder: CaptureRequest.Builder
-    private lateinit var previewRequest: CaptureRequest
-
-    private var state = STATE_PREVIEW
-
     private val cameraOpenCloseLock = Semaphore(1)
-
     private var flashSupported = false
 
     private var sensorOrientation = 0
 
+    // 최대 초점 거리 값
     private var minimumFocusDistance: Float = 0f
 
+    // 객체 인식
     var isDetectionChecked = false
 
+    // 원하는 카메라 방향 (전면, 후면)
     var wantCameraDirection = 1
 
-
     companion object {
-
         /**
-         * Conversion from screen rotation to JPEG orientation.
+         * 화면 회전에서 JPEG 방향으로 변환
          */
         private val ORIENTATIONS = SparseIntArray()
-        private val FRAGMENT_DIALOG = "dialog"
 
         init {
             ORIENTATIONS.append(Surface.ROTATION_0, 90)
@@ -255,37 +306,37 @@ class Camera2Module(
         private val TAG = "Camera2BasicFragment"
 
         /**
-         * Camera state: Showing camera preview.
+         * Camera state: 카메라 프리뷰를 보여주고 있는 상태
          */
         private val STATE_PREVIEW = 0
 
         /**
-         * Camera state: Waiting for the focus to be locked.
+         * Camera state: 포커스가 잠기기를 기다리고 있는 상태
          */
         private val STATE_WAITING_LOCK = 1
 
         /**
-         * Camera state: Waiting for the exposure to be precapture state.
+         * Camera state: 노출이 PreCaputure가 되길 기다리는 상태
          */
         private val STATE_WAITING_PRECAPTURE = 2
 
         /**
-         * Camera state: Waiting for the exposure state to be something other than precapture.
+         * Camera state: 노출이 PreCaputure가 아닌 다른 상태가 되길 기다리는 상태
          */
         private val STATE_WAITING_NON_PRECAPTURE = 3
 
         /**
-         * Camera state: Picture was taken.
+         * Camera state: 사진이 찍힌 상태
          */
         private val STATE_PICTURE_TAKEN = 4
 
         /**
-         * Max preview width that is guaranteed by Camera2 API
+         * Camera2 API가 보장하는 최대 프리뷰 너비
          */
         private val MAX_PREVIEW_WIDTH = 1920
 
         /**
-         * Max preview height that is guaranteed by Camera2 API
+         * Camera2 API가 보장하는 최대 프리뷰 높이
          */
         private val MAX_PREVIEW_HEIGHT = 1080
 
@@ -299,84 +350,49 @@ class Camera2Module(
         )
     }
 
-    init {
-        objectDetectionModule = ObjectDetectionModule(context)
-
-        // 메인 스레드를 방해하지 않기 위해 카메라 작업은 새로운 스레드 제작 후 해당 스레드에서 실행
-        startBackgroundThread()
-
-//        wantCameraDirection = CameraCharacteristics.LENS_FACING_BACK
-    }
-
-    fun startCamera() {
-        // texture 사용 가능한지 확인
-        if (textureView.isAvailable) {
-            // 카메라 열기
-            openCamera(textureView.width, textureView.height)
-        } else {
-            textureView.surfaceTextureListener = surfaceTextureListener
-        }
-    }
-
     /**
-     * distanceFocusPictures(pictureSize: Int)
-     */
-    fun distanceFocusPictures(pictureSize: Int) {
-        PICTURE_SIZE = pictureSize
-
-        Log.d("렌즈 초점 결과", "distanceBurstBtn on Click")
-        val distanceUnit = minimumFocusDistance / (pictureSize-1)
-
-        val queue = ArrayDeque<Float>()
-        for (i in (pictureSize-1) downTo 0) {
-            queue.add(distanceUnit * i)
-        }
-
-        setFocusDistance(queue)
-    }
-
-    /**
-     * focusDetectionPictures()
-     *      객체별 초점 촬영을 하고자할때 호출하는 함수로
-     *      현재 객체 감지를 정지 시키고, 감지된 객체 정보를 하나씩 얻어와 초점을 맞춘뒤 촬영한다.
-     *      더 이상 촬영할 객체가 없다면 중지한다.
-     */
-    fun focusDetectionPictures() {
-        Log.d("detectionResult", "2. focusDetectionPictures")
-        val detectionResult = objectDetectionModule.getDetectionResult()
-
-        PICTURE_SIZE = 1
-        Log.d("detectionResult", "2. ${detectionResult}")
-        if (detectionResult != null) {
-            val boundingBox = detectionResult.boundingBox
-            val halfTouchWidth = (boundingBox.right - max(boundingBox.left, 0f)) / 2
-            val halfTouchHeight = (boundingBox.bottom - max(boundingBox.top, 0f)) / 2
-
-            // 해당 객체에 초점 맞추기
-            setTouchPointDistanceChange(
-                max(max(boundingBox.left, 0f) + halfTouchWidth, 0F),
-                max(max(boundingBox.top, 0f) + halfTouchHeight, 0F),
-                halfTouchWidth.toInt(), halfTouchHeight.toInt()
-            )
-
-//            Toast.makeText(context, "${detectionResult.text}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /**
-     * 메인 스레드를 방해하지 않기 위해 카메라 작업은 새로운 스레드 제작 후 해당 스레드에서 실행
+     * 메인 스레드를 방해하지 않기 위해 카메라 작업을 위한 새로운 스레드 제작 후 해당 스레드에서 실행하도록 설정한다.
      */
     private fun startBackgroundThread() {
         backgroundThread = HandlerThread("CameraBackground").also { it.start() }
         backgroundHandler = backgroundThread?.looper?.let { Handler(it) }
     }
 
+    private fun stopBackgroundThread() {
+        // 백그라운드 스레드를 중지하고 해제합니다.
+        backgroundThread?.quitSafely()
+        backgroundThread = null
+
+        // 백그라운드 핸들러를 해제합니다.
+        backgroundHandler?.removeCallbacksAndMessages(null)
+        backgroundHandler = null
+    }
 
     /**
-     * 카메라 열기
+     * 카메라를 사용하기 위해 필요한 설정(카메라 열기 및 리스너 설정)을 한다.
+     */
+    fun startCamera() {
+        // texture 사용 가능한지 확인
+        if (textureView.isAvailable) {
+            // 가능하면, 카메라 열기
+            openCamera(textureView.width, textureView.height)
+        } else {
+            // 가능하지 않으면, 리스너 설정
+            textureView.surfaceTextureListener = surfaceTextureListener
+        }
+    }
+
+    /**
+     * 카메라를 열고, 너비 높이에 맞춰서 카메라 화면을 설정([CameraDevice] 설정)한다.
+     *
+     * @param width 카메라 너비
+     * @param height 카메라 높이
      */
     private fun openCamera(width: Int, height: Int) {
+        // 메인 스레드를 방해하지 않기 위해 카메라 작업은 새로운 스레드 제작 후 해당 스레드에서 실행
+        startBackgroundThread()
 
+        // 카메라 권한 확인
         val permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
         val permissionAudio =
             ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
@@ -386,7 +402,9 @@ class Camera2Module(
             return
         }
 
+        // 카메라 얻어오기 및 설정
         setUpCameraOutputs(width, height)
+        // 카메라 회전 설정
         configureTransform(width, height)
 
         val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -405,7 +423,7 @@ class Camera2Module(
     }
 
     /**
-     * 권한 체크
+     * 카메라 권한을 확인한다.
      */
     private fun checkPermissions() {
         //거절되었거나 아직 수락하지 않은 권한(퍼미션)을 저장할 문자열 배열 리스트
@@ -434,9 +452,11 @@ class Camera2Module(
     }
 
     /**
-     * Closes the current [CameraDevice].
+     * 현재 사용중인 카메라를 닫는다.
      */
     fun closeCamera() {
+        stopBackgroundThread()
+
         try {
             cameraOpenCloseLock.acquire()
             captureSession?.close()
@@ -453,7 +473,10 @@ class Camera2Module(
     }
 
     /**
-     * 카메라 설정 및 카메라 관련 멤버 변수 초기화
+     * 사용할 [CameraDevice]를 알아내고, 카메라 및 카메라 관련 멤버 변수를 설정한다.
+     *
+     * @param width 카메라 너비
+     * @param height 카메라 높이
      */
     private fun setUpCameraOutputs(width: Int, height: Int) {
         // 카메라 매니저 얻기 (사용가능한 카메라 장치들 얻어오기)
@@ -542,7 +565,10 @@ class Camera2Module(
     }
 
     /**
-     * 카메라 회전에 관한 함수
+     * 카메라 회전을 화면에 맞춰 설정한다.
+     *
+     * @param displayRotation 화면 회전 정보
+     * @return 화면 회전 설정 여부
      */
     private fun areDimensionsSwapped(displayRotation: Int): Boolean {
         var swappedDimensions = false
@@ -564,15 +590,22 @@ class Camera2Module(
         return swappedDimensions
     }
 
+    /**
+     * 카메라 프리뷰의 최적 해상도를 선택한다.
+     *
+     * @param choices 지원하는 해상도 목록
+     * @param textureViewWidth TextureView의 너비
+     * @param textureViewHeight TextureView의 높이
+     * @param maxWidth 선택 가능한 최대 너비
+     * @param maxHeight 선택 가능한 최대 높이
+     * @param aspectRatio 원하는 화면 비율
+     * @return 선택한 최적 해상도
+     */
     private fun chooseOptimalSize(
         choices: Array<Size>,
-        textureViewWidth: Int,
-        textureViewHeight: Int,
-        maxWidth: Int,
-        maxHeight: Int,
-        aspectRatio: Size,
+        textureViewWidth: Int, textureViewHeight: Int,
+        maxWidth: Int, maxHeight: Int, aspectRatio: Size,
     ): Size {
-
         // Collect the supported resolutions that are at least as big as the preview Surface
         val bigEnough = ArrayList<Size>()
         // Collect the supported resolutions that are smaller than the preview Surface
@@ -593,18 +626,22 @@ class Camera2Module(
 
         // Pick the smallest of those big enough. If there is no one big enough, pick the
         // largest of those not big eugh.
-        if (bigEnough.size > 0) {
-            return Collections.min(bigEnough, CompareSizesByArea())
+        return if (bigEnough.size > 0) {
+            Collections.min(bigEnough, CompareSizesByArea())
         } else if (notBigEnough.size > 0) {
-            return Collections.max(notBigEnough, CompareSizesByArea())
+            Collections.max(notBigEnough, CompareSizesByArea())
         } else {
             Log.e(TAG, "Couldn't find any suitable preview size")
-            return choices[0]
+            choices[0]
         }
     }
 
+
     /**
-     * 카메라 회전 설정 및 textureView 설정
+     * TextureView의 변환 매트릭스를 구성하여 카메라 프리뷰의 회전 및 크기를 조정한다.
+     *
+     * @param viewWidth TextureView의 너비
+     * @param viewHeight TextureView의 높이
      */
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
         activity ?: return
@@ -633,7 +670,7 @@ class Camera2Module(
     }
 
     /**
-     * 카메라 프리뷰 생성
+     * 카메라 프리뷰 세션을 생성하고 설정한다.
      */
     private fun createCameraPreviewSession() {
         try {
@@ -692,7 +729,9 @@ class Camera2Module(
     }
 
     /**
-     * 사진 촬영 전, 초점 고정시키기 위해 lock 거는 함수
+     * 사진 촬영 전, 초점을 고정시키기 위해 카메라 잠금을 설정한다.
+     *
+     * @param pictureSize 촬영될 사진 개수
      */
     fun lockFocus(pictureSize: Int) {
         Log.d("detectionResult", "4. lockFocus")
@@ -727,7 +766,7 @@ class Camera2Module(
     }
 
     /**
-     * 사진 촬영 후, 초점 고정시켰던 lock 푸는 함수
+     * 사진 촬영 후, 초점 고정시켰던 카메라 잠금을 해제한다.
      */
     private fun unlockFocus() {
         try {
@@ -744,7 +783,9 @@ class Camera2Module(
     }
 
     /**
-     * 실제 사진 촬영을 하는 함수 (이미지 캡처)
+     * 사진을 촬영한다. (이미지 캡처)
+     *
+     * @param value 설정하고자하는 카메라 초점거리들(거리별 다초점 촬영에서만 사용)
      */
     private fun captureStillPicture(value: ArrayDeque<Float>?) {
         Log.d("detectionResult", "5. captureStillPicture")
@@ -759,10 +800,10 @@ class Camera2Module(
             )?.apply {
                 addTarget(imageReader?.surface!!)
 
-                set(
-                    CaptureRequest.JPEG_ORIENTATION,
-                    (ORIENTATIONS.get(rotation!!) + sensorOrientation + 270) % 360
-                )
+                    set(
+                        CaptureRequest.JPEG_ORIENTATION,
+                        (ORIENTATIONS.get(rotation!!) + sensorOrientation + 270) % 360
+                    )
 
                 // Use the same AE and AF modes as the preview.
                 if (value != null) {
@@ -792,7 +833,7 @@ class Camera2Module(
                         unlockFocus()
                         Log.d("detectionResult", "5. isDetectionChecked : ${isDetectionChecked}")
                         if (isDetectionChecked) {
-                            focusDetectionPictures()
+                            focusObjectDetectionPictures()
                         }
                     }
                 }
@@ -829,7 +870,7 @@ class Camera2Module(
     }
 
     /**
-     * 사진 촬영 준비하는 함수 (precaputre 대기 위한 설정)
+     * 사진 촬영 준비하는 함수로, PreCapture를 실행하여 미터링 및 초점을 설정합니다.
      */
     private fun runPrecaptureSequence() {
         try {
@@ -850,7 +891,7 @@ class Camera2Module(
     }
 
     /**
-     * 프리뷰 초점 수동으로 변경했을 때 마지막에 자동 초점 촬영으로 변경
+     * 프리뷰 초점을 자동 초점으로 설정한다.
      */
     fun setAutoFocus() {
         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
@@ -862,60 +903,12 @@ class Camera2Module(
     }
 
     /**
-     * 프리뷰 초점 수동으로 변경하고 초점 설정해서 촬영
-     */
-    private fun setFocusDistance(value: ArrayDeque<Float>) {
-
-        state = STATE_PICTURE_TAKEN
-
-        var focusDistanceValue = value.peek()
-
-        if (focusDistanceValue > minimumFocusDistance) {
-            focusDistanceValue = minimumFocusDistance
-        }
-
-        previewRequestBuilder.set(
-            CaptureRequest.CONTROL_AF_MODE,
-            CaptureRequest.CONTROL_AF_MODE_OFF
-        )
-        previewRequestBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistanceValue)
-
-        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-            override fun onCaptureCompleted(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                result: TotalCaptureResult,
-            ) {
-
-                // 렌즈 현재 상태 알아낼 수 있음
-                val lensState = result.get(CaptureResult.LENS_STATE)
-
-                // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
-                if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
-                    var distanceValue = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
-                    // 내가 지정한 바운더리 안에 있는지 확인
-//                    if (distanceValue != null && value.isNotEmpty() && distanceValue > value.peek() - 0.1f
-//                        && distanceValue < value.peek() + 0.1f
-//                    ) {
-                    Log.d(
-                        "렌즈 초점 거리",
-                        "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}"
-                    )
-                    captureStillPicture(value)
-//                    }
-                }
-            }
-        }
-
-        previewRequest = previewRequestBuilder.build()
-        captureSession?.setRepeatingRequest(
-            previewRequest,
-            captureCallback, backgroundHandler
-        )
-    }
-
-    /**
-     * 해당 위치에 초점을 맞춰주는 함수
+     *  프리뷰에서 원하는 위치에 초점을 맞춰준다.
+     *
+     * @param x 초점이 맞길 원하는 중심점 x
+     * @param y 초점이 맞길 원하는 중심점 y
+     * @param halfTouchWidth 중심점으로부터 초점이 맞길 원하는 너비
+     * @param halfTouchHeight 중심점으로부터 초점이 맞길 원하는 높이
      */
     fun setTouchPointDistanceChange(x: Float, y: Float, halfTouchWidth: Int, halfTouchHeight: Int) {
         var isCaptured = false
@@ -980,6 +973,11 @@ class Camera2Module(
 
     }
 
+    /**
+     * (플래시가 지원되는 경우) 카메라 자동 플래시 모드를 설정한다.
+     *
+     * @param requestBuilder CaptureRequest.Builder 인스턴스
+     */
     private fun setAutoFlash(requestBuilder: CaptureRequest.Builder) {
         if (flashSupported) {
             requestBuilder.set(
@@ -988,14 +986,98 @@ class Camera2Module(
         }
     }
 
+    /**
+     * 거리별 다초점 촬영 함수로, 입력된 크기만큼 초점거리 값을 제작해 설정된 초점 값으로 초점을 맞춘다.
+     *
+     * @param pictureSize 거리별 다초점 촬영으로 촬영될 사진 개수
+     */
+    fun distanceFocusPictures(pictureSize: Int) {
+        PICTURE_SIZE = pictureSize
 
-    private fun setShowObjectPreView() {
+        Log.d("렌즈 초점 결과", "distanceBurstBtn on Click")
 
-        // 객체 인식 코드 호출
-        val newBitmap = textureView.bitmap?.let {
-            objectDetectionModule.runObjectDetection(it)
+        // 사이즈 맞춰서 초점거리 값 제작
+        val distanceUnit = minimumFocusDistance / (pictureSize-1)
+        val queue = ArrayDeque<Float>()
+        for (i in (pictureSize-1) downTo 0) {
+            queue.add(distanceUnit * i)
         }
 
-        imageView.setImageBitmap(newBitmap)
+        // 설정된 초점 거리 값으로 초점 맞추기
+        setFocusDistance(queue)
     }
+
+    /**
+     * 카메라의 초점을 수동 초점으로 변경하고, 전달받은 값의 첫번째 초점거리로 초점거리를 설정한다.
+     *
+     * @param value 설정하고자하는 카메라 초점거리들 (거리별 다초점 촬영에서만 사용)
+     */
+    private fun setFocusDistance(value: ArrayDeque<Float>) {
+
+        state = STATE_PICTURE_TAKEN
+
+        var focusDistanceValue = value.peek()
+
+        if (focusDistanceValue > minimumFocusDistance) {
+            focusDistanceValue = minimumFocusDistance
+        }
+
+        previewRequestBuilder.set(
+            CaptureRequest.CONTROL_AF_MODE,
+            CaptureRequest.CONTROL_AF_MODE_OFF
+        )
+        previewRequestBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistanceValue)
+
+        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult,
+            ) {
+                // 렌즈 현재 상태 알아낼 수 있음
+                val lensState = result.get(CaptureResult.LENS_STATE)
+
+                // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
+                if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
+                    var distanceValue = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                    // 내가 지정한 바운더리 안에 있는지 확인
+                    if (distanceValue != null && value.isNotEmpty() && distanceValue > value.peek() - 0.1f
+                        && distanceValue < value.peek() + 0.1f
+                    ) {
+                        Log.d("렌즈 초점 거리", "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}")
+                        captureStillPicture(value)
+                    }
+                }
+            }
+        }
+
+        previewRequest = previewRequestBuilder.build()
+        captureSession?.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler)
+    }
+
+    /**
+     *  객체별 초점 촬영에서 호출하는 함수로, 현재 객체 감지를 정지 시키고 감지된 객체 정보를 하나씩 얻어와 초점을 맞춘 뒤 촬영한다.
+     *  더 이상 촬영할 객체가 없다면 중지한다.
+     */
+    fun focusObjectDetectionPictures() {
+        Log.d("detectionResult", "2. focusDetectionPictures")
+        val detectionResult = objectDetectionModule.getDetectionResult()
+
+        // 한 장씩 촬영
+        PICTURE_SIZE = 1
+        Log.d("detectionResult", "2. ${detectionResult}")
+        if (detectionResult != null) {
+            val boundingBox = detectionResult.boundingBox
+            val halfTouchWidth = (boundingBox.right - max(boundingBox.left, 0f)) / 2
+            val halfTouchHeight = (boundingBox.bottom - max(boundingBox.top, 0f)) / 2
+
+            // 해당 객체에 초점 맞추기
+            setTouchPointDistanceChange(
+                max(max(boundingBox.left, 0f) + halfTouchWidth, 0F),
+                max(max(boundingBox.top, 0f) + halfTouchHeight, 0F),
+                halfTouchWidth.toInt(), halfTouchHeight.toInt()
+            )
+        }
+    }
+
 }
