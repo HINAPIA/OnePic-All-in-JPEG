@@ -8,8 +8,8 @@ import androidx.annotation.RequiresApi
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
+import com.goldenratio.onepic.PictureModule.AiContainer
 import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
@@ -20,14 +20,12 @@ import java.io.InputStream
 class JpegViewModel(private val context:Context) : ViewModel() {
 
 
-    var jpegMCContainer = MutableLiveData<MCContainer>()
+    var jpegMCContainer = MutableLiveData<AiContainer>()
 
     var diaryCellArrayList = arrayListOf<DiaryCellData>()
 
-    var addCellData: DiaryCellData? = null
     var daysInMonth: Int = 0
     var currentUri : Uri? = null
-    var currentFileName : String = ""
 
     var currentMonth: Int = 0
     var currentDay: Int = 0
@@ -40,7 +38,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
     var isAddedAudio = MutableLiveData<Boolean>(false)
     var isAudioPlay = MutableLiveData<Int>(0)
 
-    private var loadResolver : LoadResolver = LoadResolver()
+    private var loadResolver : AiLoadResolver = AiLoadResolver()
 
     private lateinit var pictureByteArrayList: MutableList<ByteArray> // pictureByteArrayList
 
@@ -52,8 +50,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
         return pictureByteArrayList
     }
 
-    fun setContainer(MCContainer: MCContainer) {
-        jpegMCContainer.value = MCContainer
+    fun setContainer(aiContainer: AiContainer) {
+        jpegMCContainer.value = aiContainer
     }
 
 
@@ -64,7 +62,7 @@ class JpegViewModel(private val context:Context) : ViewModel() {
             val iStream: InputStream? = context.contentResolver.openInputStream(uri)
             var sourceByteArray = getBytes(iStream!!)
             var jop = async {
-                loadResolver.createMCContainer(jpegMCContainer.value!!, sourceByteArray)
+                loadResolver.createAiContainer(jpegMCContainer.value!!, sourceByteArray)
 
             }
             jop.await()

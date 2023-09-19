@@ -1,8 +1,7 @@
-package com.goldenratio.onepic.PictureModule
+package com.goldenratio.onepic.AllinJPEGModule
 
-import android.util.Log
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.Contents.Text
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
 
 class TextContent {
     var textList : ArrayList<Text> = arrayListOf()
@@ -44,7 +43,6 @@ class TextContent {
 
     private fun setDate() {
 
-        Log.d("Cell Text","setDate Call")
         if(textList.size !=0) {
             var date = textList[0].data.split("<date>")
             if (date.size >= 2) {
@@ -78,4 +76,7 @@ class TextContent {
         }
         return ""
     }
+
+
+
 }

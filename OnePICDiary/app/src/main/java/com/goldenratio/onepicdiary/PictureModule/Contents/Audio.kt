@@ -1,6 +1,4 @@
-package com.goldenratio.onepic.PictureModule.Contents
-
-import android.util.Log
+package com.goldenratio.onepic.AllinJPEGModule.Contents
 
 class Audio (audioByteArray : ByteArray? = null, _Content_attribute: ContentAttribute){
     var _audioByteArray : ByteArray? = null

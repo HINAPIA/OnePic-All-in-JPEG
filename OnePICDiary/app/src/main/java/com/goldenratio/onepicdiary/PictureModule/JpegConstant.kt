@@ -1,4 +1,4 @@
-package com.goldenratio.onepic.PictureModule
+package com.goldenratio.onepic.AllinJPEGModule
 
 class JpegConstant {
     var  nameHashMap: HashMap<Int?, String?> = object : HashMap<Int?, String?>() {
@@ -10,7 +10,7 @@ class JpegConstant {
             put(492, "APP13")
             put(493, "APP14")
             put(494, "APP15")
-            put(479, "JFIF")
+            put(479, "APP0")
             put(447, "SOF0")
             put(448, "SOF1")
             put(449, "SOF2")
@@ -46,12 +46,15 @@ class JpegConstant {
             put(496, "MEDIA1")
             put(497, "MEDIA2")
             put(504, "EOM")
+            put(265, "XOI")
+            put(275, "XOT")
+            put(285, "XOA")
         }
     }
     val JPEG_SOM_MARKER = 0xff + 0xf8
-    val JPEG_MEDIA1_MARKER = 0xff + 0xf1
-    val JPEG_MEDIA2_MARKER = 0xff + 0xf2
-    val JPEG_EOM_MARKER = 0xff + 0xf9
+    val XOI = 0xff + 0x10
+    val XOA = 0xff + 0x30
+    val XOT = 0xff + 0x20
 
     val JPEG_APP1_MARKER = 0xff + 0xe1
     val JPEG_APP2_MARKER = 0xff + 0xe2
@@ -61,7 +64,7 @@ class JpegConstant {
     val JPEG_APP14_MARKER = 0xff + 0xee
     val JPEG_APP15_MARKER = 0xff + 0xef
 
-    val JFIF_MARKER = 0xff + 0xe0
+    val APP0_MARKER = 0xff + 0xe0
     val SOF0_MARKER = 0xff + 0xc0
     val SOF1_MARKER = 0xff + 0xc1
     val SOF2_MARKER = 0xff + 0xc2
@@ -98,7 +101,7 @@ class JpegConstant {
     val COM_MARKER = 0xff + 0xfe
 
     val MARKERS = intArrayOf(
-        JFIF_MARKER,
+        APP0_MARKER,
         JPEG_APP1_MARKER,
         JPEG_APP2_MARKER,
         JPEG_APP3_MARKER,
@@ -138,7 +141,10 @@ class JpegConstant {
         DNL_MARKER,
         COM_MARKER,
         SOI_MARKER,
-        JPEG_SOM_MARKER
+        JPEG_SOM_MARKER,
+        XOI,
+        XOA,
+        XOT
 
     )
 }

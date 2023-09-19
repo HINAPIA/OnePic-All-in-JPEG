@@ -13,14 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepicdiary.DiaryModule.DiaryCellData
 import com.goldenratio.onepicdiary.DiaryModule.LayoutToolModule
 import com.goldenratio.onepicdiary.MainActivity
@@ -106,8 +105,8 @@ class AddDiaryFragment : Fragment() {
 
 
                 jpegViewModel.jpegMCContainer.value!!.setTextConent(
-                    ContentAttribute.basic,
-                    textList
+                    textList,
+                    ContentAttribute.Basic,
                 )
 
                 // 기존 파일 삭제
@@ -115,15 +114,18 @@ class AddDiaryFragment : Fragment() {
 //                    imageUri!!,
 //                    fileName
 //                )
+                CoroutineScope(Dispatchers.Default).launch {
+                   // val finalFileName =System.currentTimeMillis().toString() + ".jpg" // 파일 이름 현재 시간.jpg
+                    val savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
 
+                    val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
+                    editor.remove("$year/$month/$day") // 삭제할 값의 키를 지정합니다.
+                    editor.putString("$year/$month/$day", savedFilePath)
+                    editor.apply()
 
-                val savedFilePath = jpegViewModel.jpegMCContainer.value?.save()
-
-                val editor: SharedPreferences.Editor = jpegViewModel.preferences.edit()
-                editor.remove("$year/$month/$day") // 삭제할 값의 키를 지정합니다.
-                editor.putString("$year/$month/$day", savedFilePath)
-                editor.apply()
+                }
                 findNavController().navigate(R.id.action_addDiaryFragment_to_calendarFragment)
+
             }
         }
         binding.mainView.setOnClickListener {

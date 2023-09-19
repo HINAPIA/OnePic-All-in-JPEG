@@ -13,14 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
 import com.goldenratio.onepicdiary.MainActivity
 import com.goldenratio.onepicdiary.R
 import com.goldenratio.onepicdiary.databinding.AudioDialogBinding
@@ -30,7 +28,6 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
 import java.util.*
-
 class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
 
     private val jpegViewModel by activityViewModels<JpegViewModel>()
@@ -102,7 +99,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         // 백 버튼 클릭 시
         binding.backBtn.setOnClickListener {
             dialog?.dismiss() // 현재 다이얼로그를 닫음
-           // findNavController().navigate(R.id.action_audioAddFragment_to_addDiaryFragment)
+            // findNavController().navigate(R.id.action_audioAddFragment_to_addDiaryFragment)
         }
 
         binding.recordingImageView.setOnClickListener {
@@ -220,7 +217,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
         Log.d("save_audio", "isAddedAudio True")
         //MC Container에 추가
         var auioBytes = audioResolver.getByteArrayInFile(savedFile!!)
-        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.basic)
+        jpegViewModel.jpegMCContainer.value!!.setAudioContent(auioBytes, ContentAttribute.Basic)
         CoroutineScope(Dispatchers.Main).launch {
             binding.RecordingTextView.setText("")
             Toast.makeText(activity, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
@@ -345,7 +342,7 @@ class AudioBottomSheet : BottomSheetDialogFragment() , ConfirmDialogInterface{
             timerTask.cancel()
             CoroutineScope(Dispatchers.Main).launch {
                 binding.RecordingTextView.setText("")
-              //  Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(activity, "녹음이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 
             }
         }

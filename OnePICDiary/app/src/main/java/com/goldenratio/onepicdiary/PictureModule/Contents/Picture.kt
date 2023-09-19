@@ -1,13 +1,14 @@
-package com.goldenratio.onepic.PictureModule.Contents
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 
 class Picture(
     var contentAttribute: ContentAttribute,
+    var metaData : ByteArray? = null,
     var pictureByteArray: ByteArray? = null) {
+    var _mataData : ByteArray? = null
     var _pictureByteArray: ByteArray? = null
-    var size: Int = pictureByteArray?.size ?: 0
+    var imageSize: Int = pictureByteArray?.size ?: 0
     var embeddedSize = 0
     var embeddedData: ArrayList<Int>? = null
     var offset = 0
@@ -15,34 +16,37 @@ class Picture(
     init {
         if (pictureByteArray != null) {
             _pictureByteArray = pictureByteArray
-            size = pictureByteArray!!.size
+            imageSize = pictureByteArray!!.size
+            pictureByteArray = null
+        }
+        if(metaData != null){
+            _mataData = metaData!!
         }
     }
 
     constructor(
         offset: Int,
+        metaData: ByteArray?,
         byteArray: ByteArray,
         contentAttribute: ContentAttribute,
         embeddedSize: Int,
         embeddedData: ArrayList<Int>?
     ) : this(contentAttribute) {
         this.offset = offset
+        this._mataData = metaData
         this.embeddedSize = embeddedSize
         this.embeddedData = embeddedData
         this._pictureByteArray = byteArray
-        size = _pictureByteArray!!.size
+        imageSize = _pictureByteArray!!.size
     }
 
-    // 추가 데이터를 셋팅하는 함수
-    fun insertEmbeddedData(data: ArrayList<Int>) {
-        this.embeddedData = data
-        this.embeddedSize = data.size * 4
+    override fun toString(): String {
+        return "[Picture] offset : ${offset}, Attribute : ${contentAttribute},"+
+                " meta Data Size : ${_mataData?.size}, image data size : ${imageSize}," +
+                "embbeded Size : ${embeddedSize}, embedded Data : ${embeddedData}"
     }
 
-    // Byte를 Bitmap으로 변환
-    fun byteArrayToBitmap(_byteArray: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(_byteArray, 0, _byteArray.size)
-    }
+
 
     fun waitForByteArrayInitialized() {
         while (!isByteArrayInitialized()) {

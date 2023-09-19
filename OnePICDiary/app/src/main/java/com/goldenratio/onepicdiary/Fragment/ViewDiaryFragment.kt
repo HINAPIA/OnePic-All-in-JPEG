@@ -2,10 +2,7 @@ package com.goldenratio.onepicdiary.Fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Typeface
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Build
@@ -16,20 +13,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.PictureModule.Contents.ContentAttribute
-import com.goldenratio.onepic.PictureModule.ImageContent
-import com.goldenratio.onepic.PictureModule.TextContent
 import com.goldenratio.onepicdiary.DiaryModule.LayoutToolModule
 import com.goldenratio.onepicdiary.DiaryModule.ViewPagerAdapter
 import com.goldenratio.onepicdiary.MagicPictureModule.MagicPictureModule
@@ -69,13 +61,7 @@ class ViewDiaryFragment : Fragment() {
 
     /* Audio */
     // audio
-    var isAudioOn : Boolean = false
-    var isPlayingMode : Boolean = true
 
-    // 녹음 중
-    var isRecordingMode : Boolean = false
-    // 녹음이 완료 되었을 때
-    var isRecordedMode : Boolean = false
     var isPlaying : Boolean = false
     var isPlayingEnd : Boolean = false
     private var isDestroy : Boolean = false

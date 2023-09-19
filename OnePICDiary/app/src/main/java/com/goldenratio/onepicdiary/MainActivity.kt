@@ -13,7 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.JpegViewModelFactory
-import com.goldenratio.onepic.PictureModule.MCContainer
+import com.goldenratio.onepic.PictureModule.AiContainer
+import com.goldenratio.onepicdiary.PictureModule.AiSaveResolver
 import com.goldenratio.onepicdiary.databinding.ActivityMainBinding
 import java.util.*
 
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         jpegViewModels = ViewModelProvider(this, jpegViewModelFactory)[JpegViewModel::class.java]
 
 
-        val MCContainer = MCContainer(this)
+        val MCContainer = AiContainer(this)
         jpegViewModels.setContainer(MCContainer)
 
 
