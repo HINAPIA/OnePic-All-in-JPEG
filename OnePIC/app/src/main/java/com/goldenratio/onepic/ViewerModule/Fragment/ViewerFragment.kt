@@ -629,10 +629,18 @@ class ViewerFragment : Fragment() {
         imageView.setPadding(6)
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
+
+            val imageContent = jpegViewModel.jpegAiContainer.value!!.imageContent
+            binding.magicView.visibility = View.VISIBLE
+            Glide.with(binding.magicView)
+                .load(imageContent.getJpegBytes(pictureList[index]))
+                .into(binding.magicView)
             imageTool.showView(binding.magicBtnlinearLayout, true)
-            magicPictureModule =MagicPictureModule(jpegViewModel.jpegAiContainer.value!!.imageContent, pictureList[index])
+            magicPictureModule =MagicPictureModule(imageContent, pictureList[index])
         }
         else {
+            binding.magicView.visibility = View.GONE
+            binding.magicView.setImageBitmap(null)
             if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
                 binding.magicBtn.performClick()
             }
