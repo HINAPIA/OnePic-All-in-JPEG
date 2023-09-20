@@ -582,6 +582,20 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     }
 
     /**
+     * 매직픽처일 경우, 화면에 매직픽처 아이콘 띄우기
+     */
+    private fun setMagicPlay() {
+        CoroutineScope(Dispatchers.IO).launch {
+            isMagicPlay = false
+            val selected = jpegViewModel.selectedSubImage
+            if(selected != null)
+                magicPictureModule = MagicPictureModule(imageContent, selected)
+
+            Log.d("magic!!!", "seleted index = $selected | ${jpegViewModel.getSelectedSubImageIndex()}" )
+        }
+    }
+
+    /**
      * 매직픽처를 재생한다.
      */
     private fun playMagicPicture() {
@@ -611,20 +625,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 showProgressBar(false, null)
             }
             isMagicPlay = false
-        }
-    }
-
-    /**
-     * 매직픽처일 경우, 화면에 매직픽처 아이콘 띄우기
-     */
-    private fun setMagicPlay() {
-        CoroutineScope(Dispatchers.IO).launch {
-            isMagicPlay = false
-            val selected = jpegViewModel.selectedSubImage
-            if(selected != null)
-                magicPictureModule = MagicPictureModule(imageContent, selected)
-
-            Log.d("magic!!!", "seleted index = $selected | ${jpegViewModel.getSelectedSubImageIndex()}" )
         }
     }
 

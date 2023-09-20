@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
@@ -27,6 +28,8 @@ import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
 import com.goldenratio.onepic.AllinJPEGModule.AiContainer
+import com.goldenratio.onepic.EditModule.Fragment.EditFragment
+import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
@@ -313,31 +316,32 @@ class ViewerFragment : Fragment() {
     }
 
     fun setMagicPicture() {
-
         val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
         mainViewPagerAdapter.resetMagicPictureList()
 
         imageTool.showView(binding.magicBtn, true)
         binding.magicBtn.setOnClickListener {
-            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
-                imageTool.showView(binding.progressBar, true)
-                CoroutineScope(Dispatchers.Main).launch {
-                    /* layout 변경 */
-                    binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
-                    isMagicBtnClicked = true
-                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegAiContainer.value?.imageContent!!)
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
-                }
 
-            }
-            else { // 클릭 되어 있던 상태
-                /* layout 변경 */
-                binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
-                isMagicBtnClicked = false
-                mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-                //previousClickedItem!!.performClick()
-            }
+//            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
+//                imageTool.showView(binding.progressBar, true)
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    /* layout 변경 */
+//                    binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+//                    isMagicBtnClicked = true
+//                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegAiContainer.value?.imageContent!!)
+//                    mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
+//                }
+//
+//            }
+//            else { // 클릭 되어 있던 상태
+//                /* layout 변경 */
+//                binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
+//                isMagicBtnClicked = false
+//                mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
+//                //previousClickedItem!!.performClick()
+//            }
+            playMagicPicture()
         }
         try {
             isFinished.observe(requireActivity()) { value ->
@@ -352,14 +356,89 @@ class ViewerFragment : Fragment() {
     }
 
 
+    private var isMagicPlay: Boolean = false
+    private var overlayBitmap = arrayListOf<Bitmap>()
+    private var magicPictureModule: MagicPictureModule? = null
+    val handler = Handler()
+    var magicPlaySpeed: Long = 100
+
+    /**
+     * 매직픽처를 재생한다.
+     */
+    private fun playMagicPicture() {
+        if (!isMagicPlay) {
+            imageTool.showView(binding.progressBar, true)
+//            showProgressBar(true, EditFragment.LoadingText.MagicPlay)
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
+            }
+
+            isMagicPlay = true
+
+            CoroutineScope(Dispatchers.Default).launch {
+                if (overlayBitmap.isEmpty() ) {
+                    while(magicPictureModule == null ) {}
+                    overlayBitmap = magicPictureModule!!.magicPictureProcessing()
+                }
+                Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
+//                showProgressBar(false, null)
+                imageTool.showView(binding.progressBar, false)
+                Log.d("magic", "magicPucture run ${overlayBitmap.size}")
+                magicPictureRun(overlayBitmap)
+            }
+        }
+        else {
+            handler.removeCallbacksAndMessages(null)
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
+//                showProgressBar(false, null)
+                imageTool.showView(binding.progressBar, false)
+            }
+            isMagicPlay = false
+        }
+    }
+
+    /**
+     * 매직픽처를 재생한다.
+     *
+     * @param overlapBitmap 재생에 필요한 [Bitmap]
+     */
+    private fun magicPictureRun(overlapBitmap: java.util.ArrayList<Bitmap>) {
+        CoroutineScope(Dispatchers.Default).launch {
+
+            var currentImageIndex = 0
+            var increaseIndex = 1
+
+            val runnable = object : java.lang.Runnable {
+                override fun run() {
+                    if (overlapBitmap.size > 0) {
+                        binding.magicView.setImageBitmap(overlapBitmap[currentImageIndex])
+                        //currentImageIndex++
+
+                        currentImageIndex += increaseIndex
+
+                        if (currentImageIndex >= overlapBitmap.size - 1) {
+                            //currentImageIndex = 0
+                            increaseIndex = -1
+                        } else if (currentImageIndex <= 0) {
+                            increaseIndex = 1
+                        }
+                        handler.postDelayed(this, magicPlaySpeed)
+                    }
+                }
+            }
+            handler.postDelayed(runnable, magicPlaySpeed)
+        }
+    }
+
+
+
     /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
     @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.M)
     fun setCurrentOtherImage() {
-
         pictureList = jpegViewModel.jpegAiContainer.value?.getPictureList()!!
         binding.imageCntTextView.text = "담긴 사진 ${jpegViewModel.getPictureByteArrList().size}장"
-
 
         // bitmap list (seek bar 속도 개선)
         val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
@@ -384,7 +463,6 @@ class ViewerFragment : Fragment() {
                 val pictureByteArrList = jpegViewModel.getPictureByteArrList()
                 for (i in 0..pictureList.size - 1) {
                     val picture = pictureList[i]
-
 
                     // 넣고자 하는 layout 불러오기
                     try {
@@ -552,6 +630,7 @@ class ViewerFragment : Fragment() {
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
             imageTool.showView(binding.magicBtnlinearLayout, true)
+            magicPictureModule =MagicPictureModule(jpegViewModel.jpegAiContainer.value!!.imageContent, pictureList[index])
         }
         else {
             if( isMagicBtnClicked ) { // 클릭 되어 있던 상태

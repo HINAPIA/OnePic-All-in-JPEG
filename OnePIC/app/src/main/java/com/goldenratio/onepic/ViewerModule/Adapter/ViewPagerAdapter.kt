@@ -123,11 +123,10 @@ class ViewPagerAdapter (val context: Context) : RecyclerView.Adapter<ViewPagerAd
                 if (overlayImg.size <= 0) {
                     overlayImg = magicPictureProcessing()
                 }
-                CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
                     checkMagicPicturePlay = true
                     notifyDataSetChanged()
-                }
-                withContext(Dispatchers.Main) {
+
                     isFinished.value = true
                 }
             }
