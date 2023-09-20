@@ -1,27 +1,10 @@
 export default class Picture {
-    // constructor(contentAttribute, app1Segment = null, pictureByteArray = null) {
-    //     this.contentAttribute = contentAttribute;
-    //     this._app1Segment = null;
-    //     this._pictureByteArray = null;
-    //     this.imageSize = pictureByteArray ? pictureByteArray.length : 0;
-    //     this.embeddedSize = 0;
-    //     this.embeddedData = null;
-    //     this.offset = 0;
-
-    //     if (pictureByteArray) {
-    //         this._pictureByteArray = new Uint8Array(pictureByteArray);
-    //         this.imageSize = pictureByteArray.length;
-    //         pictureByteArray = null;
-    //     }
-    //     if (app1Segment) {
-    //         this._app1Segment = new Uint8Array(app1Segment);
-    //     }
-    // }
+ 
 
     // 새로운 생성자 추가
-    constructor(offset = null, app1Segment, pictureByteArray, contentAttribute = null, embeddedSize = 0, embeddedData = null) {
+    constructor(offset = null, metaData, pictureByteArray, contentAttribute = null, embeddedSize = 0, embeddedData = null) {
         this.contentAttribute = contentAttribute;
-        this._app1Segment = app1Segment ? new Uint8Array(app1Segment) : null;
+        this._metaData = metaData ? new Uint8Array(metaData) : null;
         this._pictureByteArray = new Uint8Array(pictureByteArray);
         this.imageSize = this._pictureByteArray.length;
         this.embeddedSize = embeddedSize;
@@ -33,9 +16,9 @@ export default class Picture {
             this.imageSize = pictureByteArray.length;
             pictureByteArray = null;
         }
-        if (app1Segment) {
-            this._app1Segment = new Uint8Array(app1Segment);
-        }
+        // if (metaData) {
+        //     this._metaData = new Uint8Array(metaData);
+        // }
     }
 
     insertEmbeddedData(data) {

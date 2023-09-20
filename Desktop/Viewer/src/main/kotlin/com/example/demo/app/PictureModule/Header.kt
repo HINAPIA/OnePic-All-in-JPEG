@@ -24,7 +24,10 @@ class Header(_MC_container : AiContainer) {
         val IDENTIFIER_FIELD_SIZE = 4
         val BURST_MODE = 1
     }
-    // MC Container에 채워진 Content의 정보를 Info 클래스들로 생성
+
+    /**
+     * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 갱신
+     */
     fun settingHeaderInfo(){
         imageContentInfo = ImageContentInfo(AiContainer.imageContent)
         textContentInfo = TextContentInfo(AiContainer.textContent, imageContentInfo.getEndOffset())
@@ -33,7 +36,9 @@ class Header(_MC_container : AiContainer) {
         applyAddedAPP3DataSize()
     }
 
-    //추가한 APP3 extension + JpegMeta data 만큼 offset 변경
+    /**
+     * TODO 추가한 APP3 extension + JpegMeta data 만큼 offset 변경
+     */
     fun applyAddedAPP3DataSize(){
         // 추가할 APP3 extension 만큼 offset 변경 - APP3 marker(2) + APP3 Data field length + EOI
         var headerLength = getAPP3FieldLength() + 2
@@ -55,6 +60,11 @@ class Header(_MC_container : AiContainer) {
         audioContentInfo.dataStartOffset += (headerLength+jpegMetaLength)+ 2
     }
 
+    /**
+     * TODO 생성하는 APP3 segment 크기를 구한 후 리턴
+     *
+     * @return 생성될 APP3 segment 크기
+     */
     fun getAPP3FieldLength(): Short{
         var size = getAPP3CommonDataLength()
         size += imageContentInfo.getLength()
@@ -64,8 +74,27 @@ class Header(_MC_container : AiContainer) {
     }
 
     fun getAPP3CommonDataLength() : Int {
-        return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE
+        return APP3_MARKER_SIZE + APP3_LENGTH_FIELD_SIZE + IDENTIFIER_FIELD_SIZE + BURST_MODE
     }
 
+    fun convertBinaryData(isBurst : Boolean) : ByteArray {
+        val buffer: ByteBuffer = ByteBuffer.allocate(getAPP3FieldLength() + 2)
+        buffer.put("ff".toInt(16).toByte())
+        buffer.put("e3".toInt(16).toByte())
+        buffer.putShort(headerDataLength)
+        // A, i, F, 0
+        buffer.put(0x41.toByte())
+        buffer.put(0x69.toByte())
+        buffer.put(0x46.toByte())
+        buffer.put(0x00.toByte())
+        if(isBurst)
+            buffer.put(1.toByte())
+        else
+            buffer.put(0.toByte())
+        buffer.put(imageContentInfo.converBinaryData(isBurst))
+        buffer.put(textContentInfo.convertBinaryData())
+        buffer.put(audioContentInfo.converBinaryData())
+        return buffer.array()
+    }
 
 }

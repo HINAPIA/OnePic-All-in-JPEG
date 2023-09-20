@@ -109,7 +109,7 @@ export default class AiContainer {
 
     getJpegMetaBytes() {
         if (this.imageContent.jpegMetaData.length === 0) {
-            console.error("JpegMetaData size가 0입니다.");
+            //console.error("JpegMetaData size가 0입니다.");
         }
         return this.imageContent.jpegMetaData;
     }

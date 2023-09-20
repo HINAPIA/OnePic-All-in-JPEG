@@ -1,6 +1,6 @@
 export default class ImageInfo {
     constructor(picture) {
-        this.app1DataSize = 0;
+        this.metaDataSize = 0;
         this.offset = 0;
         this.imageDataSize = 0;
         this.attribute = 0;
@@ -12,7 +12,7 @@ export default class ImageInfo {
 
     init(picture) {
         
-        this.app1DataSize = picture._app1Segment ? picture._app1Segment.length : 0;
+        this.metaDataSize = picture._mataData ? picture._mataData.length : 0;
         this.imageDataSize = picture.imageSize;
         this.attribute = picture.contentAttribute.code;
         this.embeddedDataSize = picture.embeddedSize;

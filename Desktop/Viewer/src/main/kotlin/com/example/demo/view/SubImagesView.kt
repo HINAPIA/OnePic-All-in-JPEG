@@ -2,9 +2,8 @@ package com.example.demo.view
 
 import com.example.demo.app.CustomColor
 import com.example.demo.app.ImageTool
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.AudioModule.AudioResolver
-import com.goldenratio.onepic.PictureModule.AiContainer
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
 import javafx.animation.ScaleTransition
@@ -21,7 +20,6 @@ import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
-import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
@@ -287,7 +285,6 @@ class SubImagesView(val centerView : CenterView) : View() {
 
     fun unfocusView(type:String, index : Int){
         when(type){
-            //"image" -> unSelectImageConentView(index)
             "text" -> {
                 textView.style{
                     borderWidth += box(0.px)

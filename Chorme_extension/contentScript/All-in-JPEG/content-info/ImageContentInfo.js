@@ -30,7 +30,7 @@ export default class ImageContentInfo {
 
             if (i > 0) {
                 offset += preSize;
-                preSize = 2 + imageInfo.app1DataSize + imageInfo.imageDataSize;
+                preSize = 2 + imageInfo.metaDataSize + imageInfo.imageDataSize;
             }
 
             imageInfo.offset = offset;
@@ -61,10 +61,7 @@ export default class ImageContentInfo {
         for (let j = 0; j < this.imageCount; j++) {
             const imageInfo = this.imageInfoList[j];
             dataView.setInt32(offset, imageInfo.offset);
-            if(isBurst){
-                imageInfo.app1DataSize = 0;
-            }
-            dataView.setInt32(offset + 4, imageInfo.app1DataSize);
+            dataView.setInt32(offset + 4, imageInfo.metaDataSize);
             dataView.setInt32(offset + 8, imageInfo.imageDataSize);
             dataView.setInt32(offset + 12, imageInfo.attribute);
             dataView.setInt32(offset + 16, imageInfo.embeddedDataSize);
@@ -88,7 +85,7 @@ export default class ImageContentInfo {
             extendImageDataSize = lastImageInfo.imageDataSize
         }else{
             const lastImageInfo = this.imageInfoList[this.imageInfoList.length-1];
-            extendImageDataSize= this.XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
+            extendImageDataSize= this.XOI_MARKER_SIZE + lastImageInfo.metaDataSize + lastImageInfo.imageDataSize
         }
                //return lastImageInfo.offset + extendImageDataSize -1
         return lastImageInfo.offset + extendImageDataSize

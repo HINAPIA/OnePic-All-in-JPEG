@@ -123,18 +123,7 @@ class AudioResolver() {
     }
 
 
-    fun getByteArrayInFile(audioFile : File) : ByteArray{
-        var audioBytes : ByteArray = audioFile.readBytes()
-        while (!(audioBytes != null)) {
-            Thread.sleep(100)
-        }
-        return audioBytes
-    }
-
     fun getOutputMediaFilePath(fileName : String): File {
-        //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val mediaDir = "audio"
-
         val file = File(audioSourcePath+"$fileName.${"wav"}")
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()

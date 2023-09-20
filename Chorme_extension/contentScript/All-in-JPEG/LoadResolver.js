@@ -77,7 +77,7 @@ export default class LoadResolver {
 
 
                 // 2. Text Conent Parsing
-                const textContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE + isBurstMode + imageContentInfoSize;
+                const textContentStartOffset = APP3_startOffset + LoadResolver.MARKER_SIZE + LoadResolver.APP3_FIELD_LENGTH_SIZE + LoadResolver.FIELD_SIZE + LoadResolver.BURST_MODE_SIZE + imageContentInfoSize;
                 const textContentInfoSize = this.ByteArraytoInt(sourceByteArray, textContentStartOffset);
                 if (textContentInfoSize > 0) {
                     const textList = await this.textContentParsing(
@@ -137,14 +137,14 @@ export default class LoadResolver {
     async imageContentParsing(AiContainer, sourceByteArray, imageInfoByteArray) {
         const pictureList = [];
         let startIndex = 0;
-        const imageContentSize = this.ByteArraytoInt(imageInfoByteArray, startIndex);
+
         startIndex++;
         const imageCount = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4);
         startIndex++;
     
         for (let i = 0; i < imageCount; i++) {
             const offset = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
-            const app1DataSize = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
+            const metaDataSize = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
             const size = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
             const attribute = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
             const embeddedDataSize = this.ByteArraytoInt(imageInfoByteArray, startIndex * 4); startIndex++;
@@ -167,14 +167,14 @@ export default class LoadResolver {
                     ContentAttribute.fromCode(attribute)
                 );
                 AiContainer.setJpegMetaBytes(jpegMetaData);
-                const app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes);
+            
                 const frame = await AiContainer.imageContent.extractFrame(jpegBytes, ContentAttribute.fromCode(attribute));
-                picture = new Picture(offset, app1Segment, frame, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData);
+                picture = new Picture(offset, jpegMetaData, frame, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData);
                 await picture.waitForByteArrayInitialized();
             } else {
-                const app1Segment = sourceByteArray.slice(offset + 2, offset + 2 + app1DataSize);
-                const imageData = sourceByteArray.slice(offset + 2 + app1DataSize, offset + 2 + app1DataSize + size);
-                picture = new Picture(offset, app1Segment, imageData, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData);
+                const metaData = sourceByteArray.slice(offset + 2, offset + 2 + metaDataSize);
+                const imageData = sourceByteArray.slice(offset + 2 + metaDataSize, offset + 2 + metaDataSize + size);
+                picture = new Picture(offset, metaData, imageData, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData);
                 await picture.waitForByteArrayInitialized();
             }
     
