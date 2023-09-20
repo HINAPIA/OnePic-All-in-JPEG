@@ -3,7 +3,6 @@ package com.goldenratio.onepic.ViewerModule.Fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,17 +20,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
 import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.AllinJPEGModule.AiContainer
-import com.goldenratio.onepic.EditModule.Fragment.EditFragment
 import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.R
-import com.goldenratio.onepic.ViewerModule.Adapter.ViewPagerAdapter
 import com.goldenratio.onepic.databinding.FragmentViewerBinding
 import kotlinx.coroutines.*
 
