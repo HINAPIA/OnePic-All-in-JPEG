@@ -209,6 +209,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             if (bitmapList.size != 0) {
                 CoroutineScope(Dispatchers.Default).launch {
                     faceDetectionModule.allFaceDetection(bitmapList)
+                    Log.d("autoBlending", "1. selectedImage = ${jpegViewModel.getSelectedSubImageIndex()}")
                     selectBitmap = faceDetectionModule.autoBestFaceChange(bitmapList, jpegViewModel.getSelectedSubImageIndex())
 
                     setMainImageBoundingBox()
@@ -357,7 +358,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             }
             val allBytes = imageToolModule.bitmapToByteArray(selectBitmap, imageContent.getJpegBytes(selectPicture))
 
-            val selectIndex = jpegViewModel.getSelectedSubImageIndex() + 1
+            val selectIndex = imageContent.pictureList.size
 
             // Picture 생성
             val newPicture = jpegViewModel.jpegAiContainer.value?.getPictureFromEditedBytes(allBytes)

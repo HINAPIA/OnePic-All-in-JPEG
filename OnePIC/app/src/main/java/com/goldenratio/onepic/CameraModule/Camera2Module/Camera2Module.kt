@@ -175,7 +175,9 @@ class Camera2Module(
         private fun process(result: CaptureResult) {
             when (state) {
                 // 프리뷰 상태
-                STATE_PREVIEW -> Unit // Do nothing when the camera preview is working normally.
+                STATE_PREVIEW -> {
+//                    Log.d("check preview","${previewRequestBuilder.get(CaptureRequest.CONTROL_AF_MODE)}")
+                } // Do nothing when the camera preview is working normally.
                 // 촬영 위해 focus lock한 상태
                 STATE_WAITING_LOCK -> capturePicture(result)
                 // 촬영 위해 precaputure 대기 상태
@@ -202,6 +204,7 @@ class Camera2Module(
                         "4. process : STATE_WAITING_NON_PRECAPTURE - ${aeState}"
                     )
                     if (aeState == null || isDetectionChecked || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE) {
+//                    if (aeState == null || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE) {
                         state = STATE_PICTURE_TAKEN
                         captureStillPicture(null)
                     }
@@ -706,7 +709,7 @@ class Camera2Module(
                                 CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
                             )
                             // Flash is automatically enabled when necessary.
-                            setAutoFlash(previewRequestBuilder)
+//                            setAutoFlash(previewRequestBuilder)
 
                             // Finally, we start displaying the camera preview.
                             previewRequest = previewRequestBuilder.build()
@@ -772,7 +775,7 @@ class Camera2Module(
         try {
             // Reset the auto-focus trigger
             previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-            setAutoFlash(previewRequestBuilder)
+//            setAutoFlash(previewRequestBuilder)
             captureSession?.capture(previewRequestBuilder.build(), captureCallback, backgroundHandler)
             // After this, the camera will go back to the normal state of preview.
             state = STATE_PREVIEW
@@ -800,10 +803,10 @@ class Camera2Module(
             )?.apply {
                 addTarget(imageReader?.surface!!)
 
-                    set(
-                        CaptureRequest.JPEG_ORIENTATION,
-                        (ORIENTATIONS.get(rotation!!) + sensorOrientation + 270) % 360
-                    )
+                set(
+                    CaptureRequest.JPEG_ORIENTATION,
+                    (ORIENTATIONS.get(rotation!!) + sensorOrientation + 270) % 360
+                )
 
                 // Use the same AE and AF modes as the preview.
                 if (value != null) {
@@ -814,7 +817,8 @@ class Camera2Module(
                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
                     )
                 }
-            }?.also { setAutoFlash(it) }
+            }
+//            }?.also { setAutoFlash(it) }
 
             val captureCallback = object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
@@ -827,7 +831,7 @@ class Camera2Module(
 
 //                    Toast.makeText(requireContext(), "렌즈 초점 결과: " +distanceResult.toString(), Toast.LENGTH_SHORT).show()
                     Log.d("렌즈 초점 결과", distanceResult.toString())
-                    if (value != null && distanceResult == 0f) {
+                    if (value != null && distanceResult!! >= 0f && distanceResult <= 0.3f) {
                         setAutoFocus()
                     } else {
                         unlockFocus()
@@ -897,6 +901,8 @@ class Camera2Module(
         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
         previewRequest = previewRequestBuilder.build()
 
+        Log.d("check preview", "setAutoFocus")
+
         state = STATE_PREVIEW
 
         captureSession?.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler)
@@ -938,12 +944,18 @@ class Camera2Module(
                 //the focus trigger is complete -
                 //resume repeating (preview surface will get frames), clear AF trigger
                 if (request.tag == "FOCUS_TAG" && !isCaptured)  {
-                    previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
-                    captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
-                    if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
-                        isCaptured = true
-                        Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
-                        lockFocus(1)
+                    // 렌즈 현재 상태 알아낼 수 있음
+                    val lensState = result.get(CaptureResult.LENS_STATE)
+
+                    // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
+                    if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
+                        previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
+                        captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
+                        if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
+                            isCaptured = true
+                            Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
+                            lockFocus(1)
+                        }
                     }
                 }
             }
@@ -961,7 +973,6 @@ class Camera2Module(
         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(focusAreaTouch))
         // 터치 위치에 맞춰서 노출 정도 변경
         previewRequestBuilder.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(focusAreaTouch))
-
 
         // AF 모드 다시 설정 - 안하면 초점 변경 안됨
         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
@@ -994,7 +1005,7 @@ class Camera2Module(
     fun distanceFocusPictures(pictureSize: Int) {
         PICTURE_SIZE = pictureSize
 
-        Log.d("렌즈 초점 결과", "distanceBurstBtn on Click")
+        Log.d("check preview", "distanceBurstBtn on Click")
 
         // 사이즈 맞춰서 초점거리 값 제작
         val distanceUnit = minimumFocusDistance / (pictureSize-1)
@@ -1028,6 +1039,8 @@ class Camera2Module(
         )
         previewRequestBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistanceValue)
 
+        Log.d("check preview", "1")
+
         val captureCallback = object : CameraCaptureSession.CaptureCallback() {
             override fun onCaptureCompleted(
                 session: CameraCaptureSession,
@@ -1037,14 +1050,20 @@ class Camera2Module(
                 // 렌즈 현재 상태 알아낼 수 있음
                 val lensState = result.get(CaptureResult.LENS_STATE)
 
+                Log.d("check preview", "1 lensState")
+
                 // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
                 if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
-                    var distanceValue = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                    val distanceValue = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
+
+
+                    Log.d("check preview", "distanceValue = $distanceValue")
+
                     // 내가 지정한 바운더리 안에 있는지 확인
-                    if (distanceValue != null && value.isNotEmpty() && distanceValue > value.peek() - 0.1f
-                        && distanceValue < value.peek() + 0.1f
+                    if (distanceValue != null && value.isNotEmpty()
+//                        && distanceValue > value.peek() - 0.1f && distanceValue < value.peek() + 0.1f
                     ) {
-                        Log.d("렌즈 초점 거리", "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}")
+                        Log.d("check preview", "렌즈 초점거리 ${result.get(CaptureResult.LENS_FOCUS_DISTANCE)}")
                         captureStillPicture(value)
                     }
                 }
@@ -1060,7 +1079,7 @@ class Camera2Module(
      *  더 이상 촬영할 객체가 없다면 중지한다.
      */
     fun focusObjectDetectionPictures() {
-        Log.d("detectionResult", "2. focusDetectionPictures")
+        Log.d("check preview", "2. focusDetectionPictures")
         val detectionResult = objectDetectionModule.getDetectionResult()
 
         // 한 장씩 촬영
@@ -1076,6 +1095,7 @@ class Camera2Module(
                 max(max(boundingBox.left, 0f) + halfTouchWidth, 0F),
                 max(max(boundingBox.top, 0f) + halfTouchHeight, 0F),
                 halfTouchWidth.toInt(), halfTouchHeight.toInt()
+//            150, 150
             )
         }
     }

@@ -9,6 +9,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.toRectF
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -108,6 +109,11 @@ class MagicPictureFragment : FaceBlendingFragment() {
         CoroutineScope(Dispatchers.IO).launch {
             // blending 가능한 연속 사진 속성의 picture list 얻음
             bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
+            if(bitmapList.size <= jpegViewModel.getSelectedSubImageIndex()) {
+                imageContent.resetBitmap()
+                imageContent.setBitmapList()
+                bitmapList = imageContent.getBitmapList()
+            }
             selectBitmap = bitmapList[jpegViewModel.getSelectedSubImageIndex()]
 
             faceDetectionModule.allFaceDetection(bitmapList)
@@ -247,8 +253,11 @@ class MagicPictureFragment : FaceBlendingFragment() {
             showProgressBar(true, LoadingText.Save)
 
             for (i in 0 until pictureList.size) {
-                pictureList[i].embeddedData?.clear()
-                pictureList[i].embeddedSize = 0
+                Log.d("magicPicture Check", " before ===== index= $i : ${pictureList[i].contentAttribute}")
+                imageContent.pictureList[i].contentAttribute = ContentAttribute.burst
+                Log.d("magicPicture Check", " after ===== index= $i : ${pictureList[i].contentAttribute}")
+                imageContent.pictureList[i].embeddedData?.clear()
+                imageContent.pictureList[i].embeddedSize = 0
             }
 
             // EmbeddedData 추가
@@ -566,13 +575,13 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 var resultBitmap = imageToolModule.drawDetectionResult(
                     selectBitmap,
                     faceResult,
+                    requireContext().resources.getColor(R.color.white)
+                )
+                resultBitmap = imageToolModule.drawDetectionResult(
+                    resultBitmap,
+                    selectFaceRect!!.toRectF(),
                     requireContext().resources.getColor(R.color.select_face)
                 )
-//                resultBitmap = imageToolModule.drawDetectionResult(
-//                    resultBitmap,
-//                    selectFaceRect!!.toRectF(),
-//                    requireContext().resources.getColor(R.color.select_face)
-//                )
                 binding.mainView.setImageBitmap(resultBitmap)
 
                 CoroutineScope(Dispatchers.Main).launch {

@@ -526,7 +526,7 @@ class ImageContent {
     /*
      TODO bitmapList 생성 후 전달
      */
-    fun  getBitmapList() : ArrayList<Bitmap>? {
+    fun  getBitmapList() : ArrayList<Bitmap> {
         while (!checkBitmapList || !checkPictureList) {
             Log.d("faceblending","!!!! $checkBitmapList || $checkPictureList")
             Thread.sleep(200)

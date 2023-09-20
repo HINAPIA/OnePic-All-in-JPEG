@@ -264,12 +264,10 @@ class CameraFragment : Fragment() {
                 binding.galleryBtn.isEnabled = true
                 binding.convertBtn.isEnabled = true
                 binding.basicRadioBtn.isEnabled = true
-                binding.burst1RadioBtn.isEnabled = true
-                binding.burst2RadioBtn.isEnabled = true
-                binding.burst3RadioBtn.isEnabled = true
                 binding.burstRadioBtn.isEnabled = true
                 binding.objectFocusRadioBtn.isEnabled = true
                 binding.distanceFocusRadioBtn.isEnabled = true
+                binding.burstSizeSettingRadioGroup.isEnabled = true
 
                 imageToolModule.showView(binding.loadingLayout, false)
 
@@ -447,9 +445,6 @@ class CameraFragment : Fragment() {
         binding.convertBtn.isEnabled = false
         binding.basicRadioBtn.isEnabled = false
         binding.burstRadioBtn.isEnabled = false
-        binding.burst1RadioBtn.isEnabled = false
-        binding.burst2RadioBtn.isEnabled = false
-        binding.burst3RadioBtn.isEnabled = false
         binding.objectFocusRadioBtn.isEnabled = false
         binding.distanceFocusRadioBtn.isEnabled = false
 

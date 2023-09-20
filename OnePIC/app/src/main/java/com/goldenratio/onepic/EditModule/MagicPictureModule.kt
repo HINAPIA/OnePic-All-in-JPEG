@@ -71,6 +71,7 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
                 basicIndex++
             }
             if (checkEmbedded) {
+
                 changeFaceStartX = (pictureList[basicIndex].embeddedData?.get(4) ?: Int) as Int
                 changeFaceStartY = (pictureList[basicIndex].embeddedData?.get(5) ?: Int) as Int
 
@@ -82,6 +83,7 @@ class MagicPictureModule(val imageContent: ImageContent, selectedPicture: Pictur
 
                 for (i in basicIndex until pictureList.size) {
                     CoroutineScope(Dispatchers.Default).launch {
+                        Log.d("magicPlay", "index = ${i-basicIndex} | basicIndex = $basicIndex")
                         createOverlayImg(overlayImg, boundingBox[i - basicIndex], i)
                         checkFinish[i - basicIndex] = true
                     }

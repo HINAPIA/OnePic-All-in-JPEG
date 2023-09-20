@@ -267,6 +267,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 mainPicture = imageContent.mainPicture
                 pictureList = imageContent.pictureList
 
+                Log.d("magicPicture Check", "edit pictureList get")
+
                 val bitmap = imageContent.getBitmapList()
                 if (bitmap != null)
                     bitmapList = bitmap
@@ -285,7 +287,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 val index = jpegViewModel.getSelectedSubImageIndex()
                 if (pictureList[index].contentAttribute == ContentAttribute.magic) {
                     imageToolModule.showView(binding.magicPlayBtn, true)
-                    setMagicPlay()
+                    setMagicPicture()
                 }
                 Glide.with(binding.mainImageView)
                     .load(imageContent.getJpegBytes(pictureList[index]))
@@ -581,7 +583,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     /**
      * 매직픽처일 경우, 화면에 매직픽처 아이콘 띄우기
      */
-    private fun setMagicPlay() {
+    private fun setMagicPicture() {
         CoroutineScope(Dispatchers.IO).launch {
             isMagicPlay = false
             val selected = jpegViewModel.selectedSubImage
@@ -1078,8 +1080,9 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         mainSubView?.setPadding(0)
 
         if(pictureList[index].contentAttribute == ContentAttribute.magic) {
+            Log.d("magicPicture Check", "index= $index : ${pictureList[index].contentAttribute}")
             imageToolModule.showView(binding.magicPlayBtn, true)
-            setMagicPlay()
+            setMagicPicture()
         }
         else {
             imageToolModule.showView(binding.magicPlayBtn, false)

@@ -636,6 +636,7 @@ class ViewerFragment : Fragment() {
                 .load(imageContent.getJpegBytes(pictureList[index]))
                 .into(binding.magicView)
             imageTool.showView(binding.magicBtnlinearLayout, true)
+
             magicPictureModule =MagicPictureModule(imageContent, pictureList[index])
         }
         else {

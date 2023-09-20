@@ -233,9 +233,11 @@ class FaceDetectionModule {
 
             }
 
+            Log.d("autoBlending", "2. selectedImage = ${selectedIndex}")
+
             CoroutineScope(Dispatchers.Default).launch {
                 val facesResult = faceArraylist[selectedIndex]
-                // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
+                // 선택한 인덱스일 경우 비교를 위한 변수 초기화
                 if (facesResult != null) {
                     for (i in 0 until facesResult.size) {
                         bestFaceIndex.add(selectedIndex)
@@ -245,11 +247,12 @@ class FaceDetectionModule {
                 if (facesResult != null) {
                     basicInformation = facesResult
                 }
+                Log.d("autoBlending", "3. selectedImage = ${basicInformation}")
 
                 for (j in 0 until bitmapList.size) {
 
                     if (j == selectedIndex) {
-                        // 첫번째 인덱스일 경우 비교를 위한 변수 초기화
+                        // 선택한 인덱스일 경우 비교를 위한 변수 초기화
                         checkFinish[j] = true
                     } else {
                         val facesResult = faceArraylist[j]
@@ -294,6 +297,8 @@ class FaceDetectionModule {
                 for (i in 0 until bestFace.size) {
                     // 현재 face가 비교될 face 배열의 index 값
                     val index = getBoxComparisonIndex(bestFace[i], basicInformation)
+                    Log.d("autoBlending", "3. selectedImage = ${basicInformation[index].allLandmarks}")
+
                     resultBitmap = getFaceChangeBitmap(
                         resultBitmap, bitmapList[bestFaceIndex[i]!!],
                         basicInformation[index].allLandmarks, bestFace[i].allLandmarks
