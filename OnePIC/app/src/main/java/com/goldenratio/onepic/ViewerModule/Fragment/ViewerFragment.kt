@@ -41,7 +41,6 @@ class ViewerFragment : Fragment() {
     /* layout 관련 변수 */
     private lateinit var context: Context
     private lateinit var binding: FragmentViewerBinding
-    private lateinit var mainViewPagerAdapter: ViewPagerAdapter
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var scrollAudioView: ImageView? = null
     private var scrollTextView: ImageView? = null
@@ -52,7 +51,7 @@ class ViewerFragment : Fragment() {
     private var isMagicBtnClicked = false
     private var isTextBtnClicked = false
 
-    private var currentPosition:Int? = null // AnalyzeFragment 에서 넘어올 때 받는 번들 값
+    var currentPosition:Int? = null // AnalyzeFragment 에서 넘어올 때 받는 번들 값
     var pictureList : ArrayList<Picture> = arrayListOf()
     private var bitmapList = arrayListOf<Bitmap>() // seek bar 속도 개선위한 비트맵(스크롤뷰)
     private var firstImageView: ImageView? = null // 스크롤바 첫번째 이미지
@@ -60,10 +59,9 @@ class ViewerFragment : Fragment() {
     private lateinit var callback: OnBackPressedCallback // back 버튼 처리 콜백
 
     private var isEdited:Boolean = false // edit된 사진인지 여부
+    private var isDeleted:Boolean = false // 삭제된 사진인지 여부
     companion object {
-
         var currentFilePath:String = "" // 현재 파일 path(or uri)
-
         /* 사진 및 오디오 상태 표시 */
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false) // 매직픽쳐 관련 작업 수행 완료
         var isEditStoraged:Boolean = false // 편집된 사진인지 여부 - 텍스트, 오디오 scrollView update
@@ -107,30 +105,29 @@ class ViewerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         /* 기본 UI & 헤더 버튼 이벤트 리스너 & viewPager 설정 */
-        setMainViewPager()
         setViewerBasicUI()
         setHeaderBarEventListeners()
 
 
         /* GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음) */
         if(currentPosition != null){
-            binding.viewPager2.setCurrentItem(currentPosition!!,false) // ViewPager 해당 위치로 이동
-            currentPosition = null
+            setMainImage()
+            //currentPosition = null
         }
+
 
         /* 편집창에서 저장하고 넘어왔을 때 */
         if (isEditStoraged && currentFilePath != "" && currentFilePath != null) {
             isEdited = true // edit된 사진 체크
-            mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // ViewPager Update
+            //mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // ViewPager Update
 
             /* 편집 후, 바로 편집된 이미지로 넘어감 */
             var path = currentFilePath
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) { // 13 버전 보다 낮을 경우 -> uri 를 filePath 로 변경
                 path = imageTool.getFilePathFromUri(requireContext(),Uri.parse(currentFilePath)).toString()
             }
+            currentPosition = jpegViewModel.getFilePathIdx(path)
 
-            binding.viewPager2.setCurrentItem(jpegViewModel.getFilePathIdx(path)!!,false)
-            jpegViewModel.setCurrentImageUri(binding.viewPager2.currentItem)
             isEditStoraged = false // 초기화
         }
 
@@ -139,12 +136,10 @@ class ViewerFragment : Fragment() {
         // Gallery 변경이 있을 경우, 화면 다시 reload
         jpegViewModel.isGalleryUpdateFinished.observe(viewLifecycleOwner){ value ->
             if (value){ // 갤러리 업데이트가 되었다면
-                mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!) // 새로운 데이터로 업데이트
-                mainViewPagerAdapter.notifyDataSetChanged() // 데이터 변경 알림
 
                 var position = jpegViewModel.getFilePathIdx(currentFilePath) // 기존에 보고 있던 화면 인덱스
                 if (position != null){ //TODO: 보고 있었던 사진이 아직 존재하는 경우
-                    binding.viewPager2.setCurrentItem(position,false) // 기존에 보고 있던 화면 유지
+
                 }
                 else if (currentFilePath != "" && !isEdited){ //TODO: 보고 있는 사진이 삭제된 경우 - 예외 처리
                     binding.imageNotFoundLinearLayout.visibility = View.VISIBLE
@@ -153,6 +148,8 @@ class ViewerFragment : Fragment() {
                     Glide.with(binding.deletedPhotoImageView)
                         .load(R.drawable.image_not_found)
                         .into(binding.deletedPhotoImageView)
+                    isDeleted = true
+                    currentPosition = 0//null
                 }
                 else { //TODO: 보고 있었던 사진이 수정된 경우
                     isEdited = false // 초기화
@@ -167,42 +164,22 @@ class ViewerFragment : Fragment() {
         callback.remove()
     }
 
-    override fun onStop() {
-        super.onStop()
-        var currentPosition: Int = binding.viewPager2.currentItem // 현재 파일 path or uri 저장해두기
-        currentFilePath = mainViewPagerAdapter.galleryMainimage[currentPosition]
-    }
 
     /** ViewPager Adapter 및 swipe callback 설정 */
     @RequiresApi(Build.VERSION_CODES.M)
-    fun setMainViewPager() {
-
-        mainViewPagerAdapter = ViewPagerAdapter(requireContext())
-        mainViewPagerAdapter.setUriList(jpegViewModel.imageUriLiveData.value!!)
-        binding.viewPager2.setUserInputEnabled(false);
-
-        binding.viewPager2.adapter = mainViewPagerAdapter
-        binding.viewPager2.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            @RequiresApi(Build.VERSION_CODES.Q)
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                binding.viewPager2.post {
-                    mainViewPagerAdapter.notifyDataSetChanged()
-                }
-
-                // 오디오 버튼 초기화
-                if( isAudioBtnClicked && scrollAudioView != null) { // 클릭 되어 있던 상태
-                    scrollAudioView!!.performClick()
-                }
-
-                // 매직 버튼 초기화
-                if( isMagicBtnClicked ) { // 클릭 되어 있던 상태
-                    binding.magicBtn.background = ColorDrawable(Color.TRANSPARENT)
-                    isMagicBtnClicked = false
-                    mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-                }
-            }
-        })
+    fun setMainImage() {
+        var value = jpegViewModel.imageUriLiveData.value!!.get(currentPosition!!)
+        currentFilePath = value
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            Glide.with(this)
+                .load(value)
+                .into(binding.mainView)
+        }
+        else {
+            Glide.with(this)
+                .load(imageTool.getUriFromPath(this.requireContext(),value))
+                .into(binding.mainView)
+        }
     }
 
 
@@ -318,29 +295,10 @@ class ViewerFragment : Fragment() {
     fun setMagicPicture() {
         val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
-        mainViewPagerAdapter.resetMagicPictureList()
+        //mainViewPagerAdapter.resetMagicPictureList()
 
         imageTool.showView(binding.magicBtn, true)
         binding.magicBtn.setOnClickListener {
-
-//            if (!isMagicBtnClicked) { // 클릭 안되어 있던 상태
-//                imageTool.showView(binding.progressBar, true)
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    /* layout 변경 */
-//                    binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
-//                    isMagicBtnClicked = true
-//                    mainViewPagerAdapter.setImageContent(jpegViewModel.jpegAiContainer.value?.imageContent!!)
-//                    mainViewPagerAdapter.setCheckMagicPicturePlay(true, isFinished)
-//                }
-//
-//            }
-//            else { // 클릭 되어 있던 상태
-//                /* layout 변경 */
-//                binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
-//                isMagicBtnClicked = false
-//                mainViewPagerAdapter.setCheckMagicPicturePlay(false, isFinished)
-//                //previousClickedItem!!.performClick()
-//            }
             playMagicPicture()
         }
         try {
@@ -368,7 +326,6 @@ class ViewerFragment : Fragment() {
     private fun playMagicPicture() {
         if (!isMagicPlay) {
             imageTool.showView(binding.progressBar, true)
-//            showProgressBar(true, EditFragment.LoadingText.MagicPlay)
             CoroutineScope(Dispatchers.Main).launch {
                 binding.magicBtn.setImageResource(R.drawable.edit_magic_ing_icon)
             }
@@ -381,7 +338,6 @@ class ViewerFragment : Fragment() {
                     overlayBitmap = magicPictureModule!!.magicPictureProcessing()
                 }
                 Log.d("magic", "magicPictureProcessing end ${overlayBitmap.size}")
-//                showProgressBar(false, null)
                 imageTool.showView(binding.progressBar, false)
                 Log.d("magic", "magicPucture run ${overlayBitmap.size}")
                 magicPictureRun(overlayBitmap)
@@ -391,7 +347,6 @@ class ViewerFragment : Fragment() {
             handler.removeCallbacksAndMessages(null)
             CoroutineScope(Dispatchers.Main).launch {
                 binding.magicBtn.setImageResource(R.drawable.edit_magic_icon)
-//                showProgressBar(false, null)
                 imageTool.showView(binding.progressBar, false)
             }
             isMagicPlay = false
@@ -492,7 +447,9 @@ class ViewerFragment : Fragment() {
                                         binding.seekBar.progress = i
                                     }
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        mainViewPagerAdapter.setExternalImage(pictureByteArr!!)
+                                        Glide.with(context)
+                                            .load(pictureByteArr!!)
+                                            .into(binding.mainView)
                                     }
                                     jpegViewModel.setselectedSubImage(picture)
                                     changeImageView(i,scrollImageView)
@@ -606,11 +563,13 @@ class ViewerFragment : Fragment() {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) { // 시크바의 값이 변경될 때 호출되는 메서드
                     jpegViewModel.setselectedSubImage(pictureList[progress])
                     if (bitmapList.size >= progress + 1) { // bitmap으로 사진 띄우기
-                        mainViewPagerAdapter.setExternalImageBitmap(bitmapList[progress])
+                        binding.mainView.setImageBitmap(bitmapList[progress])
                     } else {
                         // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌으면 글라이드로
                         CoroutineScope(Dispatchers.Main).launch {
-                            mainViewPagerAdapter.setExternalImage(jpegViewModel.getPictureByteArrList()[progress])
+                            Glide.with(context)
+                                 .load(jpegViewModel.getPictureByteArrList()[progress])
+                                 .into(binding.mainView)
                         }
                     }
                 }
@@ -628,16 +587,19 @@ class ViewerFragment : Fragment() {
         imageView.setBackgroundResource(R.drawable.chosen_image_border)
         imageView.setPadding(6)
 
-        if(pictureList[index].contentAttribute == ContentAttribute.magic) {
-
+        if(pictureList[index].contentAttribute == ContentAttribute.magic) { // 매직픽처 사진일 때
             val imageContent = jpegViewModel.jpegAiContainer.value!!.imageContent
             binding.magicView.visibility = View.VISIBLE
+
             Glide.with(binding.magicView)
-                .load(imageContent.getJpegBytes(pictureList[index]))
-                .into(binding.magicView)
+                 .load(imageContent.getJpegBytes(pictureList[index]))
+                 .into(binding.magicView)
+
             imageTool.showView(binding.magicBtnlinearLayout, true)
 
-            magicPictureModule =MagicPictureModule(imageContent, pictureList[index])
+            CoroutineScope(Dispatchers.IO).launch {
+                magicPictureModule =MagicPictureModule(imageContent, pictureList[index])
+            }
         }
         else {
             binding.magicView.visibility = View.GONE
@@ -670,8 +632,13 @@ class ViewerFragment : Fragment() {
         if (isMagicBtnClicked) { // 매직 버튼 초기화
             binding.magicBtn.performClick()
         }
+
+        if (!isDeleted && currentPosition == null) { // 삭제된 사진이 아닌 경우
+            currentPosition = jpegViewModel.getFilePathIdx(currentFilePath)
+        }
+
         val bundle = Bundle()
-        bundle.putInt("currentPosition", binding.viewPager2.currentItem)
+        bundle.putInt("currentPosition", currentPosition!!)
         findNavController().navigate(R.id.action_viewerFragment_to_galleryFragment, bundle)
 
         parentFragmentManager.beginTransaction()
