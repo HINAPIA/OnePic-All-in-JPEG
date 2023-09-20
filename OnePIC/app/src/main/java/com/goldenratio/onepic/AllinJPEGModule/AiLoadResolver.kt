@@ -1,57 +1,21 @@
-package com.goldenratio.onepic.LoadModule
+package com.goldenratio.onepic.AllinJPEGModule
 
 import android.util.Log
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
-import com.goldenratio.onepic.AllinJPEGModule.AiContainer
+import com.goldenratio.onepic.AllinJPEGModule.Content.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.Text
 import kotlinx.coroutines.*
 import java.io.IOException
 
 
-class LoadResolver() {
+class AiLoadResolver() {
     companion object{
         const val MARKER_SIZE = 2
         const val APP3_FIELD_LENGTH_SIZE = 2
         const val FIELD_SIZE = 4
         const val BURST_MODE_SIZE = 1
-    }
-
-    fun isAllinJpegFormat(sourceByteArray : ByteArray, APP3_startOffset: Int) : Boolean{
-        return (sourceByteArray[APP3_startOffset+4] == 0x4D.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x43.toByte()
-            && sourceByteArray[APP3_startOffset+6] == 0x46.toByte() ||
-            sourceByteArray[APP3_startOffset+4] == 0x41.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x69.toByte()
-            && sourceByteArray[APP3_startOffset+6] == 0x46.toByte()  )
-    }
-
-
-    /**
-     * TODO All-in JPEG 포맷인지 구별 후 APP3 pos 리턴
-     *
-     * @param sourceByteArray 사진 파일의 바이너리 데이터
-     * @return All-in JPEG 포맷이면 APP3 시작 pos 리턴, 그렇지 않으면 -1 리턴
-     */
-    fun findAPP3StartPos(sourceByteArray: ByteArray) : Int {
-        // APP3 - ALL in JPEG 세그먼트의 시작 위치를 찾음
-        var APP3_startOffset = 2
-        while (APP3_startOffset < sourceByteArray.size - 1) {
-            if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
-               val isAllinJpegFormat =  isAllinJpegFormat(sourceByteArray, APP3_startOffset)
-                //All in Format인지 확인 TODO("All-in 과 MC과 합쳐져 있음. 후에 MC 지워주기")
-                if(isAllinJpegFormat)
-                    return APP3_startOffset
-                else {
-                    // APP3 마커가 있지만 All in Format이 아님
-                    return -1
-                }
-                //break`
-            }
-            APP3_startOffset++
-        }
-        // APP3 마커가 없음
-        return -1
     }
 
     /**
@@ -65,7 +29,7 @@ class LoadResolver() {
         AiContainer: AiContainer,
         sourceByteArray: ByteArray
     ) {
-        Log.d("AiContainer", "createMCContainer() sourceByreArray.Size : ${sourceByteArray.size}")
+
         // APP3 세그먼트의 시작 위치를 찾음
         var APP3_startOffset = 0
         APP3_startOffset = findAPP3StartPos(sourceByteArray)
@@ -87,6 +51,42 @@ class LoadResolver() {
 
     }
 
+    fun isAllinJpegFormat(sourceByteArray : ByteArray, APP3_startOffset: Int) : Boolean{
+        return (sourceByteArray[APP3_startOffset+4] == 0x4D.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x43.toByte()
+                && sourceByteArray[APP3_startOffset+6] == 0x46.toByte() ||
+                sourceByteArray[APP3_startOffset+4] == 0x41.toByte() &&  sourceByteArray[APP3_startOffset+5] == 0x69.toByte()
+                && sourceByteArray[APP3_startOffset+6] == 0x46.toByte()  )
+    }
+
+
+    /**
+     * TODO All-in JPEG 포맷인지 구별 후 APP3 pos 리턴
+     *
+     * @param sourceByteArray 사진 파일의 바이너리 데이터
+     * @return All-in JPEG 포맷이면 APP3 시작 pos 리턴, 그렇지 않으면 -1 리턴
+     */
+    fun findAPP3StartPos(sourceByteArray: ByteArray) : Int {
+        // APP3 - ALL in JPEG 세그먼트의 시작 위치를 찾음
+        var APP3_startOffset = 2
+        while (APP3_startOffset < sourceByteArray.size - 1) {
+            if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
+                val isAllinJpegFormat =  isAllinJpegFormat(sourceByteArray, APP3_startOffset)
+                //All in Format인지 확인 TODO("All-in 과 MC과 합쳐져 있음. 후에 MC 지워주기")
+                if(isAllinJpegFormat)
+                    return APP3_startOffset
+                else {
+                    // APP3 마커가 있지만 All in Format이 아님
+                    return -1
+                }
+                //break`
+            }
+            APP3_startOffset++
+        }
+        // APP3 마커가 없음
+        return -1
+    }
+
+
     /*
         TODO 표준 JPEG 형태로 AiContainer 업데이트
      */
@@ -99,8 +99,7 @@ class LoadResolver() {
     /*
         TODO All-in JPEG 형태로 AiContainer 업데이트
      */
-    suspend fun createAiConainerInAllinJPEG(AiContainer: AiContainer,
-                                            sourceByteArray: ByteArray){
+    suspend fun createAiConainerInAllinJPEG(AiContainer: AiContainer, sourceByteArray: ByteArray){
         CoroutineScope(Dispatchers.IO).launch {
             // APP3 세그먼트의 시작 위치를 찾음
             var APP3_startOffset = 2
@@ -108,17 +107,13 @@ class LoadResolver() {
 
             try {
                 JpegViewModel.AllInJPEG = true
-
                 val isBurstMode = sourceByteArray.get( APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE)
                 if(isBurstMode.toInt() == 1){
                     AiContainer.isBurst = true
                 }
                 else if (isBurstMode.toInt() == 0){
                     AiContainer.isBurst = false
-                } else{
-                    AiContainer.isBurst = true
                 }
-
 
                 // 1. ImageContent Pasrsing
                 var imageContentStartOffset =
@@ -135,15 +130,15 @@ class LoadResolver() {
                         isBurstMode.toInt()
                     )
                 }
-                AiContainer.imageContent.setContent(pictureList.await())
+                AiContainer.setImageContentAfterParsing(pictureList.await(), isBurstMode.toInt())
 
                 // 2. TextContent Pasrsing
                 var textContentStartOffset =
-                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + BURST_MODE_SIZE+ imageContentInfoSize
+                    APP3_startOffset + MARKER_SIZE + APP3_FIELD_LENGTH_SIZE + FIELD_SIZE + BURST_MODE_SIZE + imageContentInfoSize
                 var textContentInfoSize = ByteArraytoInt(sourceByteArray, textContentStartOffset)
                 if (textContentInfoSize > 0) {
                     var textList = textContentParsing(
-                        AiContainer, sourceByteArray,
+                        sourceByteArray,
                         sourceByteArray.copyOfRange(
                             textContentStartOffset,
                             textContentStartOffset + 4 + textContentInfoSize
@@ -183,7 +178,6 @@ class LoadResolver() {
                             )
                         }
                     }
-                    // MCContainer.audioResolver.saveByteArrToAacFile(audioBytes)
                 }
             } catch (e: IOException) {
                 Log.e("MCcontainer", "MC JPEG Parsing 불가")
@@ -227,7 +221,7 @@ class LoadResolver() {
         for(i in 0..imageCount -1){
             var offset = ByteArraytoInt(imageInfoByteArray, (startIndex*4))
             startIndex++
-            var app1DataSize = ByteArraytoInt(imageInfoByteArray, (startIndex*4))
+            var metaDataSize = ByteArraytoInt(imageInfoByteArray, (startIndex*4))
             startIndex++
             var size = ByteArraytoInt(imageInfoByteArray, startIndex*4)
             startIndex++
@@ -247,28 +241,23 @@ class LoadResolver() {
             if(i==0){
                 val jpegBytes = sourceByteArray.copyOfRange(offset,  offset + size - 1)
                 // Jpeg Meta 데이터 추출
-                var jpegMetaData = AiContainer.imageContent.extractJpegMeta(sourceByteArray.copyOfRange(offset,
+                var jpegMetaData = AiContainer.imageContent.extractMetaDataFromFirstImage(sourceByteArray.copyOfRange(offset,
                     offset + size -1), ContentAttribute.fromCode(attribute))
                 AiContainer.setJpegMetaBytes(jpegMetaData)
 
-                var app1Segment : ByteArray?
-                // 연속 모드일 때 APP1 파싱 안함
-                if(isBurstMode == 1){
-                    app1Segment = null
-                }else{
-                     app1Segment = AiContainer.imageContent.extractAPP1(jpegBytes)
-                }
                 // 프레임 추출
                 val frame =async {
-                    AiContainer.imageContent.extractFrame(jpegBytes,ContentAttribute.fromCode(attribute))
+                    AiContainer.imageContent.extractFrame(jpegBytes)
                 }
-                picture = Picture(offset, app1Segment, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
+                picture = Picture(offset, jpegMetaData, frame.await(), ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
+
             }else{
-                val app1Segment = sourceByteArray.copyOfRange(offset + 2, offset + 2 + app1DataSize)
-                val imageData = sourceByteArray.copyOfRange(offset + 2 + app1DataSize, offset + 2 + app1DataSize + size)
+                val metaData = sourceByteArray.copyOfRange(offset + 2, offset + 2 + metaDataSize)
+                val imageData = sourceByteArray.copyOfRange(offset + 2 + metaDataSize, offset + 2 + metaDataSize + size)
+
                 // picture 생성
-                picture = Picture(offset, app1Segment, imageData, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
+                picture = Picture(offset, metaData, imageData, ContentAttribute.fromCode(attribute), embeddedDataSize, embeddedData)
                 picture.waitForByteArrayInitialized()
             }
             pictureList.add(picture)
@@ -285,7 +274,7 @@ class LoadResolver() {
      * @param textInfoByteArray Text Content 영역 바이너리 데이터
      * @return 파싱하여 생성된 List<Text>
      */
-    fun textContentParsing(AiContainer: AiContainer, sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
+    fun textContentParsing( sourceByteArray: ByteArray, textInfoByteArray: ByteArray) : ArrayList<Text>{
         var textList : ArrayList<Text> = arrayListOf()
         var startIndex = 0
         startIndex++
@@ -310,7 +299,7 @@ class LoadResolver() {
                     }
                 }
             }
-            var string : String = String(charArray)
+            var string = String(charArray)
             var text = Text(string, ContentAttribute.fromCode(attribute))
             textList.add(text)
         }

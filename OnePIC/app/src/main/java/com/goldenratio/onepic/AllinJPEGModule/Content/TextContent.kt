@@ -1,7 +1,7 @@
-package com.goldenratio.onepic.AllinJPEGModule
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.Text
 
 class TextContent {
     var textList : ArrayList<Text> = arrayListOf()

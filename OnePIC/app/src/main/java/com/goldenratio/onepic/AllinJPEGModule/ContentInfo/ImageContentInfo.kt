@@ -1,8 +1,8 @@
 package com.goldenratio.camerax.PictureModule.Info
 
 import android.util.Log
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import java.nio.ByteBuffer
 
 class ImageContentInfo(imageContent: ImageContent) {
@@ -27,13 +27,13 @@ class ImageContentInfo(imageContent: ImageContent) {
         var imageInfoList : ArrayList<ImageInfo> = arrayListOf()
         for(i in 0..pictureList.size - 1){
             // 각 Picture의 ImageInfo 생성
-            var imageInfo : ImageInfo = ImageInfo(pictureList.get(i))
+            var imageInfo  = ImageInfo(pictureList.get(i))
             if(i==0){
                 preSize = imageInfo.imageDataSize
             }
             if(i > 0){
                 offset = offset + preSize
-                preSize = 2 + imageInfo.app1DataSize + imageInfo.imageDataSize
+                preSize = 2 + imageInfo.metaDataSize + imageInfo.imageDataSize
             }
 
             // offset 지정
@@ -67,12 +67,7 @@ class ImageContentInfo(imageContent: ImageContent) {
         for(j in 0..imageCount - 1){
             var imageInfo = imageInfoList.get(j)
             buffer.putInt(imageInfo.offset)
-            if(isBurst){
-                imageInfo.app1DataSize = 0
-            }
-            buffer.putInt(imageInfo.app1DataSize)
-            Log.d("version3", "헤더 에 저장되는 APP data size 값 : ${imageInfo.app1DataSize}")
-
+            buffer.putInt(imageInfo.metaDataSize)
             buffer.putInt(imageInfo.imageDataSize)
             buffer.putInt(imageInfo.attribute)
             buffer.putInt(imageInfo.embeddedDataSize)
@@ -91,7 +86,7 @@ class ImageContentInfo(imageContent: ImageContent) {
     fun imageInfoLog(imageInfo: ImageInfo){
         Log.d("version3", "==================================")
         Log.d("version3", "=offset : ${imageInfo.offset}=")
-        Log.d("version3", "=app1DataSize : ${imageInfo.app1DataSize}=")
+        Log.d("version3", "=metaDataSize : ${imageInfo.metaDataSize}=")
         Log.d("version3", "=imageDataSize : ${imageInfo.imageDataSize}=")
         Log.d("version3", "=attribute : ${imageInfo.attribute}=")
         Log.d("version3", "=embeddedDataSize : ${imageInfo.embeddedDataSize}=")
@@ -103,7 +98,7 @@ class ImageContentInfo(imageContent: ImageContent) {
         if(imageInfoList.size == 1){
             extendImageDataSize = lastImageInfo.imageDataSize
         }else
-            extendImageDataSize= XOI_MARKER_SIZE + lastImageInfo.app1DataSize + lastImageInfo.imageDataSize
+            extendImageDataSize= XOI_MARKER_SIZE + lastImageInfo.metaDataSize + lastImageInfo.imageDataSize
         //return lastImageInfo.offset + extendImageDataSize -1
         return lastImageInfo.offset + extendImageDataSize
     }

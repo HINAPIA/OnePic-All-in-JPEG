@@ -1,7 +1,7 @@
 package com.goldenratio.camerax.PictureModule.Info
 
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
-import com.goldenratio.onepic.AllinJPEGModule.TextContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Text
+import com.goldenratio.onepic.AllinJPEGModule.Content.TextContent
 import java.nio.ByteBuffer
 
 class TextContentInfo(textContent: TextContent, startOffset : Int) {

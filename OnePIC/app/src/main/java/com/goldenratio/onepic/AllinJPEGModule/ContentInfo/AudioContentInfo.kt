@@ -1,7 +1,7 @@
 package com.goldenratio.camerax.PictureModule.Info
 
-import com.goldenratio.onepic.AllinJPEGModule.AudioContent
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.AudioContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
 import java.nio.ByteBuffer
 
 class AudioContentInfo(audioContent: AudioContent, audioDataStartOffset : Int) {

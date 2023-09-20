@@ -35,13 +35,9 @@ import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.EditModule.MagicPictureModule
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.EditModule.ShakeLevelModule
-import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.AllinJPEGModule.AudioContent
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.AllinJPEGModule.AiContainer
-import com.goldenratio.onepic.AllinJPEGModule.TextContent
+import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
+import com.goldenratio.onepic.AllinJPEGModule.Content.*
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentEditBinding
@@ -73,7 +69,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private val imageToolModule: ImageToolModule = ImageToolModule()
     private val faceDetectionModule: FaceDetectionModule =  FaceDetectionModule()
     private var magicPictureModule: MagicPictureModule? = null
-    private lateinit var loadResolver: LoadResolver
+    private lateinit var aiLoadResolver: AiLoadResolver
 
     private lateinit var imageContent: ImageContent
     private lateinit var textContent: TextContent
@@ -252,7 +248,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
 
         CoroutineScope(Dispatchers.Default).launch {
-            loadResolver = LoadResolver()
+            aiLoadResolver = AiLoadResolver()
             // Content 설정
             imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
@@ -387,9 +383,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 한 장으로 저장 추출
             val currentImage = jpegViewModel.selectedSubImage
             CoroutineScope(Dispatchers.Main).launch {
-
-                jpegViewModel.jpegAiContainer.value!!.saveResolver.singleImageSave(currentImage!!)
+                jpegViewModel.jpegAiContainer.value!!.singleImageSave(currentImage!!)
+                //jpegViewModel.jpegAiContainer.value!!.saveResolver.singleImageSave(currentImage!!)
                 Toast.makeText(activity, "사진이 저장 되었습니다.", Toast.LENGTH_SHORT).show();
+
             }
 
         }
@@ -696,7 +693,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     CoroutineScope(Dispatchers.Main).launch {
                         imageContent.checkPictureList = false
                         val job = async {
-                            loadResolver.createAiContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
+                            aiLoadResolver.createAiContainer(jpegViewModel.jpegAiContainer.value!!,sourceByteArray) }
                         job.await()
 
                         while(!imageContent.checkPictureList) {}
@@ -738,8 +735,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     imageContent.mainPicture = mainPicture
 
                     // 3. meta data 변경
-                    if(!jpegViewModel.jpegAiContainer.value!!.isBurst)
-                        imageContent.jpegMetaData = imageContent.changeAPP1MetaData(mainPicture._app1Segment!!)
+                    imageContent.jpegHeader = mainPicture._mataData!!
                 }
             }
             // 덮어쓰기
@@ -755,22 +751,18 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 fileName = currentFilePath!!.substring(currentFilePath.lastIndexOf("/") + 1);
             }
 
+            // Format 설정
+            if(isAllInJPEG) {
+                JpegViewModel.AllInJPEG = true
+            }
+            else {
+                JpegViewModel.AllInJPEG = false
+            }
+
             CoroutineScope(Dispatchers.IO).launch {
                 jpegViewModel.currentFileName = fileName
-                // 기존 파일 삭제
-                jpegViewModel.jpegAiContainer.value?.saveResolver?.deleteImage(fileName)
-                var i =0
-                while (!JpegViewModel.isUserInentFinish) {
-                    Log.d("save_test", "${i++}")
-                    delay(500)
-                }
-                JpegViewModel.isUserInentFinish = false
-                System.gc()
-                jpegViewModel.jpegAiContainer.value?.overwiteSave(fileName)
-
-                //jpegViewModel.jpegAiContainer.value?.save(null)
+                jpegViewModel.jpegAiContainer.value?.saveAfterEdit(fileName)
                 Thread.sleep(3000)
-                Log.d("save_test", "뷰어로 넘어가기")
                 setButtonDeactivation()
                 setCurrentPictureByteArrList()
             }
@@ -1190,42 +1182,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                         val addedAiContainer = AiContainer(requireActivity())
                         val jop = async {
-                            loadResolver.createAiContainer(addedAiContainer, sourceByteArray)
+                            aiLoadResolver.createAiContainer(addedAiContainer, sourceByteArray)
                         }
                         jop.await()
 
 
-                        // 기존 사진이 연속사진일 때
-                        if(jpegViewModel.jpegAiContainer.value!!.isBurst){
-                            // 추가 되는 사진이 연속 사진이면 추가 가능
-                            if(addedAiContainer.isBurst){
-                                isPossibleAdd = true
-                                Log.d("version3", "연속 사진에 연속 사진 추가 : APP1 없이 저장")
-                            }
-                            else{  // 추가되는 사진이 연속 사진이 아니면 추가 불가
-                                isPossibleAdd = false
-                                Log.d("version3", "연속 사진에 연속 사진 아닌 것 추가: 불가")
-                            }
-                        }
-
-                        // 기존 사진이 연속 사진이 아닐 때
-                        else{
-                            // 일반 JPEG 사진에 All-in JPEG 사진 추가 불가
-                            if(!jpegViewModel.jpegAiContainer.value!!.isAllinJPEG && addedAiContainer.isAllinJPEG){
-                                isPossibleAdd = false
-                                Log.d("version3", "일반 사진에 All-in jpeg 추가: 불가")
-                            }
-                            else{
-                                // 추가되는 사진이 연속 사진아 아니면 추가 가능
-                                if(!addedAiContainer.isBurst){
-                                    isPossibleAdd = true
-                                    Log.d("version3", "연속 사진 아닌 것에 아닌거 추가: APP1 함께 저장")
-                                } else{
-                                    isPossibleAdd = false
-                                    Log.d("version3", "연속 사진 아닌 것 연속 사진 추가: 불가")
-                                }
-                            }
-                        }
 
                         if (isPossibleAdd) {
                             while (!addedAiContainer.imageContent.checkPictureList) {
@@ -1234,8 +1195,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                             val newPictureList = addedAiContainer.imageContent.pictureList
 //
                             for (j in 0 until newPictureList.size) {
-                                newPictureList[j]._app1Segment = null
-                                newPictureList[j].app1Segment = null
                                 newPictureList[j].embeddedData = null
                                 newPictureList[j].embeddedSize = 0
                                 newPictureList[j].contentAttribute = ContentAttribute.basic
@@ -1284,7 +1243,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     else {
                         CoroutineScope(Dispatchers.Main).launch {
                             Glide.with(binding.mainImageView)
-                                .load(imageContent.getChagedJpegBytes(jpegViewModel.selectedSubImage!!))
+                                .load(imageContent.getJpegBytes(jpegViewModel.selectedSubImage!!))
                                 .into(binding.mainImageView)
                         }
                     }
@@ -1327,7 +1286,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             // 이미지뷰에 붙이기
             CoroutineScope(Dispatchers.Main).launch {
                 Glide.with(imageView)
-                    .load(imageContent.getChagedJpegBytes(picture))
+                    .load(imageContent.getJpegBytes(picture))
                     .into(imageView)
             }
 
@@ -1344,7 +1303,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     }
 
                     Glide.with(binding.mainImageView)
-                        .load(imageContent.getChagedJpegBytes(picture))
+                        .load(imageContent.getJpegBytes(picture))
                         .into(binding.mainImageView)
 
                     setMoveScrollView(subLayout, pictureList.indexOf(picture))

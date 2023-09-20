@@ -1,4 +1,4 @@
-package com.goldenratio.onepic.AudioModule
+package com.goldenratio.onepic.AllinJPEGModule
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -23,12 +23,10 @@ class AudioResolver(val context : Context) {
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
     var savedFile: File?  = null
-   // private var inputStream : ByteArrayInputStream? = null
-   var mediaPlayer = MediaPlayer()
+    var mediaPlayer = MediaPlayer()
 
     init{
         savedFile = getOutputMediaFilePath("viewer_record")
-
     }
     
     fun startRecording(fileName: String) : File? {
@@ -88,7 +86,6 @@ class AudioResolver(val context : Context) {
     }
 
     fun getOutputMediaFilePath(fileName : String): File {
-        //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val mediaStorageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val mediaDir = "audio"
 
@@ -104,7 +101,6 @@ class AudioResolver(val context : Context) {
     fun saveByteArrToAacFile(byteArr: ByteArray, fileName: String) : File{
         savedFile = getOutputMediaFilePath(fileName)
         val outputStream = FileOutputStream(savedFile)
-        Log.d("Audio_test", "${fileName}에 오디오 저장 완료")
         outputStream.write(byteArr)
         outputStream.flush()
         outputStream.close()
@@ -114,13 +110,10 @@ class AudioResolver(val context : Context) {
     @RequiresApi(Build.VERSION_CODES.M)
     fun audioPlay(_audio : Audio){
         var audio = _audio
-        Log.d("audio_test", "오디오 크기 ${audio.size}")
-        Log.d("audio_test", "savedFile!!.path : ${savedFile!!.path}")
 
         mediaPlayer.reset()
         var byteData = audio._audioByteArray
         if (byteData == null || byteData.isEmpty()) {
-            // _audioByteArray가 null이거나 비어있는 경우에 대한 예외 처리
             Log.e("AudioModule", "Failed to play audio: _audioByteArray is null or empty.")
             return
         }
@@ -151,28 +144,6 @@ class AudioResolver(val context : Context) {
          }
     }
 
-    fun tempAudioPlay(tempSavedFile : File){
-        mediaPlayer.reset()
-        CoroutineScope(Dispatchers.IO).launch {
-            // MediaPlayer 인스턴스를 생성하고 오디오 데이터를 설정
-            mediaPlayer.apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                try {
-                    setDataSource(tempSavedFile!!.path)
-                    prepare()
-                    // MediaPlayer를 시작하여 오디오를 재생한다.
-                    //start()
-                } catch (e: IOException) {
-                    // IOException을 처리하는 코드를 추가한다.
-                    Log.e("AudioModule", "Failed to prepare media player: ${e.message}")
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
     fun audioStop(){
         mediaPlayer.stop()
         mediaPlayer.reset()

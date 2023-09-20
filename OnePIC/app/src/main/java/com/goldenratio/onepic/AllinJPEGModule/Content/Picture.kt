@@ -1,15 +1,13 @@
-package com.goldenratio.onepic.AllinJPEGModule.Contents
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
-import com.goldenratio.camerax.PictureModule.Info.ImageInfo
 
 class Picture(
     var contentAttribute: ContentAttribute,
-    var app1Segment : ByteArray? = null,
+    var metaData : ByteArray? = null,
     var pictureByteArray: ByteArray? = null) {
-    var _app1Segment : ByteArray? = null
+    var _mataData : ByteArray? = null
     var _pictureByteArray: ByteArray? = null
     var imageSize: Int = pictureByteArray?.size ?: 0
     var embeddedSize = 0
@@ -22,21 +20,21 @@ class Picture(
             imageSize = pictureByteArray!!.size
             pictureByteArray = null
         }
-        if(app1Segment != null){
-            _app1Segment = app1Segment!!
+        if(metaData != null){
+            _mataData = metaData!!
         }
     }
 
     constructor(
         offset: Int,
-        app1Segment: ByteArray?,
+        metaData: ByteArray?,
         byteArray: ByteArray,
         contentAttribute: ContentAttribute,
         embeddedSize: Int,
         embeddedData: ArrayList<Int>?
     ) : this(contentAttribute) {
         this.offset = offset
-        this._app1Segment = app1Segment
+        this._mataData = metaData
         this.embeddedSize = embeddedSize
         this.embeddedData = embeddedData
         this._pictureByteArray = byteArray
@@ -45,7 +43,7 @@ class Picture(
 
     override fun toString(): String {
         return "[Picture] offset : ${offset}, Attribute : ${contentAttribute},"+
-                " app1 Data Size : ${_app1Segment?.size}, image data size : ${imageSize}," +
+                " meta Data Size : ${_mataData?.size}, image data size : ${imageSize}," +
                 "embbeded Size : ${embeddedSize}, embedded Data : ${embeddedData}"
     }
 

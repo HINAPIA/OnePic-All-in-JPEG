@@ -1,9 +1,9 @@
 package com.goldenratio.camerax.PictureModule.Info
 
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 
 class ImageInfo(picture: Picture) {
-    var app1DataSize : Int = 0
+    var metaDataSize : Int = 0
     var offset : Int = 0
     var imageDataSize : Int = 0
     var attribute : Int
@@ -11,8 +11,8 @@ class ImageInfo(picture: Picture) {
     lateinit var embeddedData : ArrayList<Int>
 
     init {
-        if(picture._app1Segment != null){
-            app1DataSize = picture._app1Segment!!.size
+        if(picture._mataData != null){
+            metaDataSize = picture._mataData!!.size
         }
         imageDataSize = picture.imageSize
         attribute = picture.contentAttribute.code

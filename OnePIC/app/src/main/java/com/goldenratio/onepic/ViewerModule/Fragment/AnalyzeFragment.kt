@@ -28,9 +28,9 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.LoadModule.LoadResolver
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
 import kotlinx.coroutines.*
@@ -49,7 +49,7 @@ class AnalyzeFragment : Fragment() {
     private lateinit var binding: FragmentAnalyzeBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
-    private var loadResolver : LoadResolver = LoadResolver()
+    private var loadResolver : AiLoadResolver = AiLoadResolver()
     private var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
 
     private lateinit var progressBar: ProgressBar

@@ -1,8 +1,8 @@
-package com.goldenratio.onepic.AllinJPEGModule
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
 import android.util.Log
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.Audio
 
 class AudioContent {
     var audio : Audio? = null

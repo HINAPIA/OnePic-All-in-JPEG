@@ -1,4 +1,4 @@
-package com.goldenratio.onepic.AllinJPEGModule.Contents
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
 class Audio (audioByteArray : ByteArray? = null, _Content_attribute: ContentAttribute){
     var _audioByteArray : ByteArray? = null

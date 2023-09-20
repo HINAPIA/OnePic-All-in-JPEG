@@ -1,6 +1,6 @@
 package com.goldenratio.camerax.PictureModule.Info
 
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Text
+import com.goldenratio.onepic.AllinJPEGModule.Content.Text
 
 class TextInfo(text: Text) {
     var offset : Int = 0

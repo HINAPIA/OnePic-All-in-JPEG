@@ -1,4 +1,4 @@
-package com.goldenratio.onepic.AllinJPEGModule.Contents
+package com.goldenratio.onepic.AllinJPEGModule.Content
 
 enum class ContentType {
     Image,

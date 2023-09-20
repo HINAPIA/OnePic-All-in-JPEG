@@ -7,17 +7,16 @@ import android.util.Log
 import android.view.*
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toRectF
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.EditModule.BlurBitmapUtil
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentFocusChangeBinding
 import kotlinx.coroutines.*
@@ -223,17 +222,13 @@ class FocusChangeFragment : Fragment() {
                         resultBitmap!!,
                         imageContent.getJpegBytes(pictureList[index!!])
                     )
-                    val app1Segment = imageContent.extractAPP1(allBytes)
-                    val frame =async {
-                        imageContent.extractSOI(allBytes)
+                    val newPicture = jpegViewModel.jpegAiContainer.value?.getPictureFromEditedBytes(allBytes)
+                    if (newPicture != null) {
+                        // 추가
+                        jpegViewModel.jpegAiContainer.value?.addPictureToImageContent(null, newPicture)
                     }
-                    val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
-                    imageContent.pictureList.add(picture)
-
-                    picture.waitForByteArrayInitialized()
 
                     jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[index!!]), pictureList.size-1)
-
                     jpegViewModel.selectedSubImage = imageContent.pictureList[pictureList.size-1]
                 }
 
