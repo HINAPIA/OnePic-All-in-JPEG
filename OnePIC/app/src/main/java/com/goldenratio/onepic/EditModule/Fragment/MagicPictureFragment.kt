@@ -9,13 +9,12 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.graphics.toRectF
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentMagicPictureBinding
 import kotlinx.coroutines.CoroutineScope

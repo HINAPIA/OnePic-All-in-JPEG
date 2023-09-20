@@ -22,8 +22,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.CameraModule.Camera2Module.Camera2Module
 import com.goldenratio.onepic.ImageToolModule
@@ -579,7 +579,7 @@ class CameraFragment : Fragment() {
 
                 JpegViewModel.AllInJPEG = true
                 // All-in JPEG 저장
-                jpegViewModel.jpegAiContainer.value?.save(isSaved)
+                jpegViewModel.jpegAiContainer.value?.saveAfterCapture(isSaved)
             }
         }
     }

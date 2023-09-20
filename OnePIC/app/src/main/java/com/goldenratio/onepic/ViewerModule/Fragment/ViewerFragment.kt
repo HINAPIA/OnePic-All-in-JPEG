@@ -25,8 +25,8 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.AllinJPEGModule.AiContainer
 import com.goldenratio.onepic.EditModule.Fragment.EditFragment
 import com.goldenratio.onepic.EditModule.MagicPictureModule

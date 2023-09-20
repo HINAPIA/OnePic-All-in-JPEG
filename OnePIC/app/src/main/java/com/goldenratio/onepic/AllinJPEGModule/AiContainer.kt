@@ -6,10 +6,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
-import com.goldenratio.onepic.AudioModule.AudioResolver
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.*
+import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.SaveModule.SaveResolver
 import kotlinx.coroutines.*
 
@@ -22,8 +20,9 @@ class AiContainer(_activity: Activity? = null) {
     var audioContent : AudioContent = AudioContent()
     var textContent: TextContent = TextContent()
 
+    var aiSaveResolver : AiSaveResolver
     var saveResolver : SaveResolver
-    var audioResolver : AudioResolver? =null
+    var audioResolver : AudioResolver? = null
     var jpegConstant : JpegConstant = JpegConstant()
 
     var isBurst : Boolean = true // 연속 촬영 이미지 플래그
@@ -35,7 +34,8 @@ class AiContainer(_activity: Activity? = null) {
             audioResolver = AudioResolver(_activity)
         }
 
-        saveResolver = SaveResolver(activity ,this)
+        aiSaveResolver = AiSaveResolver(this)
+        saveResolver = SaveResolver(activity)
         header = Header(this)
 
     }
@@ -46,6 +46,15 @@ class AiContainer(_activity: Activity? = null) {
         audioContent.init()
         textContent.init()
         isAllinJPEG = true
+    }
+
+    fun addPictureToImageContent(inedex : Int?, picture: Picture){
+        if(inedex == null){
+            imageContent.insertPicture(imageContent.pictureCount, picture)
+        }else{
+            imageContent.insertPicture(inedex, picture)
+        }
+        picture.waitForByteArrayInitialized()
     }
 
     //해당 그룹에 존재하는 picture 모두를 list로 제공
@@ -67,6 +76,23 @@ class AiContainer(_activity: Activity? = null) {
         return resultPictureList
     }
 
+     fun getPictureFromEditedBytes(allBytes: ByteArray) : Picture{
+        val frameStartPos = imageContent.getFrameStartPos(allBytes)
+        val metaData = imageContent.mainPicture._mataData?.plus(allBytes.copyOfRange(2, frameStartPos))
+
+         // Frame end Pos 찾기
+         var endPos = allBytes.size
+         var pos = allBytes.size-2
+         while (pos > 0) {
+             if (allBytes[pos] == 0xFF.toByte() && allBytes[pos + 1] == 0xD9.toByte()) {
+                 endPos = pos
+                 break
+             }
+             pos--
+         }
+         val frame = allBytes.copyOfRange(frameStartPos, endPos)
+         return Picture(ContentAttribute.edited, metaData, frame)
+    }
 
     /**
      * TODO 사진을 찍은 후에 호출되는 함수로 찍은 사진 데이터로 imageContent 업데이트
@@ -83,6 +109,21 @@ class AiContainer(_activity: Activity? = null) {
         }
         jop.await()
         return@withContext true
+    }
+
+    /**
+     * TODO 사진 파일을 로드할 때 호출되는 함수로 imageContent 업데이트
+     *
+     * @param _pictureList
+     * @param isBurstMode
+     */
+    fun setImageContentAfterParsing(_pictureList : ArrayList<Picture>, isBurstMode : Int){
+        isAllinJPEG = true
+        imageContent.setContent(_pictureList)
+//        if(isBurstMode ==1)
+//            isBurst = true
+//        else
+//            isBurst = false
     }
 
     /**
@@ -114,22 +155,53 @@ class AiContainer(_activity: Activity? = null) {
 
     /** 저장 관련 함수 **/
     /**
-     * TODO fileName으로 jpeg 확장자로 사진 저장
+     * TODO 촬영 후 사진 파일 저장
      *
-     * @param fileName
+     * @param isSaved
      */
-    suspend fun overwiteSave(fileName : String) {
-        saveResolver.overwriteSave(fileName, isBurst)
-    }
-
-    //Container의 데이터를 파일로 저장
-    suspend fun save(isSaved: MutableLiveData<Uri>): String {
-        return saveResolver.save(isSaved, isBurst)
+    suspend fun saveAfterCapture(isSaved: MutableLiveData<Uri>) {
+        val resultByteArray = withContext(Dispatchers.Default) {
+            aiSaveResolver.AiContainerToBytes(isBurst)
+        }
+        Log.d("성능 평가", "All-in JPEG 사진 : "+(resultByteArray.size).toString()+" kb")
+         saveResolver.save(resultByteArray, null, isSaved)
     }
 
     /**
-     * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 갱신
+     * TODO 편집된 사진 파일 저장
      *
+     * @param fileName 수정한 현재 파일 이름
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    suspend fun saveAfterEdit(fileName : String) {
+        // 기존 파일 삭제
+        if(saveResolver != null){
+            saveResolver?.deleteImage(fileName)
+            while (!JpegViewModel.isUserInentFinish) {
+                delay(500)
+            }
+            JpegViewModel.isUserInentFinish = false
+            System.gc()
+        }
+        val resultByteArray =  withContext(Dispatchers.Default) {
+            aiSaveResolver.AiContainerToBytes(isBurst)
+        }
+        saveResolver.save(resultByteArray, fileName, null)
+    }
+
+
+    /**
+     * TODO 단일 사진 저장
+     *
+     * @param picture
+     */
+    fun singleImageSave(picture: Picture){
+         val singleJpegBytes = aiSaveResolver.createSingleJpegByteArray(picture)
+         saveResolver.save(singleJpegBytes, null, null)
+    }
+
+    /**
+     * TODO Ai Container 데이터를 통해 Content Info(image, text, audio) 객체 업데이트
      */
     fun settingHeaderInfo(){
         header.settingHeaderInfo()
@@ -137,7 +209,6 @@ class AiContainer(_activity: Activity? = null) {
 
     /**
      * TODO  객체로 존재하는 APP3 데이터를 APP3 'All-in' 구조에 따라  바이너리 데이터로 변환 후 리턴
-     *
      *
      * @return APP3 'All-in' 구조의  APP3 바이너리 데이터
      */
@@ -166,13 +237,13 @@ class AiContainer(_activity: Activity? = null) {
     }
 
     fun getJpegMetaBytes() : ByteArray{
-        if(imageContent.jpegMetaData.size == 0){
+        if(imageContent.jpegHeader.size == 0){
             Log.e("user error", "JpegMetaData size가 0입니다.")
         }
-        return imageContent.jpegMetaData
+        return imageContent.jpegHeader
     }
     fun setJpegMetaBytes(_jpegMetaData : ByteArray){
-        imageContent.jpegMetaData = _jpegMetaData
+        imageContent.jpegHeader = _jpegMetaData
     }
 
 

@@ -9,7 +9,7 @@ import android.os.Environment
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Audio
+import com.goldenratio.onepic.AllinJPEGModule.Content.Audio
 import com.goldenratio.onepic.ViewerModule.Fragment.ViewerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

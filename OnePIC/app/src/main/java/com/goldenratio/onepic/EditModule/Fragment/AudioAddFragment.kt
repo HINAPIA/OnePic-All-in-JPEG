@@ -14,12 +14,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
 import com.goldenratio.onepic.ConfirmDialogInterface
 import com.goldenratio.onepic.ImageToolModule
 import com.goldenratio.onepic.JpegViewModel
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.ViewerModule.ViewerEditorActivity
 import com.goldenratio.onepic.databinding.FragmentAudioAddBinding

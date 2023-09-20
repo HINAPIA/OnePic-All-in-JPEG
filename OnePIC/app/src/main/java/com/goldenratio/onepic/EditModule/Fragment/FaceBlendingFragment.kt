@@ -1,7 +1,10 @@
 package com.goldenratio.onepic.EditModule.Fragment
 
 import android.annotation.SuppressLint
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Point
+import android.graphics.PointF
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,10 +21,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.goldenratio.onepic.*
+import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.EditModule.FaceDetectionModule
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import com.goldenratio.onepic.databinding.FragmentFaceBlendingBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
@@ -356,14 +359,12 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
 
             val selectIndex = jpegViewModel.getSelectedSubImageIndex() + 1
 
-            val app1Segment = imageContent.extractAPP1(allBytes)
-            val frame = async {
-                imageContent.extractSOI(allBytes)
+            // Picture 생성
+            val newPicture = jpegViewModel.jpegAiContainer.value?.getPictureFromEditedBytes(allBytes)
+            if (newPicture != null) {
+                // 추가
+                jpegViewModel.jpegAiContainer.value?.addPictureToImageContent(selectIndex, newPicture)
             }
-            val picture = Picture(ContentAttribute.edited, app1Segment, frame.await())
-
-            imageContent.pictureList.add(selectIndex, picture)
-            picture.waitForByteArrayInitialized()
 
             imageContent.addBitmapList(selectIndex, selectBitmap)
             jpegViewModel.setPictureByteList(imageContent.getJpegBytes(imageContent.pictureList[selectIndex]), selectIndex)

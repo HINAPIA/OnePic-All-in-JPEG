@@ -1,9 +1,9 @@
 package com.example.demo.view
 
 import com.example.demo.app.ImageTool
+import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
 import com.goldenratio.onepic.PictureModule.AiContainer
 import com.goldenratio.onepic.AudioModule.AudioResolver
-import com.goldenratio.onepic.LoadModule.LoadResolver
 import javafx.application.Platform
 import javafx.scene.image.Image
 import javafx.stage.FileChooser
@@ -28,7 +28,7 @@ class ImageViewer : View() {
     val centerView : CenterView  = CenterView(this)
 
     val aiContainer : AiContainer = AiContainerSingleton.aiContainer
-    val loadResolver : LoadResolver = LoadResolver()
+    val loadResolver : AiLoadResolver = AiLoadResolver()
 
     init{
         title = "All in JPEG PC Viewer"

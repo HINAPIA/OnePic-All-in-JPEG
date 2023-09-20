@@ -1,10 +1,7 @@
 package com.goldenratio.onepic.PictureModule
 
-
-//import com.goldenratio.onepic.AudioModule.AudioResolver
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentType
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.AllinJPEGModule.Header
 import com.goldenratio.onepic.AllinJPEGModule.TextContent
 import com.goldenratio.onepic.AudioModule.AudioResolver
@@ -35,21 +32,34 @@ class AiContainer() {
 
     fun setBasicJepg(sourceByteArray: ByteArray) {
         init()
+        isAllinJPEG = false
+        isBurst = false
         // 헤더 따로 프레임 따로 저장
         imageContent.setBasicContent(sourceByteArray)
     }
 
 
-    fun getJpegMetaBytes() : ByteArray{
-        if(imageContent.jpegMetaData.size == 0){
-            //Log.e("user error", "JpegMetaData size가 0입니다.")
-        }
-        return imageContent.jpegMetaData
+    /**
+     * TODO 사진 파일을 로드할 때 호출되는 함수로 imageContent 업데이트
+     *
+     * @param _pictureList
+     * @param isBurstMode
+     */
+    fun setImageContentAfterParsing(_pictureList : ArrayList<Picture>, isBurstMode : Int){
+        isAllinJPEG = true
+        imageContent.setContent(_pictureList)
+
     }
     fun setJpegMetaBytes(_jpegMetaData : ByteArray){
-        imageContent.jpegMetaData = _jpegMetaData
+        imageContent.jpegHeader = _jpegMetaData
     }
 
+    fun getJpegMetaBytes() : ByteArray{
+        if(imageContent.jpegHeader.size == 0){
+            System.out.println("JpegMetaData size가 0입니다.")
+        }
+        return imageContent.jpegHeader
+    }
 
 }
 

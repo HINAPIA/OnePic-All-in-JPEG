@@ -3,10 +3,9 @@ package com.goldenratio.onepic.EditModule
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
-import com.goldenratio.onepic.AllinJPEGModule.Contents.ContentAttribute
+import com.goldenratio.onepic.AllinJPEGModule.Content.ImageContent
+import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.ImageToolModule
-import com.goldenratio.onepic.AllinJPEGModule.Contents.Picture
-import com.goldenratio.onepic.AllinJPEGModule.ImageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

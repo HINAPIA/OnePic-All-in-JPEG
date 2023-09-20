@@ -43,26 +43,26 @@ export default class ImageContent {
         this.checkEditChanged = false;
     }
 
-    async setContent(byteArrayList, contentAttribute) {
-        this.init();
-        this.jpegMetaData = this.extractJpegMeta(byteArrayList[0], contentAttribute);
-        for (let i = 0; i < byteArrayList.length; i++) {
-            let app1Bytes = this.extractAPP1(byteArrayList[i]);
-            let frameBytes = await this.extractFrame(byteArrayList[i], contentAttribute);
-            //let picture = new Picture(contentAttribute, app1Bytes, frameBytes);
-            let picture = new Picture(null, app1Bytes, frameBytes, contentAttribute, 0, null)
-            picture.waitForByteArrayInitialized();
-            this.insertPicture(picture);
-            console.log("AiJPEG", "setImageContnet: picture[" + i + "] 완성");
-            if (i === 0) {
-                this.mainPicture = picture;
-                this.checkMain = true;
-            }
-        }
-        console.log("AiJPEG", "setImageContnet: 완성 size =" + this.pictureList.length);
-        this.checkPictureList = true;
-        return true;
-    }
+    // async setContent(byteArrayList, contentAttribute) {
+    //     this.init();
+    //     this.jpegMetaData = this.extractJpegMeta(byteArrayList[0], contentAttribute);
+    //     for (let i = 0; i < byteArrayList.length; i++) {
+    //         let app1Bytes = this.extractAPP1(byteArrayList[i]);
+    //         let frameBytes = await this.extractFrame(byteArrayList[i], contentAttribute);
+    //         //let picture = new Picture(contentAttribute, app1Bytes, frameBytes);
+    //         let picture = new Picture(null, app1Bytes, frameBytes, contentAttribute, 0, null)
+    //         picture.waitForByteArrayInitialized();
+    //         this.insertPicture(picture);
+    //         console.log("AiJPEG", "setImageContnet: picture[" + i + "] 완성");
+    //         if (i === 0) {
+    //             this.mainPicture = picture;
+    //             this.checkMain = true;
+    //         }
+    //     }
+    //     console.log("AiJPEG", "setImageContnet: 완성 size =" + this.pictureList.length);
+    //     this.checkPictureList = true;
+    //     return true;
+    // }
 
         /**
      * Initialize ImageContent after reset - Creating ImageContent during file parsing
@@ -98,6 +98,17 @@ export default class ImageContent {
         this.checkMain = true;
     }
 
+    getFrameStartPos(jpegBytes){
+        var startIndex = 0;
+        var SOFList = this.getSOFMarkerPosList(jpegBytes);
+        if(SOFList.size > 0 ){
+            startIndex = SOFList.pop()
+        } else{
+            startIndex = 0
+        }
+        return startIndex
+    }
+
     insertPicture(picture){
         this.pictureList.push(picture);
         this.pictureCount++;
@@ -107,33 +118,28 @@ export default class ImageContent {
      * metaData와 Picture의 byteArray(frmae)을 붙여서 완전한 JPEG 파일의 Bytes를 리턴하는 함수
      */
     // // TODO: ("APP1 삭제 후 변경 필요")
-    getJpegBytes(picture) {
-        console.log("getJpegBytes : 호출");
-        //while (!checkPictureList) { }
-        var buffer = new Uint8Array(0);
-        var jpegMetaData = this.jpegMetaData;
-        buffer = new Uint8Array(jpegMetaData.length + picture.imageSize + 2);
-        buffer.set(jpegMetaData, 0);
-        buffer.set(picture._pictureByteArray, jpegMetaData.length);
-        buffer[jpegMetaData.length + picture.imageSize] = 0xFF;
-        buffer[jpegMetaData.length + picture.imageSize + 1] = 0xD9;
-        return buffer;
-    }
+    // getJpegBytes(picture) {
+    //     console.log("getJpegBytes : 호출");
+    //     //while (!checkPictureList) { }
+    //     var buffer = new Uint8Array(0);
+    //     var jpegMetaData = this.jpegMetaData;
+    //     buffer = new Uint8Array(jpegMetaData.length + picture.imageSize + 2);
+    //     buffer.set(jpegMetaData, 0);
+    //     buffer.set(picture._pictureByteArray, jpegMetaData.length);
+    //     buffer[jpegMetaData.length + picture.imageSize] = 0xFF;
+    //     buffer[jpegMetaData.length + picture.imageSize + 1] = 0xD9;
+    //     return buffer;
+    // }
 
     // TODO: ("APP1 삭제 후 변경 필요")
     getBlobURL(picture) {
         console.log("getJpegBytes : 호출");
         
-        // while (!this.checkPictureList) { 
-        //     await new Promise(resolve => setTimeout(resolve, 100));
-        // }ƒ
-        var buffer = new Uint8Array(0);
-        var jpegMetaData = this.jpegMetaData;
-        buffer = new Uint8Array(jpegMetaData.length + picture.imageSize + 2);
-        buffer.set(jpegMetaData, 0);
-        buffer.set(picture._pictureByteArray, jpegMetaData.length);
-        buffer[jpegMetaData.length + picture.imageSize] = 0xFF;
-        buffer[jpegMetaData.length + picture.imageSize + 1] = 0xD9;
+        var buffer = new Uint8Array(picture._metaData.length + picture.imageSize + 2);
+        buffer.set(picture._metaData, 0);
+        buffer.set(picture._pictureByteArray, picture._metaData.length);
+        buffer[picture._metaData.length + picture.imageSize] = 0xFF;
+        buffer[picture._metaData.length + picture.imageSize + 1] = 0xD9;
          
         // 버퍼 데이터를 Blob으로 변환
         var blob = new Blob([buffer], { type: "image/jpeg" });
@@ -143,62 +149,25 @@ export default class ImageContent {
         return blobUrl
     }
 
-    /**
-     * 기존 metadata의 APP1 segment를 newApp1Data로 교체 후 변경된 metadata 리턴
-     */
-    chageMetaData(newApp1Data) {
-        var pos = 0;
-        var app1DataSize = 0;
-        var app1StartPos = 0;
-        var findAPP1 = false;
-        var jpegMetaData = new Uint8Array(/* Initialize this with your metaData array content */);
-        var byteBuffer = new Uint8Array(0);
-
-        while (pos < jpegMetaData.length) {
-            // APP1 마커 위치 찾기
-            if (jpegMetaData[pos] === 0xFF && jpegMetaData[pos + 1] === 0xE1) {
-                app1DataSize = (jpegMetaData[pos + 2] << 8) | jpegMetaData[pos + 3];
-                app1StartPos = pos;
-                findAPP1 = true;
-                break;
-            }
-            pos++;
-        }
-
-        if (findAPP1) {
-            // 기존 APP1 segment를 newApp1Data로 교체 후 리턴
-            byteBuffer = new Uint8Array(jpegMetaData.length - app1DataSize + newApp1Data.length);
-            byteBuffer.set(jpegMetaData.subarray(0, app1StartPos), 0);
-            byteBuffer.set(newApp1Data, app1StartPos);
-            byteBuffer.set(
-                jpegMetaData.subarray(app1StartPos + app1DataSize + 2),
-                app1StartPos + newApp1Data.length
-            );
-            return byteBuffer;
-        } else {
-            // 교체 안함
-            return jpegMetaData;
-        }
-    }
-
-    getChagedJpegBytes(picture) {
-        var newJpegMetaData = null;
-        console.log("getChagedJpegBytes: 호출");
-        while (!checkPictureList) { }
-        // Change metadata
-        if (!picture._app1Segment || picture._app1Segment.length <= 0) {
-            newJpegMetaData = jpegMetaData;
-        } else {
-            newJpegMetaData = this.chageMetaData(picture._app1Segment);
-        }
-        // var buffer = new ArrayBuffer(newJpegMetaData.length + picture.imageSize + 2);
-        var buffer = new Uint8Array(newJpegMetaData.length + picture.imageSize + 2);
-        buffer.set(newJpegMetaData);
-        buffer.set(picture._pictureByteArray, newJpegMetaData.length);
-        buffer.set([0xff, 0xd9], newJpegMetaData.length + picture.imageSize);
+   
+    // getChagedJpegBytes(picture) {
+    //     var newJpegMetaData = null;
+    //     console.log("getChagedJpegBytes: 호출");
+    //     while (!checkPictureList) { }
+    //     // Change metadata
+    //     if (!picture._app1Segment || picture._app1Segment.length <= 0) {
+    //         newJpegMetaData = jpegMetaData;
+    //     } else {
+    //         newJpegMetaData = this.chageMetaData(picture._app1Segment);
+    //     }
+    //     // var buffer = new ArrayBuffer(newJpegMetaData.length + picture.imageSize + 2);
+    //     var buffer = new Uint8Array(newJpegMetaData.length + picture.imageSize + 2);
+    //     buffer.set(newJpegMetaData);
+    //     buffer.set(picture._pictureByteArray, newJpegMetaData.length);
+    //     buffer.set([0xff, 0xd9], newJpegMetaData.length + picture.imageSize);
         
-        return buffer;
-    }
+    //     return buffer;
+    // }
 
     getSOFMarkerPosList(jpegBytes) {
         var EOIPosList = this.getEOIMarekrPosList(jpegBytes);
@@ -249,59 +218,37 @@ export default class ImageContent {
      * Return the metadata portion of a complete JPEG file consisting of metaData and Picture's byteArray (frame)
      */
     extractJpegMeta(bytes, attribute) {
-        console.log("extractJpegMeta =============================");
-        var isFindStartMarker = false;
         var metaDataEndPos = 0;
         var SOFList = [];
-        var APP0MarkerList = [];
-        SOFList = this.getSOFMarkerPosList(bytes);
+    
+       // SOFList = this.getSOFMarkerPosList(bytes);
+        metaDataEndPos = this.getFrameStartPos(bytes)
 
-        if (attribute === ContentAttribute.edited || attribute === ContentAttribute.magic) {
-            APP0MarkerList = this.findAPP0Makers(bytes);
-            if (APP0MarkerList.length > 0) {
-                isFindStartMarker = true;
-                metaDataEndPos = this.APP0MarkerList[APP0MarkerList.length - 1];
-            }
-        }
+        
+       // var byteBuffer = new Uint8Array();
+        var resultByte = bytes.subarray(0, metaDataEndPos);
+        //  // Ai JPEG Format 알 땨
+        // if (APP3StartIndx > 0) {
+        //      // APP3 (Ai jpeg) 영역을 제외하고 metadata write 
+        //     var metaDataChunk = new Uint8Array(bytes.subarray(0, metaDataEndPos));
+        //     //var afterApp3Chunk = new Uint8Array(bytes.subarray(APP3StartIndx + APP3DataLength, SOFList[SOFList.length - 1]));
 
-        if (!isFindStartMarker) {
-            if (SOFList.length > 0) {
-                metaDataEndPos = SOFList[SOFList.length - 1];
-            } else {
-                console.log("[meta]extract metadata : SOF가 존재하지 않음");
-                return new Uint8Array(0);
-            }
-        }
+        //     byteBuffer = new ArrayBuffer(metaDataChunk.length);
+        //     var combinedBuffer = new Uint8Array(byteBuffer);
+        //     combinedBuffer.set(metaDataChunk, 0);
+        //     combinedBuffer.set(afterApp3Chunk, metaDataChunk.length);
 
-        var resultArray = this.findMCFormat(bytes);
-        var APP3StartIndx = resultArray[0];
-        var APP3DataLength = resultArray[1];
-        console.log("[meta]APP3StartIndx : " + APP3StartIndx + ", APP3DataLength : " + APP3DataLength);
-        var resultByte;
-        var byteBuffer = new Uint8Array();
-        if (APP3StartIndx > 0) {
-             // APP3 (Ai jpeg) 영역을 제외하고 metadata write
-            console.log("[meta]extract_metadata : MC 포맷이여서 APP3 메타 데이터 뺴고 저장");
-            
-            var metaDataChunk = new Uint8Array(bytes.subarray(0, APP3StartIndx));
-            var afterApp3Chunk = new Uint8Array(bytes.subarray(APP3StartIndx + APP3DataLength, SOFList[SOFList.length - 1]));
-
-            byteBuffer = new ArrayBuffer(metaDataChunk.length + afterApp3Chunk.length);
-            var combinedBuffer = new Uint8Array(byteBuffer);
-            combinedBuffer.set(metaDataChunk, 0);
-            combinedBuffer.set(afterApp3Chunk, metaDataChunk.length);
-
-            resultByte = combinedBuffer;
-        } else {
-            console.log("[meta]extract_metadata : 일반 JEPG처럼 저장 pos : " + metaDataEndPos);
-            resultByte = bytes.subarray(0, metaDataEndPos);
-        }
+        //     resultByte = combinedBuffer;
+        // } else {
+        //    // console.log("[meta]extract_metadata : 일반 JEPG처럼 저장 pos : " + metaDataEndPos);
+        //     resultByte = bytes.subarray(0, metaDataEndPos);
+        // }
         console.log("[meta] 추출한 메타데이터 사이즈 " + resultByte.length);
         return resultByte;
     }
 
 
-     extractAPP1(allBytes) {
+    extractAPP1(allBytes) {
         var pos = 0;
         var app1StartPos = 0;
         var app1DataSize = 0;
@@ -328,23 +275,6 @@ export default class ImageContent {
         return byteBuffer;
     }
     
-     isBasicPicture(bytes) {
-        var findApp0 = false;
-        var findApp1 = false;
-        var pos = 0;
-        while (pos < bytes.length - 1) {
-            if (bytes[pos] === 0xFF && bytes[pos + 1] === 0xE1) {
-                findApp1 = true;
-            }
-            if (bytes[pos] === 0xFF && bytes[pos + 1] === 0xE0) {
-                findApp0 = true;
-            }
-            pos++;
-        }
-    
-        return !findApp0 && findApp1;
-    }
-    
     extractSOI(jpegBytes) {
         return jpegBytes.subarray(2);
     }
@@ -354,66 +284,23 @@ export default class ImageContent {
         var startIndex = 0;
         var endIndex = jpegBytes.length;
     
-        var isFindStartMarker = false;
-        var isFindEndMarker = false;
-    
-        var SOFList = [];
-        var APP0MarkerList = [];
-    
-        if (attribute === ContentAttribute.edited || attribute === ContentAttribute.magic) {
-            APP0MarkerList = this.findAPP0Makers(jpegBytes);
-            if (APP0MarkerList.length > 0) {
-                isFindStartMarker = true;
-                startIndex = APP0MarkerList[APP0MarkerList.length - 1];
-                console.log("extract frame : JFIF 찾음 " + startIndex);
-            }
-        }
-    
-        if (!isFindStartMarker) {
-            SOFList = this.getSOFMarkerPosList(jpegBytes);
-            if (SOFList.length > 0) {
-                isFindStartMarker = true;
-                startIndex = SOFList[SOFList.length - 1];
-                console.log("extract frame : SOF 찾음 " + startIndex);
-            } else {
-                console.log("extract frame : SOF가 존재하지 않음");
-                return new Uint8Array();
-            }
-        }
+         // Frame Start pos 찾기
+        var frameStartPos = this.getFrameStartPos(jpegBytes)
     
         pos = jpegBytes.length - 2;
         while (pos > 0) {
             if (jpegBytes[pos] === 0xFF && jpegBytes[pos + 1] === 0xD9) {
                 endIndex = pos;
-                isFindEndMarker = true;
                 break;
             }
             pos--;
         }
-    
-        if (!isFindStartMarker || !isFindEndMarker) {
-            console.log("Error: 찾는 마커가 존재하지 않음");
-            return new Uint8Array();
-        } else {
-            var resultByte;
-            console.log("startIndex", "bytes[" + jpegBytes.length + "], start[" + startIndex + "], end[" + endIndex + "]");
-            resultByte = jpegBytes.subarray(startIndex, endIndex);
-            return resultByte;
-        }
+            //console.log("startIndex", "bytes[" + jpegBytes.length + "], start[" + startIndex + "], end[" + endIndex + "]");
+        var resultByte = jpegBytes.subarray(frameStartPos, endIndex);
+        return resultByte;    
+        
     }
 
-    findAPP0Makers(jpegBytes) {
-        var JFIF_startOffset = 0;
-        var JFIFList = [];
-        while (JFIF_startOffset < jpegBytes.length - 1) {
-            if (jpegBytes[JFIF_startOffset] === 0xFF && jpegBytes[JFIF_startOffset + 1] === 0xE0) {
-                JFIFList.push(JFIF_startOffset);
-                console.log("extract metadata :  JIFI찾음 - " + JFIF_startOffset);
-            }
-            JFIF_startOffset++;
-        }
-        return JFIFList;
-    }
     
     getEOIMarekrPosList(jpegBytes) {
         var EOIStartInex = 0;
