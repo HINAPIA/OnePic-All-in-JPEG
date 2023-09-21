@@ -449,6 +449,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/camera_save"
                 android:textColor="@color/white"
+                android:textStyle="bold"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
