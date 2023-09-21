@@ -24,7 +24,7 @@ class FaceDetectionModule {
     private val imageToolModule: ImageToolModule = ImageToolModule()
     private var faceArraylist: ArrayList<ArrayList<Face>?> = arrayListOf()
     private var checkFaceDetection = false
-    private var checkFaceDetectionCall = false
+    var checkFaceDetectionCall = false
 
     private var eyesAnalysisResults = arrayListOf<Double>()
     private var smilingAnalysisResults = arrayListOf<Double>()
@@ -60,47 +60,49 @@ class FaceDetectionModule {
      * @param bitmapList 얼굴 감지 모델을 실행시킬 [Bitmap] 리스트
      */
     fun allFaceDetection(bitmapList: ArrayList<Bitmap>) {
-        Log.d("faceBlending", "allFaceDetection call")
-        checkFaceDetectionCall = true
-        checkFaceDetection = false
+        if(!checkFaceDetectionCall) {
+            Log.d("faceBlending", "allFaceDetection call")
+            checkFaceDetectionCall = true
+            checkFaceDetection = false
 
-        faceArraylist.clear()
-        deleteModelCoroutine()
+            faceArraylist.clear()
+            deleteModelCoroutine()
 
-        val checkFinish = BooleanArray(bitmapList.size)
+            val checkFinish = BooleanArray(bitmapList.size)
 
-        for (i in 0 until bitmapList.size) {
-            checkFinish[i] = false
-            faceArraylist.add(null)
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            Log.d("FaceDetectionModule", "start = 0")
-            // j 번째 사진 faces 정보 얻기
-            if (bitmapList.size > 0) {
-                faceArraylist[0] = runFaceContourDetection(bitmapList[0])
-                Log.d("FaceDetectionModule", "end = 0")
-                checkFinish[0] = true
+            for (i in 0 until bitmapList.size) {
+                checkFinish[i] = false
+                faceArraylist.add(null)
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                Log.d("FaceDetectionModule", "start = 0")
+                // j 번째 사진 faces 정보 얻기
+                if (bitmapList.size > 0) {
+                    faceArraylist[0] = runFaceContourDetection(bitmapList[0])
+                    Log.d("FaceDetectionModule", "end = 0")
+                    checkFinish[0] = true
+                }
+
+                for (j in 1 until bitmapList.size) {
+                    modelCoroutine.add(CoroutineScope(Dispatchers.IO).launch {
+                        Log.d("FaceDetectionModule", "start = $j")
+                        // j 번째 사진 faces 정보 얻기
+                        try {
+                            faceArraylist[j] = runFaceContourDetection(bitmapList[j])
+                        } catch (e: IndexOutOfBoundsException) {
+                            e.printStackTrace()
+                        }
+                        Log.d("FaceDetectionModule", "end = $j")
+                        checkFinish[j] = true
+                    })
+                }
             }
 
-            for (j in 1 until bitmapList.size) {
-                modelCoroutine.add(CoroutineScope(Dispatchers.IO).launch {
-                    Log.d("FaceDetectionModule", "start = $j")
-                    // j 번째 사진 faces 정보 얻기
-                    try {
-                        faceArraylist[j] = runFaceContourDetection(bitmapList[j])
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
-                    }
-                    Log.d("FaceDetectionModule", "end = $j")
-                    checkFinish[j] = true
-                })
+            while (!checkFinish.all { it }) {
+
             }
+            checkFaceDetection = true
         }
-
-        while (!checkFinish.all { it }) {
-
-        }
-        checkFaceDetection = true
     }
 
     /**
@@ -257,7 +259,8 @@ class FaceDetectionModule {
                     if (j == selectedIndex) {
                         // 선택한 인덱스일 경우 비교를 위한 변수 초기화
                         checkFinish[j] = true
-                    } else {
+                    }
+                    else {
                         val facesResult = faceArraylist[j]
                         // 그 이후 인덱스일 경우, 각 face을 비교
                         if (facesResult != null) {
@@ -276,8 +279,8 @@ class FaceDetectionModule {
                                         best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
                                     ) {
 //                                        if (best.smilingProbability!! < checkFace.smilingProbability!!) {
-                                            bestFace[index] = checkFace
-                                            bestFaceIndex[index] = j
+                                        bestFace[index] = checkFace
+                                        bestFaceIndex[index] = j
 //                                        }
                                     }
                                     if (checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7

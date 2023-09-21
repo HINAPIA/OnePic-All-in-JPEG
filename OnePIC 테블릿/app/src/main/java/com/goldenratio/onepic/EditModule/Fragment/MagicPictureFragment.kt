@@ -87,6 +87,8 @@ class MagicPictureFragment : FaceBlendingFragment() {
      *  변수를 초기화한다.
      */
     private fun settingMagicPictureFragment() {
+        faceDetectionModule = jpegViewModel.faceDetectionModule
+
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
         while (!imageContent.checkPictureList) {}
@@ -98,11 +100,13 @@ class MagicPictureFragment : FaceBlendingFragment() {
         selectPicture = imageContent.pictureList[jpegViewModel.getSelectedSubImageIndex()]
 
         // 메인 이미지 임시 설정
-        CoroutineScope(Dispatchers.Main).launch {
-            withContext(Dispatchers.Main) {
-                Glide.with(binding.mainView)
-                    .load(imageContent.getJpegBytes(selectPicture))
-                    .into(binding.mainView)
+        if(!faceDetectionModule.checkFaceDetectionCall || !faceDetectionModule.getCheckFaceDetection()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
+                    Glide.with(binding.mainView)
+                        .load(imageContent.getJpegBytes(selectPicture))
+                        .into(binding.mainView)
+                }
             }
         }
 

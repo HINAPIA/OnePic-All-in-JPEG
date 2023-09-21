@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Content.Picture
 import com.goldenratio.onepic.AllinJPEGModule.AiContainer
+import com.goldenratio.onepic.EditModule.FaceDetectionModule
 
 
 class JpegViewModel(private val context:Context) : ViewModel() {
@@ -38,6 +39,8 @@ class JpegViewModel(private val context:Context) : ViewModel() {
 
     var isAudioPlay = MutableLiveData<Int>(0)
     var currentFileName : String? = null
+
+    var faceDetectionModule = FaceDetectionModule()
 
     companion object{
         var isUserInentFinish : Boolean = false

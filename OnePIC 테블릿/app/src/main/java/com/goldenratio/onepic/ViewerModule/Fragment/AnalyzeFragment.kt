@@ -31,6 +31,7 @@ import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
 import kotlinx.coroutines.*
@@ -118,7 +119,7 @@ class AnalyzeFragment : Fragment() {
 
 
             // 프로그레스바 업데이트
-           binding.progressBar.progress = progress
+            binding.progressBar.progress = progress
             if (progress > 100) {
 
                 binding.stateTextView.text = "분석 완료"
@@ -140,7 +141,7 @@ class AnalyzeFragment : Fragment() {
                             target: Target<GifDrawable>?,
                             isFirstResource: Boolean
                         ): Boolean {
-                           return false
+                            return false
                         }
 
                         override fun onResourceReady(
@@ -299,6 +300,7 @@ class AnalyzeFragment : Fragment() {
             while(!imageContent.checkPictureList) { }
             CoroutineScope(Dispatchers.Default).launch {
                 imageContent.setBitmapList()
+                jpegViewModel.faceDetectionModule = FaceDetectionModule()
             }
 
             setCurrentPictureByteArrList()

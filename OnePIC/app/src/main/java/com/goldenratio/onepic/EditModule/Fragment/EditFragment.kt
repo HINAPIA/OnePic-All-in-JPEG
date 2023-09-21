@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.AudioAttributes
+import android.media.FaceDetector.Face
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -67,7 +68,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private val jpegViewModel by activityViewModels<JpegViewModel>()
 
     private val imageToolModule: ImageToolModule = ImageToolModule()
-    private val faceDetectionModule: FaceDetectionModule =  FaceDetectionModule()
+    private lateinit var faceDetectionModule: FaceDetectionModule
     private var magicPictureModule: MagicPictureModule? = null
     private lateinit var aiLoadResolver: AiLoadResolver
 
@@ -222,8 +223,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
      *  변수를 초기화한다.
      */
     private fun settingEditFragment() {
-        //        imageToolModule.showView(binding.progressBar, true)
+        // imageToolModule.showView(binding.progressBar, true)
         showProgressBar(true, LoadingText.EditReady)
+
+        faceDetectionModule = jpegViewModel.faceDetectionModule
 
         // isFinished가 ture가 되면 viewerFragment로 전환
         isFinished.observe(requireActivity()) { value ->
@@ -269,9 +272,12 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                 Log.d("magicPicture Check", "edit pictureList get")
 
-                val bitmap = imageContent.getBitmapList()
-                if (bitmap != null)
-                    bitmapList = bitmap
+                withContext(Dispatchers.Default) {
+                    val bitmap = imageContent.getBitmapList()
+                    if (bitmap != null)
+                        bitmapList = bitmap
+                    faceDetectionModule.allFaceDetection(bitmapList)
+                }
             }
 
             // 만약 편집을 했다면 save 버튼이 나타나게 설정
@@ -985,22 +991,39 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
      * All-in JPEG 사진 속 이미지들 중 베스트 사진을 추천해준다.
      */
     private fun AlgorithmBestPictureRanking() {
+        imageToolModule.showView(binding.recommendationText1, true)
+        imageToolModule.showView(binding.recommendationText2, true)
+        imageToolModule.showView(binding.recommendationText3, true)
         showProgressBar(true, LoadingText.BestImageRecommend)
         val newBitmapList = imageContent.getBitmapList()
         if (newBitmapList != null) {
             bitmapList = newBitmapList
             CoroutineScope(Dispatchers.IO).launch {
-                if (bestImageIndex == null ) {
+//                if (bestImageIndex == null ) {
                     // 인공지능 모델을 통해 〖image〗_i  에 있는 모든 얼굴 f에 대한
                     // re(오른쪽 눈을 뜬 정도), le(왼쪽 눈을 뜬 정도), sm(웃고 있는 정도)를 알아낸다.
-                    faceDetectionModule.allFaceDetection(bitmapList)
+//                    faceDetectionModule.allFaceDetection(bitmapList)
 
                     val eyesDetectionResult = faceDetectionModule.getEyesAnalysisResults(bitmapList)
+                    withContext(Dispatchers.Main) {
+                        binding.recommendationText1.text = resources.getString(R.string.recommendation_text1_after)
+//                        binding.recommendationText2.visibility = View.VISIBLE
+                    }
+                    Thread.sleep(700)
                     val smilingDetectionResult = faceDetectionModule.getSmilingAnalysisResults()
+                    withContext(Dispatchers.Main) {
+                        binding.recommendationText2.text = resources.getString(R.string.recommendation_text2_after)
+//                        binding.recommendationText3.visibility = View.VISIBLE
+                    }
+                    Thread.sleep(700)
                     Log.d("anaylsis", "end faceDetection")
 
                     val shakeDetectionResult =
                         ShakeLevelModule().shakeLevelDetection(bitmapList)
+                    withContext(Dispatchers.Main) {
+                        binding.recommendationText3.text = resources.getString(R.string.recommendation_text3_after)
+                    }
+                    Thread.sleep(1000)
 
                     val analysisResults = arrayListOf<Double>()
 
@@ -1021,7 +1044,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     println("bestImageIndex = $preBestImageIndex")
 
                     bestImageIndex = preBestImageIndex
-                }
+//                }
                 jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
 
                 withContext(Dispatchers.Main) {
@@ -1039,6 +1062,13 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     Log.d("mainChange", "bestImage null")
                     try {
+                        imageToolModule.showView(binding.recommendationText1, false)
+                        binding.recommendationText1.text = resources.getString(R.string.recommendation_text1)
+                        imageToolModule.showView(binding.recommendationText2, false)
+                        binding.recommendationText2.text = resources.getString(R.string.recommendation_text2)
+                        imageToolModule.showView(binding.recommendationText3, false)
+                        binding.recommendationText3.text = resources.getString(R.string.recommendation_text3)
+
                         binding.successInfoTextView.text = getString(R.string.best_choice_animation)
                         imageToolModule.fadeIn.start()
                     }
@@ -1379,6 +1409,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         CoroutineScope(Dispatchers.Main).launch {
                             isPictureChanged.value = true
                         }
+                        faceDetectionModule.checkFaceDetectionCall = false
+
                         binding.linear.removeView(subLayout)
                         imageContent.removePicture(picture)
 
@@ -1462,6 +1494,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
      * 이미지 추가 아이콘 클릭시 호출되는 함수로, 사진 선택을 위한 갤러리를 연다.
      */
     private fun AddImage(imageView: ImageView) {
+        faceDetectionModule.checkFaceDetectionCall = false
         handler.removeCallbacksAndMessages(null)
         openGallery()
     }

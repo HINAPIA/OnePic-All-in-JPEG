@@ -357,6 +357,7 @@ class ImageToolModule {
         detectionResults.forEach {
             outputBitmap = drawDetectionResult(outputBitmap, it.boundingBox.toRectF(), customColor)
         }
+
         return outputBitmap
     }
 

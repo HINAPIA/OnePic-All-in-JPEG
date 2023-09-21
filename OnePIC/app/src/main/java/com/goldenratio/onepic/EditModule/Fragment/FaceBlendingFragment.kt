@@ -38,7 +38,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
     private lateinit var binding: FragmentFaceBlendingBinding
 
     protected var imageToolModule: ImageToolModule = ImageToolModule()
-    protected var faceDetectionModule: FaceDetectionModule = FaceDetectionModule()
+    protected lateinit var faceDetectionModule: FaceDetectionModule
 
     protected lateinit var selectPicture: Picture
 
@@ -124,6 +124,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             infoTextView()
         }
 
+        faceDetectionModule = jpegViewModel.faceDetectionModule
         imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
         while(!imageContent.checkPictureList) {}
@@ -132,12 +133,17 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         selectPicture = jpegViewModel.selectedSubImage!!
 
         // 메인 이미지 임시 설정
-        CoroutineScope(Dispatchers.Default).launch {
-            withContext(Dispatchers.Main) {
-                Glide.with(binding.mainView)
-                    .load(imageContent.getJpegBytes(selectPicture))
-                    .into(binding.mainView)
+        if(!faceDetectionModule.checkFaceDetectionCall || !faceDetectionModule.getCheckFaceDetection()) {
+            CoroutineScope(Dispatchers.Default).launch {
+                withContext(Dispatchers.Main) {
+                    Glide.with(binding.mainView)
+                        .load(imageContent.getJpegBytes(selectPicture))
+                        .into(binding.mainView)
+                }
             }
+        }
+        else {
+            Thread.sleep(1000)
         }
 
         CoroutineScope(Dispatchers.IO).launch {

@@ -18,9 +18,12 @@
 
     <string name="basic_mode_option">사진 확인</string>
     <string name="recommendation_image">베스트 추천\n사진입니다.</string>
-    <string name="recommendation_text1">눈 뜬 정도 체크</string>
-    <string name="recommendation_text2">웃고 있는 정도 체크</string>
-    <string name="recommendation_text3">선명도 체크</string>
+    <string name="recommendation_text1">눈 뜬 정도 확인 중..</string>
+    <string name="recommendation_text1_after">눈 뜬 정도 확인 완료</string>
+    <string name="recommendation_text2">웃고 있는 정도 확인 중..</string>
+    <string name="recommendation_text2_after">웃고 있는 정도 확인 완료</string>
+    <string name="recommendation_text3">선명도 확인 중..</string>
+    <string name="recommendation_text3_after">선명도 확인 완료</string>
 
     <string name="save_text">저장</string>
     <string name="edit_text">편집</string>

@@ -41,7 +41,7 @@ class ImageToolModule {
      * bitmapToByteArray(bitmap: Bitmap): ByteArray
      *      - bitmap을 byteArray로 변환해서 제공
      */
-     fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
+    fun bitmapToByteArray(bitmap: Bitmap, byteArray: ByteArray?): ByteArray {
 
         var matrix = Matrix()
 
@@ -357,6 +357,7 @@ class ImageToolModule {
         detectionResults.forEach {
             outputBitmap = drawDetectionResult(outputBitmap, it.boundingBox.toRectF(), customColor)
         }
+
         return outputBitmap
     }
 
@@ -370,13 +371,13 @@ class ImageToolModule {
         val pen = Paint()
         pen.textAlign = Paint.Align.LEFT
 
-            // draw bounding box
+        // draw bounding box
 //            pen.color = context.resources.getColor(R.color.white)
-            pen.color = customColor
-            pen.strokeWidth = 30f
-            pen.style = Paint.Style.STROKE
-            canvas.drawArc(box, -30f, 70f, false, pen)
-            canvas.drawArc(box, 140f, 70f, false, pen)
+        pen.color = customColor
+        pen.strokeWidth = 30f
+        pen.style = Paint.Style.STROKE
+        canvas.drawArc(box, -30f, 70f, false, pen)
+        canvas.drawArc(box, 140f, 70f, false, pen)
         return outputBitmap
     }
 

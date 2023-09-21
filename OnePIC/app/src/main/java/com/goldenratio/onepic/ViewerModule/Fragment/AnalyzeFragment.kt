@@ -31,6 +31,7 @@ import com.bumptech.glide.request.target.Target
 import com.goldenratio.onepic.AllinJPEGModule.AiLoadResolver
 import com.goldenratio.onepic.JpegViewModel
 import com.goldenratio.onepic.AllinJPEGModule.Content.ContentAttribute
+import com.goldenratio.onepic.EditModule.FaceDetectionModule
 import com.goldenratio.onepic.R
 import com.goldenratio.onepic.databinding.FragmentAnalyzeBinding
 import kotlinx.coroutines.*
@@ -299,6 +300,7 @@ class AnalyzeFragment : Fragment() {
             while(!imageContent.checkPictureList) { }
             CoroutineScope(Dispatchers.Default).launch {
                 imageContent.setBitmapList()
+                jpegViewModel.faceDetectionModule = FaceDetectionModule()
             }
 
             setCurrentPictureByteArrList()
