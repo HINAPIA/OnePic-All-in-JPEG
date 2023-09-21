@@ -35,7 +35,7 @@ class MagicPictureFragment : FaceBlendingFragment() {
     var checkMagicPicturePlay = false
     val handler = Handler()
 
-    var magicPlaySpeed: Long = 100
+    var magicPlaySpeed: Long = 150
 
     val ovelapBitmap: ArrayList<Bitmap> = arrayListOf()
 

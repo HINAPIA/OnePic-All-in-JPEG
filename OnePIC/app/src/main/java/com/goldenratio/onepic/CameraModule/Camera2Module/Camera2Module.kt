@@ -945,10 +945,10 @@ class Camera2Module(
                 //resume repeating (preview surface will get frames), clear AF trigger
                 if (request.tag == "FOCUS_TAG" && !isCaptured)  {
                     // 렌즈 현재 상태 알아낼 수 있음
-                    val lensState = result.get(CaptureResult.LENS_STATE)
+//                    val lensState = result.get(CaptureResult.LENS_STATE)
 
                     // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
-                    if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
+//                    if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
                         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
                         captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
                         if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
@@ -956,7 +956,7 @@ class Camera2Module(
                             Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
                             lockFocus(1)
                         }
-                    }
+//                    }
                 }
             }
         }
@@ -1079,7 +1079,7 @@ class Camera2Module(
      *  더 이상 촬영할 객체가 없다면 중지한다.
      */
     fun focusObjectDetectionPictures() {
-        Log.d("check preview", "2. focusDetectionPictures")
+        Log.d("detectionResult", "2. focusDetectionPictures")
         val detectionResult = objectDetectionModule.getDetectionResult()
 
         // 한 장씩 촬영

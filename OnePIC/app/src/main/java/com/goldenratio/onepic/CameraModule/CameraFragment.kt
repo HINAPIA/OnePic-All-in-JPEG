@@ -89,6 +89,7 @@ class CameraFragment : Fragment() {
 
         // 촬영된 이미지가 추가됬을 때 호출
         previewByteArrayList.observe(viewLifecycleOwner) {
+            incrementProgressBar()
             imageByteArrayUpdate()
         }
 
@@ -111,7 +112,12 @@ class CameraFragment : Fragment() {
         super.onResume()
 
         // preference에 저장된 설정 값 가져오기
-       getPreferences()
+//       getPreferences()
+
+        // radioGroup.setOnCheckedChangeListener - 촬영 모드 선택(라디오 버튼)했을 때 UI 변경
+        binding.modeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            settingChangeRadioButton(checkedId)
+        }
 
         // 카메라 시작하기
         camera2Module.startCamera()
@@ -144,7 +150,7 @@ class CameraFragment : Fragment() {
         super.onPause()
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        setPreferences()
+//        setPreferences()
 
         // 카메라 멈추기
         camera2Module.closeCamera()
@@ -199,7 +205,7 @@ class CameraFragment : Fragment() {
             }
 
             // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-            setPreferences()
+//            setPreferences()
 
             camera2Module.closeCamera()
             camera2Module.startCamera()
@@ -239,6 +245,8 @@ class CameraFragment : Fragment() {
 
         //  촬영해야할 개수를 충족 확인
         if(byteArrays.size >= PICTURE_SIZE || isObjectPictureClear) {
+            imageToolModule.showView(binding.distanceWarningConstraintLayout, false)
+            imageToolModule.showView(binding.objectWarningConstraintLayout, false)
             mediaPlayer.start()
             rotation.cancel()
 
@@ -424,7 +432,7 @@ class CameraFragment : Fragment() {
         }
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        setPreferences()
+//        setPreferences()
 
     }
 
@@ -510,6 +518,8 @@ class CameraFragment : Fragment() {
         if (binding.distanceFocusRadioBtn.isChecked) {
             audioResolver.startRecording("camera_record")
 
+            initProgressBar()
+
             PICTURE_SIZE = 10
             contentAttribute = ContentAttribute.distance_focus
             camera2Module.distanceFocusPictures(PICTURE_SIZE)
@@ -568,7 +578,7 @@ class CameraFragment : Fragment() {
                             )
                         )
                     }
-                    imageToolModule.showView(binding.objectWarningConstraintLayout, false)
+//                    imageToolModule.showView(binding.objectWarningConstraintLayout, false)
                     objectDetectionModule.resetDetectionResult()
                 }
 
@@ -657,7 +667,7 @@ class CameraFragment : Fragment() {
         }
 
         // 값 기억하기 (프래그먼트 이동 후 다시 돌아왔을 때도 유지하기 위한 기억)
-        setPreferences()
+//        setPreferences()
     }
 
     // 연속 촬영 개수 설정
@@ -676,6 +686,17 @@ class CameraFragment : Fragment() {
                 setText(binding.infoTextView, resources.getString(R.string.burst3_info))
             }
         }
+    }
+
+    private fun initProgressBar() {
+        binding.distanceProgressBar.progress = 0
+        imageToolModule.showView(binding.distanceWarningConstraintLayout, true)
+    }
+
+    private fun incrementProgressBar() {
+        var currentProgress = binding.distanceProgressBar.progress
+        currentProgress += 7
+        binding.distanceProgressBar.progress = currentProgress
     }
 
     companion object {

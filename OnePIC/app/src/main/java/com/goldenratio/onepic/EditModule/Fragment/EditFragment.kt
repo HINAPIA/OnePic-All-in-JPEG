@@ -101,7 +101,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
     private var bitmapList :ArrayList<Bitmap> = arrayListOf()
     private var overlayBitmap = arrayListOf<Bitmap>()
     val handler = Handler()
-    var magicPlaySpeed: Long = 100
+    var magicPlaySpeed: Long = 150
 
     var isAllInJPEG : Boolean = false
     var isButtonEnable = true
@@ -1007,8 +1007,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     var preBestImageIndex = 0
 
                     for (i in 0 until bitmapList.size) {
-                        analysisResults.add(eyesDetectionResult[i])
-//                        analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
+//                        analysisResults.add(eyesDetectionResult[i])
+                        analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
                         Log.d("anaylsis result", "$i : ${eyesDetectionResult[i]} + ${smilingDetectionResult[i]} + ${shakeDetectionResult[i]} = ${analysisResults[preBestImageIndex]}")
 
                         if (analysisResults[preBestImageIndex] < analysisResults[i]) {

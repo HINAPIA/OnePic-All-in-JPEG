@@ -314,7 +314,7 @@ class ViewerFragment : Fragment() {
     private var overlayBitmap = arrayListOf<Bitmap>()
     private var magicPictureModule: MagicPictureModule? = null
     val handler = Handler()
-    var magicPlaySpeed: Long = 100
+    var magicPlaySpeed: Long = 150
 
     /**
      * 매직픽처를 재생한다.

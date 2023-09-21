@@ -157,7 +157,12 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         CoroutineScope(Dispatchers.Default).launch {
             val allBitmapList = imageContent.getBitmapList()
             val index = jpegViewModel.getSelectedSubImageIndex()
-            val newMainBitmap = allBitmapList?.get(index)
+            if(allBitmapList.size <= index) {
+                imageContent.resetBitmap()
+                imageContent.setBitmapList()
+                bitmapList = imageContent.getBitmapList()
+            }
+            val newMainBitmap = allBitmapList[index]
             if (newMainBitmap != null) {
                 selectBitmap = newMainBitmap
             }

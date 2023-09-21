@@ -275,10 +275,10 @@ class FaceDetectionModule {
                                     if (best.leftEyeOpenProbability!! < checkFace.leftEyeOpenProbability!! ||
                                         best.rightEyeOpenProbability!! < checkFace.rightEyeOpenProbability!!
                                     ) {
-                                        if (best.smilingProbability!! < checkFace.smilingProbability!!) {
+//                                        if (best.smilingProbability!! < checkFace.smilingProbability!!) {
                                             bestFace[index] = checkFace
                                             bestFaceIndex[index] = j
-                                        }
+//                                        }
                                     }
                                     if (checkFace.rightEyeOpenProbability!! >= 0.7 || checkFace.leftEyeOpenProbability!! >= 0.7
                                         && best.smilingProbability!! < checkFace.smilingProbability!!
