@@ -32,16 +32,16 @@
         <activity
             android:name=".IntroActivity"
             android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".CameraModule.CameraEditorActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowTranslucentStatus="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ViewerModule.ViewerEditorActivity"
