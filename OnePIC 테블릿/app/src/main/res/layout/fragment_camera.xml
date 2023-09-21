@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topMenu"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/onePicLogoTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/dark_purple"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="3:4"
+        app:layout_constraintTop_toBottomOf="@id/topMenu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.example.test_camera2.CameraHelper.AutoFitTexutreView
+                android:id="@+id/textureView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <ImageView
+                android:id="@+id/objectDetectionImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@+id/textureView"
+                app:layout_constraintEnd_toEndOf="@+id/textureView"
+                app:layout_constraintStart_toStartOf="@+id/textureView"
+                app:layout_constraintTop_toTopOf="@+id/textureView" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/objectWarningConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black_40"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/warningLoadingImageView"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="15dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/warningTextView1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="3"
+                        android:gravity="center"
+                        android:text="촬영 중입니다."
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/warningTextView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:gravity="center"
+                        android:text="움직이지 마세요."
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/distanceWarningConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black_40"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:rotation="270"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/distanceProgressBar"
+                        style="@style/DistanceProgressBar"
+                        android:layout_width="230dp"
+                        android:layout_height="7dp"
+                        android:max="70"
+                        android:progress="0" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/warningTextView3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="130dp"
+                        android:gravity="center"
+                        android:text="먼 곳 초점"
+                        android:textColor="@color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/warningTextView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="130dp"
+                        android:gravity="center"
+                        android:text="가까운 곳 초점"
+                        android:textColor="@color/white"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/infoConstraintLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/camera_info_rounded"
+                android:paddingStart="13dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="13dp"
+                android:paddingBottom="3dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor1"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/infoTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/camera_burst_info"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/successInfoConstraintLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/camera_success_info_background"
+                android:paddingLeft="30dp"
+                android:paddingTop="10dp"
+                android:paddingRight="30dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/frameLayout_hor5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor4">
+
+                <TextView
+                    android:id="@+id/successInfoTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/camera_success_info"
+                    android:textColor="@color/white"
+                    android:textSize="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/successInfoConstraintLayout_ver2"
+                    app:layout_constraintStart_toStartOf="@id/successInfoConstraintLayout_ver1" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/successInfoConstraintLayout_ver1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.1" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/successInfoConstraintLayout_ver2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.9" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/camera_mode_background"
+                android:padding="5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/frameLayout_hor3">
+
+                <HorizontalScrollView
+                    android:id="@+id/horizontalScrollView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <RadioGroup
+                            android:id="@+id/modeRadioGroup"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/basicRadioBtn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:button="@drawable/null_radio_button"
+                                android:checked="true"
+                                android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
+                                android:paddingHorizontal="8dp"
+                                android:stateListAnimator="@null"
+                                android:text="@string/basic_mode"
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
+
+                            <RadioButton
+                                android:id="@+id/burstRadioBtn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:button="@drawable/null_radio_button"
+                                android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
+                                android:paddingHorizontal="8dp"
+                                android:stateListAnimator="@null"
+                                android:text="@string/burst_mode"
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
+
+                            <RadioButton
+                                android:id="@+id/objectFocusRadioBtn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:button="@drawable/null_radio_button"
+                                android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
+                                android:paddingHorizontal="8dp"
+                                android:stateListAnimator="@null"
+                                android:text="@string/object_mode"
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
+
+                            <RadioButton
+                                android:id="@+id/distanceFocusRadioBtn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:button="@drawable/null_radio_button"
+                                android:gravity="center"
+                                android:lines="2"
+                                android:maxLines="2"
+                                android:paddingHorizontal="8dp"
+                                android:stateListAnimator="@null"
+                                android:text="@string/distance_mode"
+                                android:textColor="@drawable/radio_text_selector"
+                                android:textSize="12sp" />
+
+                        </RadioGroup>
+
+                    </LinearLayout>
+
+                </HorizontalScrollView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.02" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.4" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.6" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_hor3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="80dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_ver1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.27" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/frameLayout_ver2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.73" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/progressive_color"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/loadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/camera_save"
+                android:textColor="@color/white"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/bottomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/burstSizeConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:layout_weight="1"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <HorizontalScrollView
+                android:id="@+id/burstSizeSettingScrollView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioGroup
+                        android:id="@+id/burstSizeSettingRadioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/burst1RadioBtn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="15dp"
+                            android:background="@drawable/burst_size_setting_selector"
+                            android:button="@drawable/null_radio_button"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:text="@string/burst1"
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
+
+                        <RadioButton
+                            android:id="@+id/burst2RadioBtn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="15dp"
+                            android:background="@drawable/burst_size_setting_selector"
+                            android:button="@drawable/null_radio_button"
+                            android:checked="true"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:text="@string/burst2"
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
+
+                        <RadioButton
+                            android:id="@+id/burst3RadioBtn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="15dp"
+                            android:background="@drawable/burst_size_setting_selector"
+                            android:button="@drawable/null_radio_button"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:stateListAnimator="@null"
+                            android:text="@string/burst3"
+                            android:textColor="@drawable/burst_size_setting_text_selector"
+                            android:textSize="13dp" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="5">
+
+            <ImageView
+                android:id="@+id/galleryBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/camera_gallery_icon"
+                app:tint="@color/middle_gray"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageView
+                android:id="@+id/shutterBtn"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/camera_shutter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver2"
+                app:layout_constraintStart_toStartOf="@+id/bottomMenu_ver1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/convertBtn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/repost"
+                app:tint="@color/middle_gray" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/bottomMenu_ver1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.33" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/bottomMenu_ver2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.66" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/bottomMenu"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical"-->
+<!--        android:background="@color/focus"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        >-->
+
+<!--        <HorizontalScrollView-->
+<!--            android:id="@+id/burstSizeSettingScrollView"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:scrollbars="none"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="@id/bottomMenu"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/bottomMenu_hor1"-->
+<!--            tools:ignore="MissingConstraints"-->
+<!--            android:visibility="gone">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <RadioGroup-->
+<!--                    android:id="@+id/burstSizeSettingRadioGroup"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal">-->
+
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/burst1RadioBtn"-->
+<!--                        android:layout_width="30dp"-->
+<!--                        android:layout_height="30dp"-->
+<!--                        android:layout_marginHorizontal="15dp"-->
+<!--                        android:background="@drawable/burst_size_setting_selector"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:text="@string/burst1"-->
+<!--                        android:textSize="13dp"-->
+<!--                        android:textColor="@drawable/burst_size_setting_text_selector" />-->
+
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/burst2RadioBtn"-->
+<!--                        android:layout_width="30dp"-->
+<!--                        android:layout_height="30dp"-->
+<!--                        android:layout_marginHorizontal="15dp"-->
+<!--                        android:background="@drawable/burst_size_setting_selector"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:checked="true"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:text="@string/burst2"-->
+<!--                        android:textSize="13dp"-->
+<!--                        android:textColor="@drawable/burst_size_setting_text_selector" />-->
+
+<!--                    <RadioButton-->
+<!--                        android:id="@+id/burst3RadioBtn"-->
+<!--                        android:layout_width="30dp"-->
+<!--                        android:layout_height="30dp"-->
+<!--                        android:layout_marginHorizontal="15dp"-->
+<!--                        android:background="@drawable/burst_size_setting_selector"-->
+<!--                        android:button="@drawable/null_radio_button"-->
+<!--                        android:gravity="center"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:stateListAnimator="@null"-->
+<!--                        android:text="@string/burst3"-->
+<!--                        android:textSize="13dp"-->
+<!--                        android:textColor="@drawable/burst_size_setting_text_selector" />-->
+
+<!--                </RadioGroup>-->
+
+<!--            </LinearLayout>-->
+
+<!--        </HorizontalScrollView>-->
+
+
+<!--        <ImageView-->
+<!--            android:id="@+id/galleryBtn"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            app:srcCompat="@drawable/camera_gallery_icon"-->
+<!--            app:tint="@color/middle_gray"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1"-->
+<!--            tools:ignore="SpeakableTextPresentCheck"/>-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/shutterBtn"-->
+<!--            android:layout_width="70dp"-->
+<!--            android:layout_height="70dp"-->
+<!--            android:src="@drawable/camera_shutter"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver2"-->
+<!--            app:layout_constraintStart_toStartOf="@+id/bottomMenu_ver1"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1" />-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/convertBtn"-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            app:srcCompat="@drawable/repost"-->
+<!--            app:tint="@color/middle_gray"-->
+<!--            app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/bottomMenu_hor1"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"/>-->
+
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/bottomMenu_hor1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            app:layout_constraintGuide_percent="0.25" />-->
+
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/bottomMenu_ver1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintGuide_percent="0.33" />-->
+
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/bottomMenu_ver2"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintGuide_percent="0.66" />-->
+
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

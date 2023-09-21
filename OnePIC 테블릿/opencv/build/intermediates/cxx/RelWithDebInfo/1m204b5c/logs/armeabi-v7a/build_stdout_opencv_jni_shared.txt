@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/hscomputerengineering/Documents/GitHub/OnePic-All-in-JPEG/OnePIC/opencv/.cxx/RelWithDebInfo/1m204b5c/armeabi-v7a'
+ninja: no work to do.
