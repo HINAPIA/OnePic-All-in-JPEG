@@ -63,13 +63,14 @@
                 app:layout_constraintTop_toTopOf="@+id/textureView" />
 
             <LinearLayout
+                android:id="@+id/linearLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/objectWarningConstraintLayout"
@@ -135,8 +136,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -200,6 +200,7 @@
                 android:id="@+id/infoConstraintLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="-10dp"
                 android:background="@drawable/camera_info_rounded"
                 android:paddingStart="13dp"
                 android:paddingTop="3dp"
@@ -219,7 +220,7 @@
                     android:gravity="center"
                     android:text="@string/camera_burst_info"
                     android:textColor="@color/white"
-                    android:textSize="12sp"
+                    android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -302,6 +303,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
+                            android:layout_marginBottom="10dp"
                             android:gravity="center"
                             android:orientation="horizontal">
 
@@ -319,7 +321,7 @@
                                 android:stateListAnimator="@null"
                                 android:text="@string/basic_mode"
                                 android:textColor="@drawable/radio_text_selector"
-                                android:textSize="12sp" />
+                                android:textSize="18sp" />
 
                             <RadioButton
                                 android:id="@+id/burstRadioBtn"
@@ -334,7 +336,7 @@
                                 android:stateListAnimator="@null"
                                 android:text="@string/burst_mode"
                                 android:textColor="@drawable/radio_text_selector"
-                                android:textSize="12sp" />
+                                android:textSize="18sp" />
 
                             <RadioButton
                                 android:id="@+id/objectFocusRadioBtn"
@@ -349,7 +351,7 @@
                                 android:stateListAnimator="@null"
                                 android:text="@string/object_mode"
                                 android:textColor="@drawable/radio_text_selector"
-                                android:textSize="12sp" />
+                                android:textSize="18sp" />
 
                             <RadioButton
                                 android:id="@+id/distanceFocusRadioBtn"
@@ -364,7 +366,7 @@
                                 android:stateListAnimator="@null"
                                 android:text="@string/distance_mode"
                                 android:textColor="@drawable/radio_text_selector"
-                                android:textSize="12sp" />
+                                android:textSize="18sp" />
 
                         </RadioGroup>
 
@@ -414,7 +416,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.27" />
+                app:layout_constraintGuide_begin="162dp" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/frameLayout_ver2"

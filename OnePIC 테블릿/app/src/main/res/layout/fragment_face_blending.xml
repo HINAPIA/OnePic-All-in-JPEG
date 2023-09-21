@@ -53,8 +53,8 @@
 
         <ImageButton
             android:id="@+id/blendingCloseBtn"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
             android:background="@color/transparent_color"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
@@ -75,7 +75,7 @@
             android:gravity="center"
             android:text="@string/blending"
             android:textColor="@color/point_color"
-            android:textSize="19dp"
+            android:textSize="24dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/blendingSaveBtn"
@@ -85,8 +85,8 @@
 
         <ImageButton
             android:id="@+id/blendingSaveBtn"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
             android:background="@color/transparent_color"
             android:paddingStart="7dp"
             android:paddingEnd="7dp"
@@ -143,8 +143,8 @@
 
         <ImageButton
             android:id="@+id/blendingInfoBtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginStart="8dp"
             android:background="@color/transparent_color"
             android:scaleType="fitCenter"
@@ -211,6 +211,8 @@
                     android:layout_marginTop="16dp"
                     android:text=""
                     android:textColor="@color/white"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -270,7 +272,7 @@
 
                 <View
                     android:id="@+id/infoDialogView"
-                    android:layout_width="360dp"
+                    android:layout_width="450dp"
                     android:layout_height="75dp"
                     android:layout_marginTop="8dp"
                     android:background="#B2403D3D"
@@ -281,12 +283,12 @@
 
                 <TextView
                     android:id="@+id/infoText"
-                    android:layout_width="285dp"
+                    android:layout_width="355dp"
                     android:layout_height="75dp"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="16dp"
+                    android:textSize="19dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -316,7 +318,7 @@
             android:layout_height="0dp"
             android:layout_marginBottom="10dp"
             android:layout_weight="1"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <Button
                 android:id="@+id/autoBlendingBtn"
@@ -327,7 +329,7 @@
                 android:text="@string/auto_option"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="13dp"
+                android:textSize="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -335,8 +337,8 @@
 
             <ImageButton
                 android:id="@+id/imageResetBtn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="centerInside"
                 android:src="@drawable/reset_icon"
@@ -348,8 +350,8 @@
 
             <ImageButton
                 android:id="@+id/imageCompareBtn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:backgroundTint="@color/transparent_color"
                 android:scaleType="fitCenter"
                 android:src="@drawable/compare_icon"
