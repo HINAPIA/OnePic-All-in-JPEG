@@ -564,8 +564,8 @@
 
             <ImageView
                 android:id="@+id/galleryBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/bottomMenu_ver1"
                 app:layout_constraintStart_toStartOf="parent"
@@ -586,8 +586,8 @@
 
             <ImageView
                 android:id="@+id/convertBtn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/bottomMenu_ver2"
