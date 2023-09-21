@@ -222,6 +222,9 @@ class FaceDetectionModule {
 
             val bestFaceIndex: ArrayList<Int?> = ArrayList()
             val bestFace: ArrayList<Face> = ArrayList()
+            if(selectedIndex < bitmapList.size) {
+                // 확인
+            }
             var resultBitmap = bitmapList[selectedIndex]
 
             val checkFinish = BooleanArray(bitmapList.size)
@@ -411,7 +414,6 @@ class FaceDetectionModule {
                             eyesSum +=
                                 if (checkFace.leftEyeOpenProbability!! > checkFace.rightEyeOpenProbability!!) {
                                     checkFace.leftEyeOpenProbability!!
-                                    checkFace.leftEyeOpenProbability!!
                                 } else {
                                     checkFace.rightEyeOpenProbability!!
                                 }
@@ -444,8 +446,8 @@ class FaceDetectionModule {
 
             while (!checkFinish.all { it }) {
             }
-
-            continuation.resume(imageToolModule.adjustMinMaxValues(eyesAnalysisResults, 0.0,1.0))
+            continuation.resume(eyesAnalysisResults)
+//            continuation.resume(imageToolModule.adjustMinMaxValues(eyesAnalysisResults, 0.0,1.0))
         }
 
     /**
@@ -454,6 +456,7 @@ class FaceDetectionModule {
      * @return 웃고 있는 정도 값 리스트 반환
      */
     fun getSmilingAnalysisResults(): ArrayList<Double> {
-        return imageToolModule.adjustMinMaxValues(smilingAnalysisResults, 0.0,1.0)
+        return smilingAnalysisResults
+//        return imageToolModule.adjustMinMaxValues(smilingAnalysisResults, 0.0,1.0)
     }
 }
