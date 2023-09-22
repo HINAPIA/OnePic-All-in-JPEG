@@ -23,9 +23,10 @@
         android:text="대표 사진"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
-        android:textSize="12sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/deleteIcon"

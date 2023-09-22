@@ -177,7 +177,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
+                    app:layout_constraintGuide_end="205dp" />
 
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -201,20 +201,18 @@
                         android:paddingBottom="15dp"
                         android:textColor="#FFFFFF"
                         android:textColorHint="#C8C8C8"
-                        android:textSize="20sp"
+                        android:textSize="35sp"
                         android:textStyle="bold"
                         android:visibility="visible"
                         tools:visibility="visible" />
 
                     <Button
                         android:id="@+id/text_check_button"
-                        android:layout_width="80dp"
-                        android:layout_height="43dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignBottom="@+id/edit_text"
-                        android:layout_alignParentStart="true"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginStart="230dp"
                         android:layout_marginEnd="20dp"
                         android:layout_marginBottom="-1dp"
                         android:background="@drawable/check_selector"
@@ -224,7 +222,7 @@
                         android:paddingBottom="0dp"
                         android:text="수정"
                         android:textColor="#FFFFFF"
-                        android:textSize="18sp"
+                        android:textSize="25sp"
                         android:textStyle="bold"
                         android:visibility="invisible"
                         app:iconPadding="1dp" />
@@ -429,7 +427,7 @@
                 android:layout_marginTop="16dp"
                 android:text=""
                 android:textColor="@color/white"
-                android:textSize="21sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -445,7 +443,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/recommendation_text1"
                 android:textColor="@color/white"
-                android:textSize="17sp"
+                android:textSize="24sp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -459,7 +457,7 @@
                 android:layout_marginTop="5dp"
                 android:text="@string/recommendation_text2"
                 android:textColor="@color/white"
-                android:textSize="17sp"
+                android:textSize="24sp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
@@ -474,7 +472,7 @@
                 android:layout_marginTop="5dp"
                 android:text="@string/recommendation_text3"
                 android:textColor="@color/white"
-                android:textSize="17sp"
+                android:textSize="24sp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
@@ -625,7 +623,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainChangeLayout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="65dp"
             android:layout_marginBottom="3dp"
             android:padding="3dp">
 
@@ -679,8 +677,9 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="0dp"
             android:layout_marginBottom="15dp"
+            android:layout_weight="1.5"
             android:scaleType="fitCenter">
 
 
@@ -792,7 +791,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/containerLayout"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="match_parent"
                 android:visibility="visible">
                 \>
 
@@ -875,7 +874,7 @@
                         android:rotation="90"
                         android:text="All in JPEG"
                         android:textColor="#000000"
-                        android:textSize="13dp"
+                        android:textSize="18dp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

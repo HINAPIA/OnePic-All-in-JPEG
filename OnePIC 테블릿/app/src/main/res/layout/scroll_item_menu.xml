@@ -6,14 +6,13 @@
 
     <ImageView
         android:id="@+id/scrollItemMenuView"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="2dp"
-        android:layout_marginStart="5dp"
-        android:padding="15dp"
-        android:scaleType="fitCenter"
         android:background="@drawable/scroll_menu_btn"
-        />
+        android:padding="15dp"
+        android:scaleType="fitCenter" />
 
 </FrameLayout>
