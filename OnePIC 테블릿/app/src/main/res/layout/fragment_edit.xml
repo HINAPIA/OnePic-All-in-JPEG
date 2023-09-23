@@ -560,8 +560,9 @@
 
                 <SeekBar
                     android:id="@+id/seekBar"
-                    android:layout_width="300dp"
+                    android:layout_width="450dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
                     android:progressDrawable="@drawable/seekbar_progress"
                     android:splitTrack="false"
                     android:thumb="@drawable/seekbar_thumb"
@@ -676,6 +677,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
+            android:id="@+id/bottomLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="15dp"

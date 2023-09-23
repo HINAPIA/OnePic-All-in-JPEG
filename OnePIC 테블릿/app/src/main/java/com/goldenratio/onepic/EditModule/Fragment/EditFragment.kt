@@ -305,6 +305,8 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                 if (imageContent.checkAttribute(ContentAttribute.distance_focus)) {
                     imageToolModule.showView(binding.seekBar, true)
                     setDistanceSeekBar()
+                    imageToolModule.showView(binding.bottomLayout, false)
+                    binding.mainChangeLayout.visibility = View.INVISIBLE
                 }
                 if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
                     imageToolModule.showView(binding.focusBtn, true)

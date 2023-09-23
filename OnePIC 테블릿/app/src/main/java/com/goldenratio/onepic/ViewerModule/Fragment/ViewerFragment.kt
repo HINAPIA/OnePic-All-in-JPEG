@@ -443,9 +443,15 @@ class ViewerFragment : Fragment() {
                                         binding.seekBar.progress = i
                                     }
                                     CoroutineScope(Dispatchers.Main).launch {
+                                        if (bitmapList.size > i) {
+                                            // 만들어 졌으면 비트맵으로 띄웠어
+                                            binding.mainView.setImageBitmap(bitmapList[i])
+                                        }
+                                        else {
                                         Glide.with(context)
-                                            .load(pictureByteArr!!)
-                                            .into(binding.mainView)
+                                                .load(pictureByteArr!!)
+                                                .into(binding.mainView)
+                                        }
                                     }
                                     jpegViewModel.setselectedSubImage(picture)
                                     changeImageView(i,scrollImageView)
