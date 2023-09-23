@@ -132,21 +132,17 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         // main Picture의 byteArray를 bitmap 제작
         selectPicture = jpegViewModel.selectedSubImage!!
 
-        // 메인 이미지 임시 설정
-        if(!faceDetectionModule.checkFaceDetectionCall || !faceDetectionModule.getCheckFaceDetection()) {
-            CoroutineScope(Dispatchers.Default).launch {
-                withContext(Dispatchers.Main) {
-                    Glide.with(binding.mainView)
-                        .load(imageContent.getJpegBytes(selectPicture))
-                        .into(binding.mainView)
-                }
-            }
-        }
-        else {
-            Thread.sleep(1000)
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
+            // 메인 이미지 임시 설정
+            withContext(Dispatchers.Main) {
+                Glide.with(binding.mainView)
+                    .load(imageContent.getJpegBytes(selectPicture))
+                    .into(binding.mainView)
+            }
+            if(faceDetectionModule.checkFaceDetectionCall && faceDetectionModule.getCheckFaceDetection()) {
+                Thread.sleep(3500)
+            }
+
             // Blending 가능한 연속 사진 속성의 picture list 얻음
             bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
