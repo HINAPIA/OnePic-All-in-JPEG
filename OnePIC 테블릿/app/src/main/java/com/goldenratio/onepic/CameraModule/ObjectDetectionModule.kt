@@ -47,8 +47,8 @@ class ObjectDetectionModule(
 
         // Initialize the detector object
         val options = ObjectDetector.ObjectDetectorOptions.builder()
-            .setMaxResults(3)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
-            .setScoreThreshold(0.1f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
+            .setMaxResults(5)          // 최대 결과 (모델에서 감지해야 하는 최대 객체 수)
+            .setScoreThreshold(0.3f)    // 점수 임계값 (감지된 객체를 반환하는 객체 감지기의 신뢰도)
             .build()
         customObjectDetector = ObjectDetector.createFromFileAndOptions(
             context,

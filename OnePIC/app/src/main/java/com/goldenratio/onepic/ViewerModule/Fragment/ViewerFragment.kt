@@ -443,9 +443,15 @@ class ViewerFragment : Fragment() {
                                         binding.seekBar.progress = i
                                     }
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        Glide.with(context)
-                                            .load(pictureByteArr!!)
-                                            .into(binding.mainView)
+                                        if (bitmapList.size > i) {
+                                            // 만들어 졌으면 비트맵으로 띄웠어
+                                            binding.mainView.setImageBitmap(bitmapList[i])
+                                        }
+                                        else {
+                                            Glide.with(context)
+                                                .load(pictureByteArr!!)
+                                                .into(binding.mainView)
+                                        }
                                     }
                                     jpegViewModel.setselectedSubImage(picture)
                                     changeImageView(i,scrollImageView)
@@ -564,8 +570,8 @@ class ViewerFragment : Fragment() {
                         // 비트맵은 따로 만들고 있고 해당 index의 비트맵이 안만들어졌으면 글라이드로
                         CoroutineScope(Dispatchers.Main).launch {
                             Glide.with(context)
-                                 .load(jpegViewModel.getPictureByteArrList()[progress])
-                                 .into(binding.mainView)
+                                .load(jpegViewModel.getPictureByteArrList()[progress])
+                                .into(binding.mainView)
                         }
                     }
                 }
@@ -588,8 +594,8 @@ class ViewerFragment : Fragment() {
             binding.magicView.visibility = View.VISIBLE
 
             Glide.with(binding.magicView)
-                 .load(imageContent.getJpegBytes(pictureList[index]))
-                 .into(binding.magicView)
+                .load(imageContent.getJpegBytes(pictureList[index]))
+                .into(binding.magicView)
 
             imageTool.showView(binding.magicBtnlinearLayout, true)
 

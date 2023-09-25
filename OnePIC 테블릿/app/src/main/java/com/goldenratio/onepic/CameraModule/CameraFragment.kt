@@ -530,6 +530,7 @@ class CameraFragment : Fragment() {
      * All-in JPEG으로 저장
      */
     private fun saveAllinJPEG() {
+        var isSafeSaved = true
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 // 녹음 중단
@@ -558,6 +559,10 @@ class CameraFragment : Fragment() {
                     val pictureList = jpegViewModel.jpegAiContainer.value!!.imageContent.pictureList
 
                     for (i in 0 until pictureList.size) {
+                        if(pictureList.size != detectionResult.size) {
+                            isSafeSaved = false
+                            break
+                        }
                         var boundingBox = detectionResult[i].boundingBox
 
                         // 전면 카메라일 경우 객체 위치 좌우반전
@@ -582,9 +587,11 @@ class CameraFragment : Fragment() {
                     objectDetectionModule.resetDetectionResult()
                 }
 
-                JpegViewModel.AllInJPEG = true
-                // All-in JPEG 저장
-                jpegViewModel.jpegAiContainer.value?.saveAfterCapture(isSaved)
+                if(isSafeSaved) {
+                    JpegViewModel.AllInJPEG = true
+                    // All-in JPEG 저장
+                    jpegViewModel.jpegAiContainer.value?.saveAfterCapture(isSaved)
+                }
             }
         }
     }

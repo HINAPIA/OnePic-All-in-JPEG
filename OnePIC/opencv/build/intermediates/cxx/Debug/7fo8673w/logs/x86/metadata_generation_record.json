@@ -2,7 +2,7 @@
   {
     "level_": 0,
     "message_": "Start JSON generation. Platform version: 21 min SDK version: x86",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -11,12 +11,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1151523866
+    "memoizedHashCode": 1419341447
   },
   {
     "level_": 0,
-    "message_": "rebuilding JSON /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/android_gradle_build.json due to:",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "rebuilding JSON /Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/android_gradle_build.json due to:",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -25,12 +25,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1636575103
+    "memoizedHashCode": -765108406
   },
   {
     "level_": 0,
-    "message_": "- a file changed",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "- no fingerprint file, will remove stale configuration folder",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -39,12 +39,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 471056012
+    "memoizedHashCode": 1683169048
   },
   {
     "level_": 0,
-    "message_": "  - /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt (LAST_MODIFIED_CHANGED)",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "removing stale contents from \u0027/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -53,12 +53,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1232158101
+    "memoizedHashCode": 1447991409
   },
   {
     "level_": 0,
-    "message_": "keeping json folder \u0027/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027 but regenerating project",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "created folder \u0027/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86\u0027",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -67,12 +67,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1614990702
+    "memoizedHashCode": 1663028197
   },
   {
     "level_": 0,
-    "message_": "executing cmake /Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d21 \\\n  -DANDROID_PLATFORM\u003dandroid-21 \\\n  -DANDROID_ABI\u003dx86 \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003dx86 \\\n  -DANDROID_NDK\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86 \\\n  -GNinja \\\n  -DANDROID_STL\u003dc++_shared\n",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "executing cmake /Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d21 \\\n  -DANDROID_PLATFORM\u003dandroid-21 \\\n  -DANDROID_ABI\u003dx86 \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003dx86 \\\n  -DANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86 \\\n  -GNinja \\\n  -DANDROID_STL\u003dc++_shared\n",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -81,12 +81,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 2109640629
+    "memoizedHashCode": -848326376
   },
   {
     "level_": 0,
-    "message_": "/Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d21 \\\n  -DANDROID_PLATFORM\u003dandroid-21 \\\n  -DANDROID_ABI\u003dx86 \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003dx86 \\\n  -DANDROID_NDK\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/yujin/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86 \\\n  -GNinja \\\n  -DANDROID_STL\u003dc++_shared\n",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "/Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d21 \\\n  -DANDROID_PLATFORM\u003dandroid-21 \\\n  -DANDROID_ABI\u003dx86 \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003dx86 \\\n  -DANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/hscomputerengineering/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/obj/x86 \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86 \\\n  -GNinja \\\n  -DANDROID_STL\u003dc++_shared\n",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -95,12 +95,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -431711756
+    "memoizedHashCode": 1269583191
   },
   {
     "level_": 0,
-    "message_": "Exiting generation of /Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/compile_commands.json.bin normally",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "message_": "Exiting generation of /Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/compile_commands.json.bin normally",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -109,12 +109,12 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1937616007
+    "memoizedHashCode": -819910390
   },
   {
     "level_": 0,
     "message_": "done executing cmake",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -123,12 +123,26 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -994660053
+    "memoizedHashCode": -726842472
+  },
+  {
+    "level_": 0,
+    "message_": "hard linked /Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/x86/compile_commands.json to /Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/.cxx/tools/debug/x86/compile_commands.json",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 904784210
   },
   {
     "level_": 0,
     "message_": "JSON generation completed without problems",
-    "file_": "/Users/yujin/Documents/GitHub/OnePic_All_in_JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
+    "file_": "/Users/hscomputerengineering/Documents/GitHub/OnePIC-All-in-JPEG/OnePIC/opencv/libcxx_helper/CMakeLists.txt",
     "tag_": "debug|x86",
     "diagnosticCode_": 0,
     "memoizedIsInitialized": 1,
@@ -137,6 +151,6 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 943413031
+    "memoizedHashCode": 1211230612
   }
 ]

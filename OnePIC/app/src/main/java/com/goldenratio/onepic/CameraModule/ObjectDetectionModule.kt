@@ -13,7 +13,7 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 
 class ObjectDetectionModule(
-   val context: Context
+    val context: Context
 ) {
     private lateinit var detectionResult: List<DetectionResult>
     private lateinit var customObjectDetector: ObjectDetector

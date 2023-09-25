@@ -256,29 +256,28 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
 
             val selected = jpegViewModel.selectedSubImage
-            if(selected != null)
+            if (selected != null)
                 magicPictureModule = MagicPictureModule(imageContent, selected)
 //        imageContent.setMainBitmap(null)
             textContent = jpegViewModel.jpegAiContainer.value!!.textContent
             audioContent = jpegViewModel.jpegAiContainer.value!!.audioContent
 
-            CoroutineScope(Dispatchers.IO).launch {
-                while (!imageContent.checkPictureList) {
-                }
-
-                // picture 설정
-                mainPicture = imageContent.mainPicture
-                pictureList = imageContent.pictureList
-
-                Log.d("magicPicture Check", "edit pictureList get")
-
-                withContext(Dispatchers.Default) {
-                    val bitmap = imageContent.getBitmapList()
-                    if (bitmap != null)
-                        bitmapList = bitmap
-                    faceDetectionModule.allFaceDetection(bitmapList)
-                }
+            while (!imageContent.checkPictureList) {
             }
+
+            // picture 설정
+            mainPicture = imageContent.mainPicture
+            pictureList = imageContent.pictureList
+
+            Log.d("magicPicture Check", "edit pictureList get")
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val bitmap = imageContent.getBitmapList()
+                if (bitmap != null)
+                    bitmapList = bitmap
+                faceDetectionModule.allFaceDetection(bitmapList)
+            }
+
 
             // 만약 편집을 했다면 save 버튼이 나타나게 설정
             if (imageContent.checkMainChanged || imageContent.checkBlending ||
@@ -290,7 +289,10 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
             // 메인 이미지 설정
             CoroutineScope(Dispatchers.Main).launch {
-                val index = jpegViewModel.getSelectedSubImageIndex()
+                var index = jpegViewModel.getSelectedSubImageIndex()
+                if (pictureList.size <= index) {
+                    index = 0
+                }
                 if (pictureList[index].contentAttribute == ContentAttribute.magic) {
                     imageToolModule.showView(binding.magicPlayBtn, true)
                     setMagicPicture()
@@ -304,7 +306,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                     imageToolModule.showView(binding.seekBar, true)
                     setDistanceSeekBar()
                 }
-                if(imageContent.checkAttribute(ContentAttribute.object_focus)) {
+                if (imageContent.checkAttribute(ContentAttribute.object_focus)) {
                     imageToolModule.showView(binding.focusBtn, true)
                 }
             }
@@ -324,12 +326,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         }
 
         /* Format - JPEG, Ai JPEG*/
-        if(JpegViewModel.AllInJPEG) {
+        if (JpegViewModel.AllInJPEG) {
             Log.d("format_test", "뷰어 로드할 때 AllInJPEG = true")
             binding.formatTextView.text = "ALL In JPEG"
             JpegViewModel.AllInJPEG = true
-        }
-        else{
+        } else {
             Log.d("format_test", "뷰어 로드할 때 AllInJPEG = false")
             binding.formatTextView.text = "일반 JPEG"
             JpegViewModel.AllInJPEG = false
@@ -340,17 +341,17 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
         /* 오디오 */
         // auido 재생바 설정 - 사진에 들어있던 기존 오디오로 설정
-        var savedFile : File? = null
+        var savedFile: File? = null
         jpegViewModel.jpegAiContainer.value!!.audioContent.audio?._audioByteArray?.let {
             savedFile = audioResolver.saveByteArrToAacFile(
                 it, "original"
             )
         }
 
-        if(savedFile != null){
+        if (savedFile != null) {
             tempAudioFile = savedFile
 
-        }else{
+        } else {
             tempAudioFile = null
         }
 
@@ -1000,50 +1001,50 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             bitmapList = newBitmapList
             CoroutineScope(Dispatchers.IO).launch {
 //                if (bestImageIndex == null ) {
-                    // 인공지능 모델을 통해 〖image〗_i  에 있는 모든 얼굴 f에 대한
-                    // re(오른쪽 눈을 뜬 정도), le(왼쪽 눈을 뜬 정도), sm(웃고 있는 정도)를 알아낸다.
+                // 인공지능 모델을 통해 〖image〗_i  에 있는 모든 얼굴 f에 대한
+                // re(오른쪽 눈을 뜬 정도), le(왼쪽 눈을 뜬 정도), sm(웃고 있는 정도)를 알아낸다.
 //                    faceDetectionModule.allFaceDetection(bitmapList)
 
-                    val eyesDetectionResult = faceDetectionModule.getEyesAnalysisResults(bitmapList)
-                    withContext(Dispatchers.Main) {
-                        binding.recommendationText1.text = resources.getString(R.string.recommendation_text1_after)
+                val eyesDetectionResult = faceDetectionModule.getEyesAnalysisResults(bitmapList)
+                withContext(Dispatchers.Main) {
+                    binding.recommendationText1.text = resources.getString(R.string.recommendation_text1_after)
 //                        binding.recommendationText2.visibility = View.VISIBLE
-                    }
-                    Thread.sleep(700)
-                    val smilingDetectionResult = faceDetectionModule.getSmilingAnalysisResults()
-                    withContext(Dispatchers.Main) {
-                        binding.recommendationText2.text = resources.getString(R.string.recommendation_text2_after)
+                }
+                Thread.sleep(700)
+                val smilingDetectionResult = faceDetectionModule.getSmilingAnalysisResults()
+                withContext(Dispatchers.Main) {
+                    binding.recommendationText2.text = resources.getString(R.string.recommendation_text2_after)
 //                        binding.recommendationText3.visibility = View.VISIBLE
-                    }
-                    Thread.sleep(700)
-                    Log.d("anaylsis", "end faceDetection")
+                }
+                Thread.sleep(700)
+                Log.d("anaylsis", "end faceDetection")
 
-                    val shakeDetectionResult =
-                        ShakeLevelModule().shakeLevelDetection(bitmapList)
-                    withContext(Dispatchers.Main) {
-                        binding.recommendationText3.text = resources.getString(R.string.recommendation_text3_after)
-                    }
-                    Thread.sleep(1000)
+                val shakeDetectionResult =
+                    ShakeLevelModule().shakeLevelDetection(bitmapList)
+                withContext(Dispatchers.Main) {
+                    binding.recommendationText3.text = resources.getString(R.string.recommendation_text3_after)
+                }
+                Thread.sleep(1000)
 
-                    val analysisResults = arrayListOf<Double>()
+                val analysisResults = arrayListOf<Double>()
 
-                    var preBestImageIndex = 0
+                var preBestImageIndex = 0
 
-                    for (i in 0 until bitmapList.size) {
+                for (i in 0 until bitmapList.size) {
 //                        analysisResults.add(eyesDetectionResult[i])
-                        analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
-                        Log.d("anaylsis result", "$i : ${eyesDetectionResult[i]} + ${smilingDetectionResult[i]} + ${shakeDetectionResult[i]} = ${analysisResults[preBestImageIndex]}")
+                    analysisResults.add(eyesDetectionResult[i] * 0.3 + smilingDetectionResult[i] * 0.2 + shakeDetectionResult[i] * 0.5)
+                    Log.d("anaylsis result", "$i : ${eyesDetectionResult[i]} + ${smilingDetectionResult[i]} + ${shakeDetectionResult[i]} = ${analysisResults[preBestImageIndex]}")
 
-                        if (analysisResults[preBestImageIndex] < analysisResults[i]) {
-                            preBestImageIndex = i
-                            Log.d("anaylsis result", "!!!!! $i = ${analysisResults[preBestImageIndex]} < ${analysisResults[i]}")
-                        }
+                    if (analysisResults[preBestImageIndex] < analysisResults[i]) {
+                        preBestImageIndex = i
+                        Log.d("anaylsis result", "!!!!! $i = ${analysisResults[preBestImageIndex]} < ${analysisResults[i]}")
                     }
+                }
 
-                    Log.d("anaylsis", "=== ${analysisResults[preBestImageIndex]}")
-                    println("bestImageIndex = $preBestImageIndex")
+                Log.d("anaylsis", "=== ${analysisResults[preBestImageIndex]}")
+                println("bestImageIndex = $preBestImageIndex")
 
-                    bestImageIndex = preBestImageIndex
+                bestImageIndex = preBestImageIndex
 //                }
                 jpegViewModel.selectedSubImage = pictureList[bestImageIndex!!]
 

@@ -342,7 +342,8 @@ class MagicPictureFragment : FaceBlendingFragment() {
                 }
             } else {
                 try {
-                    val resultBitmap = imageToolModule.drawDetectionResult(selectBitmap, faceResult, requireContext().resources.getColor(R.color.white))
+                    val resultBitmap = imageToolModule.drawDetectionResult(selectBitmap,
+                        faceResult, requireContext().resources.getColor(R.color.white))
 
                     Log.d("magic", "!!!!!!!!!!!!!!!!!!! end drawDetectionResult")
 

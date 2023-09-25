@@ -949,13 +949,13 @@ class Camera2Module(
 
                     // 렌즈가 정지된 상태입니다. 초점이 안정되어 있을 가능성이 높습니다.
 //                    if (lensState != null && lensState == CaptureResult.LENS_STATE_STATIONARY) {
-                        previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
-                        captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
-                        if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
-                            isCaptured = true
-                            Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
-                            lockFocus(1)
-                        }
+                    previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
+                    captureSession?.setRepeatingRequest(previewRequestBuilder.build(), null, null)
+                    if(objectDetectionModule.getIsDetectionStop() && !isCaptured) {
+                        isCaptured = true
+                        Log.d("detectionResult", "3. setTouchPointDistanceChange onCaptureCompleted")
+                        lockFocus(1)
+                    }
 //                    }
                 }
             }

@@ -132,21 +132,17 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
         // main Picture의 byteArray를 bitmap 제작
         selectPicture = jpegViewModel.selectedSubImage!!
 
-        // 메인 이미지 임시 설정
-        if(!faceDetectionModule.checkFaceDetectionCall || !faceDetectionModule.getCheckFaceDetection()) {
-            CoroutineScope(Dispatchers.Default).launch {
-                withContext(Dispatchers.Main) {
-                    Glide.with(binding.mainView)
-                        .load(imageContent.getJpegBytes(selectPicture))
-                        .into(binding.mainView)
-                }
-            }
-        }
-        else {
-            Thread.sleep(1000)
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
+            // 메인 이미지 임시 설정
+            withContext(Dispatchers.Main) {
+                Glide.with(binding.mainView)
+                    .load(imageContent.getJpegBytes(selectPicture))
+                    .into(binding.mainView)
+            }
+            if(faceDetectionModule.checkFaceDetectionCall && faceDetectionModule.getCheckFaceDetection()) {
+                Thread.sleep(1000)
+            }
+
             // Blending 가능한 연속 사진 속성의 picture list 얻음
             bitmapList = imageContent.getBitmapList(ContentAttribute.edited)
 
@@ -422,8 +418,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             if (faceResult.size == 0) {
                 withContext(Dispatchers.Main) {
                     try {
-                    Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
-                        .show()
+                        Toast.makeText(requireContext(), "사진에 얼굴이 존재하지 않습니다.", Toast.LENGTH_SHORT)
+                            .show()
                         showProgressBar(false, null)
                         imageToolModule.showView(binding.blendingMenuLayout, true)
                     } catch (e: IllegalStateException) {
@@ -475,7 +471,7 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
             }
 
             val basicRect =
-                faceDetectionModule.getClickPointBoundingBox(0, touchPoint)
+                faceDetectionModule.getClickPointBoundingBox(jpegViewModel.getSelectedSubImageIndex(), touchPoint)
 
             if (basicRect == null) {
                 withContext(Dispatchers.Main) {
@@ -512,20 +508,20 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                 checkFinish[0] = true
                 for (i in 1 until bitmapList.size) {
 //                    CoroutineScope(Dispatchers.Default).launch {
-                        // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
-                        val rect =
-                            faceDetectionModule.getClickPointBoundingBox( i, touchPoint)
+                    // clickPoint와 사진을 비교하여 클릭된 좌표에 감지된 얼굴이 있는지 확인 후 해당 얼굴 boundingBox 받기
+                    val rect =
+                        faceDetectionModule.getClickPointBoundingBox( i, touchPoint)
 
-                        if (rect != null) {
-                            val arrayBounding = arrayListOf(
-                                i,
-                                rect[0], rect[1], rect[2], rect[3],
-                                rect[4], rect[5], rect[6], rect[7]
-                            )
-                            boundingBox.add(arrayBounding)
-                        }
-                        checkFinish[i] = true
+                    if (rect != null) {
+                        val arrayBounding = arrayListOf(
+                            i,
+                            rect[0], rect[1], rect[2], rect[3],
+                            rect[4], rect[5], rect[6], rect[7]
+                        )
+                        boundingBox.add(arrayBounding)
                     }
+                    checkFinish[i] = true
+                }
 //                }
             }
             while (!checkFinish.all { it }) {
@@ -582,8 +578,8 @@ open class FaceBlendingFragment : Fragment(R.layout.fragment_face_blending) {
                 // crop 된 후보 이미지 클릭시 해당 이미지로 얼굴 변환 (face Blending)
                 cropImageView.setOnClickListener {
 
-                        mainSubView?.background = null
-                        mainSubView?.setPadding(0)
+                    mainSubView?.background = null
+                    mainSubView?.setPadding(0)
 
                     newImage = imageToolModule.cropBitmap(
                         bitmapList[rect[0]],
