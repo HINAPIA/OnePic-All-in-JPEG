@@ -54,9 +54,7 @@
 <br><br>
 
 ## :wrench: 시스템 아키텍처
-
-![구조도_new](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)<p align="center"></p></p><br>
-<!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/26516631-a26a-4b7d-a028-52606c3a1036.png" width="700" height="400"/> -->
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00" width="800" height="500"/><br>
 
 &nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다. 
 All-in JPEG 전용 웹 뷰어는 크롬 브라우저의 확장 프로그램으로, 크롬 브라우저 환경이라면 어디에서든 실행할 수 있으며, All-in JPEG 파일에 들어있는 여러 이미지, 오디오, 텍스트를 웹 브라우저에 출력한다.
@@ -106,9 +104,7 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 
 ## :pushpin: All-in JPEG 구조
 &nbsp;All-in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
-
-![image](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2)<br>
-<!--   <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/40e6019b-848d-4df9-8072-7e7010302548.png" width="750" height="600"/> -->
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" width="750" height="600"/>
 
 
 <br>
@@ -173,7 +169,7 @@ All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이�
   
 - 초점 후처리
   <br/> 
-  <img src=./report/img/userMenual3.png width="600">
+  <img src=./report/img/userMenual3.png width="720">
   <br/><br/><br/>
   
 - 베스트 사진 추천
@@ -183,7 +179,7 @@ All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이�
   
 - 매직픽처
   <br/>
-  <img src=./report/img/userMenual6.png width="600">
+  <img src=./report/img/userMenual6.png width="720">
   <br/><br/><br/>
 
 
