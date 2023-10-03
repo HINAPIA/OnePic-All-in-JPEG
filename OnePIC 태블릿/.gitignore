@@ -1,0 +1,69 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+OnePIC/opencv/build/outputs/logs/manifest-merger-debug-report.txt
+OnePIC/opencv/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+OnePIC/opencv/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+OnePIC/opencv/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+OnePIC/opencv/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+OnePIC/opencv/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+OnePIC/opencv/build/intermediates/cxx/ndk_locator_record_1z691k30.log
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/metadata_generation_record.json
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/generate_cxx_metadata_21_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/x86/build_model.json
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/metadata_generation_record.json
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_985_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_878_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_750_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_613_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_501_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_383_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_236_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1193_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/generate_cxx_metadata_1096_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/build_stdout_opencv_jni_shared.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/build_model.json
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/build_command_opencv_jni_shared
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_654_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_518_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_21_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_140_timing.txt
+OnePIC/opencv/build/intermediates/cxx/abi_configuration_4s4k1647.log
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_1230_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_287_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_406_timing.txt
+OnePIC/opencv/build/intermediates/cxx/create_cxx_tasks_978_timing.txt
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/*
+OnePIC/opencv/build/outputs/logs/*
+
+OnePIC/opencv/build/intermediates/cxx/*
+OnePIC/opencv/build/intermediates/cxx/Debug/7fo8673w/logs/arm64-v8a/*
+
+# Created by https://www.toptal.com/developers/gitignore/api/opencv
+# Edit at https://www.toptal.com/developers/gitignore?templates=opencv
+
+### OpenCV ###
+#OpenCV for Mac and Linux
+#build and release folders
+*/CMakeFiles
+*/CMakeCache.txt
+*/Makefile
+*/cmake_install.cmake
+*/opencv/build/*
+
+*/cxx/Debug/*
+
+# End of https://www.toptal.com/developers/gitignore/api/opencv

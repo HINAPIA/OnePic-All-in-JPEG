@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="point_color">#C1BAF2</color>
+    <color name="transparent_color">#00FFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- _____________ 편집 문구 _____________ -->
+    <color name="background_color">#000000</color>
+    <color name="main_color">#FFFFFF</color>
+    <color name="edit_bar_color">#000000</color>
+    <color name="progressive_color">#AEAEAE</color>
+    <color name="blending_button_color">#80818181</color>
+    <color name="sideBar_color">#80D7D7D7</color>
+    <color name="do_not_click_color">#6C6C6C</color>
+    <color name="dialog_button_color">#BEDFDFDF</color>
+    <color name="info_color">#B3B3B3</color>
+    <color name="select_face">#FF0000</color>
+    <color name="menu_color">#FFFFFF</color>
+    <color name="menu_background">#92A496FF</color>
+    <color name="edit_delete_back_color">#2D000000</color>
+    <color name="joystick_outline">#CE858585</color>
+    <color name="joystick_inline">#A1A1A1</color>
+    <!-- ____________________________________ -->
+
+    <color name="button_color">#6B8B7A</color>
+
+    <!-- ________________카메라________________ -->
+    <color name="layout_background">#80000000</color>
+    <color name="background">#FAF8FF</color>
+    <color name="preview_color">#FFFADE</color>
+    <color name="dark_purple">#9177D0</color>
+    <color name="middle_gray">#6B6B6B</color>
+    <color name="purple_gray">#B5B2CA</color>
+    <color name="intro_color">#846BBF</color>
+    <color name="middle_gray_80">#B26B6B6B</color>
+    <color name="middle_gray_30">#4D6B6B6B</color>
+    <color name="focus">#FFEA00</color>
+    <color name="focus_30">#4DFFEA00</color>
+    <color name="white_85">#D9FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="black_30">#4D000000</color>
+    <color name="black_40">#66000000</color>
+    <color name="dark_purple_85">#D99177D0</color>
+    <color name="camera_background">#D6D2EC</color>
+    <color name="camera_mode_background">#66E3DFFD</color>
+    <color name="camera_mode_select_color">#E1CEFF</color>
+    <color name="camera_success_background">#669C8EFF</color>
+    <color name="camera_success_border">#9C8EFF</color>
+    <!-- _____________________________________ -->
+
+</resources>

@@ -1,0 +1,4 @@
+/Users/hscomputerengineering/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /Users/hscomputerengineering/Documents/GitHub/OnePic-All-in-JPEG/OnePIC/opencv/.cxx/RelWithDebInfo/1m204b5c/x86 \
+  opencv_jni_shared
