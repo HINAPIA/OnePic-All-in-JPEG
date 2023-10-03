@@ -3,7 +3,7 @@
 > Multi Focus 촬영 및 다양한 편집 기능을 탑재한 카메라 솔루션이다.
 
 <br><br>
-<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/9f34fadc-7508-42b5-b40c-ee622151beea.png" width="90" height="90"/></p>
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/24552311-8041-41fa-85eb-c75cb659e9fe" width="90" height="90"/></p>
 
 
 <div align = "center">
