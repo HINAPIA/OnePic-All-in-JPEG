@@ -145,7 +145,6 @@ All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이�
 <br><br>
 
 
-
 ### - 개발 도구
 <img src="https://img.shields.io/badge/Android Studio-3DDC84?style=for-the-badge&logo=Android Studio&logoColor=white"/> <img src="https://img.shields.io/badge/opencv-6EC93F?style=for-the-badge&logo=opencv&logoColor=white"/> <img src="https://img.shields.io/badge/tensorflow lite-FFAA5B?style=for-the-badge&logo=tensorflow&logoColor=white"/> <img src="https://img.shields.io/badge/tornadoFX-000000?style=for-the-badge"/>
 
@@ -156,4 +155,35 @@ All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이�
 ![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![Javascript](https://img.shields.io/badge/Javascript-F7DF1E?style=for-the-badge&logo=Javascript&logoColor=white)
 <img src="https://img.shields.io/badge/Kotlin-4193D0?style=for-the-badge&logo=kotlin&logoColor=white"/>
+
+
+<br/><br/>
+
+## 🎈사용자 메뉴얼
+
+- <b>객체별 초점 촬영
+  <br/> <br/> 
+  <img src=./report/img/userMenual1.png width="600">
+  <br/><br/><br/>
+
+- 거리별 초점 촬영
+   <br/> <br/> 
+   <img src=./report/img/userMenual2.png width="600">
+  <br/><br/><br/>
+  
+- 초점 후처리
+  <br/> 
+  <img src=./report/img/userMenual3.png width="600">
+  <br/><br/><br/>
+  
+- 베스트 사진 추천
+  <br/> 
+  <img src=./report/img/userMenual4.png width="600">
+  <br/><br/><br/>
+  
+- 매직픽처
+  <br/>
+  <img src=./report/img/userMenual6.png width="600">
+  <br/><br/><br/>
+
 
