@@ -159,27 +159,27 @@ All-in JPEG 포맷을 이용하여 한 장의 JPEG 파일에 여러 개의 이�
 
 - <b>객체별 초점 촬영
   <br/> <br/> 
-  <img src=./report/img/userMenual1.png width="600">
+  <img src=./report/img/userMenual1.png width="700">
   <br/><br/><br/>
 
 - 거리별 초점 촬영
    <br/> <br/> 
-   <img src=./report/img/userMenual2.png width="600">
+   <img src=./report/img/userMenual2.png width="700">
   <br/><br/><br/>
   
 - 초점 후처리
   <br/> 
-  <img src=./report/img/userMenual3.png width="720">
+  <img src=./report/img/userMenual3.png width="820">
   <br/><br/><br/>
   
 - 베스트 사진 추천
   <br/> 
-  <img src=./report/img/userMenual4.png width="600">
+  <img src=./report/img/userMenual4.png width="700">
   <br/><br/><br/>
   
 - 매직픽처
   <br/>
-  <img src=./report/img/userMenual6.png width="720">
+  <img src=./report/img/userMenual6.png width="820">
   <br/><br/><br/>
 
 
