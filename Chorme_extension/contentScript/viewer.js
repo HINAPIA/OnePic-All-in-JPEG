@@ -5,14 +5,14 @@ import { chageMainImagetoSelectedImage, extractBasicMetadata, extractAiMetadata 
 var aiContainer;
 var loadResolver;
 
-document.addEventListener("DOMContentLoaded", function(event) { // 웹 페이지의 DOM이 로드되면 실행되는 코드
+document.addEventListener("DOMContentLoaded", function(event) { // 웹 페이지의 DOM이 로드 시 실행
   console.log("DOM is loaded");
   // document가 로드되었을 때 ready 상태를 background.js에게 알립니다.
   chrome.runtime.sendMessage({ action: "ready" });
 });
 
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { // background.js로부터 메시지를 수신합니다.
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { // background.js 로부터 메시지를 수신
   if (message.action === "displayImage") {
     console.log("Message received : displayImage")
     displayImage(message.url);
@@ -28,7 +28,7 @@ const metaDataMenuSpacer = document.getElementById("meta-data-menu-spacer");
 const contentsMenuTab = document.getElementById("contents-menu-tab");
 const meataDataMenuTab = document.getElementById("meta-data-menu-tab");
 
-// 첫 번째 라디오 버튼에 이벤트 리스너를 등록합니다.
+// content 메뉴 라디오버튼 처리
 contentsRadioBtn.addEventListener("change", function() {
     if (this.checked) {
         contentMenuSpacer.style.visibility = "visible"
@@ -38,6 +38,7 @@ contentsRadioBtn.addEventListener("change", function() {
     }
 });
 
+// metadata 메뉴 라디오버튼 처리
 metaDataRadioBtn.addEventListener("change",function()
 {
   if (this.checked) {
@@ -48,6 +49,7 @@ metaDataRadioBtn.addEventListener("change",function()
   }
 });
 
+
 const audioContent =  document.getElementById("audio-content");
 const textContent = document.getElementById("text-content");
 const textDisplayDiv = document.getElementById("text-display-div")
@@ -55,87 +57,85 @@ const app1MetaData = document.getElementById("meta-data-app1")
 const imageContentMetaData = document.getElementById("meta-data-image-content")
 const audioContentMetaData = document.getElementById("meta-data-audio-content")
 const textContentMetaData = document.getElementById("meta-data-text-content")
-
 const imageContentSection = document.getElementById("image-contents-section");
 
-async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 정의합니다.
+
+/**
+ * 이미지 출력 (All-in JPEG or JPEG)
+ * @param {*} imageUrl 출력할 이미지 url
+ */
+async function displayImage(imageUrl) { 
     const imageElement = document.getElementById("main_image")
     imageElement.src = imageUrl;
-    // document.getElementById("file-name").innerText = getFileNameFromUrl(imageUrl)
     getImageByteArrayFromURL(imageUrl)
     .then(async byteArray => {
       if (byteArray) {
-        console.log('Image Byte Array:', byteArray);
         aiContainer = new AiContainer();
         loadResolver = new LoadResolver();
         await setBasicMetadataTab(byteArray, imageUrl)
-         // All-in JPEG 파일인지 식별 - boolean 값
+
+         // All-in JPEG 파일인지 식별
         var isAllinJPEG = await loadResolver.isAllinJPEG(byteArray)
         if (isAllinJPEG) {
 
-          document.getElementById("jpeg-type-display-div").innerHTML = "All-in JPEG 사진을 보고 있습니다."
-          await loadResolver.createAiContainer(aiContainer, byteArray);
-     
-          const SIZE = aiContainer.imageContent.pictureList.length
-          document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
-          for (let i = 0; i < SIZE; i++) {
-            console.log(i);
-            let pictureData = aiContainer.imageContent.pictureList[i]
-            const img = document.createElement("img");
-            img.src = aiContainer.imageContent.getBlobURL(pictureData) // 이미지 파일 경로 설정
-            img.classList.add("sub_image");
-         
-            img.addEventListener('click', (e) =>{
-              chageMainImagetoSelectedImage(e, aiContainer, i)
-            })
-            imageContentSection.appendChild(img);
-          }
+            document.getElementById("jpeg-type-display-div").innerHTML = "All-in JPEG 사진을 보고 있습니다."
+            await loadResolver.createAiContainer(aiContainer, byteArray);
+      
+            const SIZE = aiContainer.imageContent.pictureList.length
+            document.getElementById("image-content-logo").innerText = `담긴 사진 ${SIZE} 장`
+            for (let i = 0; i < SIZE; i++) {
+              console.log(i);
+              let pictureData = aiContainer.imageContent.pictureList[i]
+              const img = document.createElement("img");
+              img.src = aiContainer.imageContent.getBlobURL(pictureData) // 이미지 파일 경로 설정
+              img.classList.add("sub_image");
+          
+              img.addEventListener('click', (e) =>{
+                chageMainImagetoSelectedImage(e, aiContainer, i)
+              })
+              imageContentSection.appendChild(img);
+            }
 
-          //console.log(await getBasicMetadata());
-          setAiMetadataTab();
-  
-          // Auduio 있을 경우, 오디오 만듦.
-          aiContainer.createAudio();
-          audioContent.src = aiContainer.audioContent.blobUrl
+            setAiMetadataTab(); // 메타데이터 추출
     
-          
-          //TODO: text가 있을 때, 없을 때에 따라 예외 처리 해야함
-          let isClicked = false;
+            // Auduio 있을 경우, 오디오 만듦.
+            aiContainer.createAudio();
+            audioContent.src = aiContainer.audioContent.blobUrl
+      
+            let isClicked = false;
 
-          if (aiContainer.textContent.textCount !=0){
-            console.log("ddddddd여기 들어옴")
-            textContent.innerHTML = aiContainer.textContent.textList[0].data
-            textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
+            if (aiContainer.textContent.textCount !=0){
+              textContent.innerHTML = aiContainer.textContent.textList[0].data
+              textDisplayDiv.innerHTML = aiContainer.textContent.textList[0].data
 
-            textContent.addEventListener('mouseenter', () => {
-              textContent.style.backgroundColor = '#9177D0';
-              textContent.style.color = 'white';
-            });
-            
-            textContent.addEventListener('mouseleave', () => {
-              if (!isClicked){
-                textContent.style.backgroundColor = '#F1F3F4'; // 기본 배경색으로 변경
-                textContent.style.color = 'black'; // 기본 글자색으로 변경
-              }
-            });
+              textContent.addEventListener('mouseenter', () => {
+                textContent.style.backgroundColor = '#9177D0';
+                textContent.style.color = 'white';
+              });
+              
+              textContent.addEventListener('mouseleave', () => {
+                if (!isClicked){
+                  textContent.style.backgroundColor = '#F1F3F4'; // 기본 배경색으로 변경
+                  textContent.style.color = 'black'; // 기본 글자색으로 변경
+                }
+              });
 
 
-            textContent.addEventListener('click', (e) =>{
-              if (!isClicked) {
-                textContent.style.backgroundColor = "#9177D0"
-                textContent.style.color = "white"
-                isClicked = true
-                textDisplayDiv.style.visibility = "visible"
-              }
-              else {
-                textContent.style.backgroundColor = "#F1F3F4"
-                textContent.style.color = "black"
-                isClicked = false
-                textDisplayDiv.style.visibility = "hidden"
-              }
-            })
-          }
-          
+              textContent.addEventListener('click', (e) =>{
+                if (!isClicked) {
+                  textContent.style.backgroundColor = "#9177D0"
+                  textContent.style.color = "white"
+                  isClicked = true
+                  textDisplayDiv.style.visibility = "visible"
+                }
+                else {
+                  textContent.style.backgroundColor = "#F1F3F4"
+                  textContent.style.color = "black"
+                  isClicked = false
+                  textDisplayDiv.style.visibility = "hidden"
+                }
+              })
+            }
         }
         else { // 일반 JPEG 사진 출력
             document.getElementById("jpeg-type-display-div").innerHTML = "일반 JPEG 사진을 보고 있습니다."
@@ -147,7 +147,12 @@ async function displayImage(imageUrl) { // 이미지를 보여주는 함수를 �
   });
 }
 
-function getFileNameFromUrl(imageUrl) {
+/**
+ * 이미지의 url로 부터 파일 얻기
+ * @param {*} imageUrl 파일이름을 알아낼 이미지 url
+ * @returns 파일 이름
+ */
+function getFileNameFromUrl(imageUrl) { 
   // 파일 경로를 "/" 또는 "\" 기준으로 분리하여 배열로 만듭니다.
   const pathParts = imageUrl.split(/[\\/]/);
   // 배열의 마지막 요소를 반환하여 파일 이름을 얻습니다.
@@ -155,7 +160,11 @@ function getFileNameFromUrl(imageUrl) {
   return decodeURIComponent(fileName);
 }
 
-// // meta-data tab의 jpeg meta data setting
+/**
+ * meta-data tab의 jpeg meta data setting
+ * @param {*} byteArray 
+ * @param {*} imageUrl 
+ */
 async function setBasicMetadataTab(byteArray, imageUrl) {
   let metadataString = ""
   const result = await extractBasicMetadata(byteArray)
@@ -199,8 +208,9 @@ async function setBasicMetadataTab(byteArray, imageUrl) {
 }
 
 
-
-// meta-data tab의 Ai Meata data setting
+/**
+ * meta-data tab의 Ai Meata data setting
+ */
 function setAiMetadataTab(){ 
   const jsonString = extractAiMetadata(aiContainer)
   let metadataString = ""
@@ -260,5 +270,4 @@ maingImage.onload = function() {
     const latitude = EXIF.getTag(this, "GPSLatitude");
     const longitude = EXIF.getTag(this, "GPSLongitude");
   });
-
 };
