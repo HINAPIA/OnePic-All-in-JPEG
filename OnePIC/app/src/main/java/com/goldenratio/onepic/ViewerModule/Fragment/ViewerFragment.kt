@@ -58,11 +58,11 @@ class ViewerFragment : Fragment() {
     private var isDeleted:Boolean = false // 삭제된 사진인지 여부
     companion object {
         var currentFilePath:String = "" // 현재 파일 path(or uri)
+
         /* 사진 및 오디오 상태 표시 */
         var isFinished: MutableLiveData<Boolean> = MutableLiveData(false) // 매직픽쳐 관련 작업 수행 완료
         var isEditStoraged:Boolean = false // 편집된 사진인지 여부 - 텍스트, 오디오 scrollView update
         var isAudioPlaying = MutableLiveData<Boolean>() // 오디오 재생중 표시
-
     }
 
     override fun onAttach(context: Context) {
@@ -104,13 +104,11 @@ class ViewerFragment : Fragment() {
         setViewerBasicUI()
         setHeaderBarEventListeners()
 
-
         /* GalleryFragment에서 넘어왔을 때 (선택된 이미지가 있음) */
         if(currentPosition != null){
             setMainImage()
             //currentPosition = null
         }
-
 
         /* 편집창에서 저장하고 넘어왔을 때 */
         if (isEditStoraged && currentFilePath != "" && currentFilePath != null) {
@@ -160,8 +158,9 @@ class ViewerFragment : Fragment() {
         callback.remove()
     }
 
-
-    /** ViewPager Adapter 및 swipe callback 설정 */
+    /**
+     * All-in JPEG 대표 이미지 출력
+     */
     @RequiresApi(Build.VERSION_CODES.M)
     fun setMainImage() {
         var value = jpegViewModel.imageUriLiveData.value!!.get(currentPosition!!)
@@ -184,14 +183,12 @@ class ViewerFragment : Fragment() {
      * seek bar & magic btn visibility 설정
      * savedText 데이터 & UI 설정 */
     fun setViewerBasicUI() {
-
         var container = jpegViewModel.jpegAiContainer.value!!
         val isAiJPEG = isAllInJPEG(container)
 
         // All in JPEG 로고 설정(일반 jpeg vs all in jpeg)
         binding.allInJpegTextView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() { // all in jpeg 로고 텍스트뷰의 로딩이 완료된 후에 호출될 작업 - 마진 조절
-
                 val textViewlayoutParams = binding.allInJpegTextView.layoutParams as ViewGroup.MarginLayoutParams
                 var marginEndInDp = 0
                 var marginTopInDp = 0
@@ -254,10 +251,11 @@ class ViewerFragment : Fragment() {
 
     }
 
-    /** Header Btn 이벤트 리스너 설정: edit & back btn 리스너 설정 */
+    /**
+     * Header Btn 이벤트 리스너 설정: edit & back btn 리스너 설정
+     */
     fun setHeaderBarEventListeners(){
         binding.editBtn.setOnClickListener{
-
             CoroutineScope(Dispatchers.Main).launch {
                 // 오디오 버튼 초기화
                 if( isAudioBtnClicked && scrollAudioView != null ) { // 클릭 되어 있던 상태
@@ -272,7 +270,6 @@ class ViewerFragment : Fragment() {
 
                 findNavController().navigate(R.id.action_viewerFragment_to_editFragment)
             }
-
         }
         binding.backBtn.setOnClickListener{
             CoroutineScope(Dispatchers.Main).launch {
@@ -281,6 +278,12 @@ class ViewerFragment : Fragment() {
         }
     }
 
+    /**
+     * All-in JPEG 인지 일반 JPEG인 지 판단
+     *
+     * @param container All-in JPEG 컨테이너
+     * @return All-in JPEG 인지 여부
+     */
     fun isAllInJPEG(container: AiContainer):Boolean{
         if (jpegViewModel.getPictureByteArrList().size != 1 || container.textContent.textCount != 0 || container.audioContent.audio != null){
             return true
@@ -291,7 +294,6 @@ class ViewerFragment : Fragment() {
     fun setMagicPicture() {
         val imageContent = jpegViewModel.jpegAiContainer.value?.imageContent!!
         imageContent.setMainBitmap(null)
-        //mainViewPagerAdapter.resetMagicPictureList()
 
         imageTool.showView(binding.magicBtn, true)
         binding.magicBtn.setOnClickListener {
@@ -317,7 +319,7 @@ class ViewerFragment : Fragment() {
     var magicPlaySpeed: Long = 150
 
     /**
-     * 매직픽처를 재생한다.
+     * 매직픽처 재생
      */
     private fun playMagicPicture() {
         if (!isMagicPlay) {
@@ -364,12 +366,9 @@ class ViewerFragment : Fragment() {
                 override fun run() {
                     if (overlapBitmap.size > 0) {
                         binding.magicView.setImageBitmap(overlapBitmap[currentImageIndex])
-                        //currentImageIndex++
-
                         currentImageIndex += increaseIndex
 
                         if (currentImageIndex >= overlapBitmap.size - 1) {
-                            //currentImageIndex = 0
                             increaseIndex = -1
                         } else if (currentImageIndex <= 0) {
                             increaseIndex = 1
@@ -384,7 +383,10 @@ class ViewerFragment : Fragment() {
 
 
 
-    /** 숨겨진 이미지들 imageView로 ScrollView에 추가 */
+    /**
+     * All-in JPEG 내부의 이미지들 추출 및 레이아웃 설정
+     * - imageView로 ScrollView에 추가
+     */
     @SuppressLint("MissingInflatedId")
     @RequiresApi(Build.VERSION_CODES.M)
     fun setCurrentOtherImage() {
@@ -471,90 +473,107 @@ class ViewerFragment : Fragment() {
 
                 // 오디오 있는 경우
                 if (container.audioContent.audio != null) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        var currText = binding.imageCntTextView.text
-                        binding.imageCntTextView.text = "${currText} + 오디오"
-                        val scollItemLayout =
-                            layoutInflater.inflate(R.layout.scroll_item_menu, null)
-                        // 위 불러온 layout에서 변경을 할 view가져오기
-                        scrollAudioView = scollItemLayout.findViewById(R.id.scrollItemMenuView)
-                        scrollAudioView!!.setImageResource(R.drawable.audio_item)
-                        scrollAudioView!!.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-                            if (!isAudioBtnClicked) { // 클릭 안되어있던 상태
-                                // TODO: 음악 재생
-                                isAudioBtnClicked = true
-                                if (isAudioPlaying.value != true) {
-                                    jpegViewModel.jpegAiContainer.value!!.audioPlay()
-                                    isAudioPlaying.value = true
-                                }
-                            } else {
-                                // TODO: 음악 멈춤
-                                isAudioBtnClicked = false
-                                jpegViewModel.jpegAiContainer.value!!.audioStop()
-                                isAudioPlaying.value = false
-                            }
-                        }
-
-                        isAudioPlaying.observe(viewLifecycleOwner) { value ->
-                            if (value == false) {
-                                val paddingInDp = resources.getDimensionPixelSize(R.dimen.audio_item_padding)
-                                scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
-                                scrollAudioView!!.setImageResource(R.drawable.audio_item)
-                                scrollAudioView!!.setPadding(paddingInDp, paddingInDp, paddingInDp, paddingInDp)
-                                isAudioBtnClicked = false
-
-                            } else {
-                                Log.d("song music: ", "음악 재생")
-                                scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn_color)
-                                scrollAudioView!!.setPadding(0, 0, 0, 0)
-                                Glide.with(scrollAudioView!!)
-                                    .load(R.raw.giphy)
-                                    .into(scrollAudioView!!)
-                            }
-                        }
-                        binding.linear.addView(scollItemLayout, binding.linear.childCount)
-                    }
+                    setAudioContent()
                 }
                 // 텍스트 있는 경우
                 if (container.textContent.textCount != 0) {
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        var currText = binding.imageCntTextView.text
-                        binding.imageCntTextView.text = "${currText} + 텍스트"
-
-                        val scollItemLayout =
-                            layoutInflater.inflate(R.layout.scroll_item_menu, null)
-                        // 위 불러온 layout에서 변경을 할 view가져오기
-                        scrollTextView = scollItemLayout.findViewById(R.id.scrollItemMenuView)
-                        scrollTextView!!.setImageResource(R.drawable.text_item)
-                        val paddingInDp = resources.getDimensionPixelSize(R.dimen.text_item_padding)
-                        scrollTextView!!.setPadding(paddingInDp,paddingInDp,paddingInDp,paddingInDp)
-                        scrollTextView!!.setOnClickListener { // scrollview 이미지를 main으로 띄우기
-                            if (!isTextBtnClicked) { // 클릭 안되어있던 상태
-                                scrollTextView!!.setBackgroundResource(R.drawable.scroll_menu_btn_color)
-                                scrollTextView!!.setImageResource(R.drawable.text_item_color)
-                                binding.savedTextView.visibility = View.VISIBLE
-                                isTextBtnClicked = true
-                            } else {
-                                scrollTextView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
-                                scrollTextView!!.setImageResource(R.drawable.text_item)
-                                binding.savedTextView.visibility = View.INVISIBLE
-                                isTextBtnClicked = false
-                            }
-                        }
-
-                        binding.linear.addView(scollItemLayout, binding.linear.childCount)
-                    }
+                    setTextContent()
                 }
+            }
+        }
+    }
 
+
+    /**
+     * All-in JPEG 내부의 오디오 추출 및 레이아웃
+     * - 재생, 멈춤 처리
+     * - 사용자 클릭 상태에대한 레이아웃 변경
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun setAudioContent(){
+        CoroutineScope(Dispatchers.Main).launch {
+            var currText = binding.imageCntTextView.text
+            binding.imageCntTextView.text = "${currText} + 오디오"
+            val scollItemLayout =
+                layoutInflater.inflate(R.layout.scroll_item_menu, null)
+            // 위 불러온 layout에서 변경을 할 view가져오기
+            scrollAudioView = scollItemLayout.findViewById(R.id.scrollItemMenuView)
+            scrollAudioView!!.setImageResource(R.drawable.audio_item)
+            scrollAudioView!!.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                if (!isAudioBtnClicked) { // 클릭 안되어있던 상태
+                    // TODO: 음악 재생
+                    isAudioBtnClicked = true
+                    if (isAudioPlaying.value != true) {
+                        jpegViewModel.jpegAiContainer.value!!.audioPlay()
+                        isAudioPlaying.value = true
+                    }
+                } else {
+                    // TODO: 음악 멈춤
+                    isAudioBtnClicked = false
+                    jpegViewModel.jpegAiContainer.value!!.audioStop()
+                    isAudioPlaying.value = false
+                }
             }
 
+            isAudioPlaying.observe(viewLifecycleOwner) { value ->
+                if (value == false) {
+                    val paddingInDp = resources.getDimensionPixelSize(R.dimen.audio_item_padding)
+                    scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
+                    scrollAudioView!!.setImageResource(R.drawable.audio_item)
+                    scrollAudioView!!.setPadding(paddingInDp, paddingInDp, paddingInDp, paddingInDp)
+                    isAudioBtnClicked = false
+
+                } else {
+                    scrollAudioView!!.setBackgroundResource(R.drawable.scroll_menu_btn_color)
+                    scrollAudioView!!.setPadding(0, 0, 0, 0)
+                    Glide.with(scrollAudioView!!)
+                        .load(R.raw.giphy)
+                        .into(scrollAudioView!!)
+                }
+            }
+            binding.linear.addView(scollItemLayout, binding.linear.childCount)
         }
 
     }
 
+    /**
+     * All-in JPEG 속 텍스트 추출 및 레이아웃 설정
+     */
+    fun setTextContent(){
+        CoroutineScope(Dispatchers.Main).launch {
+            var currText = binding.imageCntTextView.text
+            binding.imageCntTextView.text = "${currText} + 텍스트"
 
-    /** Seek Bar 설정 */
+            val scollItemLayout =
+                layoutInflater.inflate(R.layout.scroll_item_menu, null)
+            // 위 불러온 layout에서 변경을 할 view가져오기
+            scrollTextView = scollItemLayout.findViewById(R.id.scrollItemMenuView)
+            scrollTextView!!.setImageResource(R.drawable.text_item)
+            val paddingInDp = resources.getDimensionPixelSize(R.dimen.text_item_padding)
+            scrollTextView!!.setPadding(paddingInDp,paddingInDp,paddingInDp,paddingInDp)
+            scrollTextView!!.setOnClickListener { // scrollview 이미지를 main으로 띄우기
+                if (!isTextBtnClicked) { // 클릭 안되어있던 상태
+                    scrollTextView!!.setBackgroundResource(R.drawable.scroll_menu_btn_color)
+                    scrollTextView!!.setImageResource(R.drawable.text_item_color)
+                    binding.savedTextView.visibility = View.VISIBLE
+                    isTextBtnClicked = true
+                } else {
+                    scrollTextView!!.setBackgroundResource(R.drawable.scroll_menu_btn)
+                    scrollTextView!!.setImageResource(R.drawable.text_item)
+                    binding.savedTextView.visibility = View.INVISIBLE
+                    isTextBtnClicked = false
+                }
+            }
+
+            binding.linear.addView(scollItemLayout, binding.linear.childCount)
+        }
+    }
+
+    /**
+     * Seek Bar 설정
+     *
+     * @param pictureList seek bar 움직임에 따라 보여줄 이미지 리스트
+     */
     fun setSeekBar(pictureList:ArrayList<Picture>){
 
         /* seekBar 처리 - 스크롤뷰 아이템 개수에 따라, progress와 max 지정 */
@@ -581,6 +600,12 @@ class ViewerFragment : Fragment() {
         }
     }
 
+    /**
+     * 클릭된 이미지 레이아웃 처리
+     *
+     * @param index 선택된 이미지의 인덱스
+     * @param imageView 레이아웃 변경할 이미지뷰
+     */
     fun changeImageView(index: Int, imageView: ImageView) {
 
         previousClickedItem?.background = null
@@ -613,7 +638,11 @@ class ViewerFragment : Fragment() {
         }
     }
 
-    /** back btn 눌렀을 때 처리 */
+    /**
+     * Back btn 눌렀을 때 처리
+     * - 오디오 & 매직픽처 재생 초기화
+     * - 메모리 할당 해제
+     */
     fun backPressed() {
         // 제거 및 할당 해제
         CoroutineScope(Dispatchers.Main).launch {

@@ -29,7 +29,6 @@ import com.goldenratio.onepic.databinding.FragmentGalleryBinding
 class GalleryFragment : Fragment() {
 
     private lateinit var callback: OnBackPressedCallback
-
     private lateinit var binding: FragmentGalleryBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
     private var imageTool = ImageToolModule()
@@ -88,9 +87,6 @@ class GalleryFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        Log.d("OnViewCreated",": gallery fragment")
-
         ViewerFragment.currentFilePath = ""
 
         jpegViewModel.imageUriLiveData.observe(viewLifecycleOwner){
@@ -111,7 +107,7 @@ class GalleryFragment : Fragment() {
             backPressed()
         }
 
-        binding.selectedImageView.setOnClickListener{
+        binding.selectedImageView.setOnClickListener{// 갤러리에서 이미지 선택되었을 때
             if (binding.analyzeBtn.visibility == View.VISIBLE){
                 binding.analyzeBtn.visibility = View.INVISIBLE
             }
@@ -120,7 +116,7 @@ class GalleryFragment : Fragment() {
             }
         }
 
-        binding.analyzeBtn.setOnClickListener{
+        binding.analyzeBtn.setOnClickListener{// 분석버튼 처리
             val bundle = Bundle()
             bundle.putInt("currentPosition",currentPosition.value!!)
             this.findNavController().navigate(R.id.action_galleryFragment_to_analyzeFragment,bundle)
@@ -137,7 +133,7 @@ class GalleryFragment : Fragment() {
         callback.remove()
     }
 
-    fun backPressed(){
+    fun backPressed(){ // 백버튼 처리
         val intent = Intent(activity, CameraEditorActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

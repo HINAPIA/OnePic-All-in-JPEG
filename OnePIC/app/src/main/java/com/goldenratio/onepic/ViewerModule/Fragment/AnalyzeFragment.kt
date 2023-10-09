@@ -46,18 +46,15 @@ import java.lang.Runnable
 class AnalyzeFragment : Fragment() {
 
     private lateinit var callback: OnBackPressedCallback
-
     private lateinit var binding: FragmentAnalyzeBinding
     private val jpegViewModel by activityViewModels<JpegViewModel>()
-
     private var loadResolver : AiLoadResolver = AiLoadResolver()
     private var currentPosition:Int? = null // gallery fragment 에서 넘어올 때
-
-    private lateinit var progressBar: ProgressBar
+    private lateinit var progressBar: ProgressBar // 분석 정도 나타내는 progress bar
     private var progress = 5
     private val handler = Handler()
 
-    private val runnable = object : Runnable {
+    private val runnable = object : Runnable { // 분석중 애니메이션 효과 주기위한 thread
         override fun run() {
             // 프로그레스 증가
             progress+=2
@@ -79,6 +76,7 @@ class AnalyzeFragment : Fragment() {
 
             }
 
+            // 매직사진
             if (progress == 31) {
                 if (jpegViewModel.jpegAiContainer.value!!.imageContent.checkAttribute(ContentAttribute.magic)) {
                     var curr = binding.analyzeDataTextView.text
@@ -90,7 +88,6 @@ class AnalyzeFragment : Fragment() {
                     }
                 }
             }
-
 
             // 오디오
             if (progress == 41) {
@@ -116,7 +113,6 @@ class AnalyzeFragment : Fragment() {
                     }
                 }
             }
-
 
             // 프로그레스바 업데이트
            binding.progressBar.progress = progress
@@ -157,7 +153,6 @@ class AnalyzeFragment : Fragment() {
 
                     })
                     .into(binding.loadingImageView)
-
 
                 val params = binding.loadingImageView.layoutParams as LinearLayout.LayoutParams
                 params.gravity = Gravity.CENTER // 또는 다른 원하는 Gravity 값 설정
@@ -249,6 +244,12 @@ class AnalyzeFragment : Fragment() {
         callback.remove()
     }
 
+    /**
+     * 이미지의 Filepath를 Uri로 변환
+     *
+     * @param filePath filepath
+     * @return uri
+     */
     @SuppressLint("Range")
     fun getUriFromPath(filePath: String): Uri { // filePath String to Uri
 
@@ -272,11 +273,15 @@ class AnalyzeFragment : Fragment() {
 
     }
 
+    /**
+     * 갤러리에서 선택된 사진으로 AiContainer 생성
+     *
+     * @param position 갤러리에서 선택된 idx
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     fun setCurrentMCContainer(position:Int){
         CoroutineScope(Dispatchers.IO).launch {
-            Log.d("[ViewerFragment] 바뀐 position : ", ""+position)
-            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position)
+            val sourcePhotoUri = jpegViewModel.imageUriLiveData.value!!.get(position) // 선택된 사진 uri(or filepath)
 
             var uri:Uri
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -309,6 +314,9 @@ class AnalyzeFragment : Fragment() {
         }
     }
 
+    /**
+     * All-in JPEG으로부터 PictureByteArrayList 추출하여 viewModel에 설정
+     */
     fun setCurrentPictureByteArrList(){
 
         var pictureList = jpegViewModel.jpegAiContainer.value?.getPictureList()
@@ -329,8 +337,10 @@ class AnalyzeFragment : Fragment() {
         }
     }
 
+    /**
+     * All-in JPEG 분석 결과 표시
+     */
     fun setAnalyzeResultText () {
-
         CoroutineScope(Dispatchers.Default).launch{
             Thread.sleep(1500)
 
@@ -365,9 +375,7 @@ class AnalyzeFragment : Fragment() {
     }
 
     fun backPressed(){
-
         jpegViewModel.jpegAiContainer.value!!.imageContent.resetBitmap()
-
         jpegViewModel.jpegAiContainer.value!!.init()
         handler.removeCallbacksAndMessages(null)
         val bundle = Bundle()
