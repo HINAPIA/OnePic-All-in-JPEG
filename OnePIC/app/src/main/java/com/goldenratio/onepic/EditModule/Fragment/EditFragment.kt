@@ -996,6 +996,7 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
         imageToolModule.showView(binding.recommendationText2, true)
         imageToolModule.showView(binding.recommendationText3, true)
         showProgressBar(true, LoadingText.BestImageRecommend)
+
         val newBitmapList = imageContent.getBitmapList()
         if (newBitmapList != null) {
             bitmapList = newBitmapList
@@ -1286,18 +1287,21 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         }
                     }
 
-                    // TODO: 코드 확인 필요
-                    CoroutineScope(Dispatchers.Default).launch {
-                        val bitmapSize = bitmapList.size
-                        for(i in bitmapSize until pictureList.size)
-                            imageContent.addBitmapList(
-                                try {
-                                    val byteArray = imageContent.getJpegBytes(pictureList[i])
-                                    imageToolModule.byteArrayToBitmap(byteArray)
-                                } catch (e: IndexOutOfBoundsException) { e.printStackTrace() } as Bitmap
-                            )
-                        bitmapList = imageContent.getBitmapList()!!
-                    }
+//                    // TODO: 코드 확인 필요
+//                    CoroutineScope(Dispatchers.Default).launch {
+//                        val bitmapSize = bitmapList.size
+//                        for(i in bitmapSize until pictureList.size)
+//                            imageContent.addBitmapList(
+//                                try {
+//                                    val byteArray = imageContent.getJpegBytes(pictureList[i])
+//                                    imageToolModule.byteArrayToBitmap(byteArray)
+//                                } catch (e: IndexOutOfBoundsException) { e.printStackTrace() } as Bitmap
+//                            )
+//                    }
+
+                    imageContent.resetBitmap()
+                    imageContent.setBitmapList()
+                    bitmapList = imageContent.getBitmapList()
 
                     showProgressBar(false, null)
                 }

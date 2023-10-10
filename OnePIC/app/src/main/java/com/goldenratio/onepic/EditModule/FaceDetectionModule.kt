@@ -402,7 +402,11 @@ class FaceDetectionModule {
             while (!checkFaceDetection) {
 
             }
-            for (j in 0 until bitmapList.size) {
+
+            if(bitmapList.size != faceArraylist.size)
+                allFaceDetection(bitmapList)
+
+            for (j in 0 until faceArraylist.size) {
                 CoroutineScope(Dispatchers.Default).launch {
                     val facesResult = faceArraylist[j]
                     var eyesSum = 0.0f
