@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.goldenratio.onepic"
-        minSdk 21
+        minSdk 29
         targetSdk 33
         versionCode 16
         versionName "1.2.4"
