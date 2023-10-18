@@ -419,6 +419,7 @@ class CameraFragment : Fragment() {
             binding.distanceFocusRadioBtn.id -> {
                 camera2Module.isDetectionChecked = false
                 binding.objectDetectionImageView.setImageBitmap(null)
+                camera2Module.detectionBitmap?.recycle()
 
                 selectedRadioIndex = binding.distanceFocusRadioBtn.id
 

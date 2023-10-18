@@ -1287,7 +1287,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
                         }
                     }
 
-//                    // TODO: 코드 확인 필요
 //                    CoroutineScope(Dispatchers.Default).launch {
 //                        val bitmapSize = bitmapList.size
 //                        for(i in bitmapSize until pictureList.size)
