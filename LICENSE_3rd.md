@@ -1,11 +1,10 @@
 # License of 3rd party libraries
 
-OnePic All-in JPEG은 Apache 2.0 라이선스를 가집니다.
-
+>OnePic All-in JPEG은 Apache-2.0 라이선스를 가집니다.<br>
 본 프로젝트는 다음과 같은 서드파티 라이브러리들을 사용하며, 라이선스 의무를 준수합니다.
+<br>
 
-OnePic All-in JPEG project has an Apache 2.0 license.
-
+>OnePic All-in JPEG project has an Apache-2.0 license.<br>
 This project uses the following third-party libraries and complies with licensing obligations.
 
 <br>
