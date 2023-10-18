@@ -32,48 +32,56 @@ License : Apache 2.0
 
 https://github.com/googlesamples/mlkit/blob/master/LICENSE
 <br><br>
+
 **Camera2 by android**
 
 License : Apache 2.0
 
 https://github.com/android/camera-samples/blob/main/LICENSE
 <br><br>
+
 **Glide of bumptech**
 
 License : Apache 2.0, MIT, BSD
 
 https://github.com/bumptech/glide/blob/master/LICENSE
 <br><br>
+
 **androidx of androidx**
 
 License : Apache 2.0
 
 https://github.com/androidx/androidx/blob/androidx-main/LICENSE.txt
 <br><br>
+
 **kotline.coroutines of Kotlin**
 
 License : Apache 2.0
 
 https://github.com/Kotlin/kotlinx.coroutines/blob/master/LICENSE.txt
 <br><br>
+
 **tornadofx of edvin**
 
 License : Apache 2.0
 
 https://github.com/edvin/tornadofx/blob/master/LICENSE
 <br><br>
+
 **metadata-extractor of drewnoakes**
 
 License : Apache 2.0
 
 https://github.com/drewnoakes/metadata-extractor/blob/master/LICENSE
 <br><br>
+
 **dayjs of iamkun**
 
 License : MIT
 
 https://github.com/iamkun/dayjs/blob/dev/LICENSE
 <br><br>
+
 **exif-js of exif-js**
 
 License : Apache 2.0
