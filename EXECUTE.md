@@ -9,13 +9,12 @@
 
 **Docs Map** <br/>
 1. [Project File 다운로드](#project-file-다운로드)
-2. [OnePIC 앱](#onepic-앱)
-3. [Desktop Viewer](#desktop-viewer)
-4. [Project File 다운로드](#project-file-다운로드)
+2. [OnePIC 앱 실행](#onepic-앱-실행)
+3. [Desktop Viewer 실행](#desktop-viewer-실행)
+4. [Web Viewer 실행](#web-viewer-실행)
 
 <br/>
 <br/>
-
 
 ## Project File 다운로드
 
@@ -30,7 +29,7 @@ C:\Workspace > git clone https://github.com/HINAPIA/OnePic-All-in-JPEG.git
 <br/>
 <br/>
 
-# OnePIC 앱
+# OnePIC 앱 실행
 <br/>
 
 1. [AndroidStudio 설치](#1-androidstudio-설치)
@@ -75,7 +74,7 @@ github에서 다운 받은 안드로이드 프로젝트 OnePIC을 실행하기 �
 <br/>
 <br/>
 
-# Desktop Viewer 
+# Desktop Viewer 실행 
 <br/>
 
 1. [Java](#1-java-설치)
