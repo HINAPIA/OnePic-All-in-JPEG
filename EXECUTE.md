@@ -138,7 +138,7 @@ TornadoFX는 JDK 8 이후 버전부터 지원하지 않습니다. 반드시 JDK 
 <br/>
 <br/>
 
-### 2. 개발자 모드를 활성화 및 `압축 해제된 확장 프로그램을 로드합니다` 메뉴 선택
+### 2. 개발자 모드 활성화 및 `압축 해제된 확장 프로그램을 로드합니다` 메뉴 선택
 
 <img width="650" alt="chrome_extension" src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/1d2f5e3e-53ce-4e60-9031-e6a56a326493">
 
