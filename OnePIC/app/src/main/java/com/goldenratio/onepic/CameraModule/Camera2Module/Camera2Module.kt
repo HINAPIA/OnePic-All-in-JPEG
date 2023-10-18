@@ -15,6 +15,7 @@ import android.util.Size
 import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
+import android.widget.Button
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -37,6 +38,8 @@ class Camera2Module(
     private val imageView: ImageView,
     var previewByteArrayList : MutableLiveData<ArrayList<ByteArray>>
 ) {
+
+    var detectionBitmap :Bitmap? = null
 
     /**
      * TextureView의 사용 가능 여부와 이와 관련된 surface에 관해 호출되는 리스너
@@ -97,6 +100,9 @@ class Camera2Module(
                 objectDetectionModule.runObjectDetection(it)
             }
             imageView.setImageBitmap(newBitmap)
+
+            detectionBitmap?.recycle()
+            detectionBitmap = newBitmap
         }
     }
 

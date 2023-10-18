@@ -213,6 +213,7 @@ class CameraFragment : Fragment() {
 
         // 갤러리 버튼
         binding.galleryBtn.setOnClickListener {
+
             val intent =
                 Intent(
                     activity,
@@ -223,6 +224,9 @@ class CameraFragment : Fragment() {
             activity.supportFragmentManager.beginTransaction().addToBackStack(null).commit()
 
             startActivity(intent)
+
+            // 객체 감지 비트맵 초기화
+            camera2Module.detectionBitmap?.recycle()
         }
     }
 
