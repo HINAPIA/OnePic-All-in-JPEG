@@ -8,6 +8,8 @@ OnePic All-in JPEG project has an Apache 2.0 license.
 
 This project uses the following third-party libraries and complies with licensing obligations.
 
+<br>
+
 # Libraries in OnePIC All-in JPEG
 
 **Tensorflow by tensorflow**
