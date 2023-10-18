@@ -264,7 +264,11 @@ class CameraFragment : Fragment() {
      * 이미지 저장이 완료됬을 때 호출되는 함수로, 촬영으로 인해 막아놨던 버튼들을 활성화 및 화면 설정을 한다.
      */
     private fun imageSaved() {
+        // previewByteArrayList 초기화
+        previewByteArrayList.value?.clear()
+
         val uri = isSaved.value
+
         if (uri != null) {
             CoroutineScope(Dispatchers.Main).launch {
 
