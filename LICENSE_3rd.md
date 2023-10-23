@@ -54,6 +54,8 @@ https://github.com/googlearchive/android-Camera2Basic/blob/master/LICENSE
 
 License : Apache 2.0, MIT, BSD
 
+Copyright 2014 Google, Inc. All rights reserved.
+
 https://github.com/bumptech/glide/blob/master/LICENSE
 <br><br>
 
