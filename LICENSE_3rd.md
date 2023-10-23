@@ -15,6 +15,8 @@ This project uses the following third-party libraries and complies with licensin
 
 License : Apache 2.0
 
+Copyright 2022 The TensorFlow Authors. All Rights Reserved.
+
 https://github.com/tensorflow/tensorflow/blob/master/LICENSE
 <br><br>
 
