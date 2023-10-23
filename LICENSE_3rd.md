@@ -74,6 +74,8 @@ https://github.com/androidx/androidx/blob/androidx-main/LICENSE.txt
 
 License : Apache 2.0
 
+Copyright 2016-2021 JetBrains s.r.o. All Rights Reserved. 
+
 https://github.com/Kotlin/kotlinx.coroutines/blob/master/LICENSE.txt
 <br><br>
 
