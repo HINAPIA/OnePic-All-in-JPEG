@@ -578,10 +578,7 @@ class CenterView (imageViewer : ImageViewer) : View(){
             timeline.setOnFinished {
                 finishedAnalysis()
             }
-
         }
-
-
     }
 
     fun prepareAudio(){// 오디오 준비시키기
