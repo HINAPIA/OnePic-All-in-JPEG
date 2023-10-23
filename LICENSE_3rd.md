@@ -27,7 +27,9 @@ https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt
 
 **Mlkit by googlesamples**
 
-License : Apache 2.0
+License : Apache 2.0 
+
+Copyright 2021 Google LLC Authors. All Rights Reserved.
 
 https://github.com/googlesamples/mlkit/blob/master/LICENSE
 <br><br>
@@ -37,6 +39,15 @@ https://github.com/googlesamples/mlkit/blob/master/LICENSE
 License : Apache 2.0
 
 https://github.com/android/camera-samples/blob/main/LICENSE
+<br><br>
+
+**android-Camera2Basic**
+
+License : Apache 2.0
+
+Copyright 2014 Google Archive LLC Authors. All Rights Reserved.
+
+https://github.com/googlearchive/android-Camera2Basic/blob/master/LICENSE
 <br><br>
 
 **Glide of bumptech**
