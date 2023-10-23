@@ -96,6 +96,8 @@ https://github.com/iamkun/dayjs/blob/dev/LICENSE
 
 License : Apache 2.0
 
+Copyright 2008 Jacob Seidelin Authors. All Rights Reserved.
+
 https://github.com/exif-js/exif-js/blob/master/LICENSE.md
 <br><br>
 
