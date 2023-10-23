@@ -63,6 +63,8 @@ https://github.com/bumptech/glide/blob/master/LICENSE
 
 License : Apache 2.0
 
+Copyright 2019 The Android Open Source Project Authors. All Rights Reserved. 
+
 https://github.com/androidx/androidx/blob/androidx-main/LICENSE.txt
 <br><br>
 
@@ -83,6 +85,8 @@ https://github.com/edvin/tornadofx/blob/master/LICENSE
 **metadata-extractor of drewnoakes**
 
 License : Apache 2.0
+
+Copyright 2002-2020 Drew Noakes and contributors. All Rights Reserved. 
 
 https://github.com/drewnoakes/metadata-extractor/blob/master/LICENSE
 <br><br>
