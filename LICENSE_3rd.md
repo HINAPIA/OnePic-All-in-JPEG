@@ -29,7 +29,7 @@ https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt
 
 License : Apache 2.0 
 
-Copyright 2021 Google LLC Authors. All Rights Reserved.
+Copyright 2021 Google LLC. All Rights Reserved.
 
 https://github.com/googlesamples/mlkit/blob/master/LICENSE
 <br><br>
@@ -38,6 +38,8 @@ https://github.com/googlesamples/mlkit/blob/master/LICENSE
 
 License : Apache 2.0
 
+Copyright 2020 The Android Open Source Project. All Rights Reserved.
+
 https://github.com/android/camera-samples/blob/main/LICENSE
 <br><br>
 
@@ -45,7 +47,7 @@ https://github.com/android/camera-samples/blob/main/LICENSE
 
 License : Apache 2.0
 
-Copyright 2014 Google Archive LLC Authors. All Rights Reserved.
+Copyright 2014 Google Archive LLC. All Rights Reserved.
 
 https://github.com/googlearchive/android-Camera2Basic/blob/master/LICENSE
 <br><br>
@@ -63,7 +65,7 @@ https://github.com/bumptech/glide/blob/master/LICENSE
 
 License : Apache 2.0
 
-Copyright 2019 The Android Open Source Project Authors. All Rights Reserved. 
+Copyright 2019 The Android Open Source Project. All Rights Reserved. 
 
 https://github.com/androidx/androidx/blob/androidx-main/LICENSE.txt
 <br><br>
