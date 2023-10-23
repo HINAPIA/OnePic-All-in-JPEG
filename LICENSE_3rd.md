@@ -24,6 +24,8 @@ https://github.com/tensorflow/tensorflow/blob/master/LICENSE
 
 License : MIT
 
+Copyright (c) Olli-Pekka Heinisuo. All Rights Reserved.
+
 https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt
 <br><br>
 
