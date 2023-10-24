@@ -11,7 +11,6 @@ class MyStyles : Stylesheet() {
     }
     init {
         // CSS 파일을 로드합니다.
-
         tabPane{
             backgroundColor += c(CustomColor.background)
 
