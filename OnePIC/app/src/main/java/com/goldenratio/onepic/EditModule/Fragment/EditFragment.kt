@@ -745,6 +745,11 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
 
                     // 3. meta data 변경
                     imageContent.jpegHeader = mainPicture._mataData!!
+                    
+                    CoroutineScope(Dispatchers.Default).launch {
+                        imageContent.resetBitmap()
+                        imageContent.setBitmapList()
+                    }
                 }
             }
             // 덮어쓰기
