@@ -634,7 +634,7 @@ class ImageContent {
 
     fun removePicture(picture: Picture) : Boolean{
         val index = pictureList.indexOf(picture)
-        if(index > 0) {
+        if(0 <= index && pictureList.size > index) {
             val result = pictureList.remove(picture)
             pictureCount -= 1
             if(bitmapList.size > index) {
