@@ -124,6 +124,11 @@ TornadoFX는 JDK 8 이후 버전부터 지원하지 않습니다. 반드시 JDK 
 <br/>
 <br/>
 
+### 4.Select Java version in IntelliJ
+실행이 되지 않을 경우 'Edit Configurations'을 선택하여 8이하의 자바 버전을 다음과 같이 선택합니다.
+entry point는 MyAPP 파일이여야 합니다. MyAPPkt 파일일 경우 실행되지 않으며 8이하의 자바 버전인지 확인하고, 안드로이드 환경변수가 잘 설정되어 있는지 확인하십시오.
+![그림2](https://github.com/ujkkk/BOJ/assets/88374384/aed1297f-450a-4d55-9abb-5ff812a714c9)
+
 # Chrome extension 실행 
 > 크롬 확장프로그램 실행은 `크롬 브라우저 환경` 에서만 가능합니다.
 
