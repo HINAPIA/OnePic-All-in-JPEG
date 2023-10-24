@@ -1352,7 +1352,6 @@ class EditFragment : Fragment(R.layout.fragment_edit), ConfirmDialogInterface {
             }
 
             if (jpegViewModel.getMainSubImageIndex() == pictureList.indexOf(picture)) {
-//                imageToolModule.showView(subLayout.findViewById(R.id.checkMainIcon), true)
                 jpegViewModel.mainSubImage = picture
 
                 CoroutineScope(Dispatchers.Main).launch {
