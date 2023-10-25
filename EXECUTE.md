@@ -129,12 +129,25 @@ TornadoFX는 JDK 8 이후 버전부터 지원하지 않습니다. 반드시 JDK 
 entry point는 MyAPP 파일이여야 합니다. MyAPPkt 파일일 경우 실행되지 않으며 8이하의 자바 버전인지 확인하고, 안드로이드 환경변수가 잘 설정되어 있는지 확인하십시오.
 ![그림2](https://github.com/ujkkk/BOJ/assets/88374384/aed1297f-450a-4d55-9abb-5ff812a714c9)
 
+<br/>
+<br/>
+<br/>
+
 # Chrome extension 실행 
 > 크롬 확장프로그램 실행은 `크롬 브라우저 환경` 에서만 가능합니다.
 
 <br/>
 
-### 1. 브라우저에서 확장 프로그램 관리 페이지 열기
+### 1. 패키지 install
+> workspace의 터미널에서 명령어 입력
+```
+npm install
+```
+<br/>
+<br/>
+<br/>
+
+### 2. 브라우저에서 확장 프로그램 관리 페이지 열기
 
 **크롬 브라우저에서 chrome://extensions** 를 입력하여 확장 관리 페이지를 엽니다.
 <img width="700" alt="chrome_extension" src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/9645bb3b-ee99-481d-aad4-8f0d14544a9d">
@@ -143,7 +156,7 @@ entry point는 MyAPP 파일이여야 합니다. MyAPPkt 파일일 경우 실행�
 <br/>
 <br/>
 
-### 2. 개발자 모드 활성화 및 `압축 해제된 확장 프로그램을 로드합니다` 메뉴 선택
+### 3. 개발자 모드 활성화 및 `압축 해제된 확장 프로그램을 로드합니다` 메뉴 선택
 
 <img width="700" alt="chrome_extension" src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/1d2f5e3e-53ce-4e60-9031-e6a56a326493">
 
@@ -151,7 +164,7 @@ entry point는 MyAPP 파일이여야 합니다. MyAPPkt 파일일 경우 실행�
 <br/>
 <br/>
 
-### 3. 파일 탐색기에서 다운로드 받은 프로젝트의 `Chrome_extension` 선택
+### 4. 파일 탐색기에서 다운로드 받은 프로젝트의 `Chrome_extension` 선택
 
 <img width="700" alt="chrome_extension" src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/6142997c-185b-4e5d-8b1b-928cb55c0731">
 
@@ -160,6 +173,7 @@ entry point는 MyAPP 파일이여야 합니다. MyAPPkt 파일일 경우 실행�
 <br/>
 <br/>
 
-### 4. 확장 프로그램 활성화
+### 5. 확장 프로그램 활성화
 
 <img width="700" alt="extension_step4" src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/a5763cdf-d59f-453d-a87b-6c81f2fb3314">
+
