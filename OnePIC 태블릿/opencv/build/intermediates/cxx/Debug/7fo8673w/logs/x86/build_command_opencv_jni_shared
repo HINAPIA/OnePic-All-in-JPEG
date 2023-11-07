@@ -1,4 +1,0 @@
-/Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/ninja \
-  -C \
-  /Users/yujin/Documents/GitHub/OnePIC/OnePIC/opencv/.cxx/Debug/7fo8673w/x86 \
-  opencv_jni_shared

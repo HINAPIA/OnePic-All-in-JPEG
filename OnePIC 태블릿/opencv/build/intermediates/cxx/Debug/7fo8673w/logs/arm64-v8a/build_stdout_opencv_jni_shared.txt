@@ -1,2 +1,0 @@
-ninja: Entering directory `/Users/hscomputerengineering/Documents/GitHub/OnePic-All-in-JPEG/OnePIC/opencv/.cxx/Debug/7fo8673w/arm64-v8a'
-ninja: no work to do.
