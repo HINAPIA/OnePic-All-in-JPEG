@@ -20,7 +20,7 @@
 <a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Google Playstore</a><br>
 
 ## Screenshot
-<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350"/></p>
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350" /></p>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/09365a10-67c5-4780-91be-ee1612dec8a3.png" width="700" height="400"/></p>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/01ffa5ce-5ff0-4a6a-89fc-015c4b66b3cd.png" width="700" height="400"/></p> 
 
@@ -55,7 +55,7 @@
 <br><br>
 
 ## :wrench: 시스템 아키텍처
-<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00" width="800" height="500"/><br>
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00" height="500"/><br>
 
 &nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다. 
 All-in JPEG 전용 웹 뷰어는 크롬 브라우저의 확장 프로그램으로, 크롬 브라우저 환경이라면 어디에서든 실행할 수 있으며, All-in JPEG 파일에 들어있는 여러 이미지, 오디오, 텍스트를 웹 브라우저에 출력한다.
@@ -105,7 +105,7 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 
 ## :pushpin: All-in JPEG 구조
 &nbsp;All-in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
-<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" width="750" height="600"/>
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" height="600"/>
 
 
 <br>
