@@ -105,7 +105,7 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 
 ## :pushpin: All-in JPEG 구조
 &nbsp;All-in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
-<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" height="600"/>
+<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" width="auto" height="600"/>
 
 
 <br>
