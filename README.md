@@ -20,14 +20,15 @@
 <a href="https://play.google.com/store/apps/details?id=com.goldenratio.onepic">Google Playstore</a><br>
 
 ## Screenshot
-<!-- <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350"/></p>
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/ebab0094-c5a1-4915-9f67-439ba1145bf2.png" width="580" height="350"/></p>
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/09365a10-67c5-4780-91be-ee1612dec8a3.png" width="700" height="400"/></p>
-<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/01ffa5ce-5ff0-4a6a-89fc-015c4b66b3cd.png" width="700" height="400"/></p>  -->
+<p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/01ffa5ce-5ff0-4a6a-89fc-015c4b66b3cd.png" width="700" height="400"/></p> 
 
+<!--
 ![Group 2062](https://github.com/HINAPIA/OnePIC/assets/109158497/228b07b2-c1cd-4654-8358-19fb88452a3b)<br>
 ![Group 2064](https://github.com/HINAPIA/OnePIC/assets/109158497/46d28351-2936-4bcc-b67c-e9c0b0e56c83)<br>
 ![Group 2063](https://github.com/HINAPIA/OnePIC/assets/109158497/2114d035-bcf6-44ca-a0e5-e7e98f3ff261)
-
+-->
 <br><br>
 
 ## :pencil2: 작품 소개
