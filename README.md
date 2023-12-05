@@ -26,9 +26,9 @@
 <p align="center"><img src="https://github.com/HINAPIA/OnePIC/assets/86238720/01ffa5ce-5ff0-4a6a-89fc-015c4b66b3cd.png" width="700" height="400"/></p> 
 -->
 
-![Group 2062](https://github.com/HINAPIA/OnePIC/assets/109158497/228b07b2-c1cd-4654-8358-19fb88452a3b)<br>
-![Group 2064](https://github.com/HINAPIA/OnePIC/assets/109158497/46d28351-2936-4bcc-b67c-e9c0b0e56c83)<br>
-![Group 2063](https://github.com/HINAPIA/OnePIC/assets/109158497/2114d035-bcf6-44ca-a0e5-e7e98f3ff261)
+![Screenshot1](https://github.com/HINAPIA/OnePIC/assets/109158497/228b07b2-c1cd-4654-8358-19fb88452a3b)<br>
+![Screenshot2](https://github.com/HINAPIA/OnePIC/assets/109158497/46d28351-2936-4bcc-b67c-e9c0b0e56c83)<br>
+![Screenshot3](https://github.com/HINAPIA/OnePIC/assets/109158497/2114d035-bcf6-44ca-a0e5-e7e98f3ff261)
 
 <br><br>
 
@@ -56,7 +56,8 @@
 <br><br>
 
 ## :wrench: 시스템 아키텍처
-<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00" height="500"/><br>
+<!-- p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00" height="500"/><br -->
+![Architecture](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/8ca107dd-dacc-491a-844f-93606626ff00)
 
 &nbsp;OnePIC 앱은 거리별, 객체별 다초점 촬영 및 베스트 사진 추천 등이 가능한 안드로이드 카메라 앱이며 카메라 모듈, All-in JPEG 모듈, 뷰어 모듈, 편집 모듈로 구성된다. 
 All-in JPEG 전용 웹 뷰어는 크롬 브라우저의 확장 프로그램으로, 크롬 브라우저 환경이라면 어디에서든 실행할 수 있으며, All-in JPEG 파일에 들어있는 여러 이미지, 오디오, 텍스트를 웹 브라우저에 출력한다.
@@ -106,7 +107,8 @@ All-in JPEG 전용 데스크탑 뷰어는 코틀린으로 작성하여 윈도우
 
 ## :pushpin: All-in JPEG 구조
 &nbsp;All-in JPEG은 기존의 JPEG 포맷을 확장하여 오디오와 텍스트는 물론 여러 이미지를 포함할 수 있는 새로운파일 포맷이다.
-<p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" width="auto" height="600"/>
+![Architecture](https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2)
+<!-- p align="center"><img src="https://github.com/HINAPIA/OnePic-All-in-JPEG/assets/86238720/d6a7b4f1-b9b4-4a47-97d3-b246626f9aa2" width="auto" height="600"/ -->
 
 
 <br>
