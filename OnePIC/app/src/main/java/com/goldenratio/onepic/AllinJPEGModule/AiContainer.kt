@@ -163,7 +163,7 @@ class AiContainer(_activity: Activity? = null) {
         val resultByteArray = withContext(Dispatchers.Default) {
             aiSaveResolver.AiContainerToBytes(isBurst)
         }
-        Log.d("성능 평가", "All-in JPEG 사진 : "+(resultByteArray.size).toString()+" kb")
+        Log.d("성능 평가", "All-in JPEG 전체 크기 : "+(resultByteArray.size).toString()+" kb")
          saveResolver.save(resultByteArray, null, isSaved)
     }
 

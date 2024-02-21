@@ -71,14 +71,13 @@ class AiLoadResolver() {
         while (APP3_startOffset < sourceByteArray.size - 1) {
             if (sourceByteArray[APP3_startOffset] == 0xFF.toByte() && sourceByteArray[APP3_startOffset + 1] == 0xE3.toByte()) {
                 val isAllinJpegFormat =  isAllinJpegFormat(sourceByteArray, APP3_startOffset)
-                //All in Format인지 확인 TODO("All-in 과 MC과 합쳐져 있음. 후에 MC 지워주기")
+                //All in Format인지 확인
                 if(isAllinJpegFormat)
                     return APP3_startOffset
                 else {
                     // APP3 마커가 있지만 All in Format이 아님
                     return -1
                 }
-                //break`
             }
             APP3_startOffset++
         }

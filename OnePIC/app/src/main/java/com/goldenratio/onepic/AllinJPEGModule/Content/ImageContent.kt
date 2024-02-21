@@ -94,7 +94,7 @@ class ImageContent {
                 checkMain = true
             }
         }
-        Log.d("성능 평가", "전체 byte : ${sum}")
+        Log.d("성능 평가", "가공 전 전체 byte : ${sum}")
         checkPictureList = true
         return@withContext true
     }
