@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Joystick">
+        <attr name="joystickBaseColor" format="color"/>
+        <attr name="joystickStickColor" format="color"/>
+        <attr name="joystickBaseRatio" format="fraction"/>
+        <attr name="joystickStickRatio" format="fraction"/>
+        <attr name="joystickUseSpring" format="boolean"/>
+    </declare-styleable>
+</resources>

@@ -1,0 +1,4 @@
+/Users/yujin/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  "/Users/yujin/Documents/GitHub/OnePic-All-in-JPEG/OnePIC for PE/opencv/.cxx/Debug/7fo8673w/arm64-v8a" \
+  opencv_jni_shared
