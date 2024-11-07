@@ -432,6 +432,39 @@ class Camera2Module(
     }
 
     /**
+     * TextureView의 변환 매트릭스를 구성하여 카메라 프리뷰의 회전 및 크기를 조정한다.
+     *
+     * @param viewWidth TextureView의 너비
+     * @param viewHeight TextureView의 높이
+     */
+    private fun configureTransform(viewWidth: Int, viewHeight: Int) {
+        activity ?: return
+        val rotation = activity.windowManager.defaultDisplay.rotation
+        val matrix = Matrix()
+        val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize.width.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+
+        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
+            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY())
+            val scale = max(
+                viewHeight.toFloat() / previewSize.height,
+                viewWidth.toFloat() / previewSize.width
+            )
+            with(matrix) {
+                setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
+                postScale(scale, scale, centerX, centerY)
+                postRotate((90 * (rotation - 2)).toFloat(), centerX, centerY)
+            }
+        } else if (Surface.ROTATION_180 == rotation) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+        textureView.setTransform(matrix)
+    }
+
+
+    /**
      * 카메라 권한을 확인한다.
      */
     private fun checkPermissions() {
@@ -599,6 +632,7 @@ class Camera2Module(
         return swappedDimensions
     }
 
+
     /**
      * 카메라 프리뷰의 최적 해상도를 선택한다.
      *
@@ -643,39 +677,6 @@ class Camera2Module(
             Log.e(TAG, "Couldn't find any suitable preview size")
             choices[0]
         }
-    }
-
-
-    /**
-     * TextureView의 변환 매트릭스를 구성하여 카메라 프리뷰의 회전 및 크기를 조정한다.
-     *
-     * @param viewWidth TextureView의 너비
-     * @param viewHeight TextureView의 높이
-     */
-    private fun configureTransform(viewWidth: Int, viewHeight: Int) {
-        activity ?: return
-        val rotation = activity.windowManager.defaultDisplay.rotation
-        val matrix = Matrix()
-        val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
-        val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize.width.toFloat())
-        val centerX = viewRect.centerX()
-        val centerY = viewRect.centerY()
-
-        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY())
-            val scale = max(
-                viewHeight.toFloat() / previewSize.height,
-                viewWidth.toFloat() / previewSize.width
-            )
-            with(matrix) {
-                setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
-                postScale(scale, scale, centerX, centerY)
-                postRotate((90 * (rotation - 2)).toFloat(), centerX, centerY)
-            }
-        } else if (Surface.ROTATION_180 == rotation) {
-            matrix.postRotate(180f, centerX, centerY)
-        }
-        textureView.setTransform(matrix)
     }
 
     /**
