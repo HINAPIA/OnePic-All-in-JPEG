@@ -13,10 +13,16 @@ class AiSaveResolver(_aiContainer : AiContainer) {
         aiContainer = _aiContainer
     }
 
-
+    /**
+     * TODO All-in JPEG 사진에서 한 장의 사진 추출 저장
+     *
+     * @param picture
+     * @return 한 장의 JPEG byteArray
+     */
     fun createSingleJpegByteArray(picture: Picture) : ByteArray{
+        var mainPicture = aiContainer.imageContent.getPictureAtIndex(0)
         val byteBuffer = ByteArrayOutputStream()
-        byteBuffer.write(picture._mataData, 0, picture._mataData!!.size)
+        byteBuffer.write(mainPicture!!._mataData, 0, mainPicture._mataData!!.size)
         byteBuffer.write(picture._pictureByteArray)
         byteBuffer.write(0xff)
         byteBuffer.write(0xd9)
@@ -48,7 +54,7 @@ class AiSaveResolver(_aiContainer : AiContainer) {
     }
 
     /**
-     * TODO 표준 Jpeg 형식의 byteArray를 생성하여 리턴
+     * TODO 일반 사진 촬영 떄 Jpeg 형식의 byteArray를 생성하여 리턴
      *
      * @return 표준 JPEG 형식의 byteArray [Header + Frame]
      */
@@ -58,8 +64,6 @@ class AiSaveResolver(_aiContainer : AiContainer) {
 
         // Header 부분 write
         byteBuffer.write(picture!!._mataData, 0, picture!!._mataData!!.size)
-//        val jpegHeader = aiContainer.imageContent.jpegHeader
-//        byteBuffer.write(jpegHeader, 0, jpegHeader.size)
 
         // Frame 부분 write
         byteBuffer.write(picture!!._pictureByteArray)
@@ -128,7 +132,7 @@ class AiSaveResolver(_aiContainer : AiContainer) {
         // Imgaes Data write
         for (i in 0..aiContainer.imageContent.pictureCount - 1) {
             var picture = aiContainer.imageContent.getPictureAtIndex(i)
-            //byteBuffer.write(/* b = */ picture!!._pictureByteArray)
+            // 대표 이미지
             if (i == 0) {
                 byteBuffer.write(/* b = */ picture!!._pictureByteArray)
                 //EOI 작성
@@ -139,7 +143,6 @@ class AiSaveResolver(_aiContainer : AiContainer) {
                 // XOI 마커
                 byteBuffer.write(0xff)
                 byteBuffer.write(0x10)
-                byteBuffer.write(/* b = */ picture!!._mataData)
                 byteBuffer.write(/* b = */ picture!!._pictureByteArray)
             }
         }

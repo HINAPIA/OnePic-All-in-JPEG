@@ -76,22 +76,27 @@ class ImageContent {
             val singleJpegBytes = byteArrayList.get(i)
             sum += singleJpegBytes.size
 
-            // 메타 데이터 분리
-            val frameStartPos = getFrameStartPos(singleJpegBytes)
-            val metaData = singleJpegBytes.copyOfRange(0, frameStartPos)
-
             // frame 분리
             var frameBytes = async {
                 extractFrame(byteArrayList.get(i))
             }
-             // Picture 객체 생성
-            var picture = Picture(contentAttribute, metaData, frameBytes.await())
-            picture.waitForByteArrayInitialized()
-            insertPicture(picture)
 
             if(i == 0){
+                // 메타 데이터 분리
+                val frameStartPos = getFrameStartPos(singleJpegBytes)
+                val metaData = singleJpegBytes.copyOfRange(0, frameStartPos)
+                // Picture 객체 생성
+                var picture = Picture(contentAttribute, metaData, frameBytes.await())
+                picture.waitForByteArrayInitialized()
+                insertPicture(picture)
+
                 mainPicture = picture
                 checkMain = true
+            }
+            else{
+                var picture = Picture(contentAttribute,null, frameBytes.await())
+                picture.waitForByteArrayInitialized()
+                insertPicture(picture)
             }
         }
         Log.d("성능 평가", "가공 전 전체 byte : ${sum}")
@@ -109,6 +114,7 @@ class ImageContent {
         pictureList = _pictureList
         pictureCount = _pictureList.size
         mainPicture = pictureList.get(0)
+        jpegHeader = pictureList.get(0)._mataData!!
         checkPictureList = true
         checkMain = true
     }
@@ -178,8 +184,8 @@ class ImageContent {
         Log.d("AiJPEG", "getJpegBytes : 호출")
         while(!checkPictureList) { }
         // main 사진은 수정된 사진이 아니므로 MetaData를 수정하지 않는다
-        var buffer = ByteBuffer.allocate(picture._mataData!!.size + picture.imageSize+2)
-        buffer.put(picture._mataData)
+        var buffer = ByteBuffer.allocate(jpegHeader.size + picture.imageSize+2)
+        buffer.put(jpegHeader)
         buffer.put(picture._pictureByteArray)
         buffer.put("ff".toInt(16).toByte())
         buffer.put("d9".toInt(16).toByte())
