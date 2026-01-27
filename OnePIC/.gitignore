@@ -1,18 +1,11 @@
 *.iml
 .gradle
+**/.idea/**
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
-.cxx
-local.properties
 
 # Created by https://www.toptal.com/developers/gitignore/api/opencv
 # Edit at https://www.toptal.com/developers/gitignore?templates=opencv
@@ -24,6 +17,8 @@ local.properties
 */CMakeCache.txt
 */Makefile
 */cmake_install.cmake
+.cxx
 
 # End of https://www.toptal.com/developers/gitignore/api/opencv
 **/opencv/build/**
+
