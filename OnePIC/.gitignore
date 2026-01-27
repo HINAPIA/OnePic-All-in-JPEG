@@ -14,11 +14,6 @@
 .cxx
 local.properties
 
-OnePIC/opencv/build/outputs/logs/*
-
-OnePIC/opencv/build/intermediates/cxx/*
-OnePIC/opencv/build/intermediates/build/*
-
 # Created by https://www.toptal.com/developers/gitignore/api/opencv
 # Edit at https://www.toptal.com/developers/gitignore?templates=opencv
 
@@ -29,8 +24,6 @@ OnePIC/opencv/build/intermediates/build/*
 */CMakeCache.txt
 */Makefile
 */cmake_install.cmake
-*/opencv/build/*
 
 # End of https://www.toptal.com/developers/gitignore/api/opencv
-/opencv/build/
-/opencv/build/
+**/opencv/build/**
