@@ -1,3 +1,0 @@
-# C/C++ build system timings
-create_cxx_tasks 10ms
-
